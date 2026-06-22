@@ -488,16 +488,133 @@
 
 <script>
 /* =================== DATOS =================== */
-// SVG denotativos sencillos por aviso (recortes geométricos cubistas)
+// Recreaciones SVG inline (autosuficientes) de cada aviso del banco de imágenes.
+// No son fotografías: son ilustraciones vectoriales reconocibles de cada pieza.
 function svgFor(id){
   const A={
-    audiopro:`<svg viewBox='0 0 200 120' xmlns='http://www.w3.org/2000/svg'><rect width='200' height='120' fill='#f4f4f2'/><rect x='55' y='35' width='90' height='55' fill='#fff' stroke='#545452' stroke-width='3'/><circle cx='78' cy='62' r='10' fill='#1c1c1b'/><circle cx='100' cy='62' r='16' fill='#1c1c1b'/><circle cx='122' cy='62' r='10' fill='#1c1c1b'/><rect x='88' y='30' width='24' height='6' rx='3' fill='#555553'/><rect x='70' y='96' width='60' height='6' fill='#f3a100'/></svg>`,
-    tagheuer:`<svg viewBox='0 0 200 120' xmlns='http://www.w3.org/2000/svg'><rect width='200' height='120' fill='#1c1c1b'/><circle cx='100' cy='58' r='30' fill='none' stroke='#fff' stroke-width='4'/><circle cx='100' cy='58' r='22' fill='#0072b9'/><rect x='96' y='40' width='8' height='36' fill='#fff' opacity='.7'/><rect x='40' y='100' width='120' height='6' fill='#f3a100'/></svg>`,
-    hudsons:`<svg viewBox='0 0 200 120' xmlns='http://www.w3.org/2000/svg'><rect width='200' height='120' fill='#fff'/><g><rect x='66' y='25' width='26' height='60' rx='12' fill='#c0392b'/><rect x='108' y='25' width='26' height='60' rx='12' fill='#c0392b'/><rect x='66' y='30' width='26' height='6' fill='#fff'/><rect x='66' y='44' width='26' height='6' fill='#fff'/><rect x='108' y='30' width='26' height='6' fill='#fff'/><rect x='108' y='44' width='26' height='6' fill='#fff'/></g><text x='100' y='108' text-anchor='middle' font-size='12' font-weight='800' fill='#c0392b'>$15</text></svg>`,
-    mionetto:`<svg viewBox='0 0 200 120' xmlns='http://www.w3.org/2000/svg'><rect width='200' height='120' fill='#101820'/><rect x='88' y='20' width='24' height='80' rx='4' fill='#1f6f5c'/><rect x='92' y='8' width='16' height='16' fill='#1f6f5c'/><rect x='90' y='45' width='20' height='30' fill='#f3a100'/><rect x='40' y='104' width='120' height='5' fill='#f3a100'/></svg>`,
-    roccoforte:`<svg viewBox='0 0 200 120' xmlns='http://www.w3.org/2000/svg'><rect width='200' height='120' fill='#1d2b3a'/><rect x='30' y='70' width='140' height='8' fill='#9c7a4f'/><circle cx='60' cy='55' r='8' fill='#cdbf9e'/><circle cx='90' cy='52' r='8' fill='#cdbf9e'/><circle cx='120' cy='52' r='8' fill='#cdbf9e'/><circle cx='150' cy='55' r='8' fill='#cdbf9e'/><text x='100' y='30' text-anchor='middle' font-size='16' font-style='italic' fill='#fff'>Our Forte</text></svg>`,
-    cyberpower:`<svg viewBox='0 0 200 120' xmlns='http://www.w3.org/2000/svg'><rect width='200' height='120' fill='#0a0a0a'/><rect x='70' y='25' width='60' height='70' fill='#1c1c1b' stroke='#0072b9' stroke-width='3'/><rect x='78' y='35' width='44' height='50' fill='#111'/><rect x='84' y='42' width='32' height='6' fill='#0072b9'/><rect x='84' y='54' width='32' height='6' fill='#f3a100'/><path d='M20 95 q30 -20 70 -8' stroke='#f3a100' stroke-width='10' fill='none' stroke-linecap='round'/></svg>`,
-    jones:`<svg viewBox='0 0 200 120' xmlns='http://www.w3.org/2000/svg'><rect width='200' height='120' fill='#5b5650'/><rect y='78' width='200' height='42' fill='#000'/><text x='100' y='42' text-anchor='middle' font-size='22' letter-spacing='6' fill='#fff'>bugatti</text><text x='100' y='104' text-anchor='middle' font-size='16' font-weight='800' fill='#fff'>JONES</text></svg>`
+    // 1 — Audio Pro Addon C10: estantería de madera, altavoz blanco, asa de cuero, premios What Hi-Fi
+    audiopro:`<svg viewBox='0 0 200 150' xmlns='http://www.w3.org/2000/svg'>
+      <rect width='200' height='150' fill='#1c1c1b'/>
+      <rect width='200' height='42' fill='#5b4636'/><rect width='200' height='42' fill='#6b5440' opacity='.5'/>
+      <line x1='0' y1='21' x2='200' y2='21' stroke='#3d2f24' stroke-width='1'/>
+      <text x='12' y='16' font-size='9' font-weight='800' fill='#fff'>Sonido premiado.</text>
+      <rect x='55' y='66' width='90' height='58' rx='3' fill='#fafafa' stroke='#dcdcda' stroke-width='1.5'/>
+      <rect x='86' y='58' width='28' height='9' rx='4' fill='#3a2c20'/>
+      <circle cx='78' cy='95' r='9' fill='#222'/><circle cx='78' cy='95' r='9' fill='none' stroke='#444' stroke-width='2'/>
+      <circle cx='100' cy='95' r='15' fill='#1b1b1b'/><circle cx='100' cy='95' r='7' fill='#333'/>
+      <circle cx='122' cy='95' r='9' fill='#222'/><circle cx='122' cy='95' r='9' fill='none' stroke='#444' stroke-width='2'/>
+      <rect x='10' y='100' width='30' height='22' fill='#fff' stroke='#c0392b' stroke-width='1.5'/>
+      <text x='25' y='110' text-anchor='middle' font-size='5' font-weight='800' fill='#c0392b'>WHAT</text>
+      <text x='25' y='117' text-anchor='middle' font-size='5' font-weight='800' fill='#c0392b'>HI-FI?</text>
+      <text x='25' y='121' text-anchor='middle' font-size='3' fill='#555'>★★★★★</text>
+      <text x='160' y='140' text-anchor='middle' font-size='7' font-weight='800' fill='#fff'>audio pro</text>
+    </svg>`,
+    // 2 — TAG Heuer Aquaracer: cielo azul, figura (Hemsworth), reloj, hashtag, logo
+    tagheuer:`<svg viewBox='0 0 200 150' xmlns='http://www.w3.org/2000/svg'>
+      <defs><linearGradient id='sky' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='#9cb4c8'/><stop offset='1' stop-color='#1d3144'/></linearGradient></defs>
+      <rect width='200' height='150' fill='url(#sky)'/>
+      <ellipse cx='52' cy='150' rx='40' ry='60' fill='#2a3a48'/>
+      <path d='M40 70 q12 -18 24 0 l4 60 -32 0 z' fill='#3f5160'/>
+      <path d='M46 56 a8 8 0 0 1 16 0 a8 8 0 0 1 -16 0' fill='#caa98c'/>
+      <rect x='40' y='42' width='24' height='6' fill='#5a4632'/>
+      <rect x='150' y='12' width='44' height='14' fill='#fff'/><rect x='150' y='12' width='14' height='14' fill='#0a7a3c'/>
+      <text x='157' y='22' font-size='6' font-weight='800' fill='#c0392b'>TAG</text>
+      <text x='168' y='22' font-size='7' font-weight='800' fill='#1c1c1b'>Heuer</text>
+      <circle cx='150' cy='80' r='26' fill='#0d0d0d' stroke='#cfd3d6' stroke-width='5'/>
+      <circle cx='150' cy='80' r='17' fill='#161616'/>
+      <line x1='150' y1='80' x2='150' y2='66' stroke='#fff' stroke-width='2'/>
+      <line x1='150' y1='80' x2='162' y2='84' stroke='#fff' stroke-width='2'/>
+      <rect x='144' y='48' width='12' height='8' fill='#bfc4c8'/><rect x='144' y='104' width='12' height='8' fill='#bfc4c8'/>
+      <text x='10' y='118' font-size='8' font-weight='800' fill='#fff'>#NoCedasAnte</text>
+      <text x='10' y='128' font-size='8' font-weight='800' fill='#fff'>LaPresion</text>
+    </svg>`,
+    // 3 — Hudson's Bay Manoplas Rojas: fondo blanco, par de manoplas a rayas con hoja de arce, $15
+    hudsons:`<svg viewBox='0 0 200 150' xmlns='http://www.w3.org/2000/svg'>
+      <rect width='200' height='150' fill='#f4f4f6'/>
+      <text x='100' y='18' text-anchor='middle' font-size='11' font-weight='800' letter-spacing='1' fill='#1c1c1b'>HUDSON'S BAY</text>
+      <text x='40' y='38' font-size='8' font-weight='800' fill='#8c1d2c'>APOYA A NUESTROS ATLETAS</text>
+      <g>
+        <path d='M62 60 q-12 0 -12 16 l0 44 q0 6 6 6 l22 0 q6 0 6 -6 l0 -44 q0 -16 -12 -16 q-4 -8 -10 0' fill='#c0392b'/>
+        <path d='M62 58 q-6 -10 14 -6' fill='none' stroke='#c0392b' stroke-width='6' stroke-linecap='round'/>
+        <g stroke='#fff' stroke-width='3'><line x1='50' y1='70' x2='84' y2='70'/><line x1='49' y1='80' x2='85' y2='80'/><line x1='49' y1='90' x2='85' y2='90'/><line x1='49' y1='112' x2='85' y2='112'/></g>
+        <path d='M67 84 l4 -8 4 8 8 0 -6 6 2 8 -8 -5 -8 5 2 -8 -6 -6z' fill='#8c1d2c'/>
+        <rect x='49' y='118' width='36' height='14' fill='#4a4a4a'/>
+      </g>
+      <g transform='translate(38,0)'>
+        <path d='M122 60 q-12 0 -12 16 l0 44 q0 6 6 6 l22 0 q6 0 6 -6 l0 -44 q0 -16 -12 -16 q4 -8 10 0' fill='#c0392b'/>
+        <g stroke='#fff' stroke-width='3'><line x1='110' y1='70' x2='144' y2='70'/><line x1='109' y1='80' x2='145' y2='80'/><line x1='109' y1='90' x2='145' y2='90'/><line x1='109' y1='112' x2='145' y2='112'/></g>
+        <path d='M124 84 l4 -8 4 8 8 0 -6 6 2 8 -8 -5 -8 5 2 -8 -6 -6z' fill='#8c1d2c'/>
+        <rect x='109' y='118' width='36' height='14' fill='#4a4a4a'/>
+      </g>
+      <text x='168' y='44' text-anchor='middle' font-size='16' font-weight='800' fill='#8c1d2c'>$15</text>
+      <circle cx='100' cy='142' r='6' fill='none' stroke='#c0392b' stroke-width='1.2'/>
+    </svg>`,
+    // 4 — Mionetto Prosecco: fondo negro, diagonal naranja, botella con cuello dorado/naranja
+    mionetto:`<svg viewBox='0 0 200 150' xmlns='http://www.w3.org/2000/svg'>
+      <rect width='200' height='150' fill='#0b0b0b'/>
+      <path d='M90 150 L200 150 L200 70 Z' fill='#e8701a'/>
+      <rect x='92' y='30' width='22' height='92' rx='5' fill='#15331f'/>
+      <rect x='92' y='30' width='22' height='40' fill='#0f2417'/>
+      <rect x='95' y='14' width='16' height='18' fill='#e8701a'/>
+      <path d='M95 14 q8 -6 16 0 l0 4 -16 0z' fill='#f0913f'/>
+      <rect x='90' y='40' width='26' height='16' fill='#e8701a' transform='rotate(-8 103 48)'/>
+      <text x='103' y='51' text-anchor='middle' font-size='5' font-weight='800' fill='#1c1c1b' transform='rotate(-8 103 48)'>MIONETTO</text>
+      <rect x='88' y='92' width='30' height='20' fill='#e8701a' transform='rotate(-8 103 102)'/>
+      <text x='103' y='101' text-anchor='middle' font-size='5' font-weight='800' fill='#1c1c1b' transform='rotate(-8 103 102)'>MIONETTO</text>
+      <text x='103' y='108' text-anchor='middle' font-size='4' fill='#1c1c1b' transform='rotate(-8 103 102)'>PROSECCO</text>
+      <text x='14' y='52' font-size='9' font-style='italic' fill='#fff'>Mionetto.</text>
+      <text x='14' y='66' font-size='8' font-style='italic' fill='#fff'>Más que solo</text>
+      <text x='14' y='78' font-size='8' font-style='italic' fill='#fff'>un Prosecco.</text>
+    </svg>`,
+    // 5 — Rocco Forte Hotels: jardín, mesa rústica de campo, familia almorzando, "Our Forte"
+    roccoforte:`<svg viewBox='0 0 200 150' xmlns='http://www.w3.org/2000/svg'>
+      <rect width='200' height='150' fill='#7c8a5c'/>
+      <rect width='200' height='60' fill='#9aa46e'/>
+      <rect width='200' height='30' fill='#b7bd84'/>
+      <text x='100' y='26' text-anchor='middle' font-size='14' font-style='italic' font-weight='700' fill='#fff'>Nuestro Fuerte</text>
+      <ellipse cx='100' cy='150' rx='120' ry='40' fill='#6b5a3e'/>
+      <rect x='30' y='92' width='140' height='14' rx='2' fill='#a98c5f'/>
+      <rect x='40' y='106' width='12' height='30' fill='#8a7049'/><rect x='148' y='106' width='12' height='30' fill='#8a7049'/>
+      <g fill='#caa98c'><circle cx='44' cy='74' r='7'/><circle cx='74' cy='70' r='7'/><circle cx='128' cy='70' r='7'/><circle cx='158' cy='74' r='7'/></g>
+      <g><rect x='38' y='81' width='12' height='14' fill='#6b7fae'/><rect x='68' y='77' width='12' height='16' fill='#c7d2e0'/><rect x='122' y='77' width='12' height='16' fill='#3e7d4f'/><rect x='152' y='81' width='12' height='14' fill='#b8323e'/></g>
+      <circle cx='100' cy='88' r='8' fill='#e08aa0'/><circle cx='96' cy='85' r='4' fill='#f0a8bd'/><circle cx='104' cy='86' r='4' fill='#f0a8bd'/>
+      <text x='100' y='146' text-anchor='middle' font-size='8' font-weight='800' letter-spacing='1' fill='#fff'>ROCCO FORTE</text>
+    </svg>`,
+    // 6 — CyberPowerPC: fondo claro, pincelada "¡VAMOS!", torre gaming RGB + laptop, Intel i7
+    cyberpower:`<svg viewBox='0 0 200 150' xmlns='http://www.w3.org/2000/svg'>
+      <defs><linearGradient id='cp' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#e9e6e6'/><stop offset='1' stop-color='#b9b4ba'/></linearGradient></defs>
+      <rect width='200' height='150' fill='url(#cp)'/>
+      <path d='M28 26 q40 -16 96 -6 q26 6 44 0 q-18 12 -44 10 q-50 -2 -96 8 q-6 -8 0 -12z' fill='#1c1c1b'/>
+      <text x='86' y='26' text-anchor='middle' font-size='17' font-weight='900' fill='#e8701a' font-style='italic'>¡VAMOS!</text>
+      <rect x='128' y='52' width='46' height='80' rx='3' fill='#2a2a2e'/>
+      <rect x='134' y='58' width='34' height='68' rx='2' fill='#111'/>
+      <circle cx='151' cy='78' r='13' fill='none' stroke='#c850d0' stroke-width='4'/>
+      <circle cx='151' cy='106' r='13' fill='none' stroke='#9b59d0' stroke-width='4'/>
+      <rect x='86' y='72' width='40' height='56' rx='2' fill='#1a1a1a' stroke='#444' stroke-width='1'/>
+      <rect x='90' y='76' width='32' height='34' fill='#0a1a2a'/>
+      <path d='M100 80 l8 12 -8 12 -8 -12z' fill='none' stroke='#3aa0e0' stroke-width='2'/>
+      <rect x='84' y='128' width='44' height='6' fill='#222'/>
+      <g><rect x='88' y='122' width='6' height='4' fill='#e84a4a'/><rect x='96' y='122' width='6' height='4' fill='#e8a14a'/><rect x='104' y='122' width='6' height='4' fill='#4ae86a'/><rect x='112' y='122' width='6' height='4' fill='#4a8ae8'/></g>
+      <path d='M20 138 h16 l4 -6 4 6 h6' fill='none' stroke='#c0392b' stroke-width='2'/>
+      <text x='52' y='141' font-size='7' font-weight='800' fill='#1c1c1b'>CYBERPOWERPC</text>
+      <rect x='168' y='134' width='26' height='12' fill='#0a6ec0'/>
+      <text x='181' y='143' text-anchor='middle' font-size='6' font-weight='800' fill='#fff'>i7</text>
+    </svg>`,
+    // 7 — Jones Bootmaker / Bugatti: calle, pierna con bota apoyada, "bugatti" arriba, bloque JONES
+    jones:`<svg viewBox='0 0 200 150' xmlns='http://www.w3.org/2000/svg'>
+      <rect width='200' height='150' fill='#8a8079'/>
+      <rect width='200' height='70' fill='#6f6760'/>
+      <rect x='0' y='62' width='200' height='30' fill='#9a5638'/>
+      <g stroke='#9a9088' stroke-width='1'><line x1='110' y1='92' x2='130' y2='150'/><line x1='150' y1='92' x2='185' y2='150'/><line x1='90' y1='100' x2='60' y2='150'/></g>
+      <path d='M96 40 q-8 30 -14 50 l24 4 q8 -28 12 -52z' fill='#2f3742'/>
+      <path d='M70 92 q-4 14 -2 22 l34 2 4 -20z' fill='#33414d'/>
+      <path d='M44 100 q-10 4 -10 14 l0 6 38 0 q4 -10 -2 -18z' fill='#1c1c1b'/>
+      <path d='M44 118 l-10 2 0 4 40 0 0 -6z' fill='#cfcac4'/>
+      <path d='M70 104 q26 0 40 8 l0 10 -44 0z' fill='#23282e'/>
+      <path d='M66 124 l48 0 0 5 -48 0z' fill='#3a3a3a'/>
+      <text x='100' y='24' text-anchor='middle' font-size='20' letter-spacing='7' fill='#fff'>bugatti</text>
+      <text x='100' y='148' text-anchor='middle' font-size='6' fill='#9a9088'>STORES NATIONWIDE</text>
+    </svg>`
   };
   return A[id]||'';
 }
