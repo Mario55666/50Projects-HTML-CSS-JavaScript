@@ -382,6 +382,34 @@
   .flash-btn{flex:1;padding:13px;border:none;font-size:.95rem;font-weight:800;color:#fff;cursor:pointer;font-family:inherit}
   .flash-btn.review{background:var(--warn)}.flash-btn.know{background:var(--ok)}
 
+  /* ---------- Cuadro de diálogo (estado / confirmación) ---------- */
+  .dlg-overlay{position:fixed;inset:0;background:rgba(28,28,27,.6);z-index:170;display:none;
+    align-items:center;justify-content:center;padding:20px}
+  .dlg-overlay.open{display:flex}
+  .dlg{background:#fff;max-width:460px;width:100%;box-shadow:14px 14px 0 rgba(0,0,0,.3);border-top:10px solid var(--idc-amarillo);animation:fbIn .25s var(--ease)}
+  .dlg-head{background:var(--idc-azul);color:#fff;padding:13px 18px;display:flex;justify-content:space-between;align-items:center}
+  .dlg-head h3{color:#fff;font-size:1.05rem}
+  .dlg-head button{background:none;border:none;color:#fff;font-size:1.5rem;cursor:pointer;line-height:1}
+  .dlg-body{padding:18px 20px}
+  .dlg-foot{padding:0 20px 20px;display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+  .dlg-foot .btn{padding:.6rem 1.2rem;font-size:.86rem}
+  .check-list{list-style:none;margin:0;padding:0}
+  .check-list li{display:flex;align-items:flex-start;gap:.55rem;padding:.45rem 0;border-bottom:1px dashed var(--line);font-size:.92rem}
+  .check-list li .ic{flex:none;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.8rem}
+  .check-list li.ok .ic{background:var(--ok);color:#fff}
+  .check-list li.pend .ic{background:#fff;border:2px solid var(--idc-amarillo);color:var(--idc-amarillo)}
+  .check-list li.ok span{color:var(--idc-gris2)}
+  .check-list li.pend span b{color:var(--idc-amarillo)}
+  .dlg-overall{margin-top:14px;font-size:.86rem;font-weight:700;color:var(--idc-azul)}
+
+  /* Botón de pista en juegos */
+  .hint-btn{background:#fff;border:2px solid var(--idc-amarillo);color:#b06a00;font-weight:700;font-size:.82rem;
+    padding:.4rem .8rem;cursor:pointer;font-family:inherit;margin-top:12px}
+  .hint-btn:hover{background:var(--idc-amarillo);color:#fff}
+  .hint-box{margin-top:10px;background:#fff8ec;border-left:5px solid var(--idc-amarillo);padding:10px 12px;
+    font-size:.86rem;color:#7a4f00;display:none;animation:fbIn .3s var(--ease)}
+  .hint-box.show{display:block}
+
   /* Quiz de identificación (preguntas cerradas) */
   .quiz-bar{display:flex;justify-content:space-between;background:#fff;border:2px solid var(--line);
     padding:10px 16px;font-weight:700;font-size:.84rem;margin-bottom:16px}
@@ -498,6 +526,7 @@
     </div>
     <div class="topbar-actions">
       <div class="who"><b id="who-nombre">—</b><span id="who-seccion">—</span></div>
+      <button class="icon-btn" id="btnEstado" title="Estado del procedimiento (qué falta / qué está listo)">📋 Estado</button>
       <button class="icon-btn" id="btnGames" title="Juegos de refuerzo de términos teóricos">🎮 Refuerzo</button>
       <button class="icon-btn" id="btnReset" title="Sortear de nuevo / reiniciar">↺ Reiniciar</button>
     </div>
@@ -733,6 +762,8 @@
           <div class="quiz-q" id="quizQ"></div>
           <div class="quiz-opts" id="quizOpts"></div>
         </div>
+        <button type="button" class="hint-btn" id="quizHint">💡 Necesito una pista</button>
+        <div class="hint-box" id="quizHintBox"></div>
         <div class="fb" id="quizFb" role="status" aria-live="polite"></div>
         <div class="quiz-next" id="quizNext" style="display:none"><button class="btn" id="quizNextBtn">Siguiente →</button></div>
       </div>
@@ -744,6 +775,8 @@
           <p class="sim-text" id="simText"></p>
           <div class="sim-opts" id="simOpts"></div>
         </div>
+        <button type="button" class="hint-btn" id="simHint">💡 Necesito una pista</button>
+        <div class="hint-box" id="simHintBox"></div>
         <div class="fb" id="simFb" role="status" aria-live="polite"></div>
         <div class="sim-path" id="simPath"></div>
       </div>
@@ -769,6 +802,15 @@
       </div>
 
     </div>
+  </div>
+</div>
+
+<!-- Cuadro de diálogo de estado / confirmación -->
+<div class="dlg-overlay" id="dlgOverlay" aria-hidden="true">
+  <div class="dlg" role="dialog" aria-modal="true" aria-labelledby="dlgTitle">
+    <div class="dlg-head"><h3 id="dlgTitle">Estado</h3><button id="dlgClose" aria-label="Cerrar">×</button></div>
+    <div class="dlg-body" id="dlgBody"></div>
+    <div class="dlg-foot" id="dlgFoot"></div>
   </div>
 </div>
 
@@ -1256,28 +1298,37 @@ function validateCurrent(next){
 }
 
 /* ---- Botón final de cada pieza: guarda y avanza, o compila el dictamen ---- */
-$('#btnFinPieza').addEventListener('click',()=>{
-  if(!estado.quizDone[estado.idx]){
-    toast('Refuerzo obligatorio: aprueba el Quiz de figuras (mín. 4/5) para finalizar esta pieza.');
-    openGames('paneQuiz');
-    return;
-  }
-  const okAll=checkText('#campo1','#w1',true)&&!!estado.figura&&checkText('#campo3','#w3',true)&&checkText('#campo4','#w4');
-  if(!estado.figura)$('#w2').classList.add('show');
-  if(!okAll){toast('Completa los 4 campos (mín. 80 caracteres) y la figura de esta pieza.');return;}
-  // guarda el análisis de la pieza actual
+function guardarPieza(){
   estado.analyses[estado.idx]={
     aviso:estado.aviso,figura:estado.figura,
     campo1:estado.campo1.trim(),campo3:estado.campo3.trim(),campo4:estado.campo4.trim()
   };
+}
+$('#btnFinPieza').addEventListener('click',()=>{
+  // marca avisos de los campos de texto (sin foco abrupto)
+  checkText('#campo1','#w1',true);checkText('#campo3','#w3',true);checkText('#campo4','#w4',true);
+  if(!estado.figura)$('#w2').classList.add('show');
+  const items=pieceChecklist();
+  const pend=items.filter(i=>!i.ok);
+  if(pend.length){
+    // CUADRO DE DIÁLOGO: procedimiento incompleto
+    const acciones=[{label:'Seguir completando',cls:'azul'}];
+    if(!estado.quizDone[estado.idx]) acciones.unshift({label:'🎮 Ir al Quiz',onClick:()=>openGames('paneQuiz')});
+    openDialog('Procedimiento incompleto — Pieza '+(estado.idx+1),
+      `<p>Para finalizar esta pieza aún falta:</p>${checklistHtml(items)}`,acciones);
+    return;
+  }
+  // procedimiento completo
+  guardarPieza();
   if(estado.idx<N_PIEZAS-1){
-    const n=estado.idx+2;
-    toast(`Pieza ${estado.idx+1} guardada. Ahora la pieza ${n} de ${N_PIEZAS}.`);
-    loadPiece(estado.idx+1);
+    openDialog('✓ Pieza '+(estado.idx+1)+' terminada',
+      `<p>Procedimiento de la pieza ${estado.idx+1} <b>completo</b>. ¿Continuar con la pieza ${estado.idx+2} de ${N_PIEZAS}?</p>`,
+      [{label:'Continuar →',cls:'azul',onClick:()=>loadPiece(estado.idx+1)},{label:'Quedarme aquí'}]);
   }else{
     updateDictamen();
-    toast('¡Las 4 piezas analizadas! Revisa el Dictamen.');
-    scrollToId('fase-dictamen');
+    openDialog('✓ Análisis completo',
+      `<p>¡Las <b>${N_PIEZAS} piezas</b> están terminadas! Tu Dictamen quedó listo para revisar y exportar (PDF o CSV).</p>`,
+      [{label:'Ver Dictamen',cls:'azul',onClick:()=>scrollToId('fase-dictamen')}]);
   }
 });
 function checkText(sel,warnSel,silent){
@@ -1428,6 +1479,51 @@ $('#lbClose').addEventListener('click',closeLightbox);
 $('#lightbox').addEventListener('click',e=>{if(e.target===$('#lightbox'))closeLightbox();});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeLightbox();});
 
+/* =================== CUADROS DE DIÁLOGO (estado / confirmación) =================== */
+function openDialog(title,bodyHtml,actions){
+  $('#dlgTitle').textContent=title;
+  $('#dlgBody').innerHTML=bodyHtml;
+  const foot=$('#dlgFoot');foot.innerHTML='';
+  (actions||[{label:'Entendido',cls:'azul'}]).forEach(a=>{
+    const b=document.createElement('button');b.className='btn'+(a.cls?(' '+a.cls):'');b.textContent=a.label;
+    b.onclick=()=>{closeDialog();if(a.onClick)a.onClick();};
+    foot.appendChild(b);
+  });
+  $('#dlgOverlay').classList.add('open');$('#dlgOverlay').setAttribute('aria-hidden','false');
+}
+function closeDialog(){$('#dlgOverlay').classList.remove('open');$('#dlgOverlay').setAttribute('aria-hidden','true');}
+$('#dlgClose').addEventListener('click',closeDialog);
+$('#dlgOverlay').addEventListener('click',e=>{if(e.target===$('#dlgOverlay'))closeDialog();});
+
+// Checklist del procedimiento de la pieza actual
+function pieceChecklist(){
+  const min=80;
+  return [
+    {k:'Observación denotativa (≥80 caract.)', ok:estado.campo1.trim().length>=min},
+    {k:'Figura de adjunción identificada', ok:!!estado.figura},
+    {k:'Refuerzo: Quiz de figuras aprobado (≥4/5)', ok:!!estado.quizDone[estado.idx]},
+    {k:'Efecto persuasivo (≥80 caract.)', ok:estado.campo3.trim().length>=min},
+    {k:'Conexión con campaña propia (≥80 caract.)', ok:estado.campo4.trim().length>=min}
+  ];
+}
+function checklistHtml(items){
+  return '<ul class="check-list">'+items.map(it=>
+    `<li class="${it.ok?'ok':'pend'}"><span class="ic">${it.ok?'✓':'!'}</span><span>${it.ok?it.k:'<b>Falta:</b> '+it.k}</span></li>`
+  ).join('')+'</ul>';
+}
+function showStatusDialog(){
+  if(!estado.selected.length){openDialog('Estado del procedimiento','<p>Aún no has iniciado el análisis. Selecciona 4 piezas y pulsa «Iniciar».</p>');return;}
+  const items=pieceChecklist();
+  const pend=items.filter(i=>!i.ok).length;
+  const piezasOk=piezasCompletas();
+  const overall=`<div class="dlg-overall">Avance global: ${piezasOk}/${N_PIEZAS} piezas terminadas · Estás en la pieza ${estado.idx+1}.</div>`;
+  const head = pend===0
+    ? `<p>✅ <b>Procedimiento de esta pieza COMPLETO.</b> Ya puedes finalizarla.</p>`
+    : `<p>🔧 <b>Procedimiento en curso:</b> faltan ${pend} paso(s) en esta pieza.</p>`;
+  openDialog('Estado del procedimiento — Pieza '+(estado.idx+1), head+checklistHtml(items)+overall);
+}
+$('#btnEstado').addEventListener('click',showStatusDialog);
+
 /* =================== JUEGOS DE REFUERZO =================== */
 function gameFeedback(id,ok,a,b){
   const fb=$('#'+id);
@@ -1520,18 +1616,23 @@ function updateRefuerzoState(){
   const QUIZ=[
     {q:"Un aviso muestra el MISMO producto repetido en serie a lo largo de la composición. ¿Qué figura de adjunción es?",
      ops:["Repetición (Identidad)","Comparación (Similitud)","Antítesis (Oposición)","Acumulación (Diferencia)"],ok:0,
+     hint:"Fíjate en la palabra clave 'MISMO': si el elemento es idéntico, la relación es de IDENTIDAD.",
      why:"Al reiterar un elemento idéntico, la adjunción establece una relación de IDENTIDAD: es la Repetición."},
     {q:"Un perfume se presenta junto a una flor para sugerir que comparte su delicadeza y aroma. ¿Qué figura es?",
      ops:["Repetición (Identidad)","Comparación (Similitud)","Antítesis (Oposición)","Acumulación (Diferencia)"],ok:1,
+     hint:"'Comparte cualidades con algo parecido' apunta a una relación de SIMILITUD entre dos elementos distintos pero semejantes.",
      why:"Se aproximan dos elementos SEMEJANTES para transferir cualidades: relación de Similitud → Comparación."},
     {q:"Un aviso de 'antes y después' confronta dos estados contrarios para resaltar el cambio. ¿Qué figura es?",
      ops:["Acumulación (Diferencia)","Repetición (Identidad)","Antítesis (Oposición)","Comparación (Similitud)"],ok:2,
+     hint:"'Contrarios' / 'antes y después' = choque de opuestos → relación de OPOSICIÓN.",
      why:"Confrontar elementos CONTRARIOS es una relación de Oposición → Antítesis."},
     {q:"Una mesa rebosante de ingredientes distintos y variados sugiere abundancia. ¿Qué figura es?",
      ops:["Antítesis (Oposición)","Acumulación (Diferencia)","Comparación (Similitud)","Repetición (Identidad)"],ok:1,
+     hint:"'Distintos y variados' sumados = relación de DIFERENCIA; piensa en acumular cosas heterogéneas.",
      why:"Sumar elementos DISTINTOS y heterogéneos es una relación de Diferencia → Acumulación."},
     {q:"¿Cuál es la OPERACIÓN común a las cuatro figuras estudiadas en la sesión?",
      ops:["Supresión","Sustitución","Adjunción","Intercambio"],ok:2,
+     hint:"Las cuatro figuras AÑADEN elementos al mensaje; el nombre de la operación significa justamente 'añadir'.",
      why:"Repetición, Comparación, Antítesis y Acumulación comparten la operación de Adjunción: añadir elementos."}
   ];
   let idx=0, score=0, answered=false;
@@ -1541,11 +1642,16 @@ function updateRefuerzoState(){
     const it=QUIZ[idx];
     $('#quizN').textContent=idx+1;$('#quizScore').textContent=score;
     $('#quizFb').className='fb';$('#quizNext').style.display='none';
+    $('#quizHintBox').className='hint-box';$('#quizHint').style.display='inline-block';
     const q=$('#quizQ');q.textContent=it.q;q.style.animation='none';void q.offsetWidth;q.style.animation='fbIn .35s var(--ease)';
     const opts=$('#quizOpts');opts.innerHTML='';
     it.ops.forEach((t,i)=>{const b=document.createElement('button');b.className='quiz-opt';b.textContent=t;
       b.onclick=()=>choose(i,b);opts.appendChild(b);});
   }
+  $('#quizHint').addEventListener('click',()=>{
+    const hb=$('#quizHintBox');hb.innerHTML='💡 <b>Indicio:</b> '+(QUIZ[idx].hint||'Relee la relación semiótica en el panel de Durand.');
+    hb.className='hint-box show';
+  });
   function choose(i,btn){
     if(answered)return;answered=true;
     const it=QUIZ[idx];
@@ -1560,6 +1666,7 @@ function updateRefuerzoState(){
   let resultShown=false;
   function showResult(){
     resultShown=true;
+    $('#quizHint').style.display='none';$('#quizHintBox').className='hint-box';
     const pass=score>=MIN_QUIZ;
     $('#quizArea').innerHTML=`<div class="quiz-score"><div class="big" style="color:${pass?'var(--ok)':'var(--idc-amarillo)'}">${score}/${QUIZ.length}</div>
       <p>${pass?'✓ ¡Refuerzo aprobado! Ya puedes finalizar esta pieza.':`Necesitas al menos ${MIN_QUIZ}/${QUIZ.length} para aprobar. Repasa el panel teórico y reintenta.`}</p></div>`;
@@ -1586,38 +1693,50 @@ function updateRefuerzoState(){
 (function(){
   const TREE={
     inicio:{texto:"Recibes el afiche de TAG Heuer: Chris Hemsworth en actitud firme y, al lado, el reloj Aquaracer. Eres el analista del grupo. ¿Por dónde empiezas?",
+      hint:"El método siempre arranca por lo que se VE, sin interpretar todavía.",
       opciones:[
         {t:"Interpretar de inmediato qué 'quiere decir' la marca.",ok:false,c:"Saltar a la connotación sin describir lo denotado lleva a interpretaciones sin sustento.",next:"corrige"},
         {t:"Describir denotativamente lo que se ve (personaje, reloj, composición).",ok:true,c:"Correcto: la observación denotativa es el punto de partida del método.",next:"figura"}
       ]},
     corrige:{texto:"El docente te recuerda: primero la denotación. Vuelves a observar y describes los elementos. Ahora, ¿qué relación establece el aviso entre Hemsworth y el reloj?",
+      hint:"¿Son contrarios o más bien parecidos? El reloj busca 'parecerse' al personaje.",
       opciones:[
         {t:"Los confronta como opuestos.",ok:false,c:"No hay oposición: ambos proyectan los mismos valores (fuerza, temple).",next:"figura"},
         {t:"Los aproxima por semejanza: el reloj 'hereda' los atributos del personaje.",ok:true,c:"Exacto: similitud entre dos elementos próximos.",next:"cierre"}
       ]},
     figura:{texto:"Identificas que el personaje y el reloj se presentan juntos para que el reloj adopte sus cualidades (temple, prestigio). ¿Qué figura de adjunción es?",
+      hint:"Relación de SIMILITUD entre dos elementos → su figura correspondiente.",
       opciones:[
         {t:"Comparación (Similitud).",ok:true,c:"Correcto: aproximar elementos semejantes para transferir cualidades es Comparación.",next:"cierre"},
         {t:"Acumulación (Diferencia).",ok:false,c:"No se suman elementos heterogéneos; se aproximan dos semejantes.",next:"cierre"}
       ]},
     cierre:{texto:"Cierras el análisis conectando la figura con su efecto persuasivo y una posible campaña propia. ¿Qué cierre es el más sólido?",
+      hint:"Un buen cierre NOMBRA la figura y explica su efecto; evita lo impresionista ('se ve bonito').",
       opciones:[
         {t:"'Se ve bonito y elegante.'",ok:false,c:"Es impresionista: no nombra la figura ni su efecto retórico.",next:null,final:true},
         {t:"'La Comparación transfiere el temple del personaje al producto, reforzando su promesa de resistencia.'",ok:true,c:"¡Excelente! Conectaste figura → efecto → argumento. Listo para el Dictamen.",next:null,final:true}
       ]}
   };
+  let curNode='inicio';
   let path=[];
   function render(id){
+    curNode=id;
     const n=TREE[id];
     const t=$('#simText');t.textContent=n.texto;
+    $('#simHintBox').className='hint-box';$('#simHint').style.display='inline-block';
     const node=$('#simNode');node.style.animation='none';void node.offsetWidth;node.style.animation='simUp .45s ease-out';
     const opts=$('#simOpts');opts.innerHTML='';
     n.opciones.forEach(o=>{const b=document.createElement('button');b.className='sim-opt';b.textContent=o.t;
       b.onclick=()=>choose(o);opts.appendChild(b);});
   }
+  $('#simHint').addEventListener('click',()=>{
+    const hb=$('#simHintBox');hb.innerHTML='💡 <b>Indicio:</b> '+(TREE[curNode].hint||'Recuerda el orden del método: denotación → figura → efecto.');
+    hb.className='hint-box show';
+  });
   function choose(o){
     path.push(o.t);drawPath();
     if(o.final){
+      $('#simHint').style.display='none';$('#simHintBox').className='hint-box';
       gameFeedback('simFb',o.ok,o.ok?'Caso resuelto con acierto':'Revisa el razonamiento',o.c);
       const opts=$('#simOpts');opts.innerHTML='';
       const wrap=document.createElement('div');wrap.className='sim-restart';
