@@ -20,6 +20,10 @@
     --blanco:#ffffff;
     --negro:#1c1c1b;
     --sombra: 6px 6px 0 rgba(28,28,27,.18);
+    --ok:#1f9d6b;
+    --warn:#E08A00;
+    --line:#e3e3e1;
+    --ease:cubic-bezier(.22,.61,.36,1);
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html{scroll-behavior:smooth}
@@ -271,6 +275,89 @@
     .topbar .who b{font-size:.82rem}
   }
 
+  /* ---------- Barra de selección (sorteo · elegir 4) ---------- */
+  .sel-bar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;
+    background:var(--idc-azul);color:#fff;padding:12px 16px;box-shadow:var(--sombra);margin:6px 0 18px}
+  .sel-bar .sel-info{font-size:.9rem;font-weight:700}
+  .sel-bar .sel-info b{color:var(--idc-amarillo);font-size:1.05rem}
+  .sel-bar .btn{padding:.6rem 1.1rem;font-size:.84rem}
+  .ad-card .pickn{position:absolute;top:8px;left:8px;width:26px;height:26px;border-radius:50%;
+    background:var(--idc-amarillo);color:#fff;font-weight:800;display:none;align-items:center;justify-content:center;font-size:.85rem;z-index:2}
+  .ad-card.selected .pickn{display:flex}
+  .ad-card.maxed{opacity:.5;filter:grayscale(.4)}
+
+  /* ---------- Progreso de piezas ---------- */
+  .piece-progress{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+  .piece-progress .pp-dot{width:30px;height:30px;border:3px solid var(--line);border-radius:50%;
+    display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.8rem;color:#aaa;background:#fff}
+  .piece-progress .pp-dot.done{background:var(--ok);border-color:var(--ok);color:#fff}
+  .piece-progress .pp-dot.current{border-color:var(--idc-amarillo);color:var(--idc-amarillo)}
+  .piece-progress .pp-label{font-weight:800;font-size:.9rem;color:var(--idc-azul)}
+
+  /* ---------- Juegos de refuerzo (modal) ---------- */
+  .games-overlay{position:fixed;inset:0;background:rgba(28,28,27,.6);z-index:120;display:none;
+    align-items:flex-start;justify-content:center;padding:24px 14px;overflow-y:auto}
+  .games-overlay.open{display:flex}
+  .games-modal{background:#fff;max-width:640px;width:100%;box-shadow:14px 14px 0 rgba(0,0,0,.3);
+    border-top:10px solid var(--idc-amarillo)}
+  .games-head{background:var(--idc-azul);color:#fff;padding:14px 18px;display:flex;justify-content:space-between;align-items:center}
+  .games-head h3{color:#fff;font-size:1.1rem}
+  .games-head button{background:none;border:none;color:#fff;font-size:1.6rem;cursor:pointer;line-height:1}
+  .games-tabs{display:flex;border-bottom:3px solid var(--line)}
+  .games-tabs button{flex:1;padding:.8rem;border:none;background:#f3f3f1;cursor:pointer;font-weight:800;
+    font-size:.82rem;text-transform:uppercase;letter-spacing:.04em;color:var(--idc-gris2);font-family:inherit}
+  .games-tabs button.active{background:#fff;color:var(--idc-azul);box-shadow:inset 0 -4px 0 var(--idc-amarillo)}
+  .games-body{padding:22px 20px 26px}
+  .game-pane{display:none}.game-pane.active{display:block}
+  .game-intro{font-size:.86rem;color:var(--idc-gris2);margin-bottom:16px;border-left:5px solid var(--idc-amarillo);padding-left:.7rem}
+
+  /* feedback reutilizable de juegos */
+  .fb{margin-top:14px;border-radius:3px;padding:13px 15px;display:none;border-left:6px solid var(--idc-azul);
+    background:#eef2f5;animation:fbIn .3s var(--ease)}
+  .fb.show{display:block}
+  .fb.good{border-left-color:var(--ok);background:rgba(31,157,107,.1)}
+  .fb h4{margin:0 0 5px;font-size:.95rem}.fb .row{font-size:.86rem;margin:3px 0}.fb .row b{color:var(--idc-azul)}
+  @keyframes fbIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+
+  /* Flashcards */
+  .flash-bar{display:flex;justify-content:space-between;background:#fff;border:2px solid var(--line);
+    padding:10px 16px;font-weight:700;font-size:.84rem;margin-bottom:18px}
+  .flash-scene{height:230px;perspective:1000px;margin-bottom:18px;cursor:pointer}
+  .flash-card{width:100%;height:100%;position:relative;transition:transform .6s var(--ease);transform-style:preserve-3d}
+  .flash-card.flip{transform:rotateY(180deg)}
+  .flash-face{position:absolute;inset:0;backface-visibility:hidden;display:flex;flex-direction:column;
+    justify-content:center;align-items:center;box-shadow:0 8px 20px rgba(0,0,0,.12);padding:24px;text-align:center}
+  .flash-front{background:#fff;border:4px solid var(--idc-azul)}
+  .flash-front h3{font-size:1.5rem;color:var(--idc-azul);margin:0;text-transform:uppercase}
+  .flip-hint{position:absolute;bottom:14px;font-size:.78rem;color:#999}
+  .flash-back{background:var(--idc-azul);color:#fff;transform:rotateY(180deg)}
+  .flash-back p{font-size:1.02rem;line-height:1.5;margin:0}
+  .flash-actions{display:flex;gap:12px;opacity:0;pointer-events:none;transition:opacity .3s var(--ease)}
+  .flash-actions.show{opacity:1;pointer-events:auto}
+  .flash-btn{flex:1;padding:13px;border:none;font-size:.95rem;font-weight:800;color:#fff;cursor:pointer;font-family:inherit}
+  .flash-btn.review{background:var(--warn)}.flash-btn.know{background:var(--ok)}
+
+  /* Salva el afiche (ahorcado) */
+  .rsc-bar{display:flex;justify-content:space-between;align-items:center;background:#eef1f4;
+    padding:9px 16px;font-weight:700;font-size:.84rem;margin-bottom:14px}
+  .rsc-hearts{color:var(--warn);letter-spacing:3px;font-size:1.15rem}
+  .rsc-hearts.shake{animation:rscShake .3s ease}
+  @keyframes rscShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+  .rsc-pista{background:rgba(0,114,185,.08);border-left:5px solid var(--idc-azul);padding:12px 14px;
+    font-style:italic;color:var(--idc-azul);margin-bottom:18px;font-size:.9rem}
+  .rsc-word{display:flex;justify-content:center;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+  .rsc-slot{width:32px;height:40px;border-bottom:4px solid var(--idc-gris);display:flex;align-items:flex-end;
+    justify-content:center;font-size:1.5rem;font-weight:800;color:var(--idc-azul);text-transform:uppercase}
+  .rsc-slot.rev{color:var(--ok)}
+  .rsc-keys{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;max-width:480px;margin:0 auto}
+  .rsc-key{background:#fff;border:2px solid var(--line);width:34px;height:38px;font-size:1rem;font-weight:700;
+    cursor:pointer;transition:all .15s var(--ease);font-family:inherit}
+  .rsc-key:hover:not(:disabled){background:var(--idc-amarillo);color:#fff;border-color:var(--idc-amarillo);transform:scale(1.08)}
+  .rsc-key:disabled{cursor:not-allowed}
+  .rsc-key.ok{background:var(--ok);color:#fff;border-color:var(--ok)}
+  .rsc-key.no{background:var(--idc-amarillo);color:#fff;border-color:var(--idc-amarillo);opacity:.55}
+  .rsc-next{text-align:center;margin-top:16px}
+
   /* ---------- Print: solo el dictamen ---------- */
   @media print{
     @page{margin:14mm}
@@ -334,16 +421,21 @@
     </div>
     <div class="topbar-actions">
       <div class="who"><b id="who-nombre">—</b><span id="who-seccion">—</span></div>
-      <button class="icon-btn" id="btnReset" title="Analizar otro aviso / reiniciar">↺ Reiniciar</button>
+      <button class="icon-btn" id="btnGames" title="Juegos de refuerzo de términos teóricos">🎮 Refuerzo</button>
+      <button class="icon-btn" id="btnReset" title="Sortear de nuevo / reiniciar">↺ Reiniciar</button>
     </div>
   </header>
 
   <!-- FASE 0 / GALERÍA -->
   <section class="phase wrap" id="fase-galeria">
-    <span class="eyebrow">Inicio · Observación</span>
+    <span class="eyebrow">Inicio · Sorteo</span>
     <span class="phase-num">A</span>
-    <h2>Banco de Imágenes — Selecciona un aviso</h2>
-    <p class="lead">Elige una de las 7 piezas gráficas publicitarias del banco de la sesión. Al seleccionarla, se activará tu ficha de análisis retórico guiado según el modelo de adjunción de Durand.</p>
+    <h2>Banco de Imágenes — Sorteo de piezas</h2>
+    <p class="lead">El banco de la sesión se <b>sortea automáticamente</b> en cada ingreso. Tu grupo debe <b>seleccionar 4 piezas gráficas</b> para analizar con el modelo de adjunción de Durand — ni más, ni menos.</p>
+    <div class="sel-bar">
+      <span class="sel-info">Piezas seleccionadas: <b id="selCount">0</b> / 4</span>
+      <button class="btn azul" id="btnIniciar" disabled>Iniciar análisis de las 4 piezas →</button>
+    </div>
     <div class="galeria" id="galeria"></div>
   </section>
 
@@ -352,6 +444,7 @@
 
     <!-- FASE 1 — Observación denotativa -->
     <section class="phase wrap" id="fase-1">
+      <div class="piece-progress" id="pieceProgress"></div>
       <div class="caso-activo reveal" id="casoActivo">
         <div class="mini" id="casoMini"></div>
         <div>
@@ -420,7 +513,7 @@
         <textarea id="campo4" data-min="80" placeholder="Aplicaría esta figura en una campaña para…"></textarea>
         <div class="counter" id="c4">0 / 80 mínimo</div>
         <div class="field-warn" id="w4">Para avanzar, completa este análisis con al menos 80 caracteres.</div>
-        <div style="margin-top:14px"><button class="btn azul" data-next="fase-dictamen">Generar Dictamen Retórico →</button></div>
+        <div style="margin-top:14px"><button class="btn azul" id="btnFinPieza">Generar Dictamen de las 4 →</button></div>
       </div>
     </section>
 
@@ -496,6 +589,59 @@
     <p style="font-size:.74rem;color:var(--idc-gris2);margin-top:8px">Según J. Durand (1970), la <b>adjunción</b> consiste en <i>añadir</i> uno o más elementos al mensaje visual. La figura resultante depende de la <i>relación</i> entre los elementos añadidos.</p>
   </div>
 </aside>
+
+<!-- ============ JUEGOS DE REFUERZO ============ -->
+<div class="games-overlay" id="gamesOverlay" aria-hidden="true">
+  <div class="games-modal" role="dialog" aria-label="Juegos de refuerzo de términos">
+    <div class="games-head">
+      <h3>🎮 Refuerzo de términos — Semiótica de Durand</h3>
+      <button id="gamesClose" aria-label="Cerrar juegos">×</button>
+    </div>
+    <div class="games-tabs">
+      <button data-pane="paneFlash" class="active">Flashcards</button>
+      <button data-pane="paneRescata">Salva el afiche</button>
+    </div>
+    <div class="games-body">
+
+      <!-- Pane: Flashcards -->
+      <div class="game-pane active" id="paneFlash">
+        <p class="game-intro">Repaso espaciado del vocabulario teórico. Toca la tarjeta para ver la definición y marca si ya la dominas. Te servirá para argumentar tus respuestas en la ficha.</p>
+        <div class="flash-bar">
+          <span>Por dominar: <b id="flashLeft" style="color:var(--idc-azul)">0</b></span>
+          <span>Dominadas: <b id="flashDone" style="color:var(--ok)">0</b></span>
+        </div>
+        <div class="flash-scene" id="flashScene">
+          <div class="flash-card" id="flashCard">
+            <div class="flash-face flash-front"><h3 id="flashTerm">TÉRMINO</h3><span class="flip-hint">Toca para ver la definición ↺</span></div>
+            <div class="flash-face flash-back"><p id="flashDef"></p></div>
+          </div>
+        </div>
+        <div class="flash-actions" id="flashActions">
+          <button class="flash-btn review" id="flashReview">↻ Repasar luego</button>
+          <button class="flash-btn know" id="flashKnow">✓ Lo sé</button>
+        </div>
+        <div class="fb" id="flashFb" role="status" aria-live="polite"></div>
+      </div>
+
+      <!-- Pane: Salva el afiche (ahorcado) -->
+      <div class="game-pane" id="paneRescata">
+        <p class="game-intro">Adivina el término retórico a partir de su pista conceptual. Cada error cuesta una vida. Refuerza la precisión del vocabulario que usarás en el Dictamen.</p>
+        <div class="rsc-bar">
+          <span>Término <span id="rscNivel">1/5</span></span>
+          <span>Vidas: <span class="rsc-hearts" id="rscHearts">♥♥♥♥♥</span></span>
+        </div>
+        <div class="rsc-pista" id="rscPista"></div>
+        <div class="rsc-word" id="rscWord"></div>
+        <div class="rsc-keys" id="rscKeys"></div>
+        <div class="fb" id="rscFb" role="status" aria-live="polite"></div>
+        <div class="rsc-next" id="rscNext" style="display:none">
+          <button class="btn" id="rscNextBtn"></button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
 
 <div class="toast" id="toast"></div>
 
@@ -679,7 +825,9 @@ const FIGURAS={
 };
 
 /* =================== ESTADO =================== */
-const estado={group:null,aviso:null,figura:null,campo1:'',campo3:'',campo4:''};
+const estado={group:null,deck:[],selected:[],analyses:[],idx:0,aviso:null,figura:null,campo1:'',campo3:'',campo4:''};
+const N_PIEZAS=4;
+function shuffle(arr){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 
 /* =================== HELPERS =================== */
 const $=s=>document.querySelector(s);
@@ -760,37 +908,91 @@ $('#btnIngresar').addEventListener('click',()=>{
   window.scrollTo(0,0);
 });
 
-/* =================== GALERÍA =================== */
+/* =================== GALERÍA (sorteo + elegir 4) =================== */
+let picks=[]; // ids seleccionados, en orden de clic
+
 function buildGaleria(){
+  estado.deck=shuffle(AVISOS); // sorteo
+  picks=[];
   const g=$('#galeria');g.innerHTML='';
-  AVISOS.forEach(a=>{
+  estado.deck.forEach(a=>{
     const c=document.createElement('div');
     c.className='ad-card';c.dataset.id=a.id;
-    c.innerHTML=`<span class="pick">✓ Seleccionado</span>
+    c.innerHTML=`<span class="pickn"></span>
       <div class="ad-thumb">${mediaFor(a.id)}</div>
       <div class="ad-body">
         <div class="ad-brand">${a.brand}</div>
         <div class="ad-name">${a.name}</div>
         <div class="ad-desc">${a.desc}</div>
       </div>`;
-    c.addEventListener('click',()=>selectAviso(a.id));
+    c.addEventListener('click',()=>togglePick(a.id));
     g.appendChild(c);
+  });
+  refreshPicks();
+}
+
+function togglePick(id){
+  const i=picks.indexOf(id);
+  if(i>=0){ picks.splice(i,1); }
+  else{
+    if(picks.length>=N_PIEZAS){ toast('Ya elegiste 4 piezas. Quita una para cambiarla.'); return; }
+    picks.push(id);
+  }
+  refreshPicks();
+}
+
+function refreshPicks(){
+  $('#selCount').textContent=picks.length;
+  const full=picks.length>=N_PIEZAS;
+  $('#btnIniciar').disabled=picks.length!==N_PIEZAS;
+  $$('.ad-card').forEach(c=>{
+    const pos=picks.indexOf(c.dataset.id);
+    const sel=pos>=0;
+    c.classList.toggle('selected',sel);
+    c.classList.toggle('maxed',full && !sel);
+    c.querySelector('.pickn').textContent=sel?(pos+1):'';
   });
 }
 
-function selectAviso(id){
-  estado.aviso=AVISOS.find(a=>a.id===id);
-  $$('.ad-card').forEach(c=>c.classList.toggle('selected',c.dataset.id===id));
-  // poblar caso activo
-  $('#casoMini').innerHTML=mediaFor(id);
+$('#btnIniciar').addEventListener('click',()=>{
+  if(picks.length!==N_PIEZAS){toast('Selecciona exactamente 4 piezas.');return;}
+  estado.selected=picks.map(id=>AVISOS.find(a=>a.id===id));
+  estado.analyses=[];estado.idx=0;
+  $('#ficha').classList.remove('hidden');
+  loadPiece(0);
+});
+
+/* ---- Análisis secuencial de las 4 piezas ---- */
+function loadPiece(i){
+  estado.idx=i;
+  estado.aviso=estado.selected[i];
+  estado.figura=null;estado.campo1=estado.campo3=estado.campo4='';
+  ['#campo1','#campo3','#campo4'].forEach(s=>$(s).value='');
+  ['#c1','#c3','#c4'].forEach(s=>{$(s).textContent='0 / 80 mínimo';$(s).classList.remove('ok');});
+  $$('.field-warn').forEach(w=>w.classList.remove('show'));
+  $$('.fig-card').forEach(c=>c.classList.remove('active'));
+  $('#feedback').className='feedback';$('#feedback').innerHTML='';
+  // caso activo
+  $('#casoMini').innerHTML=mediaFor(estado.aviso.id);
   $('#casoBrand').textContent=estado.aviso.brand;
   $('#casoName').textContent=estado.aviso.name;
   $('#casoDesc').textContent=estado.aviso.desc;
-  $('#ficha').classList.remove('hidden');
-  // stagger reveal
+  renderProgress();
+  // etiqueta del botón final según si quedan piezas
+  $('#btnFinPieza').textContent = (i<N_PIEZAS-1) ? 'Guardar y siguiente pieza →' : 'Generar Dictamen de las 4 →';
   staggerReveal();
   updateDictamen();
   setTimeout(()=>scrollToId('fase-1'),120);
+}
+
+function renderProgress(){
+  const pp=$('#pieceProgress');
+  let dots='';
+  for(let k=0;k<N_PIEZAS;k++){
+    const cls=k<estado.analyses.length?'done':(k===estado.idx?'current':'');
+    dots+=`<span class="pp-dot ${cls}">${k<estado.analyses.length?'✓':(k+1)}</span>`;
+  }
+  pp.innerHTML=`<span class="pp-label">Pieza ${estado.idx+1} de ${N_PIEZAS}:</span> ${dots}`;
 }
 
 function staggerReveal(){
@@ -884,15 +1086,29 @@ function validateCurrent(next){
     return true;
   }
   if(next==='fase-4'){return checkText('#campo3','#w3');}
-  if(next==='fase-dictamen'){
-    // exige todo
-    const okAll=checkText('#campo1','#w1',true)&&!!estado.figura&&checkText('#campo3','#w3',true)&&checkText('#campo4','#w4');
-    if(!estado.figura)$('#w2').classList.add('show');
-    if(!okAll){toast('Completa los 4 análisis (mín. 80 caracteres) y la figura.');return false;}
-    return true;
-  }
   return true;
 }
+
+/* ---- Botón final de cada pieza: guarda y avanza, o compila el dictamen ---- */
+$('#btnFinPieza').addEventListener('click',()=>{
+  const okAll=checkText('#campo1','#w1',true)&&!!estado.figura&&checkText('#campo3','#w3',true)&&checkText('#campo4','#w4');
+  if(!estado.figura)$('#w2').classList.add('show');
+  if(!okAll){toast('Completa los 4 campos (mín. 80 caracteres) y la figura de esta pieza.');return;}
+  // guarda el análisis de la pieza actual
+  estado.analyses[estado.idx]={
+    aviso:estado.aviso,figura:estado.figura,
+    campo1:estado.campo1.trim(),campo3:estado.campo3.trim(),campo4:estado.campo4.trim()
+  };
+  if(estado.idx<N_PIEZAS-1){
+    const n=estado.idx+2;
+    toast(`Pieza ${estado.idx+1} guardada. Ahora la pieza ${n} de ${N_PIEZAS}.`);
+    loadPiece(estado.idx+1);
+  }else{
+    updateDictamen();
+    toast('¡Las 4 piezas analizadas! Revisa el Dictamen.');
+    scrollToId('fase-dictamen');
+  }
+});
 function checkText(sel,warnSel,silent){
   const el=$(sel);const ok=el.value.trim().length>=(+el.dataset.min);
   if(!ok){
@@ -902,33 +1118,44 @@ function checkText(sel,warnSel,silent){
   return ok;
 }
 
-/* =================== DICTAMEN EN TIEMPO REAL =================== */
+/* =================== DICTAMEN (compila las 4 piezas) =================== */
+function workingPiece(){
+  return {aviso:estado.aviso,figura:estado.figura,
+    campo1:estado.campo1.trim(),campo3:estado.campo3.trim(),campo4:estado.campo4.trim()};
+}
+function pieceList(){
+  // análisis guardados + la pieza en curso (en vivo) si aún no fue guardada
+  const list=estado.analyses.slice();
+  if(estado.aviso && estado.analyses.length===estado.idx){ list[estado.idx]=workingPiece(); }
+  return list;
+}
 function updateDictamen(){
-  const g=estado.group||{members:[],seccion:''},a=estado.aviso,f=estado.figura?FIGURAS[estado.figura]:null;
-  if(!a)return;
+  const g=estado.group||{members:[],seccion:''};
+  if(!estado.selected.length)return;
   const fecha=new Date().toLocaleDateString('es-PE',{day:'2-digit',month:'long',year:'numeric'});
-  $('#d-titulo').textContent=`Análisis retórico de «${a.name}» — ${a.brand}`;
+  $('#d-titulo').textContent=`Análisis retórico de 4 piezas publicitarias`;
   const integrantesMeta=(g.members||[]).map(m=>`${m.nombre} <span style="opacity:.7">(${m.codigo})</span>`).join('<br>')||'—';
   $('#d-meta').innerHTML=`<b>Grupo · ${(g.members||[]).length} integrantes</b><br>${integrantesMeta}<br>${g.seccion||''}<br>${fecha}`;
 
   const ph=t=>`<span class="placeholder">${t}</span>`;
-  const c1=estado.campo1.trim(), c3=estado.campo3.trim(), c4=estado.campo4.trim();
+  const list=pieceList();
+  let body='', figurasUsadas=[];
 
-  let body='';
-  body+=`<h4>1 · Observación denotativa</h4><p>`+
-    (c1?`En la pieza publicitaria de <b>${a.brand}</b> («${a.name}»), el analista observa lo siguiente: ${c1}`:ph('Aún no se ha registrado la descripción denotativa del aviso.'))+`</p>`;
+  estado.selected.forEach((piece,i)=>{
+    const an=list[i];
+    body+=`<h4 style="background:var(--idc-azul);color:#fff;padding:.4rem .7rem;border:none;margin-top:22px">Pieza ${i+1} — ${piece.brand}: «${piece.name}»</h4>`;
+    if(!an){ body+=`<p>${ph('Pieza aún no analizada.')}</p>`; return; }
+    const f=an.figura?FIGURAS[an.figura]:null;
+    if(f)figurasUsadas.push(f.nombre);
+    body+=`<p><b>Observación denotativa.</b> `+(an.campo1?`En la pieza de ${piece.brand}, se observa: ${an.campo1}`:ph('—'))+`</p>`;
+    body+=`<p><b>Figura de adjunción.</b> `+(f?`Según Durand, opera la <b>Adjunción</b> con relación de <b>${f.rel}</b>, configurando la <b>${f.nombre}</b>. ${f.def}`:ph('—'))+`</p>`;
+    body+=`<p><b>Efecto persuasivo.</b> `+(an.campo3?an.campo3:ph('—'))+`</p>`;
+    body+=`<p><b>Conexión proyectiva.</b> `+(an.campo4?an.campo4:ph('—'))+`</p>`;
+  });
 
-  body+=`<h4>2 · Identificación de la figura de adjunción</h4><p>`+
-    (f?`Aplicando el modelo de Jacques Durand, se identifica que el aviso recurre a la operación de <b>Adjunción</b> bajo una relación de <b>${f.rel}</b>, lo que configura la figura retórica de la <b>${f.nombre}</b>. ${f.def}`:ph('Aún no se ha seleccionado la figura retórica de adjunción.'))+`</p>`;
-
-  body+=`<h4>3 · Efecto persuasivo</h4><p>`+
-    (c3?`En el plano connotativo, esta figura produce el siguiente efecto sobre el receptor: ${c3}`:ph('Aún no se ha descrito el efecto persuasivo.'))+`</p>`;
-
-  body+=`<h4>4 · Conexión proyectiva con campaña propia</h4><p>`+
-    (c4?`Proyectando el recurso hacia la práctica creativa propia: ${c4}`:ph('Aún no se ha planteado la conexión con una campaña propia.'))+`</p>`;
-
-  if(c1&&f&&c3&&c4){
-    body+=`<h4>Síntesis del dictamen</h4><p>En conclusión, la pieza de <b>${a.brand}</b> constituye un ejemplo de la figura de <b>${f.nombre}</b> (Adjunción · ${f.rel}) dentro de la clasificación retórica de Durand. La relación de ${f.rel.toLowerCase()} entre los elementos del mensaje intensifica su carga persuasiva y demuestra el potencial proyectivo de esta figura para futuras estrategias creativas.</p>`;
+  const completas=list.filter(an=>an&&an.campo1&&an.figura&&an.campo3&&an.campo4).length;
+  if(completas===N_PIEZAS){
+    body+=`<h4>Síntesis general del dictamen</h4><p>El grupo analizó <b>${N_PIEZAS} piezas</b> publicitarias aplicando el modelo de figuras de adjunción de Jacques Durand, identificando las siguientes figuras: <b>${figurasUsadas.join(', ')}</b>. El ejercicio evidencia cómo la operación de adjunción —mediante relaciones de identidad, similitud, oposición o diferencia— intensifica la carga persuasiva del mensaje gráfico y ofrece recursos retóricos transferibles a futuras campañas propias.</p>`;
   }
   $('#d-body').innerHTML=body;
   const firmantes=(g.members||[]).map(m=>m.nombre).join(' · ')||'—';
@@ -937,8 +1164,9 @@ function updateDictamen(){
 
 /* =================== EXPORTAR PDF =================== */
 $('#btnPDF').addEventListener('click',()=>{
-  if(!(estado.campo1.trim().length>=80&&estado.figura&&estado.campo3.trim().length>=80&&estado.campo4.trim().length>=80)){
-    toast('Completa todo el análisis antes de exportar el dictamen.');
+  const completas=estado.analyses.filter(an=>an&&an.campo1&&an.figura&&an.campo3&&an.campo4).length;
+  if(completas<N_PIEZAS){
+    toast(`Faltan piezas por analizar (${completas}/${N_PIEZAS}) antes de exportar.`);
     scrollToId('fase-1');return;
   }
   window.print();
@@ -946,18 +1174,19 @@ $('#btnPDF').addEventListener('click',()=>{
 
 /* =================== REINICIO / CERRAR =================== */
 function resetFicha(){
+  estado.selected=[];estado.analyses=[];estado.idx=0;
   estado.aviso=null;estado.figura=null;estado.campo1=estado.campo3=estado.campo4='';
   ['#campo1','#campo3','#campo4'].forEach(s=>$(s).value='');
-  ['#c1','#c3','#c4'].forEach((s,i)=>{$(s).textContent='0 / 80 mínimo';$(s).classList.remove('ok');});
+  ['#c1','#c3','#c4'].forEach(s=>{$(s).textContent='0 / 80 mínimo';$(s).classList.remove('ok');});
   $$('.field-warn').forEach(w=>w.classList.remove('show'));
-  $$('.ad-card').forEach(c=>c.classList.remove('selected'));
   $$('.fig-card').forEach(c=>c.classList.remove('active'));
   $('#feedback').className='feedback';$('#feedback').innerHTML='';
   $('#ficha').classList.add('hidden');
+  buildGaleria(); // re-sortea el banco
   scrollToId('fase-galeria');
 }
-$('#btnReset').addEventListener('click',()=>{resetFicha();toast('Ficha reiniciada. Selecciona un nuevo aviso.');});
-$('#btnOtro').addEventListener('click',()=>{resetFicha();toast('Ficha en blanco. Elige otro aviso del banco.');});
+$('#btnReset').addEventListener('click',()=>{resetFicha();toast('Banco re-sorteado. Selecciona 4 piezas nuevas.');});
+$('#btnOtro').addEventListener('click',()=>{resetFicha();toast('Nuevo sorteo. Selecciona 4 piezas para analizar.');});
 $('#btnCerrar').addEventListener('click',()=>{
   if(confirm('¿Cerrar la sesión? Se borrará el análisis actual y el registro del grupo.')){
     estado.group=null;resetFicha();
@@ -968,6 +1197,118 @@ $('#btnCerrar').addEventListener('click',()=>{
     refreshReg();window.scrollTo(0,0);
   }
 });
+
+/* =================== JUEGOS DE REFUERZO =================== */
+function gameFeedback(id,ok,a,b){
+  const fb=$('#'+id);
+  fb.className='fb show'+(ok?' good':'');
+  fb.innerHTML = ok
+    ? `<h4>✓ ${a}</h4><div class="row">${b}</div>`
+    : `<h4>✗ Sigue la pista — vas bien</h4><div class="row"><b>Pista:</b> ${a}</div><div class="row"><b>Dato clave:</b> ${b}</div><div class="row"><b>Reintento:</b> ajústalo y vuelve a probar, sin penalización.</div>`;
+}
+
+// abrir / cerrar modal + pestañas
+$('#btnGames').addEventListener('click',()=>{$('#gamesOverlay').classList.add('open');$('#gamesOverlay').setAttribute('aria-hidden','false');});
+$('#gamesClose').addEventListener('click',()=>{$('#gamesOverlay').classList.remove('open');$('#gamesOverlay').setAttribute('aria-hidden','true');});
+$('#gamesOverlay').addEventListener('click',e=>{if(e.target===$('#gamesOverlay'))$('#gamesClose').click();});
+$$('.games-tabs button').forEach(b=>b.addEventListener('click',()=>{
+  $$('.games-tabs button').forEach(x=>x.classList.remove('active'));
+  $$('.game-pane').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');$('#'+b.dataset.pane).classList.add('active');
+}));
+
+/* ---- Flashcards (repaso espaciado de términos) ---- */
+(function(){
+  const DECK=[
+    {t:"Adjunción",d:"Operación retórica de Durand que consiste en AÑADIR uno o más elementos al mensaje visual."},
+    {t:"Repetición",d:"Figura de adjunción por relación de IDENTIDAD: se reitera un mismo elemento idéntico."},
+    {t:"Comparación",d:"Figura de adjunción por relación de SIMILITUD: se aproximan elementos semejantes para transferir cualidades."},
+    {t:"Antítesis",d:"Figura de adjunción por relación de OPOSICIÓN: se confrontan elementos contrarios."},
+    {t:"Acumulación",d:"Figura de adjunción por relación de DIFERENCIA: se suman elementos distintos y heterogéneos."},
+    {t:"Denotación",d:"Significado literal y objetivo de la imagen: lo que se ve sin interpretar."},
+    {t:"Connotación",d:"Significados culturales, emotivos o simbólicos que se asocian a la imagen."},
+    {t:"Signo",d:"Unidad que une un significante (forma perceptible) y un significado (concepto)."}
+  ];
+  let queue=DECK.map((_,i)=>i), done=0, repasos=0, flipped=false, finished=false;
+  const card=$('#flashCard'), actions=$('#flashActions');
+  function load(){
+    if(queue.length===0){finish();return;}
+    const d=DECK[queue[0]];
+    $('#flashTerm').textContent=d.t;$('#flashDef').textContent=d.d;
+    $('#flashLeft').textContent=queue.length;$('#flashDone').textContent=done;
+    card.classList.remove('flip');actions.classList.remove('show');flipped=false;
+  }
+  function flip(){if(flipped||finished)return;card.classList.add('flip');flipped=true;setTimeout(()=>actions.classList.add('show'),300);}
+  $('#flashScene').addEventListener('click',flip);
+  $('#flashReview').addEventListener('click',e=>{e.stopPropagation();if(!flipped)return;
+    const i=queue.shift();queue.push(i);repasos++;
+    gameFeedback('flashFb',true,'Marcado para repasar.','Reconocer lo que aún no dominas es parte del aprendizaje: te volverá a aparecer al final.');
+    next();});
+  $('#flashKnow').addEventListener('click',e=>{e.stopPropagation();if(!flipped)return;
+    queue.shift();done++;
+    gameFeedback('flashFb',true,'¡Dominada!','Recuperaste el significado por tu cuenta: ese término ya está consolidado para argumentar.');
+    next();});
+  function next(){actions.classList.remove('show');setTimeout(load,200);}
+  function finish(){finished=true;$('#flashScene').style.pointerEvents='none';
+    $('#flashTerm').textContent='✓';$('#flashDef').textContent='';
+    gameFeedback('flashFb',true,`¡Sesión completada! ${DECK.length} términos repasados.`,`Repasos necesarios: ${repasos}. El repaso espaciado fija el vocabulario para el análisis.`);}
+  load();
+})();
+
+/* ---- Salva el afiche (ahorcado de términos retóricos) ---- */
+(function(){
+  const DICT=[
+    {t:"ADJUNCION",p:"Operación de Durand que consiste en añadir elementos al mensaje visual."},
+    {t:"REPETICION",p:"Figura por relación de identidad: el mismo elemento se reitera."},
+    {t:"COMPARACION",p:"Figura por relación de similitud: aproxima dos elementos semejantes."},
+    {t:"ANTITESIS",p:"Figura por relación de oposición: confronta elementos contrarios."},
+    {t:"CONNOTACION",p:"Plano de los significados simbólicos y culturales de la imagen."}
+  ];
+  const MAX=5;
+  let idx=0, word="", guessed=[], left=MAX, aciertos=0;
+  const keysEl=$('#rscKeys'), heartsEl=$('#rscHearts'), nextWrap=$('#rscNext'), nextBtn=$('#rscNextBtn');
+  function hearts(){let s="";for(let i=0;i<left;i++)s+="♥";for(let j=left;j<MAX;j++)s+="♡";heartsEl.textContent=s;}
+  function buildKeys(){keysEl.innerHTML="";"ABCDEFGHIJKLMNÑOPQRSTUVWXYZ".split("").forEach(L=>{
+    const b=document.createElement('button');b.className='rsc-key';b.textContent=L;b.onclick=()=>play(L,b);keysEl.appendChild(b);});}
+  function loadLevel(){
+    const d=DICT[idx];word=d.t;guessed=[];left=MAX;
+    $('#rscNivel').textContent=(idx+1)+'/'+DICT.length;
+    $('#rscPista').textContent='"'+d.p+'"';
+    $('#rscFb').className='fb';nextWrap.style.display='none';hearts();
+    const wordEl=$('#rscWord');wordEl.innerHTML="";
+    for(let i=0;i<word.length;i++){const s=document.createElement('div');s.className='rsc-slot';s.id='rsc-s'+i;s.textContent='_';wordEl.appendChild(s);}
+    keysEl.querySelectorAll('.rsc-key').forEach(k=>{k.disabled=false;k.classList.remove('ok','no');});
+  }
+  function play(L,btn){
+    btn.disabled=true;
+    if(word.indexOf(L)>=0){
+      btn.classList.add('ok');guessed.push(L);
+      for(let i=0;i<word.length;i++){if(word[i]===L){const s=$('#rsc-s'+i);s.textContent=L;s.classList.add('rev');}}
+      if(word.split('').every(ch=>guessed.indexOf(ch)>=0))win();
+    }else{
+      btn.classList.add('no');left--;
+      heartsEl.classList.add('shake');setTimeout(()=>heartsEl.classList.remove('shake'),300);hearts();
+      if(left>0)gameFeedback('rscFb',false,'Esa letra no está en el término.','Apóyate en la pista: describe el concepto, no la palabra. Te quedan '+left+' vidas.');
+      else lose();
+    }
+  }
+  function win(){aciertos++;gameFeedback('rscFb',true,'¡Afiche salvado! '+word,'Conectaste la pista con el término exacto: ese vocabulario ya es tuyo.');endLevel();}
+  function lose(){
+    keysEl.querySelectorAll('.rsc-key').forEach(k=>k.disabled=true);
+    for(let i=0;i<word.length;i++){const s=$('#rsc-s'+i);s.textContent=word[i];}
+    gameFeedback('rscFb',false,'Se agotaron las vidas.','El término era "'+word+'". Reintenta y fíjalo.');endLevel();
+  }
+  function endLevel(){
+    keysEl.querySelectorAll('.rsc-key').forEach(k=>k.disabled=true);nextWrap.style.display='block';
+    if(idx===DICT.length-1){nextBtn.textContent='Ver resultado ('+aciertos+'/'+DICT.length+')';nextBtn.onclick=finish;}
+    else{nextBtn.textContent='Siguiente término →';nextBtn.onclick=()=>{idx++;loadLevel();};}
+  }
+  function finish(){
+    gameFeedback('rscFb',true,'Entrenamiento completado: '+aciertos+'/'+DICT.length+' términos recuperados.','Cada término recuperado refuerza tu vocabulario para argumentar el Dictamen.');
+    nextBtn.textContent='Reintentar todo';nextBtn.onclick=()=>{idx=0;aciertos=0;loadLevel();};
+  }
+  buildKeys();loadLevel();
+})();
 
 /* =================== PWA: manifest + service worker (single-file) =================== */
 (function(){
