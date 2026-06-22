@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#0072b9" />
+<meta name="description" content="RethoricaLab — Simulador de Análisis Retórico Publicitario. Modelo de Jacques Durand, figuras de adjunción. Semiótica de la Imagen, Unidad 4." />
+<title>RethoricaLab — Simulador de Análisis Retórico Publicitario</title>
+
+<!-- PWA manifest embebido vía blob (single-file) -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%230072b9'/%3E%3Cpolygon points='20,80 50,20 50,80' fill='%23f3a100'/%3E%3Cpolygon points='50,20 80,80 50,80' fill='%23ffffff'/%3E%3C/svg%3E" />
+
+<style>
+  :root{
+    --idc-amarillo:#f3a100;
+    --idc-azul:#0072b9;
+    --idc-gris:#555553;
+    --idc-gris2:#545452;
+    --blanco:#ffffff;
+    --negro:#1c1c1b;
+    --sombra: 6px 6px 0 rgba(28,28,27,.18);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:"Segoe UI",Helvetica,Arial,sans-serif;
+    color:var(--idc-gris);
+    background:var(--blanco);
+    line-height:1.5;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,h4{font-weight:800;letter-spacing:-.02em;color:var(--negro)}
+
+  /* ---------- Fondo cubista decorativo ---------- */
+  .cubist-bg{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;opacity:.5}
+  .cubist-bg span{position:absolute;display:block}
+  .shape-a{width:46vw;height:46vw;background:var(--idc-azul);top:-12vw;left:-10vw;transform:rotate(18deg);opacity:.06}
+  .shape-b{width:0;height:0;border-left:30vw solid transparent;border-right:0 solid transparent;border-bottom:34vw solid var(--idc-amarillo);bottom:-6vw;right:-4vw;opacity:.07}
+  .shape-c{width:28vw;height:28vw;background:var(--idc-gris);top:40vh;right:6vw;transform:rotate(-12deg);opacity:.05}
+  .shape-d{width:0;height:0;border-left:14vw solid transparent;border-right:14vw solid transparent;border-bottom:22vw solid var(--idc-azul);top:60vh;left:4vw;opacity:.05}
+
+  /* ---------- Utilidades ---------- */
+  .wrap{max-width:1180px;margin:0 auto;padding:0 18px}
+  .btn{
+    display:inline-flex;align-items:center;gap:.5rem;cursor:pointer;border:none;
+    font-weight:800;text-transform:uppercase;letter-spacing:.04em;font-size:.92rem;
+    padding:.85rem 1.6rem;color:var(--negro);background:var(--idc-amarillo);
+    box-shadow:var(--sombra);transition:transform .12s ease, box-shadow .12s ease;
+    clip-path:polygon(0 0,100% 0,96% 100%,0% 100%);
+  }
+  .btn:hover{transform:translate(-2px,-2px);box-shadow:9px 9px 0 rgba(28,28,27,.22)}
+  .btn:active{transform:translate(2px,2px);box-shadow:2px 2px 0 rgba(28,28,27,.2)}
+  .btn.azul{background:var(--idc-azul);color:#fff}
+  .btn.ghost{background:transparent;color:var(--idc-azul);box-shadow:none;border:3px solid var(--idc-azul);clip-path:none}
+  .btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:var(--sombra)}
+
+  .eyebrow{display:inline-block;background:var(--idc-azul);color:#fff;font-size:.7rem;font-weight:800;
+    text-transform:uppercase;letter-spacing:.14em;padding:.32rem .8rem;margin-bottom:.8rem}
+
+  .hidden{display:none !important}
+
+  /* ---------- Logo IDC ---------- */
+  .idc-logo{display:inline-flex;align-items:center;gap:.55rem;font-weight:800;color:#fff}
+  .idc-logo svg{flex:none}
+
+  /* ---------- Pantalla de Registro ---------- */
+  #registro{
+    min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:24px;
+    background:linear-gradient(135deg,var(--idc-azul) 0%,#005a93 60%,var(--idc-gris2) 140%);
+    position:relative;overflow:hidden;
+  }
+  #registro::before{content:"";position:absolute;width:60vw;height:60vw;background:var(--idc-amarillo);
+    opacity:.16;top:-20vw;right:-16vw;transform:rotate(24deg)}
+  #registro::after{content:"";position:absolute;width:0;height:0;border-left:24vw solid transparent;
+    border-right:24vw solid transparent;border-bottom:30vw solid rgba(255,255,255,.06);bottom:-8vw;left:-6vw}
+  .reg-card{position:relative;z-index:2;background:#fff;max-width:540px;width:100%;
+    box-shadow:14px 14px 0 rgba(0,0,0,.25);border-top:10px solid var(--idc-amarillo)}
+  .reg-head{padding:26px 30px 8px}
+  .reg-head .eyebrow{background:var(--idc-amarillo);color:var(--negro)}
+  .reg-head h1{font-size:1.55rem;line-height:1.1;margin-top:.3rem}
+  .reg-head p{color:var(--idc-gris);font-size:.92rem;margin-top:.5rem}
+  .reg-body{padding:10px 30px 30px;display:grid;gap:16px}
+  .field label{display:block;font-weight:700;font-size:.82rem;text-transform:uppercase;letter-spacing:.05em;
+    color:var(--idc-gris2);margin-bottom:.35rem}
+  .field input,.field select,textarea{
+    width:100%;padding:.78rem .9rem;border:3px solid #e3e3e1;background:#fafafa;font-size:1rem;
+    color:var(--negro);font-family:inherit;transition:border-color .15s, background .15s;
+  }
+  .field input:focus,.field select:focus,textarea:focus{outline:none;border-color:var(--idc-azul);background:#fff}
+  .field.invalid input,.field.invalid select{border-color:var(--idc-amarillo);background:#fff8ec}
+  .reg-foot{padding:0 30px 28px;display:flex;flex-direction:column;gap:10px}
+  .aviso-amigable{font-size:.82rem;color:var(--idc-gris2);background:#fff8ec;border-left:5px solid var(--idc-amarillo);
+    padding:.6rem .8rem;display:none}
+  .aviso-amigable.show{display:block}
+
+  /* ---------- App header ---------- */
+  #app{display:none}
+  .topbar{position:sticky;top:0;z-index:50;background:var(--idc-azul);color:#fff;
+    display:flex;align-items:center;justify-content:space-between;padding:.7rem 1rem;box-shadow:0 3px 0 var(--idc-amarillo)}
+  .topbar .who{font-size:.78rem;opacity:.92;text-align:right;line-height:1.2}
+  .topbar .who b{display:block;font-size:.92rem}
+  .topbar-actions{display:flex;gap:.5rem;align-items:center}
+  .icon-btn{background:rgba(255,255,255,.14);border:none;color:#fff;cursor:pointer;font-weight:700;
+    font-size:.78rem;padding:.5rem .8rem;display:inline-flex;align-items:center;gap:.4rem}
+  .icon-btn:hover{background:rgba(255,255,255,.28)}
+
+  /* ---------- Secciones / scroll snap ---------- */
+  .phase{padding:54px 0 70px;scroll-margin-top:64px}
+  .phase-num{display:inline-flex;align-items:center;justify-content:center;width:54px;height:54px;
+    background:var(--idc-amarillo);color:var(--negro);font-weight:800;font-size:1.4rem;
+    clip-path:polygon(0 0,100% 0,85% 100%,0% 100%);box-shadow:var(--sombra);margin-bottom:.8rem}
+  .phase h2{font-size:1.7rem;line-height:1.1}
+  .phase .lead{color:var(--idc-gris2);max-width:60ch;margin:.6rem 0 1.4rem;font-size:1.02rem}
+
+  /* ---------- Galería de avisos ---------- */
+  .galeria{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:18px}
+  .ad-card{background:#fff;border:3px solid #ececea;box-shadow:var(--sombra);cursor:pointer;
+    transition:transform .14s, box-shadow .14s, border-color .14s;overflow:hidden;position:relative}
+  .ad-card:hover{transform:translate(-3px,-3px);box-shadow:10px 10px 0 rgba(0,114,185,.25);border-color:var(--idc-azul)}
+  .ad-card.selected{border-color:var(--idc-amarillo);box-shadow:10px 10px 0 rgba(243,161,0,.4)}
+  .ad-thumb{height:120px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+  .ad-thumb svg{width:100%;height:100%}
+  .ad-body{padding:14px 16px 16px}
+  .ad-brand{font-size:.72rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--idc-azul)}
+  .ad-name{font-size:1.05rem;font-weight:800;color:var(--negro);margin:.2rem 0 .4rem;line-height:1.15}
+  .ad-desc{font-size:.84rem;color:var(--idc-gris2)}
+  .ad-card .pick{position:absolute;top:8px;right:8px;background:var(--idc-amarillo);color:#000;
+    font-size:.65rem;font-weight:800;padding:.25rem .55rem;text-transform:uppercase;opacity:0;transition:opacity .15s}
+  .ad-card.selected .pick{opacity:1}
+
+  /* ---------- Stagger reveal ---------- */
+  .reveal{opacity:0;transform:translateY(26px);transition:opacity .5s ease, transform .5s ease}
+  .reveal.in{opacity:1;transform:none}
+
+  /* ---------- Caso activo banner ---------- */
+  .caso-activo{display:grid;grid-template-columns:120px 1fr;gap:18px;align-items:center;
+    background:var(--idc-gris);color:#fff;padding:16px;box-shadow:var(--sombra);margin-bottom:8px}
+  .caso-activo .mini{height:96px;background:#fff}
+  .caso-activo .mini svg{width:100%;height:100%}
+  .caso-activo h3{color:#fff;font-size:1.2rem}
+  .caso-activo .b{color:var(--idc-amarillo);font-weight:800;font-size:.74rem;letter-spacing:.1em;text-transform:uppercase}
+  .caso-activo p{font-size:.86rem;opacity:.9;margin-top:.3rem}
+
+  /* ---------- Campo de análisis ---------- */
+  .analysis-block{background:#fff;border:3px solid #ececea;box-shadow:var(--sombra);padding:22px;position:relative}
+  .analysis-block .pregunta{font-weight:800;color:var(--negro);font-size:1.05rem;margin-bottom:.2rem}
+  .analysis-block .guia{font-size:.86rem;color:var(--idc-gris2);margin-bottom:.7rem}
+  .counter{font-size:.76rem;font-weight:700;text-align:right;margin-top:.35rem;color:var(--idc-gris2)}
+  .counter.ok{color:var(--idc-azul)}
+  textarea{min-height:120px;resize:vertical}
+  .field-warn{font-size:.8rem;color:#b06a00;background:#fff8ec;border-left:5px solid var(--idc-amarillo);
+    padding:.5rem .7rem;margin-top:.5rem;display:none}
+  .field-warn.show{display:block}
+
+  /* ---------- Selector de figuras ---------- */
+  .figuras{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-top:.4rem}
+  .fig-card{cursor:pointer;border:3px solid #ececea;background:#fff;padding:16px 14px;text-align:center;
+    box-shadow:var(--sombra);transition:transform .12s, border-color .12s;position:relative}
+  .fig-card:hover{transform:translate(-2px,-2px)}
+  .fig-card .swatch{width:100%;height:46px;margin-bottom:.6rem;display:flex;align-items:center;justify-content:center}
+  .fig-card .fname{font-weight:800;color:var(--negro);font-size:1.02rem}
+  .fig-card .rel{font-size:.74rem;color:var(--idc-gris2);text-transform:uppercase;letter-spacing:.06em;margin-top:.15rem}
+  .fig-card.active{border-color:var(--negro);transform:translate(-2px,-2px)}
+  .fig-card[data-fig="repeticion"].active{border-color:var(--idc-azul);box-shadow:8px 8px 0 rgba(0,114,185,.4)}
+  .fig-card[data-fig="comparacion"].active{border-color:var(--idc-amarillo);box-shadow:8px 8px 0 rgba(243,161,0,.4)}
+  .fig-card[data-fig="antitesis"].active{border-color:var(--idc-gris);box-shadow:8px 8px 0 rgba(85,85,83,.4)}
+  .fig-card[data-fig="acumulacion"].active{border-color:var(--negro);box-shadow:8px 8px 0 rgba(28,28,27,.35)}
+
+  .feedback{margin-top:18px;padding:0;max-height:0;overflow:hidden;opacity:0;
+    transition:max-height .4s ease, opacity .35s ease, padding .4s ease}
+  .feedback.show{max-height:520px;opacity:1;padding:20px;color:#fff}
+  .feedback h4{color:#fff;font-size:1.25rem;margin-bottom:.5rem}
+  .feedback .tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:.7rem}
+  .feedback .tag{background:rgba(255,255,255,.22);font-size:.74rem;font-weight:800;padding:.3rem .7rem;
+    text-transform:uppercase;letter-spacing:.05em}
+  .feedback p{font-size:.95rem;opacity:.96}
+  .feedback .ej{margin-top:.6rem;font-size:.86rem;border-left:4px solid rgba(255,255,255,.5);padding-left:.7rem;font-style:italic}
+  .fb-repeticion{background:var(--idc-azul)}
+  .fb-comparacion{background:var(--idc-amarillo);color:var(--negro)!important}
+  .fb-comparacion h4,.fb-comparacion .tag{color:var(--negro)}
+  .fb-comparacion .tag{background:rgba(0,0,0,.12)}
+  .fb-comparacion .ej{border-color:rgba(0,0,0,.4)}
+  .fb-antitesis{background:var(--idc-gris)}
+  .fb-acumulacion{background:linear-gradient(120deg,var(--idc-azul) 0%,var(--idc-azul) 33%,var(--idc-amarillo) 33%,var(--idc-amarillo) 66%,var(--idc-gris) 66%)}
+
+  /* ---------- Panel teórico Durand ---------- */
+  #refToggle{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:60;writing-mode:vertical-rl;
+    background:var(--idc-amarillo);color:var(--negro);font-weight:800;text-transform:uppercase;letter-spacing:.12em;
+    border:none;cursor:pointer;padding:1rem .55rem;box-shadow:-4px 4px 0 rgba(0,0,0,.2);font-size:.78rem}
+  .ref-panel{position:fixed;top:0;right:0;height:100dvh;width:min(440px,92vw);background:#fff;z-index:70;
+    box-shadow:-12px 0 30px rgba(0,0,0,.25);transform:translateX(100%);transition:transform .35s ease;
+    display:flex;flex-direction:column}
+  .ref-panel.open{transform:none}
+  .ref-head{background:var(--idc-azul);color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:center}
+  .ref-head h3{color:#fff;font-size:1.1rem}
+  .ref-head button{background:none;border:none;color:#fff;font-size:1.5rem;cursor:pointer;line-height:1}
+  .ref-scroll{overflow-y:auto;padding:18px}
+  .durand-grid{width:100%;border-collapse:collapse;font-size:.78rem;margin-bottom:18px}
+  .durand-grid caption{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--idc-gris2);
+    text-align:left;margin-bottom:.5rem;font-weight:800}
+  .durand-grid th,.durand-grid td{border:2px solid #ececea;padding:.5rem;text-align:center;font-weight:700}
+  .durand-grid th{background:var(--idc-azul);color:#fff;font-size:.72rem}
+  .durand-grid td.op{background:var(--idc-gris);color:#fff}
+  .dg-rep{background:rgba(0,114,185,.16)}
+  .dg-com{background:rgba(243,161,0,.22)}
+  .dg-ant{background:rgba(85,85,83,.22)}
+  .dg-acu{background:linear-gradient(120deg,rgba(0,114,185,.18),rgba(243,161,0,.18),rgba(85,85,83,.18))}
+  .ref-fig{border-left:6px solid #ccc;padding:.6rem .8rem;margin-bottom:12px;background:#fafafa}
+  .ref-fig.rep{border-color:var(--idc-azul)}
+  .ref-fig.com{border-color:var(--idc-amarillo)}
+  .ref-fig.ant{border-color:var(--idc-gris)}
+  .ref-fig.acu{border-color:var(--negro)}
+  .ref-fig h4{font-size:.96rem;margin-bottom:.2rem}
+  .ref-fig .meta{font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--idc-azul);font-weight:800}
+  .ref-fig p{font-size:.84rem;color:var(--idc-gris2);margin-top:.25rem}
+
+  /* ---------- Dictamen ---------- */
+  #fase-dictamen{background:var(--idc-gris2);color:#fff}
+  #fase-dictamen h2,#fase-dictamen .phase-num{color:var(--negro)}
+  #fase-dictamen .lead{color:rgba(255,255,255,.85)}
+  .dictamen-doc{background:#fff;color:var(--negro);padding:34px;box-shadow:var(--sombra);
+    border-top:10px solid var(--idc-azul);max-width:820px;margin:0 auto;line-height:1.7}
+  .dictamen-doc .doc-head{border-bottom:3px solid var(--idc-amarillo);padding-bottom:14px;margin-bottom:20px;
+    display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+  .dictamen-doc .doc-head h3{font-size:1.5rem;line-height:1.05}
+  .dictamen-doc .doc-meta{font-size:.82rem;color:var(--idc-gris2);text-align:right}
+  .dictamen-doc .doc-meta b{color:var(--negro)}
+  .dictamen-doc h4{color:var(--idc-azul);text-transform:uppercase;font-size:.82rem;letter-spacing:.08em;
+    margin:18px 0 .4rem;border-left:5px solid var(--idc-amarillo);padding-left:.6rem}
+  .dictamen-doc p{margin-bottom:.6rem;text-align:justify}
+  .dictamen-doc .placeholder{color:#aaa;font-style:italic}
+  .dictamen-doc .firma{margin-top:26px;border-top:2px dashed #ccc;padding-top:14px;font-size:.82rem;color:var(--idc-gris2)}
+  .dict-actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:24px}
+
+  /* ---------- Footer geométrico ---------- */
+  .idc-foot{background:var(--negro);color:#fff;padding:30px 18px;position:relative;overflow:hidden;text-align:center}
+  .idc-foot::before{content:"";position:absolute;width:0;height:0;border-left:60px solid transparent;
+    border-right:60px solid transparent;border-bottom:90px solid var(--idc-azul);top:-20px;left:6%;opacity:.5}
+  .idc-foot::after{content:"";position:absolute;width:120px;height:120px;background:var(--idc-amarillo);
+    opacity:.4;bottom:-50px;right:8%;transform:rotate(20deg)}
+  .idc-foot .inner{position:relative;z-index:2}
+  .idc-foot .badge{display:inline-flex;gap:.5rem;align-items:center;justify-content:center;margin-bottom:.7rem}
+  .idc-foot p{font-size:.9rem;opacity:.9}
+  .idc-foot .author{font-weight:800;color:#fff;font-size:1.02rem}
+
+  /* ---------- Toast ---------- */
+  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(120%);z-index:200;
+    background:var(--negro);color:#fff;padding:.9rem 1.3rem;font-weight:700;box-shadow:var(--sombra);
+    transition:transform .3s ease;border-left:6px solid var(--idc-amarillo);max-width:90vw}
+  .toast.show{transform:translateX(-50%) translateY(0)}
+
+  @media(max-width:560px){
+    .caso-activo{grid-template-columns:1fr}
+    .caso-activo .mini{height:80px}
+    .reg-head h1{font-size:1.3rem}
+    .topbar .who b{font-size:.82rem}
+  }
+
+  /* ---------- Print: solo el dictamen ---------- */
+  @media print{
+    @page{margin:14mm}
+    body{background:#fff}
+    .cubist-bg,.topbar,#refToggle,.ref-panel,.phase:not(#fase-dictamen),
+    .dict-actions,.idc-foot,.toast,#fase-dictamen .phase-num,#fase-dictamen .lead,
+    #fase-dictamen .eyebrow,#fase-dictamen h2{display:none !important}
+    #fase-dictamen{background:#fff !important;padding:0 !important}
+    .dictamen-doc{box-shadow:none;border-top:6px solid var(--idc-azul);max-width:100%;padding:0}
+    .dictamen-doc h4{color:#000;border-color:#000}
+  }
+</style>
+</head>
+<body>
+
+<div class="cubist-bg" aria-hidden="true">
+  <span class="shape-a"></span><span class="shape-b"></span>
+  <span class="shape-c"></span><span class="shape-d"></span>
+</div>
+
+<!-- ============ 1. REGISTRO DEL ESTUDIANTE ============ -->
+<section id="registro">
+  <div class="reg-card">
+    <div class="reg-head">
+      <span class="eyebrow">RethoricaLab · Semana 16</span>
+      <h1>Registro del Analista — Semiótica de la Imagen</h1>
+      <p>Laboratorio de Figuras de Adjunción · Modelo de Jacques Durand. Práctica individual, Unidad 4: Figuras Semióticas.</p>
+    </div>
+    <form id="regForm" class="reg-body" autocomplete="off" novalidate>
+      <div class="field" id="f-nombre">
+        <label for="r-nombre">Nombres y Apellidos</label>
+        <input id="r-nombre" type="text" placeholder="Ej. Ana Lucía Pérez Vega" required />
+      </div>
+      <div class="field" id="f-codigo">
+        <label for="r-codigo">Código o Correo Institucional</label>
+        <input id="r-codigo" type="text" placeholder="Ej. U20231234 / nombre@idc.edu" required />
+      </div>
+      <div class="field" id="f-seccion">
+        <label for="r-seccion">Sección / Grupo</label>
+        <input id="r-seccion" type="text" placeholder="Ej. Sección 02 — Diseño Publicitario" required />
+      </div>
+    </form>
+    <div class="reg-foot">
+      <div class="aviso-amigable" id="regAviso">Completa los tres campos para ingresar al laboratorio de análisis.</div>
+      <button class="btn azul" id="btnIngresar" disabled>Ingresar al Laboratorio →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ APP ============ -->
+<div id="app">
+
+  <header class="topbar">
+    <div class="idc-logo">
+      <svg width="30" height="30" viewBox="0 0 100 100" aria-hidden="true">
+        <rect width="100" height="100" fill="#fff" opacity="0"/>
+        <polygon points="14,82 50,16 50,82" fill="#f3a100"/>
+        <polygon points="50,16 86,82 50,82" fill="#fff"/>
+        <rect x="14" y="86" width="72" height="8" fill="#f3a100"/>
+      </svg>
+      <span>RethoricaLab · IDC</span>
+    </div>
+    <div class="topbar-actions">
+      <div class="who"><b id="who-nombre">—</b><span id="who-seccion">—</span></div>
+      <button class="icon-btn" id="btnReset" title="Analizar otro aviso / reiniciar">↺ Reiniciar</button>
+    </div>
+  </header>
+
+  <!-- FASE 0 / GALERÍA -->
+  <section class="phase wrap" id="fase-galeria">
+    <span class="eyebrow">Inicio · Observación</span>
+    <span class="phase-num">A</span>
+    <h2>Banco de Imágenes — Selecciona un aviso</h2>
+    <p class="lead">Elige una de las 7 piezas gráficas publicitarias del banco de la sesión. Al seleccionarla, se activará tu ficha de análisis retórico guiado según el modelo de adjunción de Durand.</p>
+    <div class="galeria" id="galeria"></div>
+  </section>
+
+  <!-- ZONA DE FICHA (oculta hasta seleccionar) -->
+  <div id="ficha" class="hidden">
+
+    <!-- FASE 1 — Observación denotativa -->
+    <section class="phase wrap" id="fase-1">
+      <div class="caso-activo reveal" id="casoActivo">
+        <div class="mini" id="casoMini"></div>
+        <div>
+          <span class="b" id="casoBrand">—</span>
+          <h3 id="casoName">—</h3>
+          <p id="casoDesc">—</p>
+        </div>
+      </div>
+      <div style="margin:26px 0 14px">
+        <span class="phase-num">1</span>
+        <h2>Observación denotativa</h2>
+        <p class="lead">Describe lo que se ve literalmente en el aviso, sin interpretar todavía. Enumera elementos, colores, textos, personajes y composición.</p>
+      </div>
+      <div class="analysis-block reveal" id="block1">
+        <div class="pregunta">¿Qué se ve literalmente en el aviso?</div>
+        <div class="guia">Describe objetos, figuras, textos, colores y disposición visual tal como aparecen, sin juicios ni interpretaciones.</div>
+        <textarea id="campo1" data-min="80" placeholder="En el aviso se observa…"></textarea>
+        <div class="counter" id="c1">0 / 80 mínimo</div>
+        <div class="field-warn" id="w1">Para avanzar, completa este análisis con al menos 80 caracteres.</div>
+        <div style="margin-top:14px"><button class="btn" data-next="fase-2">Continuar a Identificación →</button></div>
+      </div>
+    </section>
+
+    <!-- FASE 2 — Identificación retórica -->
+    <section class="phase wrap" id="fase-2">
+      <span class="eyebrow">Utilidad · Modelo de Durand</span>
+      <span class="phase-num">2</span>
+      <h2>Identificación de la figura retórica de adjunción</h2>
+      <p class="lead">La <b>operación</b> es siempre la <b>Adjunción</b> (se añaden elementos al mensaje). Selecciona qué <b>relación</b> establece el aviso entre esos elementos. Al elegir, verás la confirmación de Durand.</p>
+
+      <div class="analysis-block reveal" id="block2">
+        <div class="pregunta">¿Qué figura de adjunción está presente?</div>
+        <div class="guia">Operación = Adjunción. Identifica la relación: Identidad (Repetición), Similitud (Comparación), Oposición (Antítesis) o Diferencia (Acumulación).</div>
+        <div class="figuras" id="figuras"></div>
+        <div class="feedback" id="feedback"></div>
+        <div class="field-warn" id="w2">Selecciona una figura de adjunción para continuar.</div>
+        <div style="margin-top:16px"><button class="btn" data-next="fase-3">Continuar a Efecto →</button></div>
+      </div>
+    </section>
+
+    <!-- FASE 3 — Efecto persuasivo -->
+    <section class="phase wrap" id="fase-3">
+      <span class="eyebrow">Transformación · Efecto de sentido</span>
+      <span class="phase-num">3</span>
+      <h2>Efecto persuasivo</h2>
+      <p class="lead">Pasa de lo denotado a lo connotado: explica qué sensación, emoción o idea provoca esta figura en quien recibe el mensaje.</p>
+      <div class="analysis-block reveal" id="block3">
+        <div class="pregunta">¿Qué sensación o idea produce en el receptor?</div>
+        <div class="guia">Pregunta guía: ¿cómo la figura de adjunción intensifica el mensaje? ¿Qué valor o promesa transmite la marca gracias a ella?</div>
+        <textarea id="campo3" data-min="80" placeholder="Esta figura genera en el receptor…"></textarea>
+        <div class="counter" id="c3">0 / 80 mínimo</div>
+        <div class="field-warn" id="w3">Para avanzar, completa este análisis con al menos 80 caracteres.</div>
+        <div style="margin-top:14px"><button class="btn" data-next="fase-4">Continuar a Conexión →</button></div>
+      </div>
+    </section>
+
+    <!-- FASE 4 — Conexión proyectiva -->
+    <section class="phase wrap" id="fase-4">
+      <span class="eyebrow">Práctica · Conexión proyectiva</span>
+      <span class="phase-num">4</span>
+      <h2>Conexión con campaña propia</h2>
+      <p class="lead">Proyecta lo aprendido hacia tu propio trabajo creativo: imagina cómo emplearías esta misma figura retórica.</p>
+      <div class="analysis-block reveal" id="block4">
+        <div class="pregunta">¿Podrías usar esta figura en tu campaña? ¿Para qué producto, servicio o causa?</div>
+        <div class="guia">Pregunta guía: describe el producto/servicio/causa y explica cómo aplicarías la adjunción para potenciar tu mensaje.</div>
+        <textarea id="campo4" data-min="80" placeholder="Aplicaría esta figura en una campaña para…"></textarea>
+        <div class="counter" id="c4">0 / 80 mínimo</div>
+        <div class="field-warn" id="w4">Para avanzar, completa este análisis con al menos 80 caracteres.</div>
+        <div style="margin-top:14px"><button class="btn azul" data-next="fase-dictamen">Generar Dictamen Retórico →</button></div>
+      </div>
+    </section>
+
+    <!-- FASE 5 — Dictamen -->
+    <section class="phase" id="fase-dictamen">
+      <div class="wrap">
+        <span class="eyebrow">Cierre · Evidencia de aprendizaje</span>
+        <span class="phase-num">✓</span>
+        <h2 style="color:#fff">Dictamen Retórico</h2>
+        <p class="lead">Tu análisis se ensambla automáticamente en lenguaje académico. Revísalo y expórtalo como PDF para la rúbrica de evaluación.</p>
+
+        <article class="dictamen-doc" id="dictamen">
+          <div class="doc-head">
+            <div>
+              <span class="eyebrow" style="background:var(--idc-azul);color:#fff">Dictamen Retórico Publicitario</span>
+              <h3 id="d-titulo">Análisis semiótico-retórico</h3>
+            </div>
+            <div class="doc-meta" id="d-meta"></div>
+          </div>
+          <div id="d-body"></div>
+          <div class="firma" id="d-firma"></div>
+        </article>
+
+        <div class="dict-actions">
+          <button class="btn" id="btnPDF">⬇ Exportar Dictamen (PDF)</button>
+          <button class="btn azul" id="btnOtro">↺ Analizar otro aviso</button>
+          <button class="btn ghost" id="btnCerrar">Cerrar sesión</button>
+        </div>
+      </div>
+    </section>
+
+  </div><!-- /ficha -->
+
+  <footer class="idc-foot">
+    <div class="inner">
+      <div class="badge idc-logo" style="color:#fff">
+        <svg width="26" height="26" viewBox="0 0 100 100" aria-hidden="true">
+          <polygon points="14,82 50,16 50,82" fill="#f3a100"/>
+          <polygon points="50,16 86,82 50,82" fill="#fff"/>
+        </svg>
+        <span>Instituto de Diseño y Comunicación</span>
+      </div>
+      <p class="author">Mg. Mario Quiroz Martínez — Semiótica de la Imagen | Unidad 4: Figuras Semióticas</p>
+      <p style="margin-top:.3rem;opacity:.65;font-size:.8rem">RethoricaLab · Simulador de Análisis Retórico Publicitario · Semana 16</p>
+    </div>
+  </footer>
+</div><!-- /app -->
+
+<!-- Panel teórico Durand -->
+<button id="refToggle" class="hidden">Cuadro de Durand ▸</button>
+<aside class="ref-panel" id="refPanel" aria-hidden="true">
+  <div class="ref-head">
+    <h3>Cuadro de Durand — Adjunción</h3>
+    <button id="refClose" aria-label="Cerrar panel">×</button>
+  </div>
+  <div class="ref-scroll">
+    <table class="durand-grid">
+      <caption>Operación × Relación semiótica (Figuras de Adjunción)</caption>
+      <thead>
+        <tr><th>Operación</th><th>Identidad</th><th>Similitud</th><th>Oposición</th><th>Diferencia</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="op">Adjunción</td>
+          <td class="dg-rep">Repetición</td>
+          <td class="dg-com">Comparación</td>
+          <td class="dg-ant">Antítesis</td>
+          <td class="dg-acu">Acumulación</td>
+        </tr>
+      </tbody>
+    </table>
+    <div id="refFiguras"></div>
+    <p style="font-size:.74rem;color:var(--idc-gris2);margin-top:8px">Según J. Durand (1970), la <b>adjunción</b> consiste en <i>añadir</i> uno o más elementos al mensaje visual. La figura resultante depende de la <i>relación</i> entre los elementos añadidos.</p>
+  </div>
+</aside>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* =================== DATOS =================== */
+// SVG denotativos sencillos por aviso (recortes geométricos cubistas)
+function svgFor(id){
+  const A={
+    audiopro:`<svg viewBox='0 0 200 120' xmlns='http://www.w3.org/2000/svg'><rect width='200' height='120' fill='#f4f4f2'/><rect x='55' y='35' width='90' height='55' fill='#fff' stroke='#545452' stroke-width='3'/><circle cx='78' cy='62' r='10' fill='#1c1c1b'/><circle cx='100' cy='62' r='16' fill='#1c1c1b'/><circle cx='122' cy='62' r='10' fill='#1c1c1b'/><rect x='88' y='30' width='24' height='6' rx='3' fill='#555553'/><rect x='70' y='96' width='60' height='6' fill='#f3a100'/></svg>`,
+    tagheuer:`<svg viewBox='0 0 200 120' xmlns='http://www.w3.org/2000/svg'><rect width='200' height='120' fill='#1c1c1b'/><circle cx='100' cy='58' r='30' fill='none' stroke='#fff' stroke-width='4'/><circle cx='100' cy='58' r='22' fill='#0072b9'/><rect x='96' y='40' width='8' height='36' fill='#fff' opacity='.7'/><rect x='40' y='100' width='120' height='6' fill='#f3a100'/></svg>`,
+    hudsons:`<svg viewBox='0 0 200 120' xmlns='http://www.w3.org/2000/svg'><rect width='200' height='120' fill='#fff'/><g><rect x='66' y='25' width='26' height='60' rx='12' fill='#c0392b'/><rect x='108' y='25' width='26' height='60' rx='12' fill='#c0392b'/><rect x='66' y='30' width='26' height='6' fill='#fff'/><rect x='66' y='44' width='26' height='6' fill='#fff'/><rect x='108' y='30' width='26' height='6' fill='#fff'/><rect x='108' y='44' width='26' height='6' fill='#fff'/></g><text x='100' y='108' text-anchor='middle' font-size='12' font-weight='800' fill='#c0392b'>$15</text></svg>`,
+    mionetto:`<svg viewBox='0 0 200 120' xmlns='http://www.w3.org/2000/svg'><rect width='200' height='120' fill='#101820'/><rect x='88' y='20' width='24' height='80' rx='4' fill='#1f6f5c'/><rect x='92' y='8' width='16' height='16' fill='#1f6f5c'/><rect x='90' y='45' width='20' height='30' fill='#f3a100'/><rect x='40' y='104' width='120' height='5' fill='#f3a100'/></svg>`,
+    roccoforte:`<svg viewBox='0 0 200 120' xmlns='http://www.w3.org/2000/svg'><rect width='200' height='120' fill='#1d2b3a'/><rect x='30' y='70' width='140' height='8' fill='#9c7a4f'/><circle cx='60' cy='55' r='8' fill='#cdbf9e'/><circle cx='90' cy='52' r='8' fill='#cdbf9e'/><circle cx='120' cy='52' r='8' fill='#cdbf9e'/><circle cx='150' cy='55' r='8' fill='#cdbf9e'/><text x='100' y='30' text-anchor='middle' font-size='16' font-style='italic' fill='#fff'>Our Forte</text></svg>`,
+    cyberpower:`<svg viewBox='0 0 200 120' xmlns='http://www.w3.org/2000/svg'><rect width='200' height='120' fill='#0a0a0a'/><rect x='70' y='25' width='60' height='70' fill='#1c1c1b' stroke='#0072b9' stroke-width='3'/><rect x='78' y='35' width='44' height='50' fill='#111'/><rect x='84' y='42' width='32' height='6' fill='#0072b9'/><rect x='84' y='54' width='32' height='6' fill='#f3a100'/><path d='M20 95 q30 -20 70 -8' stroke='#f3a100' stroke-width='10' fill='none' stroke-linecap='round'/></svg>`,
+    jones:`<svg viewBox='0 0 200 120' xmlns='http://www.w3.org/2000/svg'><rect width='200' height='120' fill='#5b5650'/><rect y='78' width='200' height='42' fill='#000'/><text x='100' y='42' text-anchor='middle' font-size='22' letter-spacing='6' fill='#fff'>bugatti</text><text x='100' y='104' text-anchor='middle' font-size='16' font-weight='800' fill='#fff'>JONES</text></svg>`
+  };
+  return A[id]||'';
+}
+
+const AVISOS=[
+ {id:'audiopro',brand:'Audio Pro',name:'Addon C10',desc:'Altavoz compacto de diseño escandinavo sobre fondo blanco minimalista, asa de cuero, premios "What Hi-Fi?" y lema "Sound of Scandinavia".'},
+ {id:'tagheuer',brand:'TAG Heuer',name:'Aquaracer Calibre 5',desc:'Chris Hemsworth con el reloj sobre fondo oscuro dramático, eslogan #DontCrackUnderPressure a gran escala y sello "Swiss Avant-Garde Since 1860".'},
+ {id:'hudsons',brand:"Hudson's Bay",name:'Manoplas Rojas Olímpicas',desc:'Las icónicas manoplas rojas con la hoja de arce, texto "Apoya a nuestros atletas", precio "$15", logo olímpico y thebay.com/olympics.'},
+ {id:'mionetto',brand:'Mionetto',name:'Prosecco Prestige 1887',desc:'Botella italiana con etiqueta "Prestige Collection", fondo elegante, "Más que solo un Prosecco" y descriptores sensoriales (manzana, miel, melocotón).'},
+ {id:'roccoforte',brand:'Rocco Forte Hotels',name:'Our Forte',desc:'Fotografía de la familia Forte almorzando en su casa de campo, texto cursivo "Our Forte / Making hospitality our life" y lista de hoteles de lujo europeos.'},
+ {id:'cyberpower',brand:'CyberPowerPC',name:'Gaming PC — Let\'s Go!',desc:'PC gaming de alto rendimiento, pincelada naranja con "LET\'S GO!", logo Intel Core i7 y "Gaming PC of Choice by Top Gamers".'},
+ {id:'jones',brand:'Jones Bootmaker / Bugatti',name:'bugatti — Desde 1857',desc:'Aviso minimalista: "bugatti" en tipografía blanca grande sobre fondo oscuro y bloque inferior negro con "JONES / Hacedor de Botas / Desde 1857".'}
+];
+
+const FIGURAS={
+ repeticion:{nombre:'Repetición',rel:'Identidad',clase:'rep',color:'repeticion',
+   def:'Adjunción de elementos idénticos. El mismo elemento (forma, palabra, objeto, color) se reitera dentro del mensaje, reforzando la idea por insistencia.',
+   ej:'Una serie de productos idénticos alineados, o una palabra repetida varias veces para fijarla en la memoria.'},
+ comparacion:{nombre:'Comparación',rel:'Similitud',clase:'com',color:'comparacion',
+   def:'Adjunción de elementos semejantes. Se aproximan dos elementos parecidos para que uno transfiera sus cualidades al otro mediante la analogía.',
+   ej:'Mostrar un automóvil junto a un felino para sugerir que comparte su agilidad y elegancia.'},
+ antitesis:{nombre:'Antítesis',rel:'Oposición',clase:'ant',color:'antitesis',
+   def:'Adjunción de elementos opuestos. Se confrontan dos elementos contrarios (antes/después, frío/calor) para resaltar un contraste persuasivo.',
+   ej:'Un "antes y después", o luz frente a oscuridad, para subrayar la transformación que ofrece el producto.'},
+ acumulacion:{nombre:'Acumulación',rel:'Diferencia',clase:'acu',color:'acumulacion',
+   def:'Adjunción de elementos diferentes. Se suman elementos distintos y heterogéneos que conviven, generando riqueza, abundancia o variedad.',
+   ej:'Una mesa repleta de ingredientes diversos, o múltiples objetos distintos reunidos para sugerir plenitud.'}
+};
+
+/* =================== ESTADO =================== */
+const estado={student:{},aviso:null,figura:null,campo1:'',campo3:'',campo4:''};
+
+/* =================== HELPERS =================== */
+const $=s=>document.querySelector(s);
+const $$=s=>document.querySelectorAll(s);
+function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2600);}
+function scrollToId(id){const el=document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
+
+/* =================== REGISTRO =================== */
+const regInputs=['#r-nombre','#r-codigo','#r-seccion'].map(s=>$(s));
+function validReg(){return regInputs.every(i=>i.value.trim().length>1);}
+function refreshReg(){
+  const ok=validReg();
+  $('#btnIngresar').disabled=!ok;
+  $('#regAviso').classList.toggle('show',!ok && regInputs.some(i=>i.value.length>0));
+}
+regInputs.forEach(i=>i.addEventListener('input',refreshReg));
+$('#regForm').addEventListener('submit',e=>e.preventDefault());
+
+$('#btnIngresar').addEventListener('click',()=>{
+  if(!validReg()){
+    regInputs.forEach(i=>i.closest('.field').classList.toggle('invalid',i.value.trim().length<=1));
+    $('#regAviso').classList.add('show');
+    return;
+  }
+  estado.student={nombre:$('#r-nombre').value.trim(),codigo:$('#r-codigo').value.trim(),seccion:$('#r-seccion').value.trim()};
+  $('#who-nombre').textContent=estado.student.nombre;
+  $('#who-seccion').textContent=estado.student.seccion;
+  $('#registro').style.display='none';
+  $('#app').style.display='block';
+  $('#refToggle').classList.remove('hidden');
+  buildGaleria();
+  buildFiguras();
+  buildRefPanel();
+  window.scrollTo(0,0);
+});
+
+/* =================== GALERÍA =================== */
+function buildGaleria(){
+  const g=$('#galeria');g.innerHTML='';
+  AVISOS.forEach(a=>{
+    const c=document.createElement('div');
+    c.className='ad-card';c.dataset.id=a.id;
+    c.innerHTML=`<span class="pick">✓ Seleccionado</span>
+      <div class="ad-thumb">${svgFor(a.id)}</div>
+      <div class="ad-body">
+        <div class="ad-brand">${a.brand}</div>
+        <div class="ad-name">${a.name}</div>
+        <div class="ad-desc">${a.desc}</div>
+      </div>`;
+    c.addEventListener('click',()=>selectAviso(a.id));
+    g.appendChild(c);
+  });
+}
+
+function selectAviso(id){
+  estado.aviso=AVISOS.find(a=>a.id===id);
+  $$('.ad-card').forEach(c=>c.classList.toggle('selected',c.dataset.id===id));
+  // poblar caso activo
+  $('#casoMini').innerHTML=svgFor(id);
+  $('#casoBrand').textContent=estado.aviso.brand;
+  $('#casoName').textContent=estado.aviso.name;
+  $('#casoDesc').textContent=estado.aviso.desc;
+  $('#ficha').classList.remove('hidden');
+  // stagger reveal
+  staggerReveal();
+  updateDictamen();
+  setTimeout(()=>scrollToId('fase-1'),120);
+}
+
+function staggerReveal(){
+  const items=['#casoActivo','#block1','#block2','#block3','#block4'];
+  items.forEach((s,i)=>{const el=$(s);if(!el)return;el.classList.remove('in');setTimeout(()=>el.classList.add('in'),150+i*180);});
+}
+
+/* =================== FIGURAS =================== */
+function buildFiguras(){
+  const cont=$('#figuras');cont.innerHTML='';
+  Object.entries(FIGURAS).forEach(([key,f])=>{
+    const card=document.createElement('div');
+    card.className='fig-card';card.dataset.fig=key;
+    card.innerHTML=`<div class="swatch">${swatch(key)}</div>
+      <div class="fname">${f.nombre}</div>
+      <div class="rel">${f.rel}</div>`;
+    card.addEventListener('click',()=>selectFigura(key));
+    cont.appendChild(card);
+  });
+}
+function swatch(key){
+  if(key==='repeticion')return `<svg width='70' height='40'><rect x='5' y='8' width='14' height='24' fill='#0072b9'/><rect x='28' y='8' width='14' height='24' fill='#0072b9'/><rect x='51' y='8' width='14' height='24' fill='#0072b9'/></svg>`;
+  if(key==='comparacion')return `<svg width='70' height='40'><rect x='8' y='8' width='22' height='24' fill='#f3a100'/><circle cx='52' cy='20' r='13' fill='#f3a100' opacity='.6'/></svg>`;
+  if(key==='antitesis')return `<svg width='70' height='40'><rect x='6' y='8' width='28' height='24' fill='#555553'/><rect x='36' y='8' width='28' height='24' fill='#cfcfce'/></svg>`;
+  return `<svg width='70' height='40'><rect x='6' y='8' width='16' height='24' fill='#0072b9'/><rect x='27' y='8' width='16' height='24' fill='#f3a100'/><rect x='48' y='8' width='16' height='24' fill='#555553'/></svg>`;
+}
+
+function selectFigura(key){
+  estado.figura=key;
+  $$('.fig-card').forEach(c=>c.classList.toggle('active',c.dataset.fig===key));
+  const f=FIGURAS[key];
+  const fb=$('#feedback');
+  fb.className='feedback show fb-'+key;
+  fb.innerHTML=`<h4>${f.nombre}</h4>
+    <div class="tags">
+      <span class="tag">Operación: Adjunción</span>
+      <span class="tag">Relación: ${f.rel}</span>
+    </div>
+    <p>${f.def}</p>
+    <div class="ej">Ejemplo orientador: ${f.ej}</div>`;
+  $('#w2').classList.remove('show');
+  updateDictamen();
+}
+
+/* =================== PANEL TEÓRICO =================== */
+function buildRefPanel(){
+  const c=$('#refFiguras');c.innerHTML='';
+  Object.values(FIGURAS).forEach(f=>{
+    const d=document.createElement('div');
+    d.className='ref-fig '+f.clase;
+    d.innerHTML=`<div class="meta">Adjunción · ${f.rel}</div>
+      <h4>${f.nombre}</h4><p>${f.def}</p>
+      <p style="font-style:italic">Ej.: ${f.ej}</p>`;
+    c.appendChild(d);
+  });
+}
+$('#refToggle').addEventListener('click',()=>{$('#refPanel').classList.add('open');$('#refPanel').setAttribute('aria-hidden','false');});
+$('#refClose').addEventListener('click',()=>{$('#refPanel').classList.remove('open');$('#refPanel').setAttribute('aria-hidden','true');});
+
+/* =================== CAMPOS DE TEXTO + CONTADORES =================== */
+function bindCampo(sel,counterSel,warnSel,stateKey){
+  const el=$(sel);
+  el.addEventListener('input',()=>{
+    estado[stateKey]=el.value;
+    const len=el.value.trim().length;const min=+el.dataset.min;
+    const cnt=$(counterSel);
+    cnt.textContent=`${len} / ${min} mínimo`;
+    cnt.classList.toggle('ok',len>=min);
+    if(len>=min)$(warnSel).classList.remove('show');
+    updateDictamen();
+  });
+}
+bindCampo('#campo1','#c1','#w1','campo1');
+bindCampo('#campo3','#c3','#w3','campo3');
+bindCampo('#campo4','#c4','#w4','campo4');
+
+/* =================== NAVEGACIÓN ENTRE FASES (con validación) =================== */
+$$('[data-next]').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const next=btn.dataset.next;
+    if(!validateCurrent(next))return;
+    scrollToId(next);
+  });
+});
+
+function validateCurrent(next){
+  // validamos la fase que se está dejando
+  if(next==='fase-2'){return checkText('#campo1','#w1');}
+  if(next==='fase-3'){
+    if(!estado.figura){$('#w2').classList.add('show');toast('Selecciona una figura de adjunción.');return false;}
+    return true;
+  }
+  if(next==='fase-4'){return checkText('#campo3','#w3');}
+  if(next==='fase-dictamen'){
+    // exige todo
+    const okAll=checkText('#campo1','#w1',true)&&!!estado.figura&&checkText('#campo3','#w3',true)&&checkText('#campo4','#w4');
+    if(!estado.figura)$('#w2').classList.add('show');
+    if(!okAll){toast('Completa los 4 análisis (mín. 80 caracteres) y la figura.');return false;}
+    return true;
+  }
+  return true;
+}
+function checkText(sel,warnSel,silent){
+  const el=$(sel);const ok=el.value.trim().length>=(+el.dataset.min);
+  if(!ok){
+    $(warnSel).classList.add('show');
+    if(!silent){el.focus();el.closest('.analysis-block').classList.add('invalid');toast('Completa este análisis con al menos 80 caracteres.');}
+  }else{$(warnSel).classList.remove('show');}
+  return ok;
+}
+
+/* =================== DICTAMEN EN TIEMPO REAL =================== */
+function updateDictamen(){
+  const s=estado.student,a=estado.aviso,f=estado.figura?FIGURAS[estado.figura]:null;
+  if(!a)return;
+  const fecha=new Date().toLocaleDateString('es-PE',{day:'2-digit',month:'long',year:'numeric'});
+  $('#d-titulo').textContent=`Análisis retórico de «${a.name}» — ${a.brand}`;
+  $('#d-meta').innerHTML=`<b>${s.nombre||'—'}</b><br>${s.codigo||''}<br>${s.seccion||''}<br>${fecha}`;
+
+  const ph=t=>`<span class="placeholder">${t}</span>`;
+  const c1=estado.campo1.trim(), c3=estado.campo3.trim(), c4=estado.campo4.trim();
+
+  let body='';
+  body+=`<h4>1 · Observación denotativa</h4><p>`+
+    (c1?`En la pieza publicitaria de <b>${a.brand}</b> («${a.name}»), el analista observa lo siguiente: ${c1}`:ph('Aún no se ha registrado la descripción denotativa del aviso.'))+`</p>`;
+
+  body+=`<h4>2 · Identificación de la figura de adjunción</h4><p>`+
+    (f?`Aplicando el modelo de Jacques Durand, se identifica que el aviso recurre a la operación de <b>Adjunción</b> bajo una relación de <b>${f.rel}</b>, lo que configura la figura retórica de la <b>${f.nombre}</b>. ${f.def}`:ph('Aún no se ha seleccionado la figura retórica de adjunción.'))+`</p>`;
+
+  body+=`<h4>3 · Efecto persuasivo</h4><p>`+
+    (c3?`En el plano connotativo, esta figura produce el siguiente efecto sobre el receptor: ${c3}`:ph('Aún no se ha descrito el efecto persuasivo.'))+`</p>`;
+
+  body+=`<h4>4 · Conexión proyectiva con campaña propia</h4><p>`+
+    (c4?`Proyectando el recurso hacia la práctica creativa propia: ${c4}`:ph('Aún no se ha planteado la conexión con una campaña propia.'))+`</p>`;
+
+  if(c1&&f&&c3&&c4){
+    body+=`<h4>Síntesis del dictamen</h4><p>En conclusión, la pieza de <b>${a.brand}</b> constituye un ejemplo de la figura de <b>${f.nombre}</b> (Adjunción · ${f.rel}) dentro de la clasificación retórica de Durand. La relación de ${f.rel.toLowerCase()} entre los elementos del mensaje intensifica su carga persuasiva y demuestra el potencial proyectivo de esta figura para futuras estrategias creativas.</p>`;
+  }
+  $('#d-body').innerHTML=body;
+  $('#d-firma').innerHTML=`Dictamen elaborado por <b>${s.nombre||'—'}</b> · ${s.seccion||''} · RethoricaLab — Semiótica de la Imagen, Unidad 4.<br>Mg. Mario Quiroz Martínez · Instituto de Diseño y Comunicación.`;
+}
+
+/* =================== EXPORTAR PDF =================== */
+$('#btnPDF').addEventListener('click',()=>{
+  if(!(estado.campo1.trim().length>=80&&estado.figura&&estado.campo3.trim().length>=80&&estado.campo4.trim().length>=80)){
+    toast('Completa todo el análisis antes de exportar el dictamen.');
+    scrollToId('fase-1');return;
+  }
+  window.print();
+});
+
+/* =================== REINICIO / CERRAR =================== */
+function resetFicha(){
+  estado.aviso=null;estado.figura=null;estado.campo1=estado.campo3=estado.campo4='';
+  ['#campo1','#campo3','#campo4'].forEach(s=>$(s).value='');
+  ['#c1','#c3','#c4'].forEach((s,i)=>{$(s).textContent='0 / 80 mínimo';$(s).classList.remove('ok');});
+  $$('.field-warn').forEach(w=>w.classList.remove('show'));
+  $$('.ad-card').forEach(c=>c.classList.remove('selected'));
+  $$('.fig-card').forEach(c=>c.classList.remove('active'));
+  $('#feedback').className='feedback';$('#feedback').innerHTML='';
+  $('#ficha').classList.add('hidden');
+  scrollToId('fase-galeria');
+}
+$('#btnReset').addEventListener('click',()=>{resetFicha();toast('Ficha reiniciada. Selecciona un nuevo aviso.');});
+$('#btnOtro').addEventListener('click',()=>{resetFicha();toast('Ficha en blanco. Elige otro aviso del banco.');});
+$('#btnCerrar').addEventListener('click',()=>{
+  if(confirm('¿Cerrar la sesión? Se borrará el análisis actual.')){
+    estado.student={};resetFicha();
+    $('#app').style.display='none';$('#refToggle').classList.add('hidden');
+    $('#registro').style.display='flex';
+    regInputs.forEach(i=>{i.value='';i.closest('.field').classList.remove('invalid');});
+    refreshReg();window.scrollTo(0,0);
+  }
+});
+
+/* =================== PWA: manifest + service worker (single-file) =================== */
+(function(){
+  const manifest={
+    name:"RethoricaLab — Análisis Retórico Publicitario",
+    short_name:"RethoricaLab",
+    description:"Simulador de análisis semiótico-retórico (modelo de Durand) — Semiótica de la Imagen, Unidad 4.",
+    start_url:".",display:"standalone",orientation:"portrait",
+    background_color:"#ffffff",theme_color:"#0072b9",lang:"es",
+    icons:[{
+      src:"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' fill='%230072b9'/%3E%3Cpolygon points='90,420 256,90 256,420' fill='%23f3a100'/%3E%3Cpolygon points='256,90 422,420 256,420' fill='%23ffffff'/%3E%3C/svg%3E",
+      sizes:"512x512",type:"image/svg+xml",purpose:"any maskable"}]
+  };
+  const mBlob=new Blob([JSON.stringify(manifest)],{type:'application/manifest+json'});
+  const link=document.createElement('link');link.rel='manifest';link.href=URL.createObjectURL(mBlob);
+  document.head.appendChild(link);
+
+  if('serviceWorker' in navigator){
+    const swCode=`
+      const C='rethoricalab-v1';
+      self.addEventListener('install',e=>{self.skipWaiting();});
+      self.addEventListener('activate',e=>{e.waitUntil(self.clients.claim());});
+      self.addEventListener('fetch',e=>{
+        if(e.request.method!=='GET')return;
+        e.respondWith(
+          caches.open(C).then(cache=>cache.match(e.request).then(hit=>{
+            const net=fetch(e.request).then(res=>{try{cache.put(e.request,res.clone());}catch(_){}return res;}).catch(()=>hit);
+            return hit||net;
+          }))
+        );
+      });`;
+    const swUrl=URL.createObjectURL(new Blob([swCode],{type:'text/javascript'}));
+    navigator.serviceWorker.register(swUrl).catch(()=>{/* offline opcional */});
+  }
+})();
+</script>
+</body>
+</html>
