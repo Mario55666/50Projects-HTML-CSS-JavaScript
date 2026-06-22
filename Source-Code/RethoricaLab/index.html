@@ -60,7 +60,7 @@
 
   .hidden{display:none !important}
 
-  /* ---------- Logo IDC ---------- */
+  /* ---------- Logo UTP ---------- */
   .idc-logo{display:inline-flex;align-items:center;gap:.55rem;font-weight:800;color:#fff}
   .idc-logo svg{flex:none}
 
@@ -281,9 +281,9 @@
 <section id="registro">
   <div class="reg-card">
     <div class="reg-head">
-      <span class="eyebrow">RethoricaLab · Semana 16</span>
+      <span class="eyebrow">RethoricaLab · UTP 2026 · Semana 16</span>
       <h1>Registro del Analista — Semiótica de la Imagen</h1>
-      <p>Laboratorio de Figuras de Adjunción · Modelo de Jacques Durand. Práctica individual, Unidad 4: Figuras Semióticas.</p>
+      <p>Universidad Tecnológica del Perú (UTP). Laboratorio de Figuras de Adjunción · Modelo de Jacques Durand. Práctica individual, Unidad 4: Figuras Semióticas.</p>
     </div>
     <form id="regForm" class="reg-body" autocomplete="off" novalidate>
       <div class="field" id="f-nombre">
@@ -317,7 +317,7 @@
         <polygon points="50,16 86,82 50,82" fill="#fff"/>
         <rect x="14" y="86" width="72" height="8" fill="#f3a100"/>
       </svg>
-      <span>RethoricaLab · IDC</span>
+      <span>RethoricaLab · UTP</span>
     </div>
     <div class="topbar-actions">
       <div class="who"><b id="who-nombre">—</b><span id="who-seccion">—</span></div>
@@ -448,10 +448,10 @@
           <polygon points="14,82 50,16 50,82" fill="#f3a100"/>
           <polygon points="50,16 86,82 50,82" fill="#fff"/>
         </svg>
-        <span>Instituto de Diseño y Comunicación</span>
+        <span>Universidad Tecnológica del Perú (UTP) · 2026</span>
       </div>
       <p class="author">Mg. Mario Quiroz Martínez — Semiótica de la Imagen | Unidad 4: Figuras Semióticas</p>
-      <p style="margin-top:.3rem;opacity:.65;font-size:.8rem">RethoricaLab · Simulador de Análisis Retórico Publicitario · Semana 16</p>
+      <p style="margin-top:.3rem;opacity:.65;font-size:.8rem">RethoricaLab · Simulador de Análisis Retórico Publicitario · Universidad Tecnológica del Perú (UTP) · 2026 · Semana 16</p>
     </div>
   </footer>
 </div><!-- /app -->
@@ -865,7 +865,7 @@ function updateDictamen(){
     body+=`<h4>Síntesis del dictamen</h4><p>En conclusión, la pieza de <b>${a.brand}</b> constituye un ejemplo de la figura de <b>${f.nombre}</b> (Adjunción · ${f.rel}) dentro de la clasificación retórica de Durand. La relación de ${f.rel.toLowerCase()} entre los elementos del mensaje intensifica su carga persuasiva y demuestra el potencial proyectivo de esta figura para futuras estrategias creativas.</p>`;
   }
   $('#d-body').innerHTML=body;
-  $('#d-firma').innerHTML=`Dictamen elaborado por <b>${s.nombre||'—'}</b> · ${s.seccion||''} · RethoricaLab — Semiótica de la Imagen, Unidad 4.<br>Mg. Mario Quiroz Martínez · Instituto de Diseño y Comunicación.`;
+  $('#d-firma').innerHTML=`Dictamen elaborado por <b>${s.nombre||'—'}</b> · ${s.seccion||''} · RethoricaLab — Semiótica de la Imagen, Unidad 4.<br>Mg. Mario Quiroz Martínez · Universidad Tecnológica del Perú (UTP) · 2026.`;
 }
 
 /* =================== EXPORTAR PDF =================== */
