@@ -1376,7 +1376,7 @@ $('#btnCSV').addEventListener('click',()=>{
   });
   rows.push([]);
   rows.push(['Docente','Mg. Mario Quiroz Martínez — Semiótica de la Imagen, Unidad 4 — UTP 2026']);
-  const csv='﻿'+rows.map(r=>r.map(csvCell).join(',')).join('\r\n'); // BOM para Excel
+  const csv='﻿'+'sep=;\r\n'+rows.map(r=>r.map(csvCell).join(';')).join('\r\n'); // BOM + separador ; (Excel regional ES)
   const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');
