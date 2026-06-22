@@ -314,6 +314,8 @@
     background:rgba(243,161,0,.12);border:2px dashed var(--idc-amarillo);padding:12px 16px;margin-top:16px}
   .refuerzo-callout p{font-size:.88rem;color:var(--idc-gris2);margin:0;flex:1;min-width:200px}
   .refuerzo-callout .btn{padding:.6rem 1.1rem;font-size:.82rem}
+  .refuerzo-callout.done{background:rgba(31,157,107,.12);border-color:var(--ok);border-style:solid}
+  .refuerzo-callout.done p b{color:var(--ok)}
 
   /* ---------- Progreso de piezas ---------- */
   .piece-progress{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap}
@@ -541,9 +543,9 @@
         <div class="guia">Operación = Adjunción. Identifica la relación: Identidad (Repetición), Similitud (Comparación), Oposición (Antítesis) o Diferencia (Acumulación).</div>
         <div class="figuras" id="figuras"></div>
         <div class="feedback" id="feedback"></div>
-        <div class="refuerzo-callout">
-          <p>💡 <b>¿Dudas con la figura?</b> Usa el refuerzo interactivo (quiz de identificación, caso ramificado y flashcards) como apoyo para decidir.</p>
-          <button type="button" class="btn" id="btnRefuerzoPieza">🎮 Abrir refuerzo</button>
+        <div class="refuerzo-callout" id="refuerzoCallout">
+          <p id="refuerzoMsg">🔒 <b>Refuerzo obligatorio:</b> para finalizar esta pieza debes aprobar el <b>Quiz de figuras</b> (mín. 4 de 5 aciertos).</p>
+          <button type="button" class="btn" id="btnRefuerzoPieza">🎮 Hacer el quiz</button>
         </div>
         <div class="field-warn" id="w2">Selecciona una figura de adjunción para continuar.</div>
         <div style="margin-top:16px"><button class="btn" data-next="fase-3">Continuar a Efecto →</button></div>
@@ -908,8 +910,9 @@ const FIGURAS={
 };
 
 /* =================== ESTADO =================== */
-const estado={group:null,deck:[],selected:[],analyses:[],idx:0,aviso:null,figura:null,campo1:'',campo3:'',campo4:''};
+const estado={group:null,deck:[],selected:[],analyses:[],idx:0,aviso:null,figura:null,campo1:'',campo3:'',campo4:'',quizDone:[]};
 const N_PIEZAS=4;
+const MIN_QUIZ=4; // aciertos mínimos para aprobar el quiz obligatorio de cada pieza
 function shuffle(arr){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 
 /* =================== HELPERS =================== */
@@ -1042,7 +1045,7 @@ function refreshPicks(){
 $('#btnIniciar').addEventListener('click',()=>{
   if(picks.length!==N_PIEZAS){toast('Selecciona exactamente 4 piezas.');return;}
   estado.selected=picks.map(id=>AVISOS.find(a=>a.id===id));
-  estado.analyses=[];estado.idx=0;
+  estado.analyses=[];estado.idx=0;estado.quizDone=[];
   $('#ficha').classList.remove('hidden');
   loadPiece(0);
 });
@@ -1066,6 +1069,9 @@ function loadPiece(i){
   renderProgress();
   // etiqueta del botón final según si quedan piezas
   $('#btnFinPieza').textContent = (i<N_PIEZAS-1) ? 'Guardar y siguiente pieza →' : 'Generar Dictamen de las 4 →';
+  // quiz obligatorio: reinicia para esta pieza y refleja estado
+  if(window.QuizGame)QuizGame.start();
+  updateRefuerzoState();
   staggerReveal();
   updateDictamen();
   setTimeout(()=>scrollToId('fase-1'),120);
@@ -1177,6 +1183,11 @@ function validateCurrent(next){
 
 /* ---- Botón final de cada pieza: guarda y avanza, o compila el dictamen ---- */
 $('#btnFinPieza').addEventListener('click',()=>{
+  if(!estado.quizDone[estado.idx]){
+    toast('Refuerzo obligatorio: aprueba el Quiz de figuras (mín. 4/5) para finalizar esta pieza.');
+    openGames('paneQuiz');
+    return;
+  }
   const okAll=checkText('#campo1','#w1',true)&&!!estado.figura&&checkText('#campo3','#w3',true)&&checkText('#campo4','#w4');
   if(!estado.figura)$('#w2').classList.add('show');
   if(!okAll){toast('Completa los 4 campos (mín. 80 caracteres) y la figura de esta pieza.');return;}
@@ -1260,7 +1271,7 @@ $('#btnPDF').addEventListener('click',()=>{
 
 /* =================== REINICIO / CERRAR =================== */
 function resetFicha(){
-  estado.selected=[];estado.analyses=[];estado.idx=0;
+  estado.selected=[];estado.analyses=[];estado.idx=0;estado.quizDone=[];
   estado.aviso=null;estado.figura=null;estado.campo1=estado.campo3=estado.campo4='';
   ['#campo1','#campo3','#campo4'].forEach(s=>$(s).value='');
   ['#c1','#c3','#c4'].forEach(s=>{$(s).textContent='0 / 80 mínimo';$(s).classList.remove('ok');});
@@ -1324,6 +1335,28 @@ $('#gamesOverlay').addEventListener('click',e=>{if(e.target===$('#gamesOverlay')
 $$('.games-tabs button').forEach(b=>b.addEventListener('click',()=>activateTab(b.dataset.pane)));
 // refuerzo contextual desde la fase de identificación de cada pieza
 $('#btnRefuerzoPieza').addEventListener('click',()=>openGames('paneQuiz'));
+
+// --- Quiz obligatorio por pieza ---
+function onQuizResult(score,pass){
+  if(!estado.selected.length)return;
+  if(pass && !estado.quizDone[estado.idx]){
+    estado.quizDone[estado.idx]=true;
+    updateRefuerzoState();
+    toast(`✓ Quiz aprobado (${score}/5). Ya puedes finalizar la pieza ${estado.idx+1}.`);
+  }
+}
+function updateRefuerzoState(){
+  const done=!!estado.quizDone[estado.idx];
+  const co=$('#refuerzoCallout'),msg=$('#refuerzoMsg'),btn=$('#btnRefuerzoPieza'),fin=$('#btnFinPieza');
+  if(co){
+    co.classList.toggle('done',done);
+    msg.innerHTML=done
+      ? '✅ <b>Refuerzo aprobado</b> para esta pieza. Puedes finalizar el análisis.'
+      : '🔒 <b>Refuerzo obligatorio:</b> para finalizar esta pieza debes aprobar el <b>Quiz de figuras</b> (mín. 4 de 5 aciertos).';
+    btn.textContent=done?'🎮 Repetir quiz':'🎮 Hacer el quiz';
+  }
+  if(fin){fin.style.opacity=done?'1':'.55';fin.title=done?'':'Aprueba el Quiz de figuras para finalizar esta pieza';}
+}
 
 /* ---- Flashcards (repaso espaciado de términos) ---- */
 (function(){
@@ -1405,16 +1438,29 @@ $('#btnRefuerzoPieza').addEventListener('click',()=>openGames('paneQuiz'));
     $('#quizNext').style.display='block';
     $('#quizNextBtn').textContent = (idx<QUIZ.length-1)?'Siguiente →':'Ver resultado';
   }
-  $('#quizNextBtn').addEventListener('click',()=>{
+  let resultShown=false;
+  function showResult(){
+    resultShown=true;
+    const pass=score>=MIN_QUIZ;
+    $('#quizArea').innerHTML=`<div class="quiz-score"><div class="big" style="color:${pass?'var(--ok)':'var(--idc-amarillo)'}">${score}/${QUIZ.length}</div>
+      <p>${pass?'✓ ¡Refuerzo aprobado! Ya puedes finalizar esta pieza.':`Necesitas al menos ${MIN_QUIZ}/${QUIZ.length} para aprobar. Repasa el panel teórico y reintenta.`}</p></div>`;
+    $('#quizFb').className='fb';$('#quizNextBtn').textContent='Reintentar';
+    if(typeof onQuizResult==='function')onQuizResult(score,pass);
+  }
+  function handleNext(){
+    if(resultShown){start();return;}
     if(idx<QUIZ.length-1){idx++;render();}
-    else{
-      $('#quizArea').innerHTML=`<div class="quiz-score"><div class="big">${score}/${QUIZ.length}</div>
-        <p>${score===QUIZ.length?'¡Dominas la clasificación de Durand!':'Buen intento: repasa las figuras en el panel teórico.'}</p></div>`;
-      $('#quizFb').className='fb';$('#quizNextBtn').textContent='Reintentar';
-      $('#quizNextBtn').onclick=()=>{idx=0;score=0;$('#quizArea').innerHTML='<div class="quiz-q" id="quizQ"></div><div class="quiz-opts" id="quizOpts"></div>';render();};
-    }
-  });
-  render();
+    else showResult();
+  }
+  $('#quizNextBtn').onclick=handleNext;
+  function start(){
+    resultShown=false;idx=0;score=0;
+    $('#quizArea').innerHTML='<div class="quiz-q" id="quizQ"></div><div class="quiz-opts" id="quizOpts"></div>';
+    $('#quizNextBtn').textContent='Siguiente →';
+    render();
+  }
+  window.QuizGame={start};
+  start();
 })();
 
 /* ---- Juego 2: Caso ramificado (árbol de decisión del método de análisis) ---- */
