@@ -1,0 +1,22 @@
+COLOCA AQUÍ LAS FOTOGRAFÍAS REALES DE LOS AVISOS
+=================================================
+
+La app busca automáticamente cada foto en esta carpeta (./img) con estos
+nombres EXACTOS (en .jpg o .png). Si una foto no existe, se muestra la
+recreación SVG como respaldo.
+
+  audiopro.jpg     → Audio Pro Addon C10
+  tagheuer.jpg     → TAG Heuer Aquaracer
+  hudsons.jpg      → Hudson's Bay Manoplas Rojas
+  mionetto.jpg     → Mionetto Prosecco
+  roccoforte.jpg   → Rocco Forte Hotels
+  cyberpower.jpg   → CyberPowerPC
+  jones.jpg        → Jones Bootmaker / Bugatti
+
+Pasos:
+1) Guarda cada imagen con el nombre indicado (ej. audiopro.jpg).
+2) Colócala en esta carpeta ./img.
+3) Abre ../index.html — las fotos reales aparecerán en la galería y en el
+   banner del caso activo. No hay que tocar el código.
+
+Acepta .jpg o .png (prueba .jpg primero, luego .png, luego el SVG).

@@ -619,6 +619,19 @@ function svgFor(id){
   return A[id]||'';
 }
 
+// Devuelve la imagen real del aviso (img/<id>.jpg o .png) y, si no existe,
+// recae automáticamente en la recreación SVG inline. Coloca tus fotos en la
+// carpeta ./img con el nombre del id (audiopro, tagheuer, hudsons, mionetto,
+// roccoforte, cyberpower, jones) en formato .jpg o .png.
+function mediaFor(id){
+  return `<img src="img/${id}.jpg" data-id="${id}" alt="Aviso publicitario"
+    style="width:100%;height:100%;object-fit:cover;display:block" onerror="imgFallback(this)">`;
+}
+function imgFallback(el){
+  if(el.dataset.try!=='png'){el.dataset.try='png';el.src='img/'+el.dataset.id+'.png';return;}
+  el.parentNode.innerHTML=svgFor(el.dataset.id);
+}
+
 const AVISOS=[
  {id:'audiopro',brand:'Audio Pro',name:'Addon C10',desc:'Altavoz compacto de diseño escandinavo sobre fondo blanco minimalista, asa de cuero, premios "What Hi-Fi?" y lema "Sound of Scandinavia".'},
  {id:'tagheuer',brand:'TAG Heuer',name:'Aquaracer Calibre 5',desc:'Chris Hemsworth con el reloj sobre fondo oscuro dramático, eslogan #DontCrackUnderPressure a gran escala y sello "Swiss Avant-Garde Since 1860".'},
@@ -689,7 +702,7 @@ function buildGaleria(){
     const c=document.createElement('div');
     c.className='ad-card';c.dataset.id=a.id;
     c.innerHTML=`<span class="pick">✓ Seleccionado</span>
-      <div class="ad-thumb">${svgFor(a.id)}</div>
+      <div class="ad-thumb">${mediaFor(a.id)}</div>
       <div class="ad-body">
         <div class="ad-brand">${a.brand}</div>
         <div class="ad-name">${a.name}</div>
@@ -704,7 +717,7 @@ function selectAviso(id){
   estado.aviso=AVISOS.find(a=>a.id===id);
   $$('.ad-card').forEach(c=>c.classList.toggle('selected',c.dataset.id===id));
   // poblar caso activo
-  $('#casoMini').innerHTML=svgFor(id);
+  $('#casoMini').innerHTML=mediaFor(id);
   $('#casoBrand').textContent=estado.aviso.brand;
   $('#casoName').textContent=estado.aviso.name;
   $('#casoDesc').textContent=estado.aviso.desc;
