@@ -95,6 +95,22 @@
     padding:.6rem .8rem;display:none}
   .aviso-amigable.show{display:block}
 
+  /* ---------- Integrantes (registro grupal) ---------- */
+  .integrantes-head{display:flex;justify-content:space-between;align-items:baseline;margin-top:.2rem}
+  .integrantes-head label{font-weight:800;font-size:.82rem;text-transform:uppercase;letter-spacing:.05em;color:var(--idc-gris2)}
+  .integrantes-head .muted{font-weight:600;text-transform:none;letter-spacing:0;color:#9a9a98}
+  .int-count{font-size:.78rem;font-weight:800;color:var(--idc-azul)}
+  .integrante{border:3px solid #e3e3e1;border-left:6px solid var(--idc-azul);background:#fafafa;
+    padding:12px 12px 14px;margin-bottom:12px;position:relative}
+  .integrante .int-title{font-size:.74rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;
+    color:var(--idc-azul);margin-bottom:.5rem}
+  .integrante .row{display:grid;gap:10px}
+  .integrante .btn-del{position:absolute;top:8px;right:8px;background:none;border:none;cursor:pointer;
+    color:var(--idc-amarillo);font-weight:800;font-size:1.1rem;line-height:1;padding:.1rem .35rem}
+  .integrante.invalid{border-color:var(--idc-amarillo);border-left-color:var(--idc-amarillo);background:#fff8ec}
+  .btn-add{align-self:flex-start;font-size:.82rem;padding:.6rem 1.1rem}
+  .btn-add:disabled{opacity:.4;cursor:not-allowed}
+
   /* ---------- App header ---------- */
   #app{display:none}
   .topbar{position:sticky;top:0;z-index:50;background:var(--idc-azul);color:#fff;
@@ -280,25 +296,24 @@
   <div class="reg-card">
     <div class="reg-head">
       <span class="eyebrow">RethoricaLab · UTP 2026 · Semana 16</span>
-      <h1>Registro del Analista — Semiótica de la Imagen</h1>
-      <p>Universidad Tecnológica del Perú (UTP). Laboratorio de Figuras de Adjunción · Modelo de Jacques Durand. Práctica individual, Unidad 4: Figuras Semióticas.</p>
+      <h1>Registro del Grupo — Semiótica de la Imagen</h1>
+      <p>Universidad Tecnológica del Perú (UTP). Laboratorio de Figuras de Adjunción · Modelo de Jacques Durand. Trabajo grupal (mín. 2 · máx. 4 integrantes), Unidad 4: Figuras Semióticas.</p>
     </div>
     <form id="regForm" class="reg-body" autocomplete="off" novalidate>
-      <div class="field" id="f-nombre">
-        <label for="r-nombre">Nombres y Apellidos</label>
-        <input id="r-nombre" type="text" placeholder="Ej. Ana Lucía Pérez Vega" required />
-      </div>
-      <div class="field" id="f-codigo">
-        <label for="r-codigo">Código o Correo Institucional</label>
-        <input id="r-codigo" type="text" placeholder="Ej. U20231234 / nombre@idc.edu" required />
-      </div>
       <div class="field" id="f-seccion">
         <label for="r-seccion">Sección / Grupo</label>
-        <input id="r-seccion" type="text" placeholder="Ej. Sección 02 — Diseño Publicitario" required />
+        <input id="r-seccion" type="text" placeholder="Ej. Sección 02 — Grupo 4" required />
       </div>
+
+      <div class="integrantes-head">
+        <label>Integrantes del grupo <span class="muted">(mín. 2 · máx. 4)</span></label>
+        <span class="int-count" id="intCount">2 / 4</span>
+      </div>
+      <div id="integrantes"><!-- integrantes dinámicos --></div>
+      <button type="button" class="btn ghost btn-add" id="btnAddInt">＋ Agregar integrante</button>
     </form>
     <div class="reg-foot">
-      <div class="aviso-amigable" id="regAviso">Completa los tres campos para ingresar al laboratorio de análisis.</div>
+      <div class="aviso-amigable" id="regAviso">Completa la sección y al menos 2 integrantes (nombre y código) para ingresar.</div>
       <button class="btn azul" id="btnIngresar" disabled>Ingresar al Laboratorio →</button>
     </div>
   </div>
@@ -664,7 +679,7 @@ const FIGURAS={
 };
 
 /* =================== ESTADO =================== */
-const estado={student:{},aviso:null,figura:null,campo1:'',campo3:'',campo4:''};
+const estado={group:null,aviso:null,figura:null,campo1:'',campo3:'',campo4:''};
 
 /* =================== HELPERS =================== */
 const $=s=>document.querySelector(s);
@@ -672,26 +687,70 @@ const $$=s=>document.querySelectorAll(s);
 function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2600);}
 function scrollToId(id){const el=document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
 
-/* =================== REGISTRO =================== */
-const regInputs=['#r-nombre','#r-codigo','#r-seccion'].map(s=>$(s));
-function validReg(){return regInputs.every(i=>i.value.trim().length>1);}
+/* =================== REGISTRO GRUPAL (mín. 2 · máx. 4) =================== */
+const MIN_INT=2, MAX_INT=4;
+const intCont=$('#integrantes');
+
+function addIntegrante(focus){
+  if(intCont.children.length>=MAX_INT)return;
+  const div=document.createElement('div');
+  div.className='integrante';
+  div.innerHTML=`<div class="int-title">Integrante <span class="int-n"></span></div>
+    <button type="button" class="btn-del" title="Quitar integrante" aria-label="Quitar integrante">✕</button>
+    <div class="row">
+      <input type="text" class="int-nombre" placeholder="Nombres y Apellidos (ej. Ana Lucía Pérez Vega)">
+      <input type="text" class="int-codigo" placeholder="Código o correo institucional (ej. U20231234)">
+    </div>`;
+  div.querySelector('.btn-del').addEventListener('click',()=>removeIntegrante(div));
+  div.querySelectorAll('input').forEach(i=>i.addEventListener('input',()=>{div.classList.remove('invalid');refreshReg();}));
+  intCont.appendChild(div);
+  renumberInt();refreshReg();
+  if(focus)div.querySelector('.int-nombre').focus();
+}
+function removeIntegrante(div){
+  if(intCont.children.length<=MIN_INT){toast('El grupo requiere mínimo 2 integrantes.');return;}
+  div.remove();renumberInt();refreshReg();
+}
+function renumberInt(){
+  const items=[...intCont.children];
+  items.forEach((d,i)=>d.querySelector('.int-n').textContent=i+1);
+  $('#intCount').textContent=`${items.length} / ${MAX_INT}`;
+  $('#btnAddInt').disabled=items.length>=MAX_INT;
+  const canDel=items.length>MIN_INT;
+  items.forEach(d=>d.querySelector('.btn-del').style.display=canDel?'block':'none');
+}
+function getMembers(){
+  return [...intCont.children].map(d=>({
+    nombre:d.querySelector('.int-nombre').value.trim(),
+    codigo:d.querySelector('.int-codigo').value.trim(),
+    el:d
+  }));
+}
+function membersCompletos(){return getMembers().filter(m=>m.nombre.length>1&&m.codigo.length>1);}
+function validReg(){return $('#r-seccion').value.trim().length>1 && membersCompletos().length>=MIN_INT;}
 function refreshReg(){
   const ok=validReg();
   $('#btnIngresar').disabled=!ok;
-  $('#regAviso').classList.toggle('show',!ok && regInputs.some(i=>i.value.length>0));
+  const touched=$('#r-seccion').value.length>0 || getMembers().some(m=>m.nombre||m.codigo);
+  $('#regAviso').classList.toggle('show',!ok && touched);
 }
-regInputs.forEach(i=>i.addEventListener('input',refreshReg));
+$('#r-seccion').addEventListener('input',refreshReg);
+$('#btnAddInt').addEventListener('click',()=>addIntegrante(true));
 $('#regForm').addEventListener('submit',e=>e.preventDefault());
+addIntegrante();addIntegrante(); // arranca con 2 integrantes
 
 $('#btnIngresar').addEventListener('click',()=>{
   if(!validReg()){
-    regInputs.forEach(i=>i.closest('.field').classList.toggle('invalid',i.value.trim().length<=1));
+    $('#f-seccion').classList.toggle('invalid',$('#r-seccion').value.trim().length<=1);
+    getMembers().forEach(m=>m.el.classList.toggle('invalid',!(m.nombre.length>1&&m.codigo.length>1)));
     $('#regAviso').classList.add('show');
+    toast('Completa la sección y al menos 2 integrantes.');
     return;
   }
-  estado.student={nombre:$('#r-nombre').value.trim(),codigo:$('#r-codigo').value.trim(),seccion:$('#r-seccion').value.trim()};
-  $('#who-nombre').textContent=estado.student.nombre;
-  $('#who-seccion').textContent=estado.student.seccion;
+  const members=membersCompletos().map(m=>({nombre:m.nombre,codigo:m.codigo}));
+  estado.group={seccion:$('#r-seccion').value.trim(),members};
+  $('#who-nombre').textContent=`Grupo · ${members.length} integrante${members.length>1?'s':''}`;
+  $('#who-seccion').textContent=estado.group.seccion;
   $('#registro').style.display='none';
   $('#app').style.display='block';
   $('#refToggle').classList.remove('hidden');
@@ -845,11 +904,12 @@ function checkText(sel,warnSel,silent){
 
 /* =================== DICTAMEN EN TIEMPO REAL =================== */
 function updateDictamen(){
-  const s=estado.student,a=estado.aviso,f=estado.figura?FIGURAS[estado.figura]:null;
+  const g=estado.group||{members:[],seccion:''},a=estado.aviso,f=estado.figura?FIGURAS[estado.figura]:null;
   if(!a)return;
   const fecha=new Date().toLocaleDateString('es-PE',{day:'2-digit',month:'long',year:'numeric'});
   $('#d-titulo').textContent=`Análisis retórico de «${a.name}» — ${a.brand}`;
-  $('#d-meta').innerHTML=`<b>${s.nombre||'—'}</b><br>${s.codigo||''}<br>${s.seccion||''}<br>${fecha}`;
+  const integrantesMeta=(g.members||[]).map(m=>`${m.nombre} <span style="opacity:.7">(${m.codigo})</span>`).join('<br>')||'—';
+  $('#d-meta').innerHTML=`<b>Grupo · ${(g.members||[]).length} integrantes</b><br>${integrantesMeta}<br>${g.seccion||''}<br>${fecha}`;
 
   const ph=t=>`<span class="placeholder">${t}</span>`;
   const c1=estado.campo1.trim(), c3=estado.campo3.trim(), c4=estado.campo4.trim();
@@ -871,7 +931,8 @@ function updateDictamen(){
     body+=`<h4>Síntesis del dictamen</h4><p>En conclusión, la pieza de <b>${a.brand}</b> constituye un ejemplo de la figura de <b>${f.nombre}</b> (Adjunción · ${f.rel}) dentro de la clasificación retórica de Durand. La relación de ${f.rel.toLowerCase()} entre los elementos del mensaje intensifica su carga persuasiva y demuestra el potencial proyectivo de esta figura para futuras estrategias creativas.</p>`;
   }
   $('#d-body').innerHTML=body;
-  $('#d-firma').innerHTML=`Dictamen elaborado por <b>${s.nombre||'—'}</b> · ${s.seccion||''} · RethoricaLab — Semiótica de la Imagen, Unidad 4.<br>Mg. Mario Quiroz Martínez · Universidad Tecnológica del Perú (UTP) · 2026.`;
+  const firmantes=(g.members||[]).map(m=>m.nombre).join(' · ')||'—';
+  $('#d-firma').innerHTML=`Dictamen elaborado por el grupo: <b>${firmantes}</b> · ${g.seccion||''} · RethoricaLab — Semiótica de la Imagen, Unidad 4.<br>Mg. Mario Quiroz Martínez · Universidad Tecnológica del Perú (UTP) · 2026.`;
 }
 
 /* =================== EXPORTAR PDF =================== */
@@ -898,11 +959,12 @@ function resetFicha(){
 $('#btnReset').addEventListener('click',()=>{resetFicha();toast('Ficha reiniciada. Selecciona un nuevo aviso.');});
 $('#btnOtro').addEventListener('click',()=>{resetFicha();toast('Ficha en blanco. Elige otro aviso del banco.');});
 $('#btnCerrar').addEventListener('click',()=>{
-  if(confirm('¿Cerrar la sesión? Se borrará el análisis actual.')){
-    estado.student={};resetFicha();
+  if(confirm('¿Cerrar la sesión? Se borrará el análisis actual y el registro del grupo.')){
+    estado.group=null;resetFicha();
     $('#app').style.display='none';$('#refToggle').classList.add('hidden');
     $('#registro').style.display='flex';
-    regInputs.forEach(i=>{i.value='';i.closest('.field').classList.remove('invalid');});
+    $('#r-seccion').value='';$('#f-seccion').classList.remove('invalid');
+    intCont.innerHTML='';addIntegrante();addIntegrante();
     refreshReg();window.scrollTo(0,0);
   }
 });
