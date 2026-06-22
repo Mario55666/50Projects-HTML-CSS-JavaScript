@@ -276,15 +276,44 @@
   }
 
   /* ---------- Barra de selección (sorteo · elegir 4) ---------- */
-  .sel-bar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;
-    background:var(--idc-azul);color:#fff;padding:12px 16px;box-shadow:var(--sombra);margin:6px 0 18px}
-  .sel-bar .sel-info{font-size:.9rem;font-weight:700}
-  .sel-bar .sel-info b{color:var(--idc-amarillo);font-size:1.05rem}
-  .sel-bar .btn{padding:.6rem 1.1rem;font-size:.84rem}
+  .sel-bar{position:sticky;top:60px;z-index:40;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;
+    background:var(--idc-azul);color:#fff;padding:14px 16px;box-shadow:var(--sombra);margin:6px 0 18px}
+  .sel-bar .sel-info{font-size:.95rem;font-weight:700}
+  .sel-bar .sel-info b{color:var(--idc-amarillo);font-size:1.15rem}
+  /* Botón de inicio destacado */
+  #btnIniciar{position:relative;font-size:1rem;padding:.95rem 1.7rem;background:var(--idc-amarillo);color:#fff;
+    border:3px solid #fff;box-shadow:0 0 0 0 rgba(243,161,0,.6)}
+  #btnIniciar:not(:disabled){animation:pulseBtn 1.5s var(--ease) infinite}
+  #btnIniciar:not(:disabled)::after{content:"";position:absolute;inset:-3px;border:3px solid var(--idc-amarillo);
+    animation:ring 1.5s var(--ease) infinite;pointer-events:none}
+  @keyframes pulseBtn{0%{transform:scale(1)}50%{transform:scale(1.05)}100%{transform:scale(1)}}
+  @keyframes ring{0%{opacity:.9;transform:scale(1)}100%{opacity:0;transform:scale(1.25)}}
+  #btnIniciar:disabled{animation:none;background:rgba(255,255,255,.25);color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.4)}
   .ad-card .pickn{position:absolute;top:8px;left:8px;width:26px;height:26px;border-radius:50%;
-    background:var(--idc-amarillo);color:#fff;font-weight:800;display:none;align-items:center;justify-content:center;font-size:.85rem;z-index:2}
+    background:var(--idc-amarillo);color:#fff;font-weight:800;display:none;align-items:center;justify-content:center;font-size:.85rem;z-index:3}
   .ad-card.selected .pickn{display:flex}
   .ad-card.maxed{opacity:.5;filter:grayscale(.4)}
+  /* Botón ampliar imagen */
+  .ad-zoom{position:absolute;top:8px;right:8px;z-index:3;background:rgba(28,28,27,.7);color:#fff;border:none;
+    width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:.95rem;display:flex;align-items:center;justify-content:center}
+  .ad-zoom:hover{background:var(--idc-amarillo)}
+  .caso-activo .mini{position:relative;cursor:zoom-in}
+  .caso-activo .mini .ad-zoom{top:6px;right:6px}
+
+  /* ---------- Lightbox ---------- */
+  .lightbox{position:fixed;inset:0;background:rgba(15,15,15,.92);z-index:160;display:none;
+    align-items:center;justify-content:center;padding:24px;flex-direction:column;gap:14px}
+  .lightbox.open{display:flex}
+  .lightbox img{max-width:96vw;max-height:82vh;box-shadow:0 20px 60px rgba(0,0,0,.6);background:#fff}
+  .lightbox .lb-cap{color:#fff;font-weight:700;text-align:center}
+  .lightbox .lb-cap span{display:block;font-weight:400;opacity:.8;font-size:.86rem}
+  .lightbox .lb-close{position:absolute;top:16px;right:20px;background:none;border:none;color:#fff;font-size:2.2rem;cursor:pointer;line-height:1}
+
+  /* ---------- Callout de refuerzo dentro de la ficha ---------- */
+  .refuerzo-callout{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;
+    background:rgba(243,161,0,.12);border:2px dashed var(--idc-amarillo);padding:12px 16px;margin-top:16px}
+  .refuerzo-callout p{font-size:.88rem;color:var(--idc-gris2);margin:0;flex:1;min-width:200px}
+  .refuerzo-callout .btn{padding:.6rem 1.1rem;font-size:.82rem}
 
   /* ---------- Progreso de piezas ---------- */
   .piece-progress{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap}
@@ -336,6 +365,38 @@
   .flash-actions.show{opacity:1;pointer-events:auto}
   .flash-btn{flex:1;padding:13px;border:none;font-size:.95rem;font-weight:800;color:#fff;cursor:pointer;font-family:inherit}
   .flash-btn.review{background:var(--warn)}.flash-btn.know{background:var(--ok)}
+
+  /* Quiz de identificación (preguntas cerradas) */
+  .quiz-bar{display:flex;justify-content:space-between;background:#fff;border:2px solid var(--line);
+    padding:10px 16px;font-weight:700;font-size:.84rem;margin-bottom:16px}
+  .quiz-bar b{color:var(--idc-azul)}
+  .quiz-q{background:var(--idc-azul);color:#fff;padding:16px 18px;font-size:1.02rem;font-weight:700;
+    margin-bottom:16px;animation:fbIn .35s var(--ease)}
+  .quiz-opts{display:flex;flex-direction:column;gap:11px}
+  .quiz-opt{text-align:left;background:#f9f9f9;border:2px solid var(--line);padding:13px 16px;font-size:.92rem;
+    font-weight:600;color:var(--negro);cursor:pointer;transition:all .15s var(--ease);font-family:inherit}
+  .quiz-opt:hover:not(:disabled){border-color:var(--idc-amarillo);background:#fff8e1;transform:translateX(4px)}
+  .quiz-opt:disabled{cursor:default}
+  .quiz-opt.correct{border-color:var(--ok);background:rgba(31,157,107,.14);animation:pop .35s var(--ease)}
+  .quiz-opt.wrong{border-color:var(--idc-amarillo);background:rgba(228,3,46,.08);opacity:.7}
+  @keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.04)}100%{transform:scale(1)}}
+  .quiz-next{text-align:center;margin-top:16px}
+  .quiz-score{text-align:center;padding:24px}
+  .quiz-score .big{font-size:2.4rem;font-weight:800;color:var(--idc-azul)}
+
+  /* Caso ramificado (árbol de decisión) */
+  .sim-node{background:#fff;border:2px solid var(--line);border-left:6px solid var(--idc-azul);
+    padding:20px;margin-bottom:14px;animation:simUp .45s ease-out}
+  @keyframes simUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  .sim-text{font-size:1rem;line-height:1.55;color:var(--negro);margin:0 0 16px}
+  .sim-opts{display:flex;flex-direction:column;gap:11px}
+  .sim-opt{text-align:left;background:#f9f9f9;border:2px solid var(--line);padding:13px 16px;font-size:.92rem;
+    font-weight:600;color:var(--negro);cursor:pointer;transition:all .15s var(--ease);font-family:inherit}
+  .sim-opt:hover{border-color:var(--idc-amarillo);background:#fff8e1;transform:translateX(4px)}
+  .sim-path{margin-top:12px;font-size:.82rem;color:var(--idc-gris2)}
+  .sim-path .step{padding:5px 0;border-bottom:1px dashed var(--line)}
+  .sim-path .step b{color:var(--idc-azul)}
+  .sim-restart{text-align:center;margin-top:12px}
 
   /* Salva el afiche (ahorcado) */
   .rsc-bar{display:flex;justify-content:space-between;align-items:center;background:#eef1f4;
@@ -480,6 +541,10 @@
         <div class="guia">Operación = Adjunción. Identifica la relación: Identidad (Repetición), Similitud (Comparación), Oposición (Antítesis) o Diferencia (Acumulación).</div>
         <div class="figuras" id="figuras"></div>
         <div class="feedback" id="feedback"></div>
+        <div class="refuerzo-callout">
+          <p>💡 <b>¿Dudas con la figura?</b> Usa el refuerzo interactivo (quiz de identificación, caso ramificado y flashcards) como apoyo para decidir.</p>
+          <button type="button" class="btn" id="btnRefuerzoPieza">🎮 Abrir refuerzo</button>
+        </div>
         <div class="field-warn" id="w2">Selecciona una figura de adjunción para continuar.</div>
         <div style="margin-top:16px"><button class="btn" data-next="fase-3">Continuar a Efecto →</button></div>
       </div>
@@ -598,14 +663,41 @@
       <button id="gamesClose" aria-label="Cerrar juegos">×</button>
     </div>
     <div class="games-tabs">
-      <button data-pane="paneFlash" class="active">Flashcards</button>
-      <button data-pane="paneRescata">Salva el afiche</button>
+      <button data-pane="paneQuiz" class="active">① Quiz de figuras</button>
+      <button data-pane="paneSim">② Caso ramificado</button>
+      <button data-pane="paneFlash">③ Flashcards</button>
     </div>
     <div class="games-body">
 
-      <!-- Pane: Flashcards -->
-      <div class="game-pane active" id="paneFlash">
-        <p class="game-intro">Repaso espaciado del vocabulario teórico. Toca la tarjeta para ver la definición y marca si ya la dominas. Te servirá para argumentar tus respuestas en la ficha.</p>
+      <!-- Juego 1: Quiz de identificación (preguntas cerradas con retroalimentación) -->
+      <div class="game-pane active" id="paneQuiz">
+        <p class="game-intro">Preguntas cerradas para identificar la figura de adjunción correcta. Retroalimentación inmediata y sin penalización: es tu apoyo para decidir la figura de cada pieza.</p>
+        <div class="quiz-bar">
+          <span>Pregunta <b id="quizN">1</b>/<span id="quizT">5</span></span>
+          <span>Aciertos: <b id="quizScore" style="color:var(--ok)">0</b></span>
+        </div>
+        <div id="quizArea">
+          <div class="quiz-q" id="quizQ"></div>
+          <div class="quiz-opts" id="quizOpts"></div>
+        </div>
+        <div class="fb" id="quizFb" role="status" aria-live="polite"></div>
+        <div class="quiz-next" id="quizNext" style="display:none"><button class="btn" id="quizNextBtn">Siguiente →</button></div>
+      </div>
+
+      <!-- Juego 2: Caso ramificado (árbol de decisión del método de análisis) -->
+      <div class="game-pane" id="paneSim">
+        <p class="game-intro">Caso vivo: aplica el método de análisis paso a paso. Cada decisión tiene una consecuencia explicada. Ideal para ordenar tu razonamiento antes de llenar la ficha.</p>
+        <div class="sim-node" id="simNode">
+          <p class="sim-text" id="simText"></p>
+          <div class="sim-opts" id="simOpts"></div>
+        </div>
+        <div class="fb" id="simFb" role="status" aria-live="polite"></div>
+        <div class="sim-path" id="simPath"></div>
+      </div>
+
+      <!-- Juego 3: Flashcards (repaso de vocabulario) -->
+      <div class="game-pane" id="paneFlash">
+        <p class="game-intro">Repaso espaciado del vocabulario teórico. Toca la tarjeta para ver la definición y marca si ya la dominas: te servirá para argumentar tus respuestas.</p>
         <div class="flash-bar">
           <span>Por dominar: <b id="flashLeft" style="color:var(--idc-azul)">0</b></span>
           <span>Dominadas: <b id="flashDone" style="color:var(--ok)">0</b></span>
@@ -623,24 +715,15 @@
         <div class="fb" id="flashFb" role="status" aria-live="polite"></div>
       </div>
 
-      <!-- Pane: Salva el afiche (ahorcado) -->
-      <div class="game-pane" id="paneRescata">
-        <p class="game-intro">Adivina el término retórico a partir de su pista conceptual. Cada error cuesta una vida. Refuerza la precisión del vocabulario que usarás en el Dictamen.</p>
-        <div class="rsc-bar">
-          <span>Término <span id="rscNivel">1/5</span></span>
-          <span>Vidas: <span class="rsc-hearts" id="rscHearts">♥♥♥♥♥</span></span>
-        </div>
-        <div class="rsc-pista" id="rscPista"></div>
-        <div class="rsc-word" id="rscWord"></div>
-        <div class="rsc-keys" id="rscKeys"></div>
-        <div class="fb" id="rscFb" role="status" aria-live="polite"></div>
-        <div class="rsc-next" id="rscNext" style="display:none">
-          <button class="btn" id="rscNextBtn"></button>
-        </div>
-      </div>
-
     </div>
   </div>
+</div>
+
+<!-- Lightbox para ampliar piezas -->
+<div class="lightbox" id="lightbox" aria-hidden="true">
+  <button class="lb-close" id="lbClose" aria-label="Cerrar">×</button>
+  <img id="lbImg" src="" alt="Pieza publicitaria ampliada">
+  <div class="lb-cap" id="lbCap"></div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -919,12 +1002,14 @@ function buildGaleria(){
     const c=document.createElement('div');
     c.className='ad-card';c.dataset.id=a.id;
     c.innerHTML=`<span class="pickn"></span>
+      <button class="ad-zoom" title="Ampliar imagen" data-zoom="${a.id}">🔍</button>
       <div class="ad-thumb">${mediaFor(a.id)}</div>
       <div class="ad-body">
         <div class="ad-brand">${a.brand}</div>
         <div class="ad-name">${a.name}</div>
         <div class="ad-desc">${a.desc}</div>
       </div>`;
+    c.querySelector('.ad-zoom').addEventListener('click',e=>{e.stopPropagation();openLightbox(a.id);});
     c.addEventListener('click',()=>togglePick(a.id));
     g.appendChild(c);
   });
@@ -972,8 +1057,9 @@ function loadPiece(i){
   $$('.field-warn').forEach(w=>w.classList.remove('show'));
   $$('.fig-card').forEach(c=>c.classList.remove('active'));
   $('#feedback').className='feedback';$('#feedback').innerHTML='';
-  // caso activo
-  $('#casoMini').innerHTML=mediaFor(estado.aviso.id);
+  // caso activo (con ampliar)
+  $('#casoMini').innerHTML=mediaFor(estado.aviso.id)+`<button class="ad-zoom" title="Ampliar imagen">🔍</button>`;
+  $('#casoMini').onclick=()=>openLightbox(estado.aviso.id);
   $('#casoBrand').textContent=estado.aviso.brand;
   $('#casoName').textContent=estado.aviso.name;
   $('#casoDesc').textContent=estado.aviso.desc;
@@ -1198,6 +1284,21 @@ $('#btnCerrar').addEventListener('click',()=>{
   }
 });
 
+/* =================== LIGHTBOX (ampliar piezas) =================== */
+function openLightbox(id){
+  const a=AVISOS.find(x=>x.id===id);if(!a)return;
+  const src=(typeof PHOTOS!=='undefined'&&PHOTOS[id])?PHOTOS[id]:('img/'+id+'.jpg');
+  const img=$('#lbImg');
+  img.src=src;
+  img.onerror=()=>{img.onerror=null;img.src='data:image/svg+xml;utf8,'+encodeURIComponent(svgFor(id));};
+  $('#lbCap').innerHTML=`${a.brand} — «${a.name}»<span>${a.desc}</span>`;
+  $('#lightbox').classList.add('open');$('#lightbox').setAttribute('aria-hidden','false');
+}
+function closeLightbox(){$('#lightbox').classList.remove('open');$('#lightbox').setAttribute('aria-hidden','true');}
+$('#lbClose').addEventListener('click',closeLightbox);
+$('#lightbox').addEventListener('click',e=>{if(e.target===$('#lightbox'))closeLightbox();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeLightbox();});
+
 /* =================== JUEGOS DE REFUERZO =================== */
 function gameFeedback(id,ok,a,b){
   const fb=$('#'+id);
@@ -1208,14 +1309,21 @@ function gameFeedback(id,ok,a,b){
 }
 
 // abrir / cerrar modal + pestañas
-$('#btnGames').addEventListener('click',()=>{$('#gamesOverlay').classList.add('open');$('#gamesOverlay').setAttribute('aria-hidden','false');});
-$('#gamesClose').addEventListener('click',()=>{$('#gamesOverlay').classList.remove('open');$('#gamesOverlay').setAttribute('aria-hidden','true');});
-$('#gamesOverlay').addEventListener('click',e=>{if(e.target===$('#gamesOverlay'))$('#gamesClose').click();});
-$$('.games-tabs button').forEach(b=>b.addEventListener('click',()=>{
-  $$('.games-tabs button').forEach(x=>x.classList.remove('active'));
-  $$('.game-pane').forEach(x=>x.classList.remove('active'));
-  b.classList.add('active');$('#'+b.dataset.pane).classList.add('active');
-}));
+function activateTab(pane){
+  $$('.games-tabs button').forEach(x=>x.classList.toggle('active',x.dataset.pane===pane));
+  $$('.game-pane').forEach(x=>x.classList.toggle('active',x.id===pane));
+}
+function openGames(pane){
+  if(pane)activateTab(pane);
+  $('#gamesOverlay').classList.add('open');$('#gamesOverlay').setAttribute('aria-hidden','false');
+}
+function closeGames(){$('#gamesOverlay').classList.remove('open');$('#gamesOverlay').setAttribute('aria-hidden','true');}
+$('#btnGames').addEventListener('click',()=>openGames());
+$('#gamesClose').addEventListener('click',closeGames);
+$('#gamesOverlay').addEventListener('click',e=>{if(e.target===$('#gamesOverlay'))closeGames();});
+$$('.games-tabs button').forEach(b=>b.addEventListener('click',()=>activateTab(b.dataset.pane)));
+// refuerzo contextual desde la fase de identificación de cada pieza
+$('#btnRefuerzoPieza').addEventListener('click',()=>openGames('paneQuiz'));
 
 /* ---- Flashcards (repaso espaciado de términos) ---- */
 (function(){
@@ -1255,59 +1363,109 @@ $$('.games-tabs button').forEach(b=>b.addEventListener('click',()=>{
   load();
 })();
 
-/* ---- Salva el afiche (ahorcado de términos retóricos) ---- */
+/* ---- Juego 1: Quiz de identificación de figuras (preguntas cerradas) ---- */
 (function(){
-  const DICT=[
-    {t:"ADJUNCION",p:"Operación de Durand que consiste en añadir elementos al mensaje visual."},
-    {t:"REPETICION",p:"Figura por relación de identidad: el mismo elemento se reitera."},
-    {t:"COMPARACION",p:"Figura por relación de similitud: aproxima dos elementos semejantes."},
-    {t:"ANTITESIS",p:"Figura por relación de oposición: confronta elementos contrarios."},
-    {t:"CONNOTACION",p:"Plano de los significados simbólicos y culturales de la imagen."}
+  const QUIZ=[
+    {q:"Un aviso muestra el MISMO producto repetido en serie a lo largo de la composición. ¿Qué figura de adjunción es?",
+     ops:["Repetición (Identidad)","Comparación (Similitud)","Antítesis (Oposición)","Acumulación (Diferencia)"],ok:0,
+     why:"Al reiterar un elemento idéntico, la adjunción establece una relación de IDENTIDAD: es la Repetición."},
+    {q:"Un perfume se presenta junto a una flor para sugerir que comparte su delicadeza y aroma. ¿Qué figura es?",
+     ops:["Repetición (Identidad)","Comparación (Similitud)","Antítesis (Oposición)","Acumulación (Diferencia)"],ok:1,
+     why:"Se aproximan dos elementos SEMEJANTES para transferir cualidades: relación de Similitud → Comparación."},
+    {q:"Un aviso de 'antes y después' confronta dos estados contrarios para resaltar el cambio. ¿Qué figura es?",
+     ops:["Acumulación (Diferencia)","Repetición (Identidad)","Antítesis (Oposición)","Comparación (Similitud)"],ok:2,
+     why:"Confrontar elementos CONTRARIOS es una relación de Oposición → Antítesis."},
+    {q:"Una mesa rebosante de ingredientes distintos y variados sugiere abundancia. ¿Qué figura es?",
+     ops:["Antítesis (Oposición)","Acumulación (Diferencia)","Comparación (Similitud)","Repetición (Identidad)"],ok:1,
+     why:"Sumar elementos DISTINTOS y heterogéneos es una relación de Diferencia → Acumulación."},
+    {q:"¿Cuál es la OPERACIÓN común a las cuatro figuras estudiadas en la sesión?",
+     ops:["Supresión","Sustitución","Adjunción","Intercambio"],ok:2,
+     why:"Repetición, Comparación, Antítesis y Acumulación comparten la operación de Adjunción: añadir elementos."}
   ];
-  const MAX=5;
-  let idx=0, word="", guessed=[], left=MAX, aciertos=0;
-  const keysEl=$('#rscKeys'), heartsEl=$('#rscHearts'), nextWrap=$('#rscNext'), nextBtn=$('#rscNextBtn');
-  function hearts(){let s="";for(let i=0;i<left;i++)s+="♥";for(let j=left;j<MAX;j++)s+="♡";heartsEl.textContent=s;}
-  function buildKeys(){keysEl.innerHTML="";"ABCDEFGHIJKLMNÑOPQRSTUVWXYZ".split("").forEach(L=>{
-    const b=document.createElement('button');b.className='rsc-key';b.textContent=L;b.onclick=()=>play(L,b);keysEl.appendChild(b);});}
-  function loadLevel(){
-    const d=DICT[idx];word=d.t;guessed=[];left=MAX;
-    $('#rscNivel').textContent=(idx+1)+'/'+DICT.length;
-    $('#rscPista').textContent='"'+d.p+'"';
-    $('#rscFb').className='fb';nextWrap.style.display='none';hearts();
-    const wordEl=$('#rscWord');wordEl.innerHTML="";
-    for(let i=0;i<word.length;i++){const s=document.createElement('div');s.className='rsc-slot';s.id='rsc-s'+i;s.textContent='_';wordEl.appendChild(s);}
-    keysEl.querySelectorAll('.rsc-key').forEach(k=>{k.disabled=false;k.classList.remove('ok','no');});
+  let idx=0, score=0, answered=false;
+  $('#quizT').textContent=QUIZ.length;
+  function render(){
+    answered=false;
+    const it=QUIZ[idx];
+    $('#quizN').textContent=idx+1;$('#quizScore').textContent=score;
+    $('#quizFb').className='fb';$('#quizNext').style.display='none';
+    const q=$('#quizQ');q.textContent=it.q;q.style.animation='none';void q.offsetWidth;q.style.animation='fbIn .35s var(--ease)';
+    const opts=$('#quizOpts');opts.innerHTML='';
+    it.ops.forEach((t,i)=>{const b=document.createElement('button');b.className='quiz-opt';b.textContent=t;
+      b.onclick=()=>choose(i,b);opts.appendChild(b);});
   }
-  function play(L,btn){
-    btn.disabled=true;
-    if(word.indexOf(L)>=0){
-      btn.classList.add('ok');guessed.push(L);
-      for(let i=0;i<word.length;i++){if(word[i]===L){const s=$('#rsc-s'+i);s.textContent=L;s.classList.add('rev');}}
-      if(word.split('').every(ch=>guessed.indexOf(ch)>=0))win();
+  function choose(i,btn){
+    if(answered)return;answered=true;
+    const it=QUIZ[idx];
+    [...$('#quizOpts').children].forEach((b,j)=>{b.disabled=true;if(j===it.ok)b.classList.add('correct');});
+    if(i===it.ok){score++;$('#quizScore').textContent=score;
+      gameFeedback('quizFb',true,'¡Correcto!',it.why);
+    }else{btn.classList.add('wrong');
+      gameFeedback('quizFb',false,'Relee la relación semiótica del modelo de Durand.',it.why);}
+    $('#quizNext').style.display='block';
+    $('#quizNextBtn').textContent = (idx<QUIZ.length-1)?'Siguiente →':'Ver resultado';
+  }
+  $('#quizNextBtn').addEventListener('click',()=>{
+    if(idx<QUIZ.length-1){idx++;render();}
+    else{
+      $('#quizArea').innerHTML=`<div class="quiz-score"><div class="big">${score}/${QUIZ.length}</div>
+        <p>${score===QUIZ.length?'¡Dominas la clasificación de Durand!':'Buen intento: repasa las figuras en el panel teórico.'}</p></div>`;
+      $('#quizFb').className='fb';$('#quizNextBtn').textContent='Reintentar';
+      $('#quizNextBtn').onclick=()=>{idx=0;score=0;$('#quizArea').innerHTML='<div class="quiz-q" id="quizQ"></div><div class="quiz-opts" id="quizOpts"></div>';render();};
+    }
+  });
+  render();
+})();
+
+/* ---- Juego 2: Caso ramificado (árbol de decisión del método de análisis) ---- */
+(function(){
+  const TREE={
+    inicio:{texto:"Recibes el afiche de TAG Heuer: Chris Hemsworth en actitud firme y, al lado, el reloj Aquaracer. Eres el analista del grupo. ¿Por dónde empiezas?",
+      opciones:[
+        {t:"Interpretar de inmediato qué 'quiere decir' la marca.",ok:false,c:"Saltar a la connotación sin describir lo denotado lleva a interpretaciones sin sustento.",next:"corrige"},
+        {t:"Describir denotativamente lo que se ve (personaje, reloj, composición).",ok:true,c:"Correcto: la observación denotativa es el punto de partida del método.",next:"figura"}
+      ]},
+    corrige:{texto:"El docente te recuerda: primero la denotación. Vuelves a observar y describes los elementos. Ahora, ¿qué relación establece el aviso entre Hemsworth y el reloj?",
+      opciones:[
+        {t:"Los confronta como opuestos.",ok:false,c:"No hay oposición: ambos proyectan los mismos valores (fuerza, temple).",next:"figura"},
+        {t:"Los aproxima por semejanza: el reloj 'hereda' los atributos del personaje.",ok:true,c:"Exacto: similitud entre dos elementos próximos.",next:"cierre"}
+      ]},
+    figura:{texto:"Identificas que el personaje y el reloj se presentan juntos para que el reloj adopte sus cualidades (temple, prestigio). ¿Qué figura de adjunción es?",
+      opciones:[
+        {t:"Comparación (Similitud).",ok:true,c:"Correcto: aproximar elementos semejantes para transferir cualidades es Comparación.",next:"cierre"},
+        {t:"Acumulación (Diferencia).",ok:false,c:"No se suman elementos heterogéneos; se aproximan dos semejantes.",next:"cierre"}
+      ]},
+    cierre:{texto:"Cierras el análisis conectando la figura con su efecto persuasivo y una posible campaña propia. ¿Qué cierre es el más sólido?",
+      opciones:[
+        {t:"'Se ve bonito y elegante.'",ok:false,c:"Es impresionista: no nombra la figura ni su efecto retórico.",next:null,final:true},
+        {t:"'La Comparación transfiere el temple del personaje al producto, reforzando su promesa de resistencia.'",ok:true,c:"¡Excelente! Conectaste figura → efecto → argumento. Listo para el Dictamen.",next:null,final:true}
+      ]}
+  };
+  let path=[];
+  function render(id){
+    const n=TREE[id];
+    const t=$('#simText');t.textContent=n.texto;
+    const node=$('#simNode');node.style.animation='none';void node.offsetWidth;node.style.animation='simUp .45s ease-out';
+    const opts=$('#simOpts');opts.innerHTML='';
+    n.opciones.forEach(o=>{const b=document.createElement('button');b.className='sim-opt';b.textContent=o.t;
+      b.onclick=()=>choose(o);opts.appendChild(b);});
+  }
+  function choose(o){
+    path.push(o.t);drawPath();
+    if(o.final){
+      gameFeedback('simFb',o.ok,o.ok?'Caso resuelto con acierto':'Revisa el razonamiento',o.c);
+      const opts=$('#simOpts');opts.innerHTML='';
+      const wrap=document.createElement('div');wrap.className='sim-restart';
+      const r=document.createElement('button');r.className='btn';r.textContent='↻ Reiniciar caso';
+      r.onclick=()=>{path=[];$('#simPath').innerHTML='';$('#simFb').className='fb';render('inicio');};
+      wrap.appendChild(r);opts.appendChild(wrap);
     }else{
-      btn.classList.add('no');left--;
-      heartsEl.classList.add('shake');setTimeout(()=>heartsEl.classList.remove('shake'),300);hearts();
-      if(left>0)gameFeedback('rscFb',false,'Esa letra no está en el término.','Apóyate en la pista: describe el concepto, no la palabra. Te quedan '+left+' vidas.');
-      else lose();
+      gameFeedback('simFb',o.ok,o.ok?'Buena decisión':'Consecuencia a considerar',o.c);
+      setTimeout(()=>{$('#simFb').className='fb';render(o.next);},200);
     }
   }
-  function win(){aciertos++;gameFeedback('rscFb',true,'¡Afiche salvado! '+word,'Conectaste la pista con el término exacto: ese vocabulario ya es tuyo.');endLevel();}
-  function lose(){
-    keysEl.querySelectorAll('.rsc-key').forEach(k=>k.disabled=true);
-    for(let i=0;i<word.length;i++){const s=$('#rsc-s'+i);s.textContent=word[i];}
-    gameFeedback('rscFb',false,'Se agotaron las vidas.','El término era "'+word+'". Reintenta y fíjalo.');endLevel();
-  }
-  function endLevel(){
-    keysEl.querySelectorAll('.rsc-key').forEach(k=>k.disabled=true);nextWrap.style.display='block';
-    if(idx===DICT.length-1){nextBtn.textContent='Ver resultado ('+aciertos+'/'+DICT.length+')';nextBtn.onclick=finish;}
-    else{nextBtn.textContent='Siguiente término →';nextBtn.onclick=()=>{idx++;loadLevel();};}
-  }
-  function finish(){
-    gameFeedback('rscFb',true,'Entrenamiento completado: '+aciertos+'/'+DICT.length+' términos recuperados.','Cada término recuperado refuerza tu vocabulario para argumentar el Dictamen.');
-    nextBtn.textContent='Reintentar todo';nextBtn.onclick=()=>{idx=0;aciertos=0;loadLevel();};
-  }
-  buildKeys();loadLevel();
+  function drawPath(){$('#simPath').innerHTML='<div class="step"><b>Tus decisiones:</b></div>'+path.map((d,i)=>`<div class="step">${i+1}. ${d}</div>`).join('');}
+  render('inicio');
 })();
 
 /* =================== PWA: manifest + service worker (single-file) =================== */
