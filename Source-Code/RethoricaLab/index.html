@@ -317,6 +317,20 @@
   .refuerzo-callout.done{background:rgba(31,157,107,.12);border-color:var(--ok);border-style:solid}
   .refuerzo-callout.done p b{color:var(--ok)}
 
+  /* ---------- Ayudas de redacción (coherencia) ---------- */
+  .write-aids{margin-top:10px;background:#f7f9fb;border:2px solid var(--line);padding:10px 12px}
+  .write-aids .aid-tip{font-size:.78rem;color:var(--idc-gris2);margin-bottom:.5rem}
+  .write-aids .aid-tip b{color:var(--idc-azul)}
+  .aid-chips{display:flex;flex-wrap:wrap;gap:6px}
+  .chip{background:#fff;border:2px solid var(--idc-azul);color:var(--idc-azul);font-size:.78rem;font-weight:700;
+    padding:.3rem .6rem;cursor:pointer;font-family:inherit;transition:all .12s var(--ease)}
+  .chip:hover{background:var(--idc-azul);color:#fff;transform:translateY(-2px)}
+  /* Refuerzo positivo en campos abiertos */
+  .reinforce{font-size:.82rem;font-weight:700;margin-top:.4rem;display:none;animation:fbIn .3s var(--ease)}
+  .reinforce.show{display:block}
+  .reinforce.t1{color:var(--idc-azul)}
+  .reinforce.t2{color:var(--ok)}
+
   /* ---------- Progreso de piezas ---------- */
   .piece-progress{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap}
   .piece-progress .pp-dot{width:30px;height:30px;border:3px solid var(--line);border-radius:50%;
@@ -525,7 +539,19 @@
         <div class="pregunta">¿Qué se ve literalmente en el aviso?</div>
         <div class="guia">Describe objetos, figuras, textos, colores y disposición visual tal como aparecen, sin juicios ni interpretaciones.</div>
         <textarea id="campo1" data-min="80" placeholder="En el aviso se observa…"></textarea>
+        <div class="write-aids">
+          <div class="aid-tip">✍️ <b>Coherencia:</b> empieza por lo general y baja al detalle. Toca un conector para insertarlo:</div>
+          <div class="aid-chips" data-target="campo1">
+            <button type="button" class="chip">Se observa…</button>
+            <button type="button" class="chip">En primer plano,</button>
+            <button type="button" class="chip">Al fondo,</button>
+            <button type="button" class="chip">Predomina el color</button>
+            <button type="button" class="chip">El texto dice</button>
+            <button type="button" class="chip">La composición</button>
+          </div>
+        </div>
         <div class="counter" id="c1">0 / 80 mínimo</div>
+        <div class="reinforce" id="r1"></div>
         <div class="field-warn" id="w1">Para avanzar, completa este análisis con al menos 80 caracteres.</div>
         <div style="margin-top:14px"><button class="btn" data-next="fase-2">Continuar a Identificación →</button></div>
       </div>
@@ -562,7 +588,19 @@
         <div class="pregunta">¿Qué sensación o idea produce en el receptor?</div>
         <div class="guia">Pregunta guía: ¿cómo la figura de adjunción intensifica el mensaje? ¿Qué valor o promesa transmite la marca gracias a ella?</div>
         <textarea id="campo3" data-min="80" placeholder="Esta figura genera en el receptor…"></textarea>
+        <div class="write-aids">
+          <div class="aid-tip">✍️ <b>Coherencia:</b> conecta la figura con la emoción y el porqué. Toca un conector:</div>
+          <div class="aid-chips" data-target="campo3">
+            <button type="button" class="chip">Esto provoca…</button>
+            <button type="button" class="chip">El receptor percibe</button>
+            <button type="button" class="chip">En consecuencia,</button>
+            <button type="button" class="chip">La figura intensifica</button>
+            <button type="button" class="chip">Esto connota</button>
+            <button type="button" class="chip">Por lo tanto,</button>
+          </div>
+        </div>
         <div class="counter" id="c3">0 / 80 mínimo</div>
+        <div class="reinforce" id="r3"></div>
         <div class="field-warn" id="w3">Para avanzar, completa este análisis con al menos 80 caracteres.</div>
         <div style="margin-top:14px"><button class="btn" data-next="fase-4">Continuar a Conexión →</button></div>
       </div>
@@ -578,7 +616,19 @@
         <div class="pregunta">¿Podrías usar esta figura en tu campaña? ¿Para qué producto, servicio o causa?</div>
         <div class="guia">Pregunta guía: describe el producto/servicio/causa y explica cómo aplicarías la adjunción para potenciar tu mensaje.</div>
         <textarea id="campo4" data-min="80" placeholder="Aplicaría esta figura en una campaña para…"></textarea>
+        <div class="write-aids">
+          <div class="aid-tip">✍️ <b>Coherencia:</b> nombra producto/causa, la figura y el objetivo. Toca un conector:</div>
+          <div class="aid-chips" data-target="campo4">
+            <button type="button" class="chip">Aplicaría esta figura en…</button>
+            <button type="button" class="chip">Para el producto</button>
+            <button type="button" class="chip">Con el objetivo de</button>
+            <button type="button" class="chip">Por ejemplo,</button>
+            <button type="button" class="chip">De este modo,</button>
+            <button type="button" class="chip">Así,</button>
+          </div>
+        </div>
         <div class="counter" id="c4">0 / 80 mínimo</div>
+        <div class="reinforce" id="r4"></div>
         <div class="field-warn" id="w4">Para avanzar, completa este análisis con al menos 80 caracteres.</div>
         <div style="margin-top:14px"><button class="btn azul" id="btnFinPieza">Generar Dictamen de las 4 →</button></div>
       </div>
@@ -605,8 +655,9 @@
         </article>
 
         <div class="dict-actions">
-          <button class="btn" id="btnPDF">⬇ Exportar Dictamen (PDF)</button>
-          <button class="btn azul" id="btnOtro">↺ Analizar otro aviso</button>
+          <button class="btn" id="btnPDF">🖨 Imprimir / PDF</button>
+          <button class="btn azul" id="btnCSV">⬇ Exportar CSV</button>
+          <button class="btn ghost" id="btnOtro">↺ Analizar otra tanda</button>
           <button class="btn ghost" id="btnCerrar">Cerrar sesión</button>
         </div>
       </div>
@@ -910,7 +961,7 @@ const FIGURAS={
 };
 
 /* =================== ESTADO =================== */
-const estado={group:null,deck:[],selected:[],analyses:[],idx:0,aviso:null,figura:null,campo1:'',campo3:'',campo4:'',quizDone:[]};
+const estado={group:null,deck:[],selected:[],analyses:[],idx:0,aviso:null,figura:null,campo1:'',campo3:'',campo4:'',quizDone:[],quizScore:[]};
 const N_PIEZAS=4;
 const MIN_QUIZ=4; // aciertos mínimos para aprobar el quiz obligatorio de cada pieza
 function shuffle(arr){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
@@ -1045,7 +1096,7 @@ function refreshPicks(){
 $('#btnIniciar').addEventListener('click',()=>{
   if(picks.length!==N_PIEZAS){toast('Selecciona exactamente 4 piezas.');return;}
   estado.selected=picks.map(id=>AVISOS.find(a=>a.id===id));
-  estado.analyses=[];estado.idx=0;estado.quizDone=[];
+  estado.analyses=[];estado.idx=0;estado.quizDone=[];estado.quizScore=[];
   $('#ficha').classList.remove('hidden');
   loadPiece(0);
 });
@@ -1057,6 +1108,7 @@ function loadPiece(i){
   estado.figura=null;estado.campo1=estado.campo3=estado.campo4='';
   ['#campo1','#campo3','#campo4'].forEach(s=>$(s).value='');
   ['#c1','#c3','#c4'].forEach(s=>{$(s).textContent='0 / 80 mínimo';$(s).classList.remove('ok');});
+  ['#r1','#r3','#r4'].forEach(s=>$(s).className='reinforce');
   $$('.field-warn').forEach(w=>w.classList.remove('show'));
   $$('.fig-card').forEach(c=>c.classList.remove('active'));
   $('#feedback').className='feedback';$('#feedback').innerHTML='';
@@ -1145,7 +1197,14 @@ $('#refToggle').addEventListener('click',()=>{$('#refPanel').classList.add('open
 $('#refClose').addEventListener('click',()=>{$('#refPanel').classList.remove('open');$('#refPanel').setAttribute('aria-hidden','true');});
 
 /* =================== CAMPOS DE TEXTO + CONTADORES =================== */
-function bindCampo(sel,counterSel,warnSel,stateKey){
+function reinforceMsg(len,min){
+  // refuerzo positivo escalonado al redactar
+  if(len>=min*2) return {cls:'t2',txt:'✓✓ Excelente desarrollo: respuesta sólida y bien argumentada.'};
+  if(len>=min)   return {cls:'t1',txt:'✓ ¡Buen aporte! Cumples el mínimo; añade un conector para reforzar la coherencia.'};
+  if(len>=min*0.5) return {cls:'t1',txt:'Vas bien… sigue desarrollando la idea con un poco más de detalle.'};
+  return null;
+}
+function bindCampo(sel,counterSel,warnSel,stateKey,reSel){
   const el=$(sel);
   el.addEventListener('input',()=>{
     estado[stateKey]=el.value;
@@ -1154,12 +1213,27 @@ function bindCampo(sel,counterSel,warnSel,stateKey){
     cnt.textContent=`${len} / ${min} mínimo`;
     cnt.classList.toggle('ok',len>=min);
     if(len>=min)$(warnSel).classList.remove('show');
+    // refuerzo positivo
+    const re=$(reSel), m=reinforceMsg(len,min);
+    if(re){ if(m){re.textContent=m.txt;re.className='reinforce show '+m.cls;} else {re.className='reinforce';} }
     updateDictamen();
   });
 }
-bindCampo('#campo1','#c1','#w1','campo1');
-bindCampo('#campo3','#c3','#w3','campo3');
-bindCampo('#campo4','#c4','#w4','campo4');
+bindCampo('#campo1','#c1','#w1','campo1','#r1');
+bindCampo('#campo3','#c3','#w3','campo3','#r3');
+bindCampo('#campo4','#c4','#w4','campo4','#r4');
+
+// Conectores insertables (ayuda de redacción / coherencia)
+$$('.aid-chips').forEach(group=>{
+  const targetId=group.dataset.target;
+  group.querySelectorAll('.chip').forEach(chip=>chip.addEventListener('click',()=>{
+    const ta=$('#'+targetId);
+    const sep=(ta.value && !/\s$/.test(ta.value))?' ':'';
+    ta.value+=sep+chip.textContent+' ';
+    ta.focus();
+    ta.dispatchEvent(new Event('input'));
+  }));
+});
 
 /* =================== NAVEGACIÓN ENTRE FASES (con validación) =================== */
 $$('[data-next]').forEach(btn=>{
@@ -1248,6 +1322,8 @@ function updateDictamen(){
     body+=`<p><b>Figura de adjunción.</b> `+(f?`Según Durand, opera la <b>Adjunción</b> con relación de <b>${f.rel}</b>, configurando la <b>${f.nombre}</b>. ${f.def}`:ph('—'))+`</p>`;
     body+=`<p><b>Efecto persuasivo.</b> `+(an.campo3?an.campo3:ph('—'))+`</p>`;
     body+=`<p><b>Conexión proyectiva.</b> `+(an.campo4?an.campo4:ph('—'))+`</p>`;
+    const qs=estado.quizScore[i];
+    body+=`<p><b>Refuerzo (Quiz de figuras).</b> `+(qs!=null?`${qs}/5 aciertos — ${qs>=MIN_QUIZ?'aprobado ✓':'no aprobado'}`:ph('Pendiente'))+`</p>`;
   });
 
   const completas=list.filter(an=>an&&an.campo1&&an.figura&&an.campo3&&an.campo4).length;
@@ -1260,13 +1336,55 @@ function updateDictamen(){
 }
 
 /* =================== EXPORTAR PDF =================== */
+function piezasCompletas(){return estado.analyses.filter(an=>an&&an.campo1&&an.figura&&an.campo3&&an.campo4).length;}
 $('#btnPDF').addEventListener('click',()=>{
-  const completas=estado.analyses.filter(an=>an&&an.campo1&&an.figura&&an.campo3&&an.campo4).length;
-  if(completas<N_PIEZAS){
-    toast(`Faltan piezas por analizar (${completas}/${N_PIEZAS}) antes de exportar.`);
+  if(piezasCompletas()<N_PIEZAS){
+    toast(`Faltan piezas por analizar (${piezasCompletas()}/${N_PIEZAS}) antes de exportar.`);
     scrollToId('fase-1');return;
   }
   window.print();
+});
+
+/* =================== EXPORTAR CSV =================== */
+function csvCell(v){ v=(v==null?'':String(v)).replace(/"/g,'""'); return `"${v}"`; }
+$('#btnCSV').addEventListener('click',()=>{
+  if(piezasCompletas()<N_PIEZAS){
+    toast(`Faltan piezas por analizar (${piezasCompletas()}/${N_PIEZAS}) antes de exportar.`);
+    scrollToId('fase-1');return;
+  }
+  const g=estado.group||{members:[],seccion:''};
+  const fecha=new Date().toLocaleString('es-PE');
+  const rows=[];
+  // Bloque de cabecera (grupo)
+  rows.push(['RethoricaLab — Dictamen Retórico (UTP 2026)']);
+  rows.push(['Sección/Grupo',g.seccion||'']);
+  rows.push(['Fecha',fecha]);
+  rows.push(['Integrantes',(g.members||[]).map(m=>`${m.nombre} (${m.codigo})`).join(' | ')]);
+  rows.push([]); // línea en blanco
+  // Encabezados del detalle
+  rows.push(['Pieza N°','Marca','Campaña/Producto','Observación denotativa','Figura de adjunción','Operación','Relación semiótica','Efecto persuasivo','Conexión con campaña propia','Quiz (aciertos/5)','Quiz aprobado']);
+  estado.selected.forEach((piece,i)=>{
+    const an=estado.analyses[i]||{};
+    const f=an.figura?FIGURAS[an.figura]:null;
+    const qs=estado.quizScore[i];
+    rows.push([
+      i+1, piece.brand, piece.name,
+      an.campo1||'', f?f.nombre:'', f?'Adjunción':'', f?f.rel:'',
+      an.campo3||'', an.campo4||'',
+      qs!=null?qs:'', qs!=null?(qs>=MIN_QUIZ?'Sí':'No'):''
+    ]);
+  });
+  rows.push([]);
+  rows.push(['Docente','Mg. Mario Quiroz Martínez — Semiótica de la Imagen, Unidad 4 — UTP 2026']);
+  const csv='﻿'+rows.map(r=>r.map(csvCell).join(',')).join('\r\n'); // BOM para Excel
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  const slug=(g.seccion||'grupo').replace(/[^a-z0-9]+/gi,'-').toLowerCase();
+  a.href=url; a.download=`dictamen-retorico-${slug}.csv`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  toast('CSV exportado con las 4 piezas, el quiz y los integrantes.');
 });
 
 /* =================== REINICIO / CERRAR =================== */
@@ -1339,6 +1457,7 @@ $('#btnRefuerzoPieza').addEventListener('click',()=>openGames('paneQuiz'));
 // --- Quiz obligatorio por pieza ---
 function onQuizResult(score,pass){
   if(!estado.selected.length)return;
+  estado.quizScore[estado.idx]=Math.max(estado.quizScore[estado.idx]||0,score);
   if(pass && !estado.quizDone[estado.idx]){
     estado.quizDone[estado.idx]=true;
     updateRefuerzoState();
