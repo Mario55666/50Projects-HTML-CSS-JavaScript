@@ -69,6 +69,33 @@
   .idc-logo{display:inline-flex;align-items:center;gap:.55rem;font-weight:800;color:#fff}
   .idc-logo svg{flex:none}
 
+  /* ---------- Pantalla de Contexto (caso detectivesco) ---------- */
+  #intro{min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:24px;
+    background:linear-gradient(135deg,#23272e 0%,#33373A 55%,#1c1c1b 130%);position:relative;overflow:hidden}
+  #intro::before{content:"";position:absolute;width:60vw;height:60vw;background:var(--idc-amarillo);opacity:.10;top:-22vw;left:-16vw;transform:rotate(20deg)}
+  #intro::after{content:"";position:absolute;width:0;height:0;border-left:26vw solid transparent;border-right:26vw solid transparent;border-bottom:32vw solid rgba(228,3,46,.10);bottom:-8vw;right:-6vw}
+  .intro-card{position:relative;z-index:2;background:#fff;max-width:760px;width:100%;
+    box-shadow:14px 14px 0 rgba(0,0,0,.4);border-top:10px solid var(--idc-amarillo)}
+  .intro-head{padding:24px 30px 6px}
+  .intro-head .eyebrow{background:var(--idc-amarillo);color:#fff}
+  .intro-head h1{font-size:1.9rem;line-height:1.05;margin-top:.4rem}
+  .intro-body{padding:8px 30px 18px}
+  .intro-lead{font-size:1rem;line-height:1.6;color:var(--idc-gris2);margin-bottom:18px}
+  .intro-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
+  .intro-box{background:#f7f9fb;border:2px solid var(--line);border-left:6px solid var(--idc-azul);padding:14px 16px}
+  .intro-box h3{font-size:1rem;color:var(--idc-azul);margin-bottom:.35rem}
+  .intro-box p{font-size:.88rem;color:var(--idc-gris2);line-height:1.5}
+  .susp-title{font-size:1.05rem;color:var(--negro);margin:.4rem 0 .2rem}
+  .susp-sub{font-size:.85rem;color:var(--idc-gris2);margin-bottom:12px}
+  .suspects{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+  .suspect{background:#fff;border:2px solid var(--line);padding:10px;display:flex;gap:10px;align-items:center}
+  .suspect .simg{width:44px;height:44px;flex:none;overflow:hidden;border:1px solid var(--line)}
+  .suspect .simg img,.suspect .simg svg{width:100%;height:100%;object-fit:cover}
+  .suspect .sname{font-size:.78rem;font-weight:800;color:var(--negro);line-height:1.15}
+  .suspect .salias{font-size:.68rem;color:var(--idc-amarillo);font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+  .intro-foot{padding:4px 30px 28px;display:flex;justify-content:flex-end}
+  @media(max-width:560px){.intro-grid{grid-template-columns:1fr}.intro-head h1{font-size:1.4rem}}
+
   /* ---------- Pantalla de Registro ---------- */
   #registro{
     min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:24px;
@@ -483,8 +510,37 @@
   <span class="shape-c"></span><span class="shape-d"></span>
 </div>
 
+<!-- ============ 0. CONTEXTO: ACTIVIDAD DETECTIVESCA ============ -->
+<section id="intro">
+  <div class="intro-card">
+    <div class="intro-head">
+      <span class="eyebrow">🕵️ Caso · Semiótica de la Imagen · UTP 2026 — Semana 16</span>
+      <h1>El robo del mensaje secreto</h1>
+    </div>
+    <div class="intro-body">
+      <p class="intro-lead">En el laboratorio de Semiótica se custodiaba un <b>mensaje secreto</b>. Anoche fue <b>robado</b> y sus fragmentos quedaron <b>ocultos dentro de piezas publicitarias reales</b>. Los responsables usaron <b>figuras retóricas de adjunción</b> para camuflarlo. Tu grupo es el equipo de <b>analistas-detectives</b> convocado para descifrarlas y recuperar el mensaje.</p>
+      <div class="intro-grid">
+        <div class="intro-box">
+          <h3>🎯 Logro de aprendizaje</h3>
+          <p>Al resolver el caso, el grupo será capaz de <b>identificar y clasificar las figuras de adjunción de Jacques Durand</b> (Repetición, Comparación, Antítesis y Acumulación) en piezas publicitarias reales, <b>argumentando su efecto persuasivo</b>.</p>
+        </div>
+        <div class="intro-box">
+          <h3>🧩 Cómo se resuelve el caso</h3>
+          <p>Examinarán <b>4 sospechosos</b> (piezas sorteadas), superarán los <b>retos de refuerzo</b> con pistas y emitirán un <b>Dictamen Retórico</b> que revela el mensaje oculto. Cada figura bien identificada es una prueba.</p>
+        </div>
+      </div>
+      <h3 class="susp-title">🔎 Los sospechosos del caso</h3>
+      <p class="susp-sub">Estas son las 7 piezas bajo investigación. El sistema sorteará el orden y tu grupo elegirá a <b>4 sospechosos</b> para interrogar (analizar).</p>
+      <div class="suspects" id="suspects"></div>
+    </div>
+    <div class="intro-foot">
+      <button class="btn azul" id="btnAceptarCaso">Aceptar el caso → Registrar analistas →</button>
+    </div>
+  </div>
+</section>
+
 <!-- ============ 1. REGISTRO DEL ESTUDIANTE ============ -->
-<section id="registro">
+<section id="registro" style="display:none">
   <div class="reg-card">
     <div class="reg-head">
       <span class="eyebrow">RethoricaLab · UTP 2026 · Semana 16</span>
@@ -1014,6 +1070,23 @@ const $$=s=>document.querySelectorAll(s);
 function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2600);}
 function scrollToId(id){const el=document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
 
+/* =================== CONTEXTO: CASO DETECTIVESCO =================== */
+function buildSuspects(){
+  const cont=$('#suspects');if(!cont)return;cont.innerHTML='';
+  AVISOS.forEach((a,i)=>{
+    const d=document.createElement('div');d.className='suspect';
+    d.innerHTML=`<div class="simg">${mediaFor(a.id)}</div>
+      <div><div class="salias">Sospechoso ${i+1}</div><div class="sname">${a.brand}<br><span style="font-weight:600;color:var(--idc-gris2)">«${a.name}»</span></div></div>`;
+    cont.appendChild(d);
+  });
+}
+$('#btnAceptarCaso').addEventListener('click',()=>{
+  $('#intro').style.display='none';
+  $('#registro').style.display='flex';
+  window.scrollTo(0,0);
+});
+buildSuspects();
+
 /* =================== REGISTRO GRUPAL (mín. 2 · máx. 4) =================== */
 const MIN_INT=2, MAX_INT=4;
 const intCont=$('#integrantes');
@@ -1454,10 +1527,11 @@ function resetFicha(){
 $('#btnReset').addEventListener('click',()=>{resetFicha();toast('Banco re-sorteado. Selecciona 4 piezas nuevas.');});
 $('#btnOtro').addEventListener('click',()=>{resetFicha();toast('Nuevo sorteo. Selecciona 4 piezas para analizar.');});
 $('#btnCerrar').addEventListener('click',()=>{
-  if(confirm('¿Cerrar la sesión? Se borrará el análisis actual y el registro del grupo.')){
+  if(confirm('¿Cerrar el caso? Se borrará el análisis actual y el registro del grupo.')){
     estado.group=null;resetFicha();
     $('#app').style.display='none';$('#refToggle').classList.add('hidden');
-    $('#registro').style.display='flex';
+    $('#registro').style.display='none';
+    $('#intro').style.display='flex';
     $('#r-seccion').value='';$('#f-seccion').classList.remove('invalid');
     intCont.innerHTML='';addIntegrante();addIntegrante();
     refreshReg();window.scrollTo(0,0);
@@ -1511,16 +1585,32 @@ function checklistHtml(items){
     `<li class="${it.ok?'ok':'pend'}"><span class="ic">${it.ok?'✓':'!'}</span><span>${it.ok?it.k:'<b>Falta:</b> '+it.k}</span></li>`
   ).join('')+'</ul>';
 }
+function pieceSummaryHtml(){
+  return '<ul class="check-list">'+estado.selected.map((p,i)=>{
+    let cls,label;
+    if(estado.analyses[i]){ cls='ok'; label=`<b>Pieza ${i+1} — ${p.brand}:</b> terminada ✓`; }
+    else if(i===estado.idx){ const n=pieceChecklist().filter(x=>x.ok).length; cls='pend'; label=`<b>Pieza ${i+1} — ${p.brand}:</b> en curso (${n}/5 pasos)`; }
+    else { cls='pend'; label=`<b>Pieza ${i+1} — ${p.brand}:</b> pendiente`; }
+    return `<li class="${cls}"><span class="ic">${cls==='ok'?'✓':'•'}</span><span>${label}</span></li>`;
+  }).join('')+'</ul>';
+}
+function sub(t){return `<h4 style="color:var(--idc-azul);text-transform:uppercase;font-size:.8rem;letter-spacing:.06em;margin:16px 0 .4rem;border-left:5px solid var(--idc-amarillo);padding-left:.6rem">${t}</h4>`;}
 function showStatusDialog(){
-  if(!estado.selected.length){openDialog('Estado del procedimiento','<p>Aún no has iniciado el análisis. Selecciona 4 piezas y pulsa «Iniciar».</p>');return;}
+  if(!estado.selected.length){openDialog('Estado del caso','<p>El caso aún no inicia. Selecciona 4 sospechosos (piezas) y pulsa «Iniciar análisis».</p>');return;}
   const items=pieceChecklist();
   const pend=items.filter(i=>!i.ok).length;
   const piezasOk=piezasCompletas();
-  const overall=`<div class="dlg-overall">Avance global: ${piezasOk}/${N_PIEZAS} piezas terminadas · Estás en la pieza ${estado.idx+1}.</div>`;
-  const head = pend===0
-    ? `<p>✅ <b>Procedimiento de esta pieza COMPLETO.</b> Ya puedes finalizarla.</p>`
-    : `<p>🔧 <b>Procedimiento en curso:</b> faltan ${pend} paso(s) en esta pieza.</p>`;
-  openDialog('Estado del procedimiento — Pieza '+(estado.idx+1), head+checklistHtml(items)+overall);
+  const head = piezasOk===N_PIEZAS
+    ? `<p>🏆 <b>¡Caso resuelto!</b> Las ${N_PIEZAS} piezas están terminadas. Exporta el Dictamen (PDF o CSV).</p>`
+    : (pend===0
+        ? `<p>✅ <b>Pieza actual COMPLETA.</b> Puedes finalizarla y avanzar.</p>`
+        : `<p>🔧 <b>Pieza actual en curso:</b> faltan ${pend} paso(s).</p>`);
+  const overall=`<div class="dlg-overall">Avance global del caso: ${piezasOk}/${N_PIEZAS} piezas terminadas.</div>`;
+  const body=head
+    + sub('Resumen de las 4 piezas')+pieceSummaryHtml()
+    + sub('Detalle de la pieza en curso ('+(estado.idx+1)+')')+checklistHtml(items)
+    + overall;
+  openDialog('Estado del procedimiento', body);
 }
 $('#btnEstado').addEventListener('click',showStatusDialog);
 
