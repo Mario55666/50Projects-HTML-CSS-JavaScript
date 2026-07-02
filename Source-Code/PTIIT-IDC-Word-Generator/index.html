@@ -3249,6 +3249,12 @@ document.querySelectorAll('.nav-btn').forEach((btn,i,all) => {
 });
 
 function scrollToSection(id, btn) {
+  /* En modo páginas la sección destino está oculta: cambiar de página en lugar de hacer scroll */
+  if (document.body.classList.contains('pg-mode') && window.pgShow && window.pgShow(id)) {
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    if(btn) btn.classList.add('active');
+    return;
+  }
   const el = document.getElementById(id);
   if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -4127,10 +4133,15 @@ const convData = [
       if (overlay) overlay.classList.remove('open');
       if (panel) panel.classList.remove('open');
 
-      // Scroll to areas section
-      const section = document.getElementById('areas-section');
-      if (section) {
-        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // En modo páginas: activar la página de áreas antes de seleccionar la pestaña
+      if (document.body.classList.contains('pg-mode') && window.pgShow) {
+        window.pgShow('areas-section');
+      } else {
+        // Scroll to areas section
+        const section = document.getElementById('areas-section');
+        if (section) {
+          section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
       }
 
       // Activate corresponding tab after scroll
@@ -4158,6 +4169,8 @@ const convData = [
 
     /* ── Scroll to nav section with offset for sticky nav ── */
     function scrollToNavSection() {
+      /* En modo páginas, «Menú de secciones» abre la página del menú */
+      if (document.body.classList.contains('pg-mode') && window.pgShow && window.pgShow('main-nav-section')) return;
       const nav = document.getElementById('main-nav');
       const section = document.getElementById('main-nav-section');
       if (nav && section) {
@@ -6036,12 +6049,47 @@ h1,h2,h3{margin-top:18pt}table{width:100%}@page{margin:2.5cm}</style>
       return el;
     }
 
+    /* API global: permite a botones/enlaces de toda la página cambiar de
+       pestaña (scrollToSection, scrollToNavSection, scrollToArea, FAQ…). */
+    window.pgShow = function (id, screen) {
+      const pg = pageOf(id);
+      if (!pg) return false;
+      show(pg, null);
+      /* si el destino es un elemento interno de la página, desplazarse hasta él */
+      if (pg.id !== id) setTimeout(() => {
+        const el = document.getElementById(id);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 120);
+      if (screen && window.VR) { try { VR.showScreen(screen); } catch (e) {} }
+      return true;
+    };
+
+    /* Enlaces internos (tarjetas del menú de secciones, FAQ, etc.):
+       en modo páginas un ancla a una sección oculta no haría nada. */
+    document.addEventListener('click', function (e) {
+      const a = e.target.closest('a[href^="#"]');
+      if (!a) return;
+      const id = (a.getAttribute('href') || '').slice(1);
+      if (!id) { e.preventDefault(); show(home, homeBtn); return; }
+      const pg = pageOf(id);
+      if (!pg) return;
+      e.preventDefault();
+      show(pg, null);
+      if (pg.id !== id) setTimeout(() => {
+        const el = document.getElementById(id);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 120);
+    });
+
     // Las 4 carreras (ids inexistentes en el doc) llevan a la herramienta,
     // a la PANTALLA de esa especialidad — así quedan separadas por pestaña.
     const careerMap = { 'area-int': 'int', 'area-pub': 'pub', 'area-mod': 'mod', 'area-cav': 'cav' };
 
-    // Repuntar cada botón del menú a cambiar de pantalla (no hacer scroll)
-    document.querySelectorAll('.nav-btn').forEach(btn => {
+    // Repuntar cada botón del MENÚ SUPERIOR a cambiar de pantalla (no hacer
+    // scroll). Solo los del nav: otros .nav-btn (p. ej. «Comenzar» del
+    // tutorial) conservan su onclick y pasan por scrollToSection, que ya
+    // es consciente del modo páginas.
+    document.querySelectorAll('#main-nav .nav-btn').forEach(btn => {
       const oc = btn.getAttribute('onclick') || '';
       const m = oc.match(/scrollToSection\('([^']+)'/);
       if (!m) return;
