@@ -275,8 +275,12 @@ input.ipd{width:56px;min-width:56px;text-align:center}
         <button class="btn ghost" id="btnCfgTemplate">⬇ Plantilla de configuración (.json)</button>
         <button class="btn ghost" id="btnCfgFile">⬆ Cargar configuración (.json)</button>
         <button class="btn warn" id="btnCfgDemo">🧪 Cargar DEMO (ejemplo MPI-DUAE)</button>
-        <button class="btn ghost" id="btnDeepPrompt">⬇ Superprompt deep-research (.txt)</button>
-        <button class="btn ghost" id="btnDeepPromptClip">⧉ Copiar superprompt</button>
+      </div>
+      <div class="actions" style="margin:8px 0 0">
+        <button class="btn ghost" id="btnSchemaPrompt" title="Genera un prompt para que un LLM/deep research produzca el ESQUEMA completo: categorías, subcategorías sugeridas, enfoques, niveles IPD, contexto objetivo y señales de inferencia">🧩 Generar prompt del esquema (.txt)</button>
+        <button class="btn ghost" id="btnSchemaPromptClip">⧉ Copiar prompt del esquema</button>
+        <button class="btn ghost" id="btnDeepPrompt" title="Genera un prompt más amplio que produce el esquema + un banco inicial de referencias reales">⬇ Superprompt deep-research (esquema + banco)</button>
+        <button class="btn ghost" id="btnDeepPromptClip">⧉ Copiar</button>
       </div>
       <input type="file" id="cfgFileInput" accept=".json,application/json">
       <textarea id="cfgJson" class="cfg-textarea" placeholder='Pega aquí tu configuración JSON, o usa "Plantilla de configuración" para obtener el esquema…'></textarea>
@@ -485,6 +489,8 @@ const CONFIG_TEMPLATE = {
   "descripcion": "Una frase que describa el objeto de estudio y contexto.",
   "_comentario_categorias": "Catálogo CERRADO de categorías temáticas. Todo valor fuera de esta lista será rechazado.",
   "categorias": ["Categoría A","Categoría B","Categoría C"],
+  "_comentario_subcategorias": "Subcategorías SUGERIDAS por categoría (orientativas, no cerradas): aparecen como autocompletado del campo subcategoría en el editor. Opcional.",
+  "subcategorias_sugeridas": { "Categoría A": ["Subcategoría A1","Subcategoría A2"] },
   "_comentario_enfoques": "Catálogo CERRADO de enfoques/perspectivas de análisis.",
   "enfoques": ["Enfoque 1","Enfoque 2","Enfoque 3"],
   "_comentario_ipd": "IPD = Índice de Proximidad al objeto de estudio (0-3). Personaliza las descripciones de cada nivel.",
@@ -515,6 +521,13 @@ const DEMO_CONFIG = {
   "proyecto": "DEMO · MPI-DUAE",
   "descripcion": "EJEMPLO DEMOSTRATIVO: revisión sistemática sobre un modelo pedagógico inclusivo (DUA + aprendizaje experiencial + competencias creativas) en educación superior de Lima, Perú. Úsalo solo para probar la herramienta.",
   "categorias": ["Competencias Creativas","Motivación Intrínseca","Bienestar Psicosocial","Estilos de Aprendizaje","Equidad e Inclusión"],
+  "subcategorias_sugeridas": {
+    "Competencias Creativas": ["Creatividad en diseño","TTCT / psicometría","Pensamiento divergente","Intervenciones activas"],
+    "Motivación Intrínseca": ["Entornos activos","Autodeterminación","Compromiso académico"],
+    "Bienestar Psicosocial": ["Pertenencia / seguridad grupal","Salud mental","Satisfacción con la vida"],
+    "Estilos de Aprendizaje": ["Aprendizaje experiencial","LSI Kolb validación","Aprendizaje basado en proyectos"],
+    "Equidad e Inclusión": ["DUA / UDL","Pertenencia NEE","Aprendizaje-servicio"]
+  },
   "enfoques": ["Aprendizaje centrado","Educación inclusiva y equidad","Diseño de competencias","Evaluación y psicometría","Motivación y autorregulación","Salud mental y bienestar","Innovación pedagógica"],
   "ipd_etiqueta": "IPD — Índice de Proximidad al objeto de estudio",
   "ipd_niveles": {
@@ -681,6 +694,83 @@ function handleConfigFile(file){
   fr.readAsText(file,'utf-8');
 }
 
+/* --- Prompt del ESQUEMA: pide a un LLM/deep research SOLO la configuración,
+       con TODOS los atributos indicados (categorías, subcategorías sugeridas,
+       enfoques, niveles IPD, contexto objetivo y señales de inferencia). --- */
+function buildSchemaPrompt(){
+  return `Eres un metodólogo de investigación experto en diseñar esquemas de codificación bibliográfica. Tu tarea es EXTRAER y PROPONER el ESQUEMA DE CLASIFICACIÓN completo para la herramienta "Actualizador Bibliográfico Universal", a partir del tema de investigación que se indica abajo.
+
+TEMA DE INVESTIGACIÓN (complétalo antes de enviar):
+- Objeto de estudio: [DESCRIBE AQUÍ TU TEMA]
+- Contexto / población: [p. ej. educación superior, salud pública, PyMEs, políticas públicas…]
+- País o región objetivo: [OPCIONAL]
+- Pregunta(s) o hipótesis de investigación: [OPCIONAL]
+- Marco teórico o ejes conceptuales de referencia: [OPCIONAL]
+
+DEBES DEVOLVER un ÚNICO objeto JSON válido (sin markdown, sin comentarios, sin texto antes ni después) con TODOS estos atributos:
+
+{
+  "proyecto": "<nombre corto e identificable del proyecto>",
+  "descripcion": "<una frase que resuma el objeto de estudio y su contexto>",
+
+  "categorias": ["<3 a 7 CATEGORÍAS temáticas, catálogo CERRADO, mutuamente excluyentes, que cubran los grandes ejes del tema>"],
+
+  "subcategorias_sugeridas": {
+    "<cada categoría del array anterior>": ["<2 a 6 SUBCATEGORÍAS sugeridas: matices, líneas o constructos dentro de esa categoría; son orientativas, no cerradas>"]
+  },
+
+  "enfoques": ["<3 a 8 ENFOQUES o perspectivas de análisis, catálogo CERRADO (p. ej. teórico, empírico, metodológico, evaluativo, etc., adaptados al tema)>"],
+
+  "ipd_etiqueta": "IPD — Índice de Proximidad al objeto de estudio",
+  "ipd_niveles": {
+    "0": "<qué significa proximidad 0: instrumento/norma/teoría base sin anclaje al objeto>",
+    "1": "<proximidad 1: transferencia temática general>",
+    "2": "<proximidad 2: proximidad contextual (mismo país/región/población con ≥2 ejes del tema)>",
+    "3": "<proximidad 3: convergencia exacta con el objeto de estudio>"
+  },
+
+  "contexto_objetivo": {
+    "pais": "<país objetivo, o cadena vacía si no aplica>",
+    "keywords": ["<palabras clave del CONTEXTO: ciudad, institución, población, siglas… que delaten proximidad regional/contextual>"]
+  },
+
+  "senales_categoria": {
+    "<cada categoría>": ["<5 a 10 SEÑALES DE INFERENCIA: palabras clave en minúsculas, SIN tildes, pueden ser raíces (p. ej. 'creativ', 'inclusi') que aparezcan en títulos/revistas y delaten esa categoría>"]
+  },
+
+  "senales_enfoque": {
+    "<cada enfoque>": ["<3 a 8 señales de inferencia (palabras clave en minúsculas, sin tildes) que delaten ese enfoque>"]
+  },
+
+  "enfoque_por_defecto": {
+    "<cada categoría>": "<el enfoque MÁS probable para esa categoría cuando no haya señal propia de enfoque>"
+  },
+
+  "paises": ["No determinado", "<lista de países relevantes para autocompletar el editor>"]
+}
+
+REGLAS:
+- Deriva TODO del tema indicado; no copies ejemplos genéricos.
+- "categorias" y "enfoques" son catálogos CERRADOS: elige nombres claros y no solapados.
+- Las claves de "subcategorias_sugeridas", "senales_categoria" y "enfoque_por_defecto" deben coincidir EXACTAMENTE con los valores de "categorias".
+- Las claves de "senales_enfoque" deben coincidir EXACTAMENTE con los valores de "enfoques".
+- Las señales van en minúsculas y sin tildes (la herramienta normaliza el texto para comparar).
+- No inventes un país objetivo si el tema no lo especifica: deja "pais" vacío.
+- Devuelve SOLO el objeto JSON.`;
+}
+function exportSchemaPrompt(){
+  const txt=buildSchemaPrompt();
+  const ta=document.getElementById('deepOut'); ta.value=txt; ta.classList.remove('hidden');
+  download('prompt_esquema_investigacion.txt', txt, 'text/plain;charset=utf-8');
+  logTo('cfgLog','✓ Prompt del esquema generado. Complétalo con tu tema, pégalo en tu LLM/deep research y trae el JSON resultante al recuadro de configuración.','ok');
+}
+function copySchemaPrompt(){
+  const txt=buildSchemaPrompt();
+  const ta=document.getElementById('deepOut'); ta.value=txt; ta.classList.remove('hidden');
+  if(navigator.clipboard) navigator.clipboard.writeText(txt).then(()=>toast('Prompt del esquema copiado'),()=>{});
+  else { ta.select(); document.execCommand('copy'); toast('Prompt del esquema copiado'); }
+}
+
 /* --- Superprompt deep-research: pide a un LLM la config + banco inicial --- */
 function buildDeepResearchPrompt(){
   const header=TABULAR_FIELDS.join(',');
@@ -702,6 +792,7 @@ Un único objeto JSON con esta estructura exacta (sin comentarios ni texto extra
   "proyecto": "<nombre corto del proyecto>",
   "descripcion": "<una frase>",
   "categorias": ["<3 a 7 categorías temáticas CERRADAS derivadas del tema>"],
+  "subcategorias_sugeridas": { "<cada categoría>": ["<2 a 6 subcategorías sugeridas (orientativas)>"] },
   "enfoques": ["<3 a 8 enfoques/perspectivas de análisis CERRADOS>"],
   "ipd_etiqueta": "IPD — Índice de Proximidad al objeto de estudio",
   "ipd_niveles": { "0": "<sin anclaje>", "1": "<transferencia general>", "2": "<proximidad contextual>", "3": "<convergencia exacta>" },
@@ -1037,17 +1128,33 @@ function getVisible(){
   }
   return arr;
 }
+function subcatListId(r){
+  // sugerencias de subcategoría según la categoría actual de la fila
+  const map = (CONFIG&&CONFIG.subcategorias_sugeridas)||{};
+  return (r.categoria && Array.isArray(map[r.categoria]) && map[r.categoria].length) ? ('subcat-'+norm(r.categoria).replace(/ +/g,'-')) : '';
+}
 function metaRow(r){
   const cells=META_FIELDS.map(([k,label])=>{
     const long = (k==="hallazgo_principal"||k==="relevancia_tema");
+    const listId = (k==="subcategoria") ? subcatListId(r) : '';
     return `<div class="meta-field ${long?'meta-long':''}">
       <label>${label}</label>
       ${long
         ? `<textarea class="meta-input" data-f="${k}" rows="2">${esc(r[k]||'')}</textarea>`
-        : `<input class="meta-input" data-f="${k}" value="${esc(r[k]||'')}">`}
+        : `<input class="meta-input" data-f="${k}" value="${esc(r[k]||'')}"${listId?` list="${listId}"`:''}>`}
     </div>`;
   }).join('');
   return `<tr class="meta-sub hidden" data-meta="${r._i}"><td></td><td colspan="9"><div class="meta-grid">${cells}</div></td></tr>`;
+}
+function renderSubcatDatalists(){
+  const map = (CONFIG&&CONFIG.subcategorias_sugeridas)||{};
+  document.querySelectorAll('datalist[data-subcat]').forEach(d=>d.remove());
+  Object.keys(map).forEach(cat=>{
+    const arr=map[cat]; if(!Array.isArray(arr)||!arr.length) return;
+    const dl=document.createElement('datalist'); dl.id='subcat-'+norm(cat).replace(/ +/g,'-'); dl.setAttribute('data-subcat','1');
+    arr.forEach(v=>{ const o=document.createElement('option'); o.value=v; dl.appendChild(o); });
+    document.body.appendChild(dl);
+  });
 }
 
 function renderEditor(){
@@ -1096,6 +1203,7 @@ function renderEditor(){
   const paises=(CONFIG&&Array.isArray(CONFIG.paises)&&CONFIG.paises.length)?CONFIG.paises:['No determinado'];
   paises.forEach(p=>{ const o=document.createElement('option'); o.value=p; dl.appendChild(o); });
   document.body.appendChild(dl);
+  renderSubcatDatalists();
 
   // listeners de edición
   body.querySelectorAll('tr[data-i]').forEach(tr=>{
@@ -1961,6 +2069,8 @@ document.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('cfgFileInput').addEventListener('change',e=>{ if(e.target.files[0]) handleConfigFile(e.target.files[0]); e.target.value=''; });
   document.getElementById('btnBankFile').addEventListener('click',()=>document.getElementById('bankFileInput').click());
   document.getElementById('bankFileInput').addEventListener('change',e=>{ if(e.target.files[0]) handleBankFile(e.target.files[0]); e.target.value=''; });
+  document.getElementById('btnSchemaPrompt').addEventListener('click',exportSchemaPrompt);
+  document.getElementById('btnSchemaPromptClip').addEventListener('click',copySchemaPrompt);
   document.getElementById('btnDeepPrompt').addEventListener('click',exportDeepPrompt);
   document.getElementById('btnDeepPromptClip').addEventListener('click',copyDeepPrompt);
 
