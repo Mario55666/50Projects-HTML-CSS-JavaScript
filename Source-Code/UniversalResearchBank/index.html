@@ -203,6 +203,14 @@ input.ipd{width:56px;min-width:56px;text-align:center}
 .dom-note{font-size:.82rem;color:var(--niebla);margin:12px 0;padding:10px 14px;border:1px solid var(--linea);border-left:3px solid var(--rojo);border-radius:8px;background:#fff}
 .dom-note strong{color:var(--hueso)}
 
+/* ===== GUÍA NOTEBOOKLM ===== */
+.nb-guide{margin:0 0 16px;background:#fff;border:1px solid var(--linea);border-left:3px solid var(--brand-azul);border-radius:12px;padding:18px 20px;box-shadow:0 1px 3px rgba(15,28,43,.04)}
+.nb-head{font-family:var(--display);font-weight:700;font-size:1rem;color:var(--hueso);margin-bottom:6px}
+.nb-intro{font-size:.85rem;color:var(--niebla);margin-bottom:10px}
+.nb-steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px}
+.nb-steps li{font-size:.86rem;color:var(--hueso);line-height:1.5}
+.nb-steps strong{color:var(--brand-azul)}
+
 /* ===== MODO AYUDA / GUÍA DE BOTONES ===== */
 .help-fab{position:fixed;bottom:20px;right:20px;z-index:1000;font-family:var(--mono);font-size:.78rem;font-weight:600;padding:11px 18px;border-radius:24px;border:none;cursor:pointer;background:var(--brand-azul);color:#fff;box-shadow:0 8px 24px rgba(0,0,0,.28);transition:.15s}
 .help-fab:hover{filter:brightness(1.12)}
@@ -319,6 +327,24 @@ body.help-on [data-help]{outline:2px dashed rgba(0,114,185,.6);outline-offset:2p
     <div class="sec-num" style="color:var(--brand-azul)">02 · Carga de referencias</div>
     <h2 style="margin-bottom:6px">Inserta tu archivo de referencias</h2>
     <p class="sec-desc">Inserta un archivo exportado desde <strong>Mendeley, Zotero o EndNote</strong> (XML), una tabla de Word (XML), o un archivo <strong>CSV / Excel / JSON</strong> con la cabecera de codificación de 19 campos. Las referencias que coincidan (por DOI o título) con tu banco previo <strong>heredan</strong> su codificación.</p>
+
+    <div class="nb-guide">
+      <div class="nb-head">🧪 ¿Aún no tienes el archivo? Genéralo desde tus PDF o MD con NotebookLM</div>
+      <p class="nb-intro">Procedimiento recomendado para construir el banco a partir de los papers, con extracción codificada y sistema de <strong>palabra dominante</strong>:</p>
+      <ol class="nb-steps">
+        <li>Sube tus <strong>PDF o MD</strong> a un cuaderno en <a href="https://notebooklm.google.com" target="_blank" rel="noopener">NotebookLM</a>.</li>
+        <li>Pega el <strong>prompt de extracción</strong> (botón de abajo). Ya viene rellenado con tu objeto de estudio y el vocabulario controlado (categorías, subcategorías y enfoques) con sus palabras dominantes.</li>
+        <li>Procesa en <strong>lotes de 15 artículos</strong> y <strong>controla la cantidad de fuentes</strong>: los lotes grandes o fuentes repetidas pueden generar <strong>duplicados</strong> (luego los depuras con «🗑 Eliminar duplicados» en el editor).</li>
+        <li>Traslada la tabla resultante a un documento <strong>Word</strong> o a <strong>Excel</strong>.</li>
+        <li>Expórtala a <strong>XML</strong> (en Word: <em>Guardar como → Documento XML de Word</em>) —o guárdala como CSV/Excel— y cárgala aquí abajo.</li>
+      </ol>
+      <div class="actions" style="margin:12px 0 0">
+        <button class="btn ghost" id="btnNbPrompt" data-help-title="Prompt para NotebookLM" data-help="Descarga el prompt de extracción PRISMA/bibliométrica para NotebookLM, rellenado con tu objeto de estudio y el vocabulario controlado con palabras dominantes de tu configuración.">⬇ Generar prompt para NotebookLM (.txt)</button>
+        <button class="btn ghost" id="btnNbPromptClip" data-help-title="Copiar prompt" data-help="Copia al portapapeles el prompt de extracción para NotebookLM.">⧉ Copiar prompt</button>
+      </div>
+      <div class="log hidden" id="nbLog"></div>
+    </div>
+
     <label class="dropzone" id="dropzone" data-help-title="Cargar archivo de referencias" data-help="Suelta aquí o elige tu archivo: XML de Mendeley/Zotero/EndNote o de Word, o un CSV/Excel/JSON con los 19 campos del esquema." for="fileInput">
       <h3>⬆ Suelta aquí tu archivo <span style="color:var(--brand-azul)">.xml</span>, <span style="color:var(--brand-azul)">.csv</span>, <span style="color:var(--brand-azul)">.xlsx</span> o <span style="color:var(--brand-azul)">.json</span></h3>
       <p><strong>XML</strong> bibliográfico (esquema b:Sources) o Word (w:tbl) &nbsp;·&nbsp; <strong>CSV/Excel/JSON</strong> con cabecera de 19 campos. Se procesa 100% en tu navegador; ningún dato sale de tu equipo.</p>
@@ -875,6 +901,118 @@ function copyDeepPrompt(){
   else { ta.select(); document.execCommand('copy'); toast('Superprompt copiado'); }
 }
 
+/* --- Prompt de extracción para NotebookLM (PDF/MD -> tabla codificada) ---
+   Rellena el objeto de estudio y el vocabulario controlado (categorías,
+   subcategorías, enfoques) con las palabras dominantes de la configuración. --- */
+function stemStar(w){
+  var x=String(w||'').toLowerCase().trim();
+  var rules=[[/(ciones|ción|cion)$/,'ci'],[/(siones|sión|sion)$/,'si'],[/(ico|ica|icos|icas)$/,''],[/(ías|ía|ia)$/,'i'],[/(es|os|as|a|o|e)$/,'']];
+  for(var i=0;i<rules.length;i++){ if(rules[i][0].test(x)){ x=x.replace(rules[i][0],rules[i][1]); break; } }
+  return (x||String(w||'').toLowerCase())+'*';
+}
+function domStar(term){
+  var map=(CONFIG&&CONFIG.palabras_dominantes)||{};
+  var v=map[term]; if(!v){ for(var k in map){ if(norm(k)===norm(term)){ v=map[k]; break; } } }
+  if(v){ v=String(v).trim(); return /\*$/.test(v)? v : stemStar(v); }
+  return stemStar(term);
+}
+function buildNotebookLMPrompt(){
+  var cfg=CONFIG||{};
+  var objeto = cfg.descripcion || cfg.proyecto || '[OBJETO DE ESTUDIO: describir aquí el modelo, teoría o constructo central de la investigación]';
+  var variables = (Array.isArray(cfg.categorias)&&cfg.categorias.length)? cfg.categorias.join(', ') : '[VARIABLES PRINCIPALES: ej. competencias creativas, pertenencia inclusiva, etc.]';
+  var ctx = cfg.contexto_objetivo||{};
+  var poblacion = (ctx.pais||(ctx.keywords&&ctx.keywords.length))? ((ctx.pais||'')+((ctx.keywords&&ctx.keywords.length)? (' · '+ctx.keywords.join(', ')):'')) : '[POBLACIÓN Y CONTEXTO: ej. estudiantes universitarios, IESP público, Lima, etc.]';
+
+  // Tabla A: categorías
+  var cats=Array.isArray(cfg.categorias)?cfg.categorias:[];
+  var tablaA = cats.length ? cats.map(function(c,i){
+    var formas=((cfg.senales_categoria||{})[c]||[]).join(', ')||'—';
+    return (i+1)+'\t'+c+'\t'+domStar(c)+'\t'+formas;
+  }).join('\n') : '1\t[Categoría 1]\t[dominante*]\t[forma1, forma2, forma3...]\n2\t[Categoría 2]\t[dominante*]\t[forma1, forma2, forma3...]';
+
+  // Tabla B: subcategorías
+  var subs=cfg.subcategorias_sugeridas||{};
+  var rowsB=[]; var bi=1;
+  Object.keys(subs).forEach(function(cat){ (subs[cat]||[]).forEach(function(sub){ rowsB.push((bi++)+'\t'+sub+'\t'+stemStar(sub)+'\t'+cat); }); });
+  var tablaB = rowsB.length ? rowsB.join('\n') : '1\t[Subcategoría 1]\t[dominante*]\t[Categoría padre]\n2\t[Subcategoría 2]\t[dominante*]\t[Categoría padre]';
+
+  // Tabla C: enfoques
+  var enfs=Array.isArray(cfg.enfoques)?cfg.enfoques:[];
+  var tablaC = enfs.length ? enfs.map(function(e,i){
+    var formas=((cfg.senales_enfoque||{})[e]||[]).join(', ')||'—';
+    return (i+1)+'\t'+e+'\t'+domStar(e)+'\t'+formas;
+  }).join('\n') : '1\t[Enfoque 1]\t[dominante*]\t[forma1, forma2, forma3...]\n2\t[Enfoque 2]\t[dominante*]\t[forma1, forma2, forma3...]';
+
+  var P='';
+  P+='ROL Y CONTEXTO\n';
+  P+='Actúa como asistente de investigación experto en revisión sistemática de literatura (PRISMA 2020) y en codificación bibliométrica para tesis doctoral en educación. Vas a procesar un lote de papers académicos en PDF/MD sobre '+objeto+', orientado a '+variables+' en '+poblacion+'.\n\n';
+  P+='OBJETIVO\n';
+  P+='Extraer de cada documento adjunto los datos exactos necesarios para poblar una base de datos bibliográfica que alimenta un dashboard interactivo. NO resumas libremente: llena únicamente los campos solicitados, con los valores controlados indicados. Si un dato no aparece explícitamente, escribe exactamente "No determinado" (nunca inventes ni infieras sin evidencia textual).\n\n';
+  P+='SISTEMA DE PALABRA DOMINANTE (ANCLAJE SEMÁNTICO)\n';
+  P+='Cada categoría, subcategoría y enfoque del vocabulario controlado tiene asignada una palabra dominante: la raíz léxica o núcleo semántico que concentra su significado. Se marca con un asterisco (*) al final para indicar que es la raíz morfológica (equivalente a un lema o stem), no la palabra exacta del término.\n';
+  P+='Función: la palabra dominante es el criterio de clasificación PRIORITARIO. Al procesar cada paper, identifica primero la palabra dominante que mejor representa su núcleo temático antes de asignar el término completo.\n';
+  P+='Precedencia: si dos categorías comparten contenido, gana la palabra dominante con mayor frecuencia de aparición textual (en cualquiera de sus formas morfológicas).\n';
+  P+='Ejemplo: Enfoque "Innovación pedagógica" -> palabra dominante: pedagóg*  (cubre pedagógico, pedagógica, pedagógicos, pedagogía, pedagogo...).\n\n';
+  P+='VOCABULARIO CONTROLADO CON PALABRAS DOMINANTES\n\n';
+  P+='A) CATEGORÍAS (elegir SOLO una por paper)\n';
+  P+='#\tCategoría controlada\tPalabra dominante\tFormas cubiertas\n'+tablaA+'\n\n';
+  P+='B) SUBCATEGORÍAS (tema específico dentro de la categoría)\n';
+  P+='#\tSubcategoría\tPalabra dominante\tCategoría padre\n'+tablaB+'\n\n';
+  P+='C) ENFOQUES (elegir SOLO uno por paper)\n';
+  P+='#\tEnfoque controlado\tPalabra dominante\tFormas cubiertas\n'+tablaC+'\n\n';
+  P+='ENTREGABLE\n';
+  P+='Una tabla en formato Markdown (y opcionalmente CSV) con una fila por referencia y EXACTAMENTE estas columnas, en este orden:\n';
+  P+='id, autores, anio, titulo, revista, doi, categoria, palabra_dominante_cat, subcategoria, palabra_dominante_sub, enfoque, palabra_dominante_enc, rol, ipd, pais, seminal, instrumento, variable_rol, diseno_estudio, muestra, hallazgo_principal, relevancia_objeto\n\n';
+  P+='Definición de columnas:\n';
+  P+='- id: correlativo (id1, id2...).\n';
+  P+='- autores: "Apellido, Nombre" de cada autor separados por " / ".\n';
+  P+='- anio: año de publicación (4 dígitos; 0 si no consta).\n';
+  P+='- titulo: título completo tal como aparece.\n';
+  P+='- revista: revista o editorial; vacío si no aplica.\n';
+  P+='- doi: DOI o URL persistente; vacío si no existe (NO lo inventes).\n';
+  P+='- categoria: SOLO una opción exacta de la sección A.\n';
+  P+='- palabra_dominante_cat: palabra dominante de esa categoría, con asterisco (verificación de coherencia).\n';
+  P+='- subcategoria: tema específico de la sección B.\n';
+  P+='- palabra_dominante_sub: palabra dominante de esa subcategoría, con asterisco.\n';
+  P+='- enfoque: SOLO una opción exacta de la sección C.\n';
+  P+='- palabra_dominante_enc: palabra dominante de ese enfoque, con asterisco.\n';
+  P+='- rol: "core" si trata directamente el objeto de estudio o sus instrumentos; "ctx" si es marco teórico/contexto; "comp" si es complementaria/tangencial.\n';
+  P+='- ipd (0-3): 0 = base instrumental/teórica sin aplicación directa; 1 = transferencia temática (otro nivel/país/disciplina); 2 = proximidad regional (contexto equivalente al de la investigación: '+poblacion+'); 3 = convergencia exacta (mide el objeto, población o contexto exacto: '+objeto+').\n';
+  P+='- pais: país del estudio empírico; "No determinado" si es teórico/no reportado.\n';
+  P+='- seminal: TRUE si es obra fundacional que origina un instrumento o teoría central del campo (fundacional reconocida; a menudo pre-2015); FALSE en otro caso.\n';
+  P+='- instrumento: nombre exacto del instrumento (escala, test, cuestionario, rúbrica...); "Ninguno" si es teórico/cualitativo.\n';
+  P+='- variable_rol: si hay instrumento, "Independiente" / "Dependiente" / "Covariable" / "Mediadora"; si no, "N/A".\n';
+  P+='- diseno_estudio: experimental, cuasi-experimental, correlacional, revisión sistemática, cualitativo, teórico, mixto, etc.\n';
+  P+='- muestra: tamaño y tipo (ej. "n=150, estudiantes universitarios"); "No reportado" si no aplica.\n';
+  P+='- hallazgo_principal: 1-2 líneas con el resultado o efecto principal.\n';
+  P+='- relevancia_objeto: 1-2 líneas sobre por qué es relevante (o no) para '+objeto+' en '+poblacion+'.\n\n';
+  P+='REGLAS DE CALIDAD\n';
+  P+='- Un paper = una fila. No fusiones ni dupliques.\n';
+  P+='- Sin evidencia textual: "No determinado". Nunca asumas.\n';
+  P+='- Usa LITERALMENTE los nombres de categoría, subcategoría y enfoque de las listas controladas (sin sinónimos).\n';
+  P+='- Coherencia de palabra dominante: verifica que palabra_dominante_cat/sub/enc coincida con la del vocabulario para el término elegido; si no coincide, hay error de clasificación y debes corregirlo antes de emitir la fila.\n';
+  P+='- Clasificación en 3 pasos: (1) escanea el texto y detecta qué palabra dominante (con sus formas) aparece con más frecuencia/relevancia; (2) asigna categoría, subcategoría y enfoque según esa palabra ganadora; (3) verifica coherencia con el vocabulario.\n';
+  P+='- Verifica el DOI cuando esté disponible; si no está, deja el campo vacío.\n';
+  P+='- CONTROL DE DUPLICADOS: procesa por LOTES DE 15 papers y controla la cantidad de fuentes; no repitas un paper ya procesado en un lote anterior. Si superas 15 filas, divide la salida en bloques de 15 e indica "Continúa en el siguiente bloque".\n';
+  P+='- Al final agrega un resumen (máx. 5 líneas): total de referencias, distribución por categoría, cuántas alcanzaron ipd=2 o ipd=3, y frecuencia de cada palabra dominante observada.\n\n';
+  P+='INSTRUCCIÓN FINAL\n';
+  P+='Antes de procesar, confirma que identificaste: (a) el objeto exacto ['+objeto+' | '+variables+' | '+poblacion+']; (b) las categorías, subcategorías y enfoques del vocabulario con sus palabras dominantes; (c) el procedimiento de 3 pasos. Luego procede paper por paper, sin omitir ninguno de los adjuntos. Entrega la tabla en Markdown; después trasládala a Word o Excel y expórtala a XML para cargarla en el Actualizador Bibliográfico Universal.';
+  return P;
+}
+function exportNbPrompt(){
+  var txt=buildNotebookLMPrompt();
+  document.getElementById('nbLog').innerHTML='';
+  download('prompt_notebooklm_'+slug(CONFIG?CONFIG.proyecto:'')+'.txt', txt, 'text/plain;charset=utf-8');
+  logTo('nbLog', hasConfig()? '✓ Prompt generado con tu vocabulario controlado y palabras dominantes. Súbelo a NotebookLM con tus PDF/MD.' : '✓ Prompt generado con marcadores [CORCHETES]. Aplica una configuración (sección 01) para rellenarlo automáticamente.', hasConfig()?'ok':'warn');
+}
+function copyNbPrompt(){
+  var txt=buildNotebookLMPrompt();
+  document.getElementById('nbLog').innerHTML='';
+  if(navigator.clipboard) navigator.clipboard.writeText(txt).then(function(){ toast('Prompt NotebookLM copiado'); },function(){});
+  else { toast('Usa el botón .txt'); }
+  logTo('nbLog','✓ Prompt copiado al portapapeles.','ok');
+}
+
 /* =============================================================
    DETECCIÓN DE GRUPO DOCUMENTAL (universal)
    ============================================================= */
@@ -1393,7 +1531,7 @@ const HEADER_ALIASES = {
   diseno_estudio:["diseno estudio","diseño estudio","diseno_estudio","disenoestudio","diseno","design","study design"],
   muestra:["muestra","sample","n muestra","muestra n"],
   hallazgo_principal:["hallazgo principal","hallazgo_principal","hallazgo","finding","main finding","resultado"],
-  relevancia_tema:["relevancia tema","relevancia_tema","relevancia","relevance","relevancia para el tema"]
+  relevancia_tema:["relevancia tema","relevancia_tema","relevancia","relevance","relevancia para el tema","relevancia objeto","relevancia_objeto","relevancia del objeto"]
 };
 
 function parseCSV(text){
@@ -2243,6 +2381,8 @@ document.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('btnSchemaPromptClip').addEventListener('click',copySchemaPrompt);
   document.getElementById('btnDeepPrompt').addEventListener('click',exportDeepPrompt);
   document.getElementById('btnDeepPromptClip').addEventListener('click',copyDeepPrompt);
+  document.getElementById('btnNbPrompt').addEventListener('click',exportNbPrompt);
+  document.getElementById('btnNbPromptClip').addEventListener('click',copyNbPrompt);
 
   // Restaurar configuración previa (si existe)
   try{
