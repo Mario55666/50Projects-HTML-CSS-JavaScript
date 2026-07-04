@@ -203,6 +203,17 @@ input.ipd{width:56px;min-width:56px;text-align:center}
 .dom-note{font-size:.82rem;color:var(--niebla);margin:12px 0;padding:10px 14px;border:1px solid var(--linea);border-left:3px solid var(--rojo);border-radius:8px;background:#fff}
 .dom-note strong{color:var(--hueso)}
 
+/* ===== MODO AYUDA / GUÍA DE BOTONES ===== */
+.help-fab{position:fixed;bottom:20px;right:20px;z-index:1000;font-family:var(--mono);font-size:.78rem;font-weight:600;padding:11px 18px;border-radius:24px;border:none;cursor:pointer;background:var(--brand-azul);color:#fff;box-shadow:0 8px 24px rgba(0,0,0,.28);transition:.15s}
+.help-fab:hover{filter:brightness(1.12)}
+body.help-on .help-fab{background:var(--rojo)}
+.help-banner{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:1000;background:var(--brand-acento);color:#0f1c2b;font-family:var(--mono);font-size:.72rem;font-weight:600;padding:8px 16px;border-radius:20px;box-shadow:0 6px 20px rgba(0,0,0,.22);display:none;max-width:70vw;text-align:center}
+body.help-on .help-banner{display:block}
+body.help-on [data-help]{outline:2px dashed rgba(0,114,185,.6);outline-offset:2px;cursor:help!important}
+.help-pop{position:absolute;z-index:1001;max-width:320px;background:#0f1c2b;color:#fff;font-size:.8rem;line-height:1.5;padding:12px 14px;border-radius:10px;border:1px solid var(--brand-azul);box-shadow:0 12px 34px rgba(0,0,0,.4);pointer-events:none;opacity:0;transition:opacity .12s;visibility:hidden}
+.help-pop.show{opacity:1;visibility:visible}
+.help-pop .hp-t{font-family:var(--mono);font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;color:var(--brand-acento);margin-bottom:5px}
+
 /* ===== FOOTER INSTITUCIONAL ===== */
 .site-footer{margin-top:40px;background:#fff;border-top:1px solid var(--linea)}
 .footer-inner{display:flex;align-items:center;gap:24px;flex-wrap:wrap;padding:28px 24px}
@@ -278,21 +289,21 @@ input.ipd{width:56px;min-width:56px;text-align:center}
 
     <div class="card">
       <div class="actions" style="margin-top:0">
-        <button class="btn ghost" id="btnCfgTemplate">⬇ Plantilla de configuración (.json)</button>
-        <button class="btn ghost" id="btnCfgFile">⬆ Cargar configuración (.json)</button>
-        <button class="btn warn" id="btnCfgDemo">🧪 Cargar DEMO (ejemplo MPI-DUAE)</button>
+        <button class="btn ghost" id="btnCfgTemplate" data-help-title="Plantilla de configuración" data-help="Descarga una plantilla JSON vacía con todos los campos del esquema, para que la completes con los datos de tu investigación.">⬇ Plantilla de configuración (.json)</button>
+        <button class="btn ghost" id="btnCfgFile" data-help-title="Cargar configuración" data-help="Carga desde tu equipo un archivo JSON de configuración que ya tengas guardado y lo coloca en el recuadro para aplicarlo.">⬆ Cargar configuración (.json)</button>
+        <button class="btn warn" id="btnCfgDemo" data-help-title="Cargar DEMO" data-help="Carga una configuración de EJEMPLO (proyecto MPI-DUAE) solo para probar la herramienta. Sustitúyela por la de tu propia investigación.">🧪 Cargar DEMO (ejemplo MPI-DUAE)</button>
       </div>
       <div class="actions" style="margin:8px 0 0">
-        <button class="btn ghost" id="btnSchemaPrompt" title="Genera un prompt para que un LLM/deep research produzca el ESQUEMA completo: categorías, subcategorías sugeridas, enfoques, niveles IPD, contexto objetivo y señales de inferencia">🧩 Generar prompt del esquema (.txt)</button>
-        <button class="btn ghost" id="btnSchemaPromptClip">⧉ Copiar prompt del esquema</button>
-        <button class="btn ghost" id="btnDeepPrompt" title="Genera un prompt más amplio que produce el esquema + un banco inicial de referencias reales">⬇ Superprompt deep-research (esquema + banco)</button>
-        <button class="btn ghost" id="btnDeepPromptClip">⧉ Copiar</button>
+        <button class="btn ghost" id="btnSchemaPrompt" data-help-title="Prompt del esquema" data-help="Descarga un prompt (.txt) para que un LLM o deep research genere SOLO el esquema: categorías, subcategorías, enfoques, IPD, contexto objetivo y señales de inferencia." title="Genera un prompt para que un LLM/deep research produzca el ESQUEMA completo: categorías, subcategorías sugeridas, enfoques, niveles IPD, contexto objetivo y señales de inferencia">🧩 Generar prompt del esquema (.txt)</button>
+        <button class="btn ghost" id="btnSchemaPromptClip" data-help-title="Copiar prompt del esquema" data-help="Copia al portapapeles ese mismo prompt del esquema, listo para pegar en tu LLM.">⧉ Copiar prompt del esquema</button>
+        <button class="btn ghost" id="btnDeepPrompt" data-help-title="Superprompt deep-research" data-help="Descarga un prompt más amplio: además del esquema, pide al modelo un banco inicial de 20-60 referencias reales con DOI, en CSV listo para importar." title="Genera un prompt más amplio que produce el esquema + un banco inicial de referencias reales">⬇ Superprompt deep-research (esquema + banco)</button>
+        <button class="btn ghost" id="btnDeepPromptClip" data-help-title="Copiar superprompt" data-help="Copia al portapapeles el superprompt deep-research (esquema + banco).">⧉ Copiar</button>
       </div>
       <input type="file" id="cfgFileInput" accept=".json,application/json">
       <textarea id="cfgJson" class="cfg-textarea" placeholder='Pega aquí tu configuración JSON, o usa "Plantilla de configuración" para obtener el esquema…'></textarea>
       <div class="actions" style="margin:0">
-        <button class="btn primary" id="btnCfgApply">✓ Aplicar configuración</button>
-        <button class="btn ghost" id="btnBankFile">⬆ Cargar banco previo (CSV / XLSX / JSON)</button>
+        <button class="btn primary" id="btnCfgApply" data-help-title="Aplicar configuración" data-help="Activa la configuración pegada o cargada: fija los catálogos de categorías y enfoques que regirán toda la clasificación.">✓ Aplicar configuración</button>
+        <button class="btn ghost" id="btnBankFile" data-help-title="Cargar banco previo" data-help="Carga un banco de referencias YA codificadas (CSV, Excel o JSON) para que las nuevas hereden su codificación por DOI o título.">⬆ Cargar banco previo (CSV / XLSX / JSON)</button>
         <input type="file" id="bankFileInput" accept=".csv,.xlsx,.xls,.json">
       </div>
       <div class="cfg-status" id="cfgStatus"></div>
@@ -308,7 +319,7 @@ input.ipd{width:56px;min-width:56px;text-align:center}
     <div class="sec-num" style="color:var(--brand-azul)">02 · Carga de referencias</div>
     <h2 style="margin-bottom:6px">Inserta tu archivo de referencias</h2>
     <p class="sec-desc">Inserta un archivo exportado desde <strong>Mendeley, Zotero o EndNote</strong> (XML), una tabla de Word (XML), o un archivo <strong>CSV / Excel / JSON</strong> con la cabecera de codificación de 19 campos. Las referencias que coincidan (por DOI o título) con tu banco previo <strong>heredan</strong> su codificación.</p>
-    <label class="dropzone" id="dropzone" for="fileInput">
+    <label class="dropzone" id="dropzone" data-help-title="Cargar archivo de referencias" data-help="Suelta aquí o elige tu archivo: XML de Mendeley/Zotero/EndNote o de Word, o un CSV/Excel/JSON con los 19 campos del esquema." for="fileInput">
       <h3>⬆ Suelta aquí tu archivo <span style="color:var(--brand-azul)">.xml</span>, <span style="color:var(--brand-azul)">.csv</span>, <span style="color:var(--brand-azul)">.xlsx</span> o <span style="color:var(--brand-azul)">.json</span></h3>
       <p><strong>XML</strong> bibliográfico (esquema b:Sources) o Word (w:tbl) &nbsp;·&nbsp; <strong>CSV/Excel/JSON</strong> con cabecera de 19 campos. Se procesa 100% en tu navegador; ningún dato sale de tu equipo.</p>
       <div class="mono" id="fileName">Ningún archivo cargado</div>
@@ -352,9 +363,9 @@ input.ipd{width:56px;min-width:56px;text-align:center}
 
     <div class="toolbar">
       <input type="text" class="search" id="search" placeholder="Buscar por título, autor, revista, DOI…">
-      <button class="chip" id="btnInferir" title="Auto-inferir categoría/enfoque/IPD para las REQ. CODIFICACIÓN usando las señales de tu configuración">⚡ Inferir pendientes</button>
-      <button class="chip" id="btnDedupe" title="Detectar y eliminar referencias duplicadas (por DOI, o por título + año), conservando la versión más completa de cada grupo">🗑 Eliminar duplicados</button>
-      <button class="chip" id="btnSortConf" title="Ordenar mostrando primero las de menor confianza (revisa esas)">↕ Confianza ↑</button>
+      <button class="chip" id="btnInferir" data-help-title="Inferir pendientes" data-help="Auto-clasifica las referencias sin codificar usando las señales de tu configuración, y marca su nivel de confianza para que revises las dudosas." title="Auto-inferir categoría/enfoque/IPD para las REQ. CODIFICACIÓN usando las señales de tu configuración">⚡ Inferir pendientes</button>
+      <button class="chip" id="btnDedupe" data-help-title="Eliminar duplicados" data-help="Detecta referencias repetidas (por DOI, o por título + año) y elimina las copias, conservando la versión más completa de cada grupo." title="Detectar y eliminar referencias duplicadas (por DOI, o por título + año), conservando la versión más completa de cada grupo">🗑 Eliminar duplicados</button>
+      <button class="chip" id="btnSortConf" data-help-title="Ordenar por confianza" data-help="Reordena la tabla mostrando primero las referencias de menor confianza, para que las revises antes que el resto." title="Ordenar mostrando primero las de menor confianza (revisa esas)">↕ Confianza ↑</button>
       <span class="count-badge" id="countBadge"></span>
     </div>
     <div class="toolbar" id="typeFilters"></div>
@@ -389,10 +400,10 @@ input.ipd{width:56px;min-width:56px;text-align:center}
     <h2 style="margin-bottom:6px">Genera los entregables finales</h2>
     <p class="sec-desc">Descarga un <code style="font-family:var(--mono);color:var(--senal)">dashboard.html</code> autónomo (single-file, sin dependencias en runtime salvo Chart.js por CDN) con las <span id="expCount">0</span> referencias ya integradas y codificadas, más el banco actualizado en CSV/JSON para la siguiente iteración. Las refs sin codificar se incluyen pero no ensucian el análisis temático.</p>
     <div class="actions">
-      <button class="btn primary" id="btnExportHtml">⬇ Descargar dashboard.html</button>
-      <button class="btn ghost" id="btnExportCsv">⬇ Descargar banco CSV (19 campos)</button>
-      <button class="btn ghost" id="btnExportJson">⬇ Descargar banco JSON (respaldo)</button>
-      <button class="btn warn" id="btnExportXml">⬇ Descargar XML corregido</button>
+      <button class="btn primary" id="btnExportHtml" data-help-title="Descargar dashboard.html" data-help="Genera y descarga un dashboard interactivo autónomo: KPIs, matriz Categoría×Enfoque, gráficos, panel de obras seminales y footer institucional.">⬇ Descargar dashboard.html</button>
+      <button class="btn ghost" id="btnExportCsv" data-help-title="Descargar banco CSV" data-help="Descarga el banco actualizado en CSV con los 19 campos. Sirve para reimportarlo, compartirlo o seguir trabajándolo.">⬇ Descargar banco CSV (19 campos)</button>
+      <button class="btn ghost" id="btnExportJson" data-help-title="Descargar banco JSON" data-help="Descarga el banco completo en JSON como respaldo estructurado.">⬇ Descargar banco JSON (respaldo)</button>
+      <button class="btn warn" id="btnExportXml" data-help-title="Descargar XML corregido" data-help="Descarga un XML bibliográfico (esquema b:Sources) con tu codificación incrustada en cada referencia.">⬇ Descargar XML corregido</button>
     </div>
     <div class="log hidden" id="exportLog"></div>
 
@@ -402,9 +413,9 @@ input.ipd{width:56px;min-width:56px;text-align:center}
         <h3 style="margin:4px 0 6px">Exporta el corpus como libro Excel editable</h3>
         <p class="sec-desc" style="margin-bottom:14px">Genera un <code style="font-family:var(--mono);color:var(--senal)">.xlsx</code> con los <strong>datos reales</strong> del corpus cargado: matriz Categoría × Enfoque, distribuciones (año, IPD, rol, país), y una hoja de <strong>proyección de vacíos</strong> que estima —como META de búsqueda, separada de los datos— cuántas referencias faltarían para cerrar cada celda crítica. Las refs sin codificar se cuentan como <span style="font-family:var(--mono)">Desconocido</span>, nunca se inventan. Incluye instructivo para insertar los gráficos nativos en 3 clics.</p>
         <div class="actions">
-          <button class="btn primary" id="btnExportXlsx">⬇ Descargar dashboard.xlsx</button>
-          <button class="btn ghost" id="btnSuperprompt">⬇ Superprompt para dashboard HTML (.txt)</button>
-          <button class="btn ghost" id="btnSuperpromptClip">⧉ Copiar superprompt</button>
+          <button class="btn primary" id="btnExportXlsx" data-help-title="Descargar dashboard.xlsx" data-help="Genera un libro Excel con la matriz Categoría×Enfoque, distribuciones (año, IPD, rol, país) y una hoja de proyección de vacíos.">⬇ Descargar dashboard.xlsx</button>
+          <button class="btn ghost" id="btnSuperprompt" data-help-title="Superprompt de dashboard" data-help="Descarga un prompt con los conteos REALES del corpus para que un LLM te construya otro dashboard HTML a medida.">⬇ Superprompt para dashboard HTML (.txt)</button>
+          <button class="btn ghost" id="btnSuperpromptClip" data-help-title="Copiar superprompt" data-help="Copia al portapapeles el superprompt de dashboard con los conteos reales.">⧉ Copiar superprompt</button>
         </div>
         <div class="log hidden" id="xlsxLog"></div>
         <textarea id="superpromptOut" class="hidden" style="width:100%;min-height:180px;margin-top:12px;font-family:var(--mono);font-size:.74rem;line-height:1.5;padding:12px;border-radius:8px;background:#0e1822;border:1px solid var(--linea);color:#d6e2ec;" readonly></textarea>
@@ -425,8 +436,8 @@ input.ipd{width:56px;min-width:56px;text-align:center}
             <h4>Exporta el lote de pendientes</h4>
             <p>Genera un bloque con las refs sin codificar (o de baja confianza) + el prompt listo para pegar.</p>
             <div class="llm-actions">
-              <button class="btn ghost" id="btnBatchTxt">⬇ Lote + prompt (.txt)</button>
-              <button class="btn ghost" id="btnBatchClip">⧉ Copiar prompt al portapapeles</button>
+              <button class="btn ghost" id="btnBatchTxt" data-help-title="Lote + prompt (.txt)" data-help="Exporta las referencias pendientes junto con un prompt de clasificación, para pegarlas en ChatGPT o Claude.">⬇ Lote + prompt (.txt)</button>
+              <button class="btn ghost" id="btnBatchClip" data-help-title="Copiar prompt del lote" data-help="Copia al portapapeles el lote de pendientes más el prompt de clasificación.">⧉ Copiar prompt al portapapeles</button>
               <label class="llm-inline"><input type="checkbox" id="incLowConf"> incluir también inferidas de baja confianza</label>
             </div>
           </div>
@@ -447,7 +458,7 @@ input.ipd{width:56px;min-width:56px;text-align:center}
             <p>Pega aquí el array JSON que devolvió el LLM. Se validará fila por fila; lo válido se aplica (badge <span style="color:#7b61ff;font-family:var(--mono)">llm</span>), lo inválido se reporta y se ignora.</p>
             <textarea id="llmJson" class="llm-textarea" placeholder='Pega aquí el array JSON del LLM, p. ej. [{"n":12,"categoria":"…","enfoque":"…","ipd":2,"confianza":0.9,"evidencia":"…"}]'></textarea>
             <div class="llm-actions">
-              <button class="btn primary" id="btnImportJson">✓ Validar e importar</button>
+              <button class="btn primary" id="btnImportJson" data-help-title="Validar e importar" data-help="Valida el JSON que devolvió el LLM contra tus catálogos cerrados e importa solo lo válido; rechaza cualquier valor inventado.">✓ Validar e importar</button>
               <span class="count-badge" id="llmCount"></span>
             </div>
           </div>
@@ -2176,10 +2187,49 @@ function importLlmJson(){
 /* =============================================================
    INIT
    ============================================================= */
+function setupHelpMode(){
+  const fab=document.createElement('button'); fab.type='button'; fab.className='help-fab'; fab.id='helpFab'; fab.textContent='❔ Guía de botones';
+  const banner=document.createElement('div'); banner.className='help-banner'; banner.textContent='Modo ayuda activo · pasa el cursor o toca cualquier botón para ver qué hace (no se ejecuta). Vuelve a pulsar la guía para salir.';
+  const pop=document.createElement('div'); pop.className='help-pop'; pop.id='helpPop';
+  document.body.appendChild(fab); document.body.appendChild(banner); document.body.appendChild(pop);
+  let pinned=false;
+  const on=()=>document.body.classList.contains('help-on');
+  function hide(){ pop.classList.remove('show'); pinned=false; }
+  function showFor(el, pin){
+    const help=el.getAttribute('data-help'); if(!help) return;
+    const title=el.getAttribute('data-help-title')||'';
+    pop.innerHTML=(title?'<div class="hp-t">'+esc(title)+'</div>':'')+esc(help);
+    pop.classList.add('show');
+    const r=el.getBoundingClientRect(); const pw=pop.offsetWidth, ph=pop.offsetHeight;
+    const vw=document.documentElement.clientWidth, vh=document.documentElement.clientHeight;
+    let left=Math.min(window.scrollX+r.left, window.scrollX+vw-pw-10); left=Math.max(left, window.scrollX+8);
+    let top=(r.bottom+10+ph<=vh)? window.scrollY+r.bottom+10 : window.scrollY+r.top-ph-10;
+    if(top<window.scrollY+4) top=window.scrollY+4;
+    pop.style.left=left+'px'; pop.style.top=top+'px';
+    pinned=!!pin;
+  }
+  fab.addEventListener('click',()=>{
+    document.body.classList.toggle('help-on');
+    if(!on()) hide();
+    fab.textContent = on()? '✖ Cerrar guía' : '❔ Guía de botones';
+  });
+  document.addEventListener('mouseover',e=>{ if(!on()||pinned) return; const el=e.target.closest('[data-help]'); if(el) showFor(el,false); });
+  document.addEventListener('mouseout',e=>{ if(!on()||pinned) return; const el=e.target.closest('[data-help]'); if(el) hide(); });
+  document.addEventListener('click',e=>{
+    if(!on()) return;
+    if(e.target.closest('#helpFab')) return;
+    const el=e.target.closest('[data-help]');
+    if(el){ e.preventDefault(); e.stopImmediatePropagation(); showFor(el,true); }
+    else if(!e.target.closest('#helpPop')){ hide(); }
+  }, true);
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ if(on()){ document.body.classList.remove('help-on'); fab.textContent='❔ Guía de botones'; } hide(); } });
+  window.addEventListener('scroll',()=>{ if(pinned) hide(); }, {passive:true});
+}
 document.addEventListener('DOMContentLoaded',()=>{
   // Logos institucionales
   document.getElementById('brandLogo').src=LOGO_BLANCO_B64;
   document.getElementById('footerLogo').src=LOGO_COLOR_B64;
+  setupHelpMode();
 
   // Config
   document.getElementById('btnCfgApply').addEventListener('click',applyConfigFromTextarea);
