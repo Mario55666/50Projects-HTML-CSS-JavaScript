@@ -12,13 +12,14 @@ Desarrollado con la identidad visual del **IDC — Instituto de Educación Super
 |---------|-------------|
 | **Encabezado** | Marca IDC, asignatura, nombre del equipo, docente y fecha de entrega. |
 | **01 · Registro del equipo** | Tabla editable con *Nombres*, *Apellidos* y *Correo electrónico institucional* de cada integrante (6 filas). |
-| **02–05 · Matriz FODA por producto** | Un análisis FODA 2×2 editable por cada producto, más un campo de *Propuesta de mejora / Rediseño*. |
+| **02–06 · Matriz FODA por producto** | Un análisis FODA 2×2 editable por cada producto, más un campo de *Propuesta de mejora / Rediseño*. |
 
 ### Productos analizados
 1. Cuento infantil (impreso)
 2. Cuento infantil (animado)
-3. Juego de mesa (impreso)
-4. Juego de mesa (interactivo digital)
+3. Infografía (impreso)
+4. Juego de mesa (impreso)
+5. Juego de mesa (interactivo digital)
 
 Los cuadrantes vienen **pre-cargados** con el contenido del análisis original (editable). El *Juego de mesa interactivo digital* queda en blanco para completar.
 
