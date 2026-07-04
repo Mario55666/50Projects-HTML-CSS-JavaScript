@@ -367,6 +367,7 @@ input.ipd{width:56px;min-width:56px;text-align:center}
             <th>Referencia (dato real)</th>
             <th>Tipo doc.</th>
             <th>Categoría *</th>
+            <th>Subcategoría</th>
             <th>Enfoque *</th>
             <th>IPD</th>
             <th>Rol</th>
@@ -490,7 +491,7 @@ const LOGO_COLOR_B64="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAlgAAADhCAYA
    ============================================================= */
 
 const TABULAR_FIELDS = ["id","autores","anio","titulo","revista","doi","categoria","subcategoria","enfoque","rol","ipd","pais","seminal","instrumento","variable_rol","diseno_estudio","muestra","hallazgo_principal","relevancia_tema"];
-const META_FIELDS=[["subcategoria","Subcategoría"],["instrumento","Instrumento"],["variable_rol","Variable / rol"],["diseno_estudio","Diseño de estudio"],["muestra","Muestra"],["hallazgo_principal","Hallazgo principal"],["relevancia_tema","Relevancia para el tema"]];
+const META_FIELDS=[["instrumento","Instrumento"],["variable_rol","Variable / rol"],["diseno_estudio","Diseño de estudio"],["muestra","Muestra"],["hallazgo_principal","Hallazgo principal"],["relevancia_tema","Relevancia para el tema"]];
 const FIXED_ROLES = ["core","ctx","comp","sin_codificar"];
 
 /* ---------- Plantilla de configuración vacía (esquema documentado) ---------- */
@@ -1247,7 +1248,7 @@ function metaRow(r){
         : `<input class="meta-input" data-f="${k}" value="${esc(r[k]||'')}"${listId?` list="${listId}"`:''}>`}
     </div>`;
   }).join('');
-  return `<tr class="meta-sub hidden" data-meta="${r._i}"><td></td><td colspan="9"><div class="meta-grid">${cells}</div></td></tr>`;
+  return `<tr class="meta-sub hidden" data-meta="${r._i}"><td></td><td colspan="10"><div class="meta-grid">${cells}</div></td></tr>`;
 }
 function renderSubcatDatalists(){
   const map = (CONFIG&&CONFIG.subcategorias_sugeridas)||{};
@@ -1290,6 +1291,7 @@ function renderEditor(){
       </td>
       <td><span class="doctype-pill" style="border-color:${g.color}55;color:${g.color}">${esc(g.label.split(' ')[0])}</span><div class="tt-meta">${esc(r.sourceType||'')}</div></td>
       <td><select class="mini" data-f="categoria">${catOpts(r.categoria)}</select>${domTagCell(r.categoria)}</td>
+      <td><input class="mini" data-f="subcategoria" value="${esc(r.subcategoria||'')}"${subcatListId(r)?` list="${subcatListId(r)}"`:''} placeholder="—"></td>
       <td><select class="mini" data-f="enfoque">${enfOpts(r.enfoque)}</select>${domTagCell(r.enfoque)}</td>
       <td><input class="mini ipd" type="number" min="0" max="3" data-f="ipd" value="${r.ipd}" title="${ipdTitle}"></td>
       <td><select class="mini" data-f="rol">${rolOpts(r.rol)}</select></td>
@@ -1329,7 +1331,7 @@ function renderEditor(){
           if(inner){ if(!dt){ dt=document.createElement('div'); dt.className='dom-tag'; td.appendChild(dt); } dt.innerHTML=inner; }
           else if(dt){ dt.remove(); }
           // refrescar sugerencias de subcategoría acorde a la nueva categoría
-          if(f==='categoria'){ const subInp=tr.parentNode.querySelector(`.meta-sub[data-meta="${i}"] input[data-f="subcategoria"]`); if(subInp){ const lid=subcatListId(ref); if(lid) subInp.setAttribute('list',lid); else subInp.removeAttribute('list'); } }
+          if(f==='categoria'){ const subInp=tr.querySelector('input[data-f="subcategoria"]'); if(subInp){ const lid=subcatListId(ref); if(lid) subInp.setAttribute('list',lid); else subInp.removeAttribute('list'); } }
         }
         renderProgress();
         updateExportCount();
