@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fase 2 · Rediseño y mejoras — Análisis FODA</title>
+<style>
+  :root {
+    /* Identidad IDC */
+    --idc-blue:   #0072b9;
+    --idc-orange: #f3a100;
+    --idc-gray:   #555553;
+    --idc-gray2:  #545452;
+    --dp-cyan:    #009ad3;  /* Diseño Publicitario */
+
+    --paper:       #F6F7F9;
+    --paper-card:  #FFFFFF;
+    --ink:         #3B3B3A;
+    --ink-soft:    #555553;
+    --ink-faint:   #8C8C8A;
+    --line:        #DFE2E6;
+    --line-strong: #C6CBD1;
+    --accent:      #0072b9;
+    --accent-soft: #E4F0F8;
+
+    /* Semántica FODA */
+    --f-ink: #1F6B4A; --f-bg: #EAF3ED; --f-line: #B7D9C4;   /* Fortalezas  */
+    --o-ink: #2E5AA8; --o-bg: #E9F0FA; --o-line: #B9CFEB;   /* Oportunidades */
+    --d-ink: #A9740F; --d-bg: #FBF2E1; --d-line: #E9D3A3;   /* Debilidades */
+    --a-ink: #B23A34; --a-bg: #FBECEA; --a-line: #EEC3BE;   /* Amenazas    */
+
+    --maxw: 900px;
+    --radius: 10px;
+    --shadow: 0 1px 2px rgba(42,46,53,.05), 0 8px 24px rgba(42,46,53,.06);
+    color-scheme: light;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper:#14161A; --paper-card:#1C1F25; --ink:#EDEBE6; --ink-soft:#B4B8C0;
+      --ink-faint:#7E848E; --line:#2E323A; --line-strong:#3A3F48;
+      --accent:#4FA9E0; --accent-soft:#122430; --dp-cyan:#4FC2EC; --idc-orange:#F7B23A;
+      --f-ink:#7FD3A6; --f-bg:#16241D; --f-line:#2C4838;
+      --o-ink:#94BBF0; --o-bg:#161F2E; --o-line:#2A3B54;
+      --d-ink:#E6BE6E; --d-bg:#261F12; --d-line:#463A20;
+      --a-ink:#EC9A93; --a-bg:#28170F; --a-line:#4A2A22;
+      --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="light"]{
+    --paper:#F6F7F9; --paper-card:#FFFFFF; --ink:#3B3B3A; --ink-soft:#555553;
+    --ink-faint:#8C8C8A; --line:#DFE2E6; --line-strong:#C6CBD1; --accent:#0072b9;
+    --accent-soft:#E4F0F8; --dp-cyan:#009ad3; --idc-orange:#f3a100;
+    --f-ink:#1F6B4A; --f-bg:#EAF3ED; --f-line:#B7D9C4;
+    --o-ink:#2E5AA8; --o-bg:#E9F0FA; --o-line:#B9CFEB;
+    --d-ink:#A9740F; --d-bg:#FBF2E1; --d-line:#E9D3A3;
+    --a-ink:#B23A34; --a-bg:#FBECEA; --a-line:#EEC3BE;
+    color-scheme: light;
+  }
+  :root[data-theme="dark"]{
+    --paper:#14161A; --paper-card:#1C1F25; --ink:#EDEBE6; --ink-soft:#B4B8C0;
+    --ink-faint:#7E848E; --line:#2E323A; --line-strong:#3A3F48;
+    --accent:#4FA9E0; --accent-soft:#122430; --dp-cyan:#4FC2EC; --idc-orange:#F7B23A;
+    --f-ink:#7FD3A6; --f-bg:#16241D; --f-line:#2C4838;
+    --o-ink:#94BBF0; --o-bg:#161F2E; --o-line:#2A3B54;
+    --d-ink:#E6BE6E; --d-bg:#261F12; --d-line:#463A20;
+    --a-ink:#EC9A93; --a-bg:#28170F; --a-line:#4A2A22;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .sheet {
+    max-width: var(--maxw);
+    margin: 0 auto;
+    padding: 40px 28px 96px;
+  }
+
+  /* ---------- Encabezado ---------- */
+  header.doc {
+    background: var(--paper-card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 0 0 28px;
+    margin-bottom: 22px;
+    overflow: hidden;
+  }
+  /* Franja superior con los colores institucionales IDC */
+  .brandbar {
+    height: 6px; width: 100%;
+    background: linear-gradient(90deg,
+      var(--idc-orange) 0 25%, var(--idc-blue) 25% 55%,
+      var(--dp-cyan) 55% 78%, var(--idc-gray) 78% 100%);
+  }
+  .brand {
+    display: flex; align-items: center; gap: 14px;
+    padding: 22px 30px 18px; border-bottom: 1px solid var(--line);
+  }
+  .brand .mark {
+    position: relative; font-family: Georgia, serif; font-weight: 700;
+    font-size: 42px; line-height: .8; letter-spacing: -.02em;
+    color: var(--idc-blue); padding-top: 10px;
+  }
+  .brand .mark::before {
+    content: ""; position: absolute; top: 0; left: 3px;
+    width: 12px; height: 12px; border-radius: 50%; background: var(--idc-orange);
+  }
+  .brand .lockup { display: flex; flex-direction: column; line-height: 1.15; }
+  .brand .lockup .l1 {
+    font-weight: 700; font-size: 15px; color: var(--idc-gray);
+  }
+  .brand .lockup .l2 {
+    font-size: 11.5px; color: var(--ink-faint); letter-spacing: .01em;
+  }
+  .brand .unit {
+    margin-left: auto; text-align: right; font-size: 10.5px;
+    letter-spacing: .09em; text-transform: uppercase; font-weight: 700;
+    color: var(--dp-cyan); line-height: 1.5;
+  }
+  .header-body { padding: 24px 30px 0; }
+  .eyebrow {
+    font-size: 11px; letter-spacing: .16em; text-transform: uppercase;
+    font-weight: 700; color: var(--dp-cyan); margin: 0 0 8px;
+  }
+  h1.title {
+    font-family: Georgia, "Times New Roman", serif;
+    font-weight: 700; font-size: 27px; line-height: 1.2;
+    margin: 0 0 6px; text-wrap: balance; color: var(--ink);
+  }
+  .subtitle { color: var(--ink-soft); font-size: 14px; margin: 0; }
+  .team-flag {
+    display: inline-block; margin-top: 12px; font-size: 11.5px; font-weight: 700;
+    letter-spacing: .08em; text-transform: uppercase; color: #fff;
+    background: var(--idc-orange); border-radius: 999px; padding: 5px 14px;
+  }
+
+  /* ---------- Bloque metadatos ---------- */
+  .meta {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 14px 22px;
+    margin-top: 22px; padding-top: 20px; border-top: 1px solid var(--line);
+  }
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field label {
+    font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase;
+    font-weight: 700; color: var(--ink-faint);
+  }
+  .field .fill {
+    min-height: 30px; border: none; border-bottom: 1.5px solid var(--line-strong);
+    padding: 3px 2px; font: inherit; color: var(--ink); background: transparent;
+    outline: none;
+  }
+  .field .fill:focus { border-bottom-color: var(--accent); background: var(--accent-soft); }
+
+  /* ---------- Secciones ---------- */
+  section.card {
+    background: var(--paper-card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 24px 26px;
+    margin-bottom: 20px;
+  }
+  .card > h2 {
+    font-family: Georgia, serif; font-size: 19px; margin: 0 0 4px; color: var(--ink);
+    display: flex; align-items: baseline; gap: 10px;
+  }
+  .card > h2 .num {
+    font-size: 12px; font-weight: 700; color: var(--accent);
+    background: var(--accent-soft); border-radius: 6px; padding: 3px 9px;
+    font-family: system-ui, sans-serif;
+  }
+  .card > .hint { color: var(--ink-faint); font-size: 12.5px; margin: 0 0 18px; }
+
+  /* ---------- Tabla registro de equipo ---------- */
+  .team-table { width: 100%; border-collapse: collapse; }
+  .team-table th, .team-table td {
+    border: 1px solid var(--line); padding: 0; text-align: left;
+  }
+  .team-table thead th {
+    background: var(--accent-soft); color: var(--accent);
+    font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase;
+    font-weight: 700; padding: 9px 11px; border-color: var(--line-strong);
+  }
+  .team-table td .cell {
+    min-height: 34px; padding: 8px 11px; font: inherit; color: var(--ink);
+    outline: none;
+  }
+  .team-table td .cell:focus { background: var(--accent-soft); }
+  .team-table td.idx {
+    width: 38px; text-align: center; color: var(--ink-faint);
+    font-weight: 700; font-variant-numeric: tabular-nums;
+    background: var(--paper);
+  }
+  .team-table td.idx .cell { text-align:center; }
+
+  /* ---------- Matriz FODA ---------- */
+  .foda {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+  }
+  .quad {
+    border: 1px solid; border-radius: 8px; overflow: hidden;
+    display: flex; flex-direction: column; min-height: 132px;
+  }
+  .quad .head {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 12px; font-weight: 700; font-size: 12.5px;
+    letter-spacing: .04em; text-transform: uppercase;
+  }
+  .quad .head .tag {
+    width: 20px; height: 20px; border-radius: 5px; flex: none;
+    display: grid; place-items: center; font-size: 12px; font-weight: 800;
+    font-family: Georgia, serif; color: #fff;
+  }
+  .quad .body {
+    flex: 1; padding: 11px 13px; font-size: 13.5px; line-height: 1.5;
+    outline: none; color: var(--ink);
+  }
+  .quad .body:empty::before {
+    content: attr(data-ph); color: var(--ink-faint); font-style: italic;
+  }
+  .quad.f { border-color: var(--f-line); }
+  .quad.f .head { background: var(--f-bg); color: var(--f-ink); }
+  .quad.f .tag  { background: var(--f-ink); }
+  .quad.o { border-color: var(--o-line); }
+  .quad.o .head { background: var(--o-bg); color: var(--o-ink); }
+  .quad.o .tag  { background: var(--o-ink); }
+  .quad.d { border-color: var(--d-line); }
+  .quad.d .head { background: var(--d-bg); color: var(--d-ink); }
+  .quad.d .tag  { background: var(--d-ink); }
+  .quad.a { border-color: var(--a-line); }
+  .quad.a .head { background: var(--a-bg); color: var(--a-ink); }
+  .quad.a .tag  { background: var(--a-ink); }
+
+  .axis-note {
+    display: flex; justify-content: space-between; gap: 12px;
+    font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase;
+    color: var(--ink-faint); font-weight: 700; margin: 4px 2px 12px;
+  }
+
+  .improve { margin-top: 16px; }
+  .improve label {
+    display: block; font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase;
+    font-weight: 700; color: var(--accent); margin-bottom: 7px;
+  }
+  .improve .box {
+    min-height: 74px; border: 1px dashed var(--line-strong); border-radius: 8px;
+    padding: 11px 13px; font-size: 13.5px; line-height: 1.55; outline: none;
+    color: var(--ink); background: var(--paper);
+  }
+  .improve .box:focus { border-color: var(--accent); border-style: solid; background: var(--paper-card); }
+  .improve .box:empty::before { content: attr(data-ph); color: var(--ink-faint); font-style: italic; }
+
+  footer.doc {
+    text-align: center; color: var(--ink-soft); font-size: 12px;
+    margin-top: 8px; padding-top: 16px; border-top: 2px solid var(--line);
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  footer.doc .fbrand { font-weight: 700; color: var(--idc-blue); }
+  footer.doc .fbrand .dp { color: var(--dp-cyan); }
+  footer.doc .fmeta { color: var(--ink-faint); font-size: 11px; }
+  footer.doc .fmeta strong { color: var(--ink-soft); }
+
+  /* ---------- Botón imprimir ---------- */
+  .toolbar {
+    position: fixed; right: 22px; bottom: 22px; z-index: 50;
+    display: flex; gap: 10px;
+  }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    font: inherit; font-weight: 700; font-size: 14px;
+    border-radius: 999px; padding: 12px 20px; cursor: pointer;
+    border: 1px solid transparent; box-shadow: var(--shadow);
+    transition: transform .12s ease, background .12s ease;
+  }
+  .btn:hover { transform: translateY(-1px); }
+  .btn:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  .btn-print { background: var(--accent); color: #fff; }
+  .btn-ghost { background: var(--paper-card); color: var(--ink); border-color: var(--line-strong); }
+
+  @media (prefers-reduced-motion: reduce) { .btn { transition: none; } }
+
+  @media (max-width: 640px) {
+    .meta { grid-template-columns: 1fr; }
+    .foda { grid-template-columns: 1fr; }
+    h1.title { font-size: 23px; }
+  }
+
+  /* ---------- Impresión / PDF ---------- */
+  @media print {
+    :root { --shadow: none; }
+    @page { size: A4; margin: 14mm; }
+    body { background: #fff; font-size: 11.5px; }
+    .sheet { max-width: none; margin: 0; padding: 0; }
+    .toolbar { display: none !important; }
+    header.doc, section.card {
+      box-shadow: none; border-color: #C6CBD1; break-inside: avoid;
+      page-break-inside: avoid; margin-bottom: 12px;
+    }
+    section.card { break-before: auto; padding: 14px 18px; }
+    header.doc { padding: 0 0 16px; }
+    .brand { padding: 14px 20px 12px; }
+    .header-body { padding: 16px 20px 0; }
+    .quad, .team-table tr, .improve { break-inside: avoid; page-break-inside: avoid; }
+    .quad .body:empty, .improve .box:empty, .field .fill:empty { min-height: 0; }
+    [contenteditable]:focus { background: transparent !important; }
+    .quad { min-height: 96px; }
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+<div class="toolbar">
+  <button class="btn btn-ghost" onclick="location.reload()" title="Vaciar todos los campos">↺ Limpiar</button>
+  <button class="btn btn-print" onclick="window.print()">🖨 Imprimir / Guardar PDF</button>
+</div>
+
+<div class="sheet">
+
+  <header class="doc">
+    <div class="brandbar"></div>
+    <div class="brand">
+      <span class="mark">idc</span>
+      <span class="lockup">
+        <span class="l1">Diseño &amp; Comunicación</span>
+        <span class="l2">Instituto de Educación Superior Público</span>
+      </span>
+      <span class="unit">Diseño Publicitario<br>Proyecto Illustrador</span>
+    </div>
+
+    <div class="header-body">
+    <p class="eyebrow">Análisis FODA · Propuesta seleccionada</p>
+    <h1 class="title">Fase 2: Rediseño y mejoras de la propuesta seleccionada</h1>
+    <p class="subtitle">Formulario analítico de mejoras según el sistema FODA (Fortalezas · Oportunidades · Debilidades · Amenazas).</p>
+    <span class="team-flag">Trabajo en equipo</span>
+
+    <div class="meta">
+      <div class="field">
+        <label>Asignatura / Curso</label>
+        <div class="fill" contenteditable="true"></div>
+      </div>
+      <div class="field">
+        <label>Nombre del equipo</label>
+        <div class="fill" contenteditable="true"></div>
+      </div>
+      <div class="field">
+        <label>Docente</label>
+        <div class="fill" contenteditable="true"></div>
+      </div>
+      <div class="field">
+        <label>Fecha de entrega</label>
+        <div class="fill" contenteditable="true"></div>
+      </div>
+    </div>
+    </div><!-- /.header-body -->
+  </header>
+
+  <!-- Registro de equipo -->
+  <section class="card">
+    <h2><span class="num">01</span> Registro del equipo</h2>
+    <p class="hint">Complete los nombres, apellidos y el correo electrónico institucional de cada integrante.</p>
+    <table class="team-table">
+      <thead>
+        <tr>
+          <th style="width:38px">N.º</th>
+          <th>Nombres</th>
+          <th>Apellidos</th>
+          <th>Correo electrónico institucional</th>
+        </tr>
+      </thead>
+      <tbody id="team-body"><!-- filas generadas por JS --></tbody>
+    </table>
+  </section>
+
+  <!-- Secciones FODA generadas por JS -->
+  <div id="products"></div>
+
+  <footer class="doc">
+    <span class="fbrand">idc · Diseño &amp; Comunicación — <span class="dp">Diseño Publicitario</span></span>
+    <span class="fmeta">Unidad Didáctica: <strong>Proyecto Illustrador</strong> · Fase 2 · Análisis FODA · Trabajo en equipo</span>
+    <span class="fmeta"><strong>Mg. Mario Quiroz Martínez</strong> · 2026</span>
+  </footer>
+
+</div>
+
+<script>
+  // ---- Registro de equipo: 6 filas ----
+  const teamBody = document.getElementById('team-body');
+  for (let i = 1; i <= 6; i++) {
+    const tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td class="idx">' + i + '</td>' +
+      '<td><div class="cell" contenteditable="true"></div></td>' +
+      '<td><div class="cell" contenteditable="true"></div></td>' +
+      '<td><div class="cell" contenteditable="true"></div></td>';
+    teamBody.appendChild(tr);
+  }
+
+  // ---- Productos y su FODA (pre-cargado desde el Excel; editable) ----
+  const products = [
+    {
+      name: 'Cuento infantil (impreso)',
+      f: '',
+      o: 'Mayor alcance al público. Comodidad al momento de la lectura. Afianzamiento de la relación con los padres.',
+      d: '',
+      a: 'Desgaste del material. Defectos de impresión y calidad de imagen. Pérdida del material.'
+    },
+    {
+      name: 'Cuento infantil (animado)',
+      f: 'Mayor rapidez para conocer la historia. Facilidad al momento de acceder al producto desde cualquier lugar.',
+      o: 'Visualización en diferentes medios digitales y alcance masivo.',
+      d: 'Animaciones poco dinámicas o aburridas para un público infantil.',
+      a: 'Fallas de audio, animación y secuencia visual que confundan al espectador.'
+    },
+    {
+      name: 'Juego de mesa (impreso)',
+      f: 'Personajes reconocibles y creativos. Juego innovador con dinámicas diferentes para fomentar la socialización y el compañerismo.',
+      o: 'Funciona como merchandising interactivo y cautivador para los niños; además, incentiva la lectura del cuento y de la infografía. Puede adaptarse a un juego digital para un acceso más fácil.',
+      d: 'Demasiados elementos materiales que pueden perderse con facilidad. No presenta una referencia clara al cuento y a su mensaje.',
+      a: 'Rápido cambio de intereses en los niños, causando poca curiosidad hacia el mensaje del cuento.'
+    },
+    {
+      name: 'Juego de mesa (interactivo digital)',
+      f: '', o: '', d: '', a: ''
+    }
+  ];
+
+  const quadDefs = [
+    { cls:'f', tag:'F', title:'Fortalezas',    ph:'Aspectos internos positivos del producto…' },
+    { cls:'o', tag:'O', title:'Oportunidades',  ph:'Factores externos que se pueden aprovechar…' },
+    { cls:'d', tag:'D', title:'Debilidades',    ph:'Aspectos internos por mejorar…' },
+    { cls:'a', tag:'A', title:'Amenazas',       ph:'Factores externos que representan un riesgo…' }
+  ];
+
+  const container = document.getElementById('products');
+  products.forEach((p, i) => {
+    const sec = document.createElement('section');
+    sec.className = 'card';
+    const n = String(i + 2).padStart(2, '0');
+
+    const quads = quadDefs.map(q =>
+      '<div class="quad ' + q.cls + '">' +
+        '<div class="head"><span class="tag">' + q.tag + '</span>' + q.title + '</div>' +
+        '<div class="body" contenteditable="true" data-ph="' + q.ph + '">' +
+          (p[q.cls] || '') +
+        '</div>' +
+      '</div>'
+    ).join('');
+
+    sec.innerHTML =
+      '<h2><span class="num">' + n + '</span>' + p.name + '</h2>' +
+      '<p class="hint">Complete o ajuste el análisis FODA para el rediseño de este producto.</p>' +
+      '<div class="axis-note"><span>◧ Origen interno</span><span>Origen externo ◨</span></div>' +
+      '<div class="foda">' + quads + '</div>' +
+      '<div class="improve">' +
+        '<label>Propuesta de mejora / Rediseño (Fase 2)</label>' +
+        '<div class="box" contenteditable="true" data-ph="Describa las mejoras concretas del rediseño a partir del análisis FODA…"></div>' +
+      '</div>';
+
+    container.appendChild(sec);
+  });
+</script>
+</body>
+</html>
