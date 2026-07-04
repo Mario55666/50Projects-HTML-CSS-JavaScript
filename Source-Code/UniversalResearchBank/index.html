@@ -1967,11 +1967,13 @@ function buildDashboardHtml(){
   parts.push('.search{width:100%;padding:8px 12px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--txt);margin-bottom:10px}');
   parts.push('.pill{display:inline-block;font-size:.65rem;padding:2px 8px;border-radius:10px;border:1px solid var(--line);color:var(--mut)}');
   parts.push('.notice{border:1px dashed var(--warn);border-radius:10px;padding:12px;margin:14px 0;color:var(--warn);font-size:.82rem}');
+  parts.push('.sem-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}.sem-card{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--warn);border-radius:10px;padding:12px}.sem-card .a{font-weight:700}.sem-card .t{margin:4px 0;font-size:.82rem}.sem-card .m{color:var(--mut);font-size:.72rem}.sem-badge{color:var(--warn)}');
   parts.push('canvas{max-height:280px}</style>\n</head>\n<body>\n<div class="wrap">');
   parts.push('<h1 id="t"></h1><div class="mut" id="d"></div><div class="mut" id="g"></div>');
   parts.push('<div class="kpis" id="kpis"></div>');
   parts.push('<h2>Matriz Categoría × Enfoque (datos reales)</h2><div class="tblwrap"><table class="heat" id="heat"></table></div>');
   parts.push('<div class="notice">Las referencias sin categoría/enfoque válidos se cuentan como "sin codificar" y quedan FUERA de la matriz temática. Nada se inventa.</div>');
+  parts.push('<h2>★ Autores y obras seminales (<span id="nsem">0</span>)</h2><div class="mut" style="margin-bottom:10px">Obras fundacionales del marco teórico, marcadas con el campo <em>seminal</em> en la codificación.</div><div id="seminal" class="sem-grid"></div>');
   parts.push('<div class="grid2"><div class="panel"><h2 style="margin-top:0">Producción por año</h2><canvas id="chAnio"></canvas></div><div class="panel"><h2 style="margin-top:0">Distribución <span id="ipdLbl"></span></h2><canvas id="chIpd"></canvas></div></div>');
   parts.push('<div class="grid2" style="margin-top:16px"><div class="panel"><h2 style="margin-top:0">Rol en el modelo</h2><canvas id="chRol"></canvas></div><div class="panel"><h2 style="margin-top:0">País (top 12)</h2><canvas id="chPais"></canvas></div></div>');
   parts.push('<h2>Referencias (<span id="nref"></span>)</h2><input class="search" id="q" placeholder="Filtrar por título, autor, categoría, país…"><div class="tblwrap"><table id="tbl"></table></div>');
@@ -1990,8 +1992,11 @@ function buildDashboardHtml(){
     'document.getElementById("ipdLbl").textContent=DATA.ipd_etiqueta;',
     'const anos=refs.map(r=>r.anio).filter(a=>a>0);',
     'const paises={};refs.forEach(r=>{const p=r.pais||"No determinado";paises[p]=(paises[p]||0)+1;});',
-    'const kpis=[["Referencias",refs.length],["Codificadas",cod.length+" ("+Math.round(cod.length/Math.max(1,refs.length)*100)+"%)"],["Categorías",DATA.categorias.length],["Enfoques",DATA.enfoques.length],["Rango temporal",anos.length?Math.min.apply(null,anos)+"–"+Math.max.apply(null,anos):"—"],["Países",Object.keys(paises).length]];',
+    'const sems=refs.filter(r=>r.seminal===true||r.seminal==="true").sort((a,b)=>(a.anio||0)-(b.anio||0));',
+    'const kpis=[["Referencias",refs.length],["Codificadas",cod.length+" ("+Math.round(cod.length/Math.max(1,refs.length)*100)+"%)"],["Categorías",DATA.categorias.length],["Enfoques",DATA.enfoques.length],["Obras seminales",sems.length],["Rango temporal",anos.length?Math.min.apply(null,anos)+"–"+Math.max.apply(null,anos):"—"],["Países",Object.keys(paises).length]];',
     'document.getElementById("kpis").innerHTML=kpis.map(k=>\'<div class="kpi"><div class="v">\'+k[1]+\'</div><div class="l">\'+k[0]+"</div></div>").join("");',
+    'document.getElementById("nsem").textContent=sems.length;',
+    'document.getElementById("seminal").innerHTML=sems.length?sems.map(r=>\'<div class="sem-card"><div class="a">\'+esc2(r.autores||"(autor no especificado)")+\' <span class="sem-badge">★</span></div><div class="t">\'+esc2(r.titulo||"(sin título)")+\'</div><div class="m">\'+(r.anio||"s/f")+(r.revista?" · "+esc2(r.revista):"")+(r.categoria&&r._codificada?" · "+esc2(r.categoria):"")+(r.doi?" · "+esc2(r.doi):"")+\'</div></div>\').join(""):\'<div class="mut">No hay referencias marcadas como seminales en el corpus. Marca la casilla «Sem.» en el editor para identificarlas.</div>\';',
     'const M={};DATA.categorias.forEach(c=>{M[c]={};DATA.enfoques.forEach(e=>M[c][e]=0);});',
     'cod.forEach(r=>{if(M[r.categoria]&&M[r.categoria][r.enfoque]!==undefined)M[r.categoria][r.enfoque]++;});',
     'let mx=1;DATA.categorias.forEach(c=>DATA.enfoques.forEach(e=>{if(M[c][e]>mx)mx=M[c][e];}));',
