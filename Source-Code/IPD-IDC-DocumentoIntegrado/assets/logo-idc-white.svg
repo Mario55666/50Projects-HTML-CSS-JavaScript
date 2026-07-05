@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2000" height="560" viewBox="0 0 2000 560" font-family="'Arial Rounded MT Bold','Nunito','Helvetica Rounded',Arial,sans-serif">
+  <!-- letter i : orange dot (brand accent) + white stem -->
+  <circle cx="92" cy="66" r="50" fill="#f3a100"/>
+  <rect x="55" y="146" width="74" height="232" rx="35" fill="#ffffff"/>
+  <text x="150" y="378" font-size="330" font-weight="900" fill="#ffffff" letter-spacing="-6">dc</text>
+
+  <text x="640" y="196" font-size="130" font-weight="900" fill="#ffffff">diseño &amp;</text>
+  <text x="640" y="340" font-size="130" font-weight="900" fill="rgba(255,255,255,0.92)">comunicación</text>
+
+  <text x="58" y="470" font-size="86" font-weight="500" fill="rgba(255,255,255,0.62)" letter-spacing="1">Instituto de Educación Superior Público</text>
+</svg>
