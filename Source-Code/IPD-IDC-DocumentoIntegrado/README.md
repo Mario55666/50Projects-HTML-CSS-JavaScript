@@ -17,9 +17,11 @@ estilos y de scripts entre ambas piezas.
 
 ## Marca
 
-Se insertaron los **logotipos institucionales del IDC** en `assets/`, disponibles
-en **PNG** (fondo transparente) y **JPG**, en versión a color (fondos claros) y en
-blanco (fondos oscuros). Colores institucionales aplicados en todo el documento:
+Se insertaron los **logotipos institucionales del IDC** como **imágenes raster
+PNG y JPG** (no SVG). Están embebidos en `index.html` y disponibles sueltos en
+`assets/`: **PNG** (fondo transparente) y **JPG**, en versión a color (fondos
+claros) y en blanco (fondos oscuros). Colores institucionales aplicados en todo
+el documento:
 
 | Muestra | Hex | Uso |
 |---------|-----|-----|
@@ -40,8 +42,6 @@ IPD-IDC-DocumentoIntegrado/
 │   ├── logo-idc-color.png     ← logo a color, PNG transparente
 │   ├── logo-idc-color.jpg     ← logo a color, JPG fondo blanco
 │   ├── logo-idc-white.png     ← logo en blanco, PNG transparente
-│   ├── logo-idc-white.jpg     ← logo en blanco, JPG fondo oscuro
-│   ├── logo-idc-color.svg     ← fuente vectorial (color)
-│   └── logo-idc-white.svg     ← fuente vectorial (blanco)
+│   └── logo-idc-white.jpg     ← logo en blanco, JPG fondo oscuro
 └── README.md
 ```
