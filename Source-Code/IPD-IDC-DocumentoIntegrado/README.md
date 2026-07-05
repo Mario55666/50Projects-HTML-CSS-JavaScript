@@ -21,16 +21,17 @@ gráficos) sin colisiones de estilos ni de scripts entre ambas piezas.
 
 ## Marca
 
-Los **logotipos institucionales del IDC** se insertan como **imágenes raster
-PNG y JPG** (no SVG), desde `assets/` mediante `<img src="assets/…">`. Colores
-institucionales aplicados en todo el documento:
+La identidad la aporta **únicamente el logotipo**. La interfaz del documento
+maestro es **neutra** (escala de grises + blanco): no se tiñe con los colores
+corporativos para no competir con la marca. Los **logotipos institucionales del
+IDC** se insertan como **imágenes raster PNG y JPG** (no SVG), desde `assets/`
+mediante `<img src="assets/…">`, en versión blanca (fondos oscuros) y a color
+(fondos claros).
 
-| Muestra | Hex | Uso |
-|---------|-----|-----|
-| 🟧 | `#f3a100` | Naranja — acento / Contexto Práctico |
-| 🟦 | `#0072b9` | Azul — primario / Contexto Teórico |
-| ⬛ | `#555553` | Gris 1 — tipografía "diseño & comunicación" |
-| ⬛ | `#545452` | Gris 2 — tipografía secundaria |
+> Los colores que aparecen **dentro** de las dos infografías embebidas
+> (`contexto-teorico.html` y `contexto-practico.html`) pertenecen a esos
+> documentos originales; el documento maestro no los aplica en su propia
+> interfaz.
 
 ## Uso
 

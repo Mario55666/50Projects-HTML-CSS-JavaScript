@@ -11,153 +11,105 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,900&display=swap" rel="stylesheet" />
 <style>
   /* ===================================================================
-     SISTEMA DE MARCA IDC — Colores institucionales / corporativos
-       Naranja  #f3a100   ·   Azul  #0072b9
-       Gris 1   #555553   ·   Gris 2  #545452
+     INTERFAZ NEUTRA — la marca la aporta ÚNICAMENTE el logotipo.
+     La página no se tiñe con colores corporativos: escala de grises
+     neutra + blanco, para no competir con la identidad IDC.
   =================================================================== */
   :root {
-    --idc-orange: #f3a100;
-    --idc-blue:   #0072b9;
-    --idc-gray1:  #555553;
-    --idc-gray2:  #545452;
-    --idc-ink:    #1a1a2e;
-    --idc-ink2:   #24243f;
-    --surface:    #ffffff;
-    --surface-2:  #f4f6f9;
-    --border:     #e2e6ee;
-    --muted:      #6a6a78;
+    --ink:       #2b2b2a;
+    --ink-2:     #3a3a38;
+    --gray-1:    #4c4c4a;
+    --gray-2:    #5a5a58;
+    --muted:     #7a7a77;
+    --line:      #e4e4e2;
+    --surface:   #ffffff;
+    --surface-2: #f5f5f4;
+    --surface-3: #ecece9;
     --font-display: 'Fraunces', Georgia, serif;
     --font-body:    'Inter', system-ui, -apple-system, sans-serif;
     --r-sm: .6rem; --r-md: 1rem; --r-lg: 1.5rem; --r-pill: 999px;
-    --sh-sm: 0 2px 10px rgba(26,26,46,.08);
-    --sh-md: 0 8px 30px rgba(26,26,46,.14);
+    --sh-sm: 0 2px 10px rgba(43,43,42,.08);
+    --sh-md: 0 8px 30px rgba(43,43,42,.14);
     --ease: cubic-bezier(.16,1,.3,1);
     --wrap: 1160px;
   }
   *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
   html { scroll-behavior:smooth; -webkit-text-size-adjust:100%; }
-  body {
-    font-family:var(--font-body); color:var(--idc-ink);
-    background:var(--surface-2); line-height:1.65; min-height:100vh;
-    font-size:clamp(.92rem,2vw,1rem);
-  }
+  body { font-family:var(--font-body); color:var(--gray-2); background:var(--surface-2); line-height:1.65; min-height:100vh; font-size:clamp(.92rem,2vw,1rem); }
   img { display:block; max-width:100%; }
   a { color:inherit; }
   button { cursor:pointer; border:none; background:none; font-family:inherit; }
-  :focus-visible { outline:3px solid var(--idc-orange); outline-offset:3px; border-radius:5px; }
-  .skip-link { position:absolute; top:-100%; left:1rem; background:var(--idc-orange); color:#fff;
-    padding:.5rem 1rem; border-radius:0 0 var(--r-sm) var(--r-sm); font-weight:700; z-index:9999; transition:top .2s; }
+  :focus-visible { outline:3px solid var(--ink); outline-offset:3px; border-radius:5px; }
+  .skip-link { position:absolute; top:-100%; left:1rem; background:var(--ink); color:#fff; padding:.5rem 1rem; border-radius:0 0 var(--r-sm) var(--r-sm); font-weight:700; z-index:9999; transition:top .2s; }
   .skip-link:focus { top:0; }
   @media (prefers-reduced-motion:reduce){ *,*::before,*::after{ animation-duration:.01ms!important; transition-duration:.01ms!important; } }
   .sr-only{ position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important; }
 
-  /* ===================== HERO ===================== */
-  .hero {
-    background:
-      radial-gradient(ellipse at 82% 12%, rgba(243,161,0,.22) 0%, transparent 55%),
-      radial-gradient(ellipse at 8% 92%, rgba(0,114,185,.28) 0%, transparent 50%),
-      linear-gradient(150deg, var(--idc-ink) 0%, var(--idc-ink2) 100%);
-    color:#fff; padding:clamp(2.2rem,6vw,4rem) 1.5rem clamp(2.4rem,6vw,3.6rem); position:relative; overflow:hidden;
-  }
+  /* HERO (neutro) */
+  .hero { background: radial-gradient(ellipse at 80% 12%, rgba(255,255,255,.06) 0%, transparent 55%), linear-gradient(150deg, var(--ink) 0%, var(--ink-2) 100%);
+    color:#fff; padding:clamp(2.2rem,6vw,4rem) 1.5rem clamp(2.4rem,6vw,3.6rem); position:relative; overflow:hidden; }
   .hero-inner{ max-width:var(--wrap); margin:0 auto; position:relative; }
   .hero-logo{ height:clamp(46px,8vw,64px); width:auto; margin-bottom:clamp(1.4rem,4vw,2rem); }
-  .hero-badge{ display:inline-flex; align-items:center; gap:.45rem; background:rgba(243,161,0,.16);
-    border:1px solid rgba(243,161,0,.42); color:var(--idc-orange); font-size:.74rem; font-weight:700;
-    text-transform:uppercase; letter-spacing:.11em; padding:.35rem .9rem; border-radius:var(--r-pill); margin-bottom:1rem; }
+  .hero-badge{ display:inline-flex; align-items:center; gap:.45rem; background:rgba(255,255,255,.10); border:1px solid rgba(255,255,255,.20); color:rgba(255,255,255,.9); font-size:.74rem; font-weight:700; text-transform:uppercase; letter-spacing:.11em; padding:.35rem .9rem; border-radius:var(--r-pill); margin-bottom:1rem; }
   .hero-badge svg{ width:14px; height:14px; }
-  .hero h1{ font-family:var(--font-display); font-weight:900; line-height:1.04;
-    font-size:clamp(2.1rem,6.5vw,4rem); letter-spacing:-.01em; }
-  .hero h1 .abbr{ color:var(--idc-orange); }
-  .hero .lede{ color:rgba(255,255,255,.8); font-size:clamp(1rem,2.4vw,1.3rem); max-width:660px; margin-top:1rem; line-height:1.6; }
+  .hero h1{ font-family:var(--font-display); font-weight:900; line-height:1.04; font-size:clamp(2.1rem,6.5vw,4rem); letter-spacing:-.01em; }
+  .hero .lede{ color:rgba(255,255,255,.82); font-size:clamp(1rem,2.4vw,1.3rem); max-width:660px; margin-top:1rem; line-height:1.6; }
   .hero-meta{ display:flex; flex-wrap:wrap; gap:.5rem; margin-top:1.6rem; }
-  .meta-chip{ display:inline-flex; align-items:center; gap:.4rem; padding:.35rem .85rem; border-radius:var(--r-pill);
-    font-size:.78rem; font-weight:600; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.14); color:rgba(255,255,255,.92); }
-  .meta-chip .dot{ width:9px; height:9px; border-radius:50%; }
+  .meta-chip{ display:inline-flex; align-items:center; gap:.4rem; padding:.35rem .85rem; border-radius:var(--r-pill); font-size:.78rem; font-weight:600; background:rgba(255,255,255,.09); border:1px solid rgba(255,255,255,.16); color:rgba(255,255,255,.9); }
 
-  /* ===================== SECCIONES ===================== */
+  /* SECCIONES */
   .section{ max-width:var(--wrap); margin:0 auto; padding:clamp(2.4rem,6vw,3.6rem) 1.5rem; }
-  .eyebrow{ font-size:.76rem; font-weight:700; text-transform:uppercase; letter-spacing:.13em; color:var(--idc-blue); margin-bottom:.6rem; }
-  .h2{ font-family:var(--font-display); font-weight:900; font-size:clamp(1.6rem,4.2vw,2.4rem); line-height:1.12; letter-spacing:-.01em; }
+  .eyebrow{ font-size:.76rem; font-weight:700; text-transform:uppercase; letter-spacing:.13em; color:var(--muted); margin-bottom:.6rem; }
+  .h2{ font-family:var(--font-display); font-weight:900; font-size:clamp(1.6rem,4.2vw,2.4rem); line-height:1.12; letter-spacing:-.01em; color:var(--gray-1); }
   .lead{ color:var(--muted); font-size:clamp(1rem,2.2vw,1.12rem); max-width:760px; margin-top:.8rem; line-height:1.7; }
-
-  /* Mapa teórico ↔ práctico */
   .map{ display:grid; grid-template-columns:1fr auto 1fr; gap:clamp(1rem,3vw,2rem); align-items:stretch; margin-top:2rem; }
   @media (max-width:820px){ .map{ grid-template-columns:1fr; } .map-arrow{ transform:rotate(90deg); justify-self:center; } }
-  .ctx-card{ background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg); padding:clamp(1.4rem,3vw,2rem);
-    box-shadow:var(--sh-sm); position:relative; overflow:hidden; transition:box-shadow .3s var(--ease), transform .3s var(--ease); }
+  .ctx-card{ background:var(--surface); border:1px solid var(--line); border-radius:var(--r-lg); padding:clamp(1.4rem,3vw,2rem); box-shadow:var(--sh-sm); position:relative; overflow:hidden; transition:box-shadow .3s var(--ease), transform .3s var(--ease); }
   .ctx-card:hover{ box-shadow:var(--sh-md); transform:translateY(-3px); }
-  .ctx-card::before{ content:''; position:absolute; inset:0 0 auto 0; height:5px; background:var(--accent); }
-  .ctx-tag{ display:inline-flex; align-items:center; gap:.45rem; font-size:.74rem; font-weight:800; text-transform:uppercase; letter-spacing:.09em;
-    color:var(--accent); background:color-mix(in srgb,var(--accent) 12%, white); padding:.3rem .8rem; border-radius:var(--r-pill); }
-  .ctx-card h3{ font-family:var(--font-display); font-weight:900; font-size:clamp(1.3rem,3vw,1.7rem); margin:.9rem 0 .5rem; }
+  .ctx-card::before{ content:''; position:absolute; inset:0 0 auto 0; height:4px; background:var(--ink); opacity:.85; }
+  .ctx-tag{ display:inline-flex; align-items:center; gap:.45rem; font-size:.74rem; font-weight:800; text-transform:uppercase; letter-spacing:.09em; color:var(--gray-1); background:var(--surface-3); padding:.3rem .8rem; border-radius:var(--r-pill); }
+  .ctx-card h3{ font-family:var(--font-display); font-weight:900; font-size:clamp(1.3rem,3vw,1.7rem); margin:.9rem 0 .5rem; color:var(--gray-1); }
   .ctx-card p{ color:var(--muted); font-size:.96rem; line-height:1.65; }
   .ctx-list{ list-style:none; margin-top:1rem; display:flex; flex-direction:column; gap:.5rem; }
-  .ctx-list li{ display:flex; gap:.55rem; align-items:flex-start; font-size:.92rem; }
-  .ctx-list svg{ width:17px; height:17px; flex-shrink:0; margin-top:3px; color:var(--accent); }
-  .ctx-num{ position:absolute; right:1rem; bottom:.4rem; font-family:var(--font-display); font-weight:900;
-    font-size:clamp(4rem,9vw,6.5rem); line-height:1; color:color-mix(in srgb,var(--accent) 9%, transparent); pointer-events:none; }
-  .map-arrow{ display:flex; align-items:center; justify-content:center; color:var(--idc-blue); }
+  .ctx-list li{ display:flex; gap:.55rem; align-items:flex-start; font-size:.92rem; color:var(--gray-2); }
+  .ctx-list svg{ width:17px; height:17px; flex-shrink:0; margin-top:3px; color:var(--gray-1); }
+  .ctx-num{ position:absolute; right:1rem; bottom:.4rem; font-family:var(--font-display); font-weight:900; font-size:clamp(4rem,9vw,6.5rem); line-height:1; color:rgba(43,43,42,.05); pointer-events:none; }
+  .map-arrow{ display:flex; align-items:center; justify-content:center; color:var(--muted); }
   .map-arrow svg{ width:44px; height:44px; }
 
-  /* ===================== TABS DE CONTEXTO ===================== */
-  .tabs-bar{ position:sticky; top:0; z-index:50; background:rgba(255,255,255,.92); backdrop-filter:blur(10px);
-    border-bottom:1px solid var(--border); box-shadow:var(--sh-sm); }
+  /* TABS (neutro) */
+  .tabs-bar{ position:sticky; top:0; z-index:50; background:rgba(255,255,255,.94); backdrop-filter:blur(10px); border-bottom:1px solid var(--line); box-shadow:var(--sh-sm); }
   .tabs-inner{ max-width:var(--wrap); margin:0 auto; display:flex; gap:.5rem; padding:.6rem 1.5rem; align-items:center; flex-wrap:wrap; }
-  .tab-btn{ display:inline-flex; align-items:center; gap:.6rem; padding:.7rem 1.15rem; border-radius:var(--r-pill);
-    font-size:.9rem; font-weight:700; color:var(--idc-gray1); border:2px solid transparent; transition:all .2s var(--ease); }
-  .tab-btn .idx{ width:26px; height:26px; border-radius:50%; background:var(--surface-2); color:var(--muted);
-    display:grid; place-items:center; font-size:.8rem; font-weight:900; flex-shrink:0; transition:all .2s; }
+  .tab-btn{ display:inline-flex; align-items:center; gap:.6rem; padding:.7rem 1.15rem; border-radius:var(--r-pill); font-size:.9rem; font-weight:700; color:var(--gray-2); border:1.5px solid var(--line); transition:all .2s var(--ease); }
+  .tab-btn .idx{ width:26px; height:26px; border-radius:50%; background:var(--surface-3); color:var(--muted); display:grid; place-items:center; font-size:.8rem; font-weight:900; flex-shrink:0; transition:all .2s; }
   .tab-btn:hover{ background:var(--surface-2); }
-  .tab-btn[aria-selected="true"]{ color:#fff; }
-  .tab-btn.t-teorico[aria-selected="true"]{ background:var(--idc-blue); }
-  .tab-btn.t-practico[aria-selected="true"]{ background:var(--idc-orange); color:var(--idc-ink); }
-  .tab-btn[aria-selected="true"] .idx{ background:rgba(255,255,255,.25); color:#fff; }
-  .tab-btn.t-practico[aria-selected="true"] .idx{ background:rgba(26,26,46,.18); color:var(--idc-ink); }
+  .tab-btn[aria-selected="true"]{ background:var(--ink); color:#fff; border-color:var(--ink); }
+  .tab-btn[aria-selected="true"] .idx{ background:rgba(255,255,255,.22); color:#fff; }
   .tab-spacer{ flex:1; }
   .tabs-hint{ font-size:.78rem; color:var(--muted); }
 
-  /* ===================== PANELES / EMBEBIDOS ===================== */
+  /* PANELES */
   .panel{ display:none; }
   .panel.active{ display:block; animation:fade .4s var(--ease) both; }
   @keyframes fade{ from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
-  .embed-head{ max-width:var(--wrap); margin:0 auto; padding:clamp(1.6rem,4vw,2.4rem) 1.5rem .3rem; display:flex; flex-wrap:wrap; gap:1rem; align-items:flex-end; justify-content:space-between; }
-  .embed-head .txt{ max-width:720px; }
-  .embed-head .eyebrow.o{ color:var(--idc-orange); }
+  .embed-head{ max-width:var(--wrap); margin:0 auto; padding:clamp(1.6rem,4vw,2.4rem) 1.5rem .3rem; }
+  .embed-head .txt{ max-width:760px; }
   .embed-frame-wrap{ max-width:var(--wrap); margin:0 auto; padding:1rem 1.5rem clamp(2rem,5vw,3rem); }
-  .embed-frame{ width:100%; height:82vh; min-height:560px; border:1px solid var(--border); border-radius:var(--r-lg);
-    background:var(--surface); box-shadow:var(--sh-md); }
-  .btn{ display:inline-flex; align-items:center; gap:.45rem; padding:.6rem 1.1rem; border-radius:var(--r-pill);
-    font-size:.85rem; font-weight:700; transition:filter .2s, transform .15s; white-space:nowrap; }
-  .btn:hover{ filter:brightness(1.06); } .btn:active{ transform:scale(.97); }
-  .btn svg{ width:16px; height:16px; }
-  .btn-blue{ background:var(--idc-blue); color:#fff; } .btn-orange{ background:var(--idc-orange); color:var(--idc-ink); }
+  .embed-frame{ width:100%; height:82vh; min-height:560px; border:1px solid var(--line); border-radius:var(--r-lg); background:var(--surface); box-shadow:var(--sh-md); }
 
-  /* ===================== FOOTER ===================== */
-  .footer{ background:linear-gradient(150deg,var(--idc-ink) 0%, var(--idc-ink2) 100%); color:rgba(255,255,255,.82);
-    padding:clamp(2.4rem,6vw,3.4rem) 1.5rem 2rem; margin-top:1rem; }
-  .footer-inner{ max-width:var(--wrap); margin:0 auto; display:grid; grid-template-columns:1.2fr 1fr; gap:clamp(1.6rem,4vw,3rem); align-items:start; }
-  @media (max-width:760px){ .footer-inner{ grid-template-columns:1fr; } }
+  /* FOOTER (neutro, sin bloque de marca) */
+  .footer{ background:linear-gradient(150deg,var(--ink) 0%, var(--ink-2) 100%); color:rgba(255,255,255,.82); padding:clamp(2.4rem,6vw,3.4rem) 1.5rem 2rem; margin-top:1rem; }
+  .footer-inner{ max-width:var(--wrap); margin:0 auto; }
   .footer-logo{ height:56px; width:auto; margin-bottom:1rem; background:#fff; padding:.7rem 1rem; border-radius:var(--r-md); }
-  .footer p{ font-size:.86rem; opacity:.75; line-height:1.7; max-width:460px; }
-  .brand-assets h4, .footer-col h4{ font-family:var(--font-display); font-weight:700; color:#fff; font-size:1.02rem; margin-bottom:.7rem; }
-  .swatches{ display:flex; flex-wrap:wrap; gap:.6rem; margin-top:.4rem; }
-  .swatch{ display:flex; align-items:center; gap:.5rem; font-size:.76rem; background:rgba(255,255,255,.06);
-    border:1px solid rgba(255,255,255,.12); padding:.4rem .7rem; border-radius:var(--r-sm); font-variant-numeric:tabular-nums; }
-  .swatch .chip{ width:16px; height:16px; border-radius:5px; flex-shrink:0; box-shadow:inset 0 0 0 1px rgba(255,255,255,.25); }
-  .asset-card{ background:#fff; border-radius:var(--r-md); padding:.9rem 1rem; margin-top:.9rem; }
-  .asset-card img{ height:38px; width:auto; }
-  .asset-note{ font-size:.72rem; color:var(--muted); margin-top:.45rem; }
-  .footer-div{ max-width:var(--wrap); margin:clamp(1.8rem,4vw,2.4rem) auto 0; border-top:1px solid rgba(255,255,255,.12);
-    padding-top:1.1rem; display:flex; flex-wrap:wrap; justify-content:space-between; gap:.5rem; }
-  .footer-copy{ font-size:.76rem; color:rgba(255,255,255,.5); }
-  .footer-sign{ font-size:.76rem; color:var(--idc-orange); font-weight:600; }
+  .footer p{ font-size:.86rem; opacity:.78; line-height:1.7; max-width:620px; }
+  .footer-div{ max-width:var(--wrap); margin:clamp(1.8rem,4vw,2.4rem) auto 0; border-top:1px solid rgba(255,255,255,.14); padding-top:1.1rem; display:flex; flex-wrap:wrap; justify-content:space-between; gap:.5rem; }
+  .footer-copy, .footer-sign{ font-size:.76rem; color:rgba(255,255,255,.55); }
 </style>
 </head>
 <body>
 <a class="skip-link" href="#contenido">Ir al contenido principal</a>
 <div aria-live="polite" class="sr-only" id="live"></div>
 
-<!-- ============ HERO ============ -->
 <header class="hero" role="banner">
   <div class="hero-inner">
     <img class="hero-logo" src="assets/logo-idc-white.png" alt="IDC — Instituto de Diseño y Comunicación · Instituto de Educación Superior Público" />
@@ -165,28 +117,23 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2v20M2 12h20"/><circle cx="12" cy="12" r="10"/></svg>
       Documento Integrado · Metodología de Investigación · IDC 2026
     </span>
-    <h1><span class="abbr">Índice de Pertinencia</span> Documental<br>marco teórico &amp; aplicación práctica</h1>
+    <h1>Índice de Pertinencia Documental<br>marco teórico &amp; aplicación práctica</h1>
     <p class="lede">Un único recurso que fusiona el <strong>fundamento conceptual del IPD</strong> con su <strong>guía de implementación pedagógica</strong>, para las carreras de Diseño y Comunicación del IDC.</p>
     <div class="hero-meta">
-      <span class="meta-chip"><span class="dot" style="background:var(--idc-blue)"></span> Contexto Teórico</span>
-      <span class="meta-chip"><span class="dot" style="background:var(--idc-orange)"></span> Contexto Práctico</span>
-      <span class="meta-chip"><span class="dot" style="background:#fff"></span> Interactivo · WCAG AA</span>
+      <span class="meta-chip">Contexto Teórico</span>
+      <span class="meta-chip">Contexto Práctico</span>
+      <span class="meta-chip">Interactivo · WCAG AA</span>
     </div>
   </div>
 </header>
 
-<!-- ============ INTRO: MARCO INTEGRADO ============ -->
 <section class="section" id="contenido" aria-labelledby="intro-h">
   <p class="eyebrow">Un solo marco · dos contextos</p>
   <h2 class="h2" id="intro-h">Del fundamento a la práctica en el aula</h2>
-  <p class="lead">Este documento reúne los dos instrumentos del IPD en una sola pieza navegable. El <strong style="color:var(--idc-blue)">Contexto Teórico</strong> establece qué es el índice, cómo se calcula y qué criterios lo componen; el <strong style="color:var(--idc-orange)">Contexto Práctico</strong> traduce ese fundamento en un protocolo paso a paso y un simulador para el docente. Cada contexto conserva toda su interactividad original.</p>
-
+  <p class="lead">Este documento reúne los dos instrumentos del IPD en una sola pieza navegable. El <strong>Contexto Teórico</strong> establece qué es el índice, cómo se calcula y qué criterios lo componen; el <strong>Contexto Práctico</strong> traduce ese fundamento en un protocolo paso a paso y un simulador para el docente. Cada contexto conserva toda su interactividad original.</p>
   <div class="map">
-    <article class="ctx-card" style="--accent:var(--idc-blue)">
-      <span class="ctx-tag">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-        Contexto Teórico
-      </span>
+    <article class="ctx-card">
+      <span class="ctx-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg> Contexto Teórico</span>
       <h3>Fundamentos del IPD</h3>
       <p>El marco conceptual: definición, fórmula ponderada, dimensiones evaluativas y criterios que sustentan la selección documental rigurosa.</p>
       <ul class="ctx-list">
@@ -196,16 +143,9 @@
       </ul>
       <span class="ctx-num">1</span>
     </article>
-
-    <div class="map-arrow" aria-hidden="true">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-    </div>
-
-    <article class="ctx-card" style="--accent:var(--idc-orange)">
-      <span class="ctx-tag">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-        Contexto Práctico
-      </span>
+    <div class="map-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+    <article class="ctx-card">
+      <span class="ctx-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Contexto Práctico</span>
       <h3>Implementación Pedagógica</h3>
       <p>El fundamento llevado al aula: protocolo por fases, simulador de evaluación de fuentes y reporte final para el docente del IDC.</p>
       <ul class="ctx-list">
@@ -218,78 +158,38 @@
   </div>
 </section>
 
-<!-- ============ TABS ============ -->
 <nav class="tabs-bar" aria-label="Contextos del documento">
   <div class="tabs-inner" role="tablist">
-    <button class="tab-btn t-teorico" role="tab" id="tab-teorico" aria-selected="true" aria-controls="panel-teorico" onclick="showCtx('teorico')">
-      <span class="idx">1</span> Contexto Teórico
-    </button>
-    <button class="tab-btn t-practico" role="tab" id="tab-practico" aria-selected="false" aria-controls="panel-practico" onclick="showCtx('practico')">
-      <span class="idx">2</span> Contexto Práctico
-    </button>
+    <button class="tab-btn" role="tab" id="tab-teorico" aria-selected="true" aria-controls="panel-teorico" onclick="showCtx('teorico')"><span class="idx">1</span> Contexto Teórico</button>
+    <button class="tab-btn" role="tab" id="tab-practico" aria-selected="false" aria-controls="panel-practico" onclick="showCtx('practico')"><span class="idx">2</span> Contexto Práctico</button>
     <span class="tab-spacer"></span>
     <span class="tabs-hint">Cada contexto es interactivo y se muestra completo</span>
   </div>
 </nav>
 
 <main>
-  <!-- PANEL TEÓRICO -->
   <section class="panel active" id="panel-teorico" role="tabpanel" aria-labelledby="tab-teorico">
-    <div class="embed-head">
-      <div class="txt">
-        <p class="eyebrow">Contexto Teórico · 01</p>
-        <h2 class="h2">Fundamentos del Índice de Pertinencia Documental</h2>
-        <p class="lead">Infografía interactiva con la definición, la calculadora ponderada, las dimensiones evaluativas, los contextos por carrera y la matriz de criterios del IPD.</p>
-      </div>
-      <a class="btn btn-blue" href="contexto-teorico.html" target="_blank" rel="noopener">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-        Abrir en pestaña completa
-      </a>
-    </div>
-    <div class="embed-frame-wrap">
-      <iframe class="embed-frame" id="frame-teorico" title="Contexto Teórico — Fundamentos del IPD" src="contexto-teorico.html"></iframe>
-    </div>
+    <div class="embed-head"><div class="txt">
+      <p class="eyebrow">Contexto Teórico · 01</p>
+      <h2 class="h2">Fundamentos del Índice de Pertinencia Documental</h2>
+      <p class="lead">Infografía interactiva con la definición, la calculadora ponderada, las dimensiones evaluativas, los contextos por carrera y la matriz de criterios del IPD.</p>
+    </div></div>
+    <div class="embed-frame-wrap"><iframe class="embed-frame" id="frame-teorico" title="Contexto Teórico — Fundamentos del IPD" src="contexto-teorico.html"></iframe></div>
   </section>
-
-  <!-- PANEL PRÁCTICO -->
   <section class="panel" id="panel-practico" role="tabpanel" aria-labelledby="tab-practico" hidden>
-    <div class="embed-head">
-      <div class="txt">
-        <p class="eyebrow o">Contexto Práctico · 02</p>
-        <h2 class="h2">Guía de Implementación Pedagógica</h2>
-        <p class="lead">Simulador interactivo y protocolo paso a paso para que el docente aplique el IPD en proyectos de investigación e innovación con sus estudiantes.</p>
-      </div>
-      <a class="btn btn-orange" href="contexto-practico.html" target="_blank" rel="noopener">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-        Abrir en pestaña completa
-      </a>
-    </div>
-    <div class="embed-frame-wrap">
-      <iframe class="embed-frame" id="frame-practico" title="Contexto Práctico — Guía de Implementación Pedagógica" src="contexto-practico.html"></iframe>
-    </div>
+    <div class="embed-head"><div class="txt">
+      <p class="eyebrow">Contexto Práctico · 02</p>
+      <h2 class="h2">Guía de Implementación Pedagógica</h2>
+      <p class="lead">Simulador interactivo y protocolo paso a paso para que el docente aplique el IPD en proyectos de investigación e innovación con sus estudiantes.</p>
+    </div></div>
+    <div class="embed-frame-wrap"><iframe class="embed-frame" id="frame-practico" title="Contexto Práctico — Guía de Implementación Pedagógica" src="contexto-practico.html"></iframe></div>
   </section>
 </main>
 
-<!-- ============ FOOTER ============ -->
 <footer class="footer" role="contentinfo">
   <div class="footer-inner">
-    <div>
-      <img class="footer-logo" src="assets/logo-idc-color.png" alt="IDC — Instituto de Diseño y Comunicación" />
-      <p><strong style="color:#fff">Instituto de Diseño y Comunicación</strong> — Instituto de Educación Superior Público. Documento metodológico integrado del Índice de Pertinencia Documental (IPD), Unidad de Investigación e Innovación Tecnológica, 2026.</p>
-    </div>
-    <div class="footer-col brand-assets">
-      <h4>Identidad de marca</h4>
-      <div class="swatches">
-        <span class="swatch"><span class="chip" style="background:#f3a100"></span> #f3a100</span>
-        <span class="swatch"><span class="chip" style="background:#0072b9"></span> #0072b9</span>
-        <span class="swatch"><span class="chip" style="background:#555553"></span> #555553</span>
-        <span class="swatch"><span class="chip" style="background:#545452"></span> #545452</span>
-      </div>
-      <div class="asset-card">
-        <img src="assets/logo-idc-color.jpg" alt="Logotipo IDC a color (formato JPG)" />
-        <p class="asset-note">Logotipo institucional en <strong>assets/</strong> · PNG (transparente) y JPG.</p>
-      </div>
-    </div>
+    <img class="footer-logo" src="assets/logo-idc-color.png" alt="IDC — Instituto de Diseño y Comunicación" />
+    <p><strong style="color:#fff">Instituto de Diseño y Comunicación</strong> — Instituto de Educación Superior Público. Documento metodológico integrado del Índice de Pertinencia Documental (IPD), Unidad de Investigación e Innovación Tecnológica, 2026.</p>
   </div>
   <div class="footer-div">
     <span class="footer-copy">© 2026 IDC · Instituto de Educación Superior Público. Todos los derechos reservados.</span>
@@ -307,8 +207,7 @@
       if(on){ panel.removeAttribute('hidden'); } else { panel.setAttribute('hidden',''); }
       tab.setAttribute('aria-selected', on ? 'true':'false');
     });
-    var live = document.getElementById('live');
-    live.textContent = (id==='teorico' ? 'Mostrando Contexto Teórico: Fundamentos del IPD' : 'Mostrando Contexto Práctico: Guía de Implementación Pedagógica');
+    document.getElementById('live').textContent = (id==='teorico' ? 'Mostrando Contexto Teórico' : 'Mostrando Contexto Práctico');
     document.querySelector('.tabs-bar').scrollIntoView({ behavior:'smooth', block:'start' });
   }
   document.querySelectorAll('.tab-btn').forEach(function(btn, i, all){
