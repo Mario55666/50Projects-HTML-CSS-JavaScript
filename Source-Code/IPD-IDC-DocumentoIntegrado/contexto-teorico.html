@@ -1,0 +1,2262 @@
+<!DOCTYPE html>
+<html lang="es" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Índice de Pertinencia Documental (IPD) — Infografía interactiva para carreras de Diseño y Comunicación del IDC" />
+  <title>IPD — Índice de Pertinencia Documental · IDC 2026</title>
+
+  <!-- Google Fonts: Inter + Fraunces para jerarquía tipográfica clara -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fraunces:opsz,wght@9..144,700;9..144,900&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ================================================================
+       TOKENS GLOBALES — Design System IPD / IDC
+       Basados en WCAG AA (contraste ≥ 4.5:1 para texto normal)
+    ================================================================ */
+    :root {
+      /* Colores de carrera */
+      --color-interiores:   #009c9d;
+      --color-publicitario: #009ad3;
+      --color-modas:        #e14a94;
+      --color-audiovisual:  #f3a20b;
+
+      /* Neutros IDC */
+      --color-base:         #1a1a2e;
+      --color-surface:      #ffffff;
+      --color-surface-2:    #f4f6f9;
+      --color-border:       #e0e4ec;
+      --color-text-primary: #1a1a2e;
+      --color-text-muted:   #555572;
+      --color-accent:       #f3a100;
+
+      /* Feedback */
+      --color-success:      #00875a;
+      --color-error-bg:     #fff3e0;
+      --color-error-border: #ff9800;
+
+      /* Tipografía */
+      --font-display: 'Fraunces', Georgia, serif;
+      --font-body:    'Inter', system-ui, -apple-system, sans-serif;
+      --text-xs:   clamp(0.7rem,  1.5vw, 0.8rem);
+      --text-sm:   clamp(0.8rem,  1.8vw, 0.9rem);
+      --text-base: clamp(0.9rem,  2vw,   1rem);
+      --text-md:   clamp(1rem,    2.2vw, 1.125rem);
+      --text-lg:   clamp(1.125rem,2.5vw, 1.375rem);
+      --text-xl:   clamp(1.4rem,  3.5vw, 2rem);
+      --text-2xl:  clamp(1.8rem,  5vw,   3rem);
+      --text-3xl:  clamp(2.2rem,  7vw,   4rem);
+
+      /* Espaciado */
+      --space-xs:  0.5rem;
+      --space-sm:  1rem;
+      --space-md:  1.5rem;
+      --space-lg:  2.5rem;
+      --space-xl:  4rem;
+
+      /* Radios */
+      --radius-sm: 0.5rem;
+      --radius-md: 1rem;
+      --radius-lg: 1.5rem;
+      --radius-pill: 999px;
+
+      /* Sombras */
+      --shadow-sm: 0 2px 8px rgba(26,26,46,0.08);
+      --shadow-md: 0 6px 24px rgba(26,26,46,0.12);
+      --shadow-lg: 0 16px 48px rgba(26,26,46,0.18);
+
+      /* Transiciones */
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+      --duration-fast: 200ms;
+      --duration-med:  400ms;
+      --duration-slow: 700ms;
+    }
+
+    /* ================================================================
+       RESET MÍNIMO
+    ================================================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+    body {
+      font-family: var(--font-body);
+      font-size: var(--text-base);
+      color: var(--color-text-primary);
+      background: var(--color-surface-2);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    img, svg { display: block; max-width: 100%; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; }
+    a { color: inherit; text-decoration: none; }
+
+    /* ================================================================
+       ACCESIBILIDAD — foco visible, skip link, reduced motion
+    ================================================================ */
+    :focus-visible {
+      outline: 3px solid var(--color-accent);
+      outline-offset: 3px;
+      border-radius: 4px;
+    }
+    .skip-link {
+      position: absolute;
+      top: -100%;
+      left: 1rem;
+      background: var(--color-accent);
+      color: #fff;
+      padding: 0.5rem 1rem;
+      border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+      font-weight: 700;
+      z-index: 9999;
+      transition: top 0.2s;
+    }
+    .skip-link:focus { top: 0; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    /* ================================================================
+       HEADER — Hero de la infografía
+    ================================================================ */
+    .hero {
+      background: var(--color-base);
+      color: #fff;
+      padding: var(--space-xl) var(--space-md) var(--space-lg);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      /* Patrón decorativo geométrico */
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 80% 20%, rgba(243,161,0,0.18) 0%, transparent 60%),
+        radial-gradient(ellipse at 10% 80%, rgba(0,154,211,0.15) 0%, transparent 50%);
+      pointer-events: none;
+    }
+    .hero-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      position: relative;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(243,161,0,0.18);
+      border: 1px solid rgba(243,161,0,0.4);
+      color: var(--color-accent);
+      font-size: var(--text-xs);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 0.3rem 0.8rem;
+      border-radius: var(--radius-pill);
+      margin-bottom: var(--space-sm);
+    }
+    .hero-badge svg { width: 14px; height: 14px; flex-shrink: 0; }
+    .hero h1 {
+      font-family: var(--font-display);
+      font-size: var(--text-3xl);
+      font-weight: 900;
+      line-height: 1.05;
+      margin-bottom: var(--space-sm);
+    }
+    .hero h1 span { color: var(--color-accent); }
+    .hero-subtitle {
+      font-size: var(--text-lg);
+      color: rgba(255,255,255,0.75);
+      max-width: 640px;
+      margin-bottom: var(--space-md);
+    }
+    /* Tira de colores de carrera */
+    .career-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: var(--space-md);
+    }
+    .career-chip {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.3rem 0.75rem;
+      border-radius: var(--radius-pill);
+      font-size: var(--text-xs);
+      font-weight: 600;
+      color: #fff;
+      letter-spacing: 0.02em;
+    }
+    .career-chip svg { width: 12px; height: 12px; flex-shrink: 0; }
+    .chip-int  { background: var(--color-interiores); }
+    .chip-pub  { background: var(--color-publicitario); }
+    .chip-mod  { background: var(--color-modas); }
+    .chip-aud  { background: var(--color-audiovisual); color: #1a1a2e; }
+
+    /* ================================================================
+       NAVEGACIÓN POR SECCIONES (Tabs accesibles)
+    ================================================================ */
+    .nav-tabs-wrapper {
+      background: var(--color-surface);
+      border-bottom: 2px solid var(--color-border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--shadow-sm);
+    }
+    .nav-tabs {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      overflow-x: auto;
+      scrollbar-width: none;
+      gap: 0;
+    }
+    .nav-tabs::-webkit-scrollbar { display: none; }
+    .nav-tab {
+      flex-shrink: 0;
+      padding: 1rem 1.25rem;
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-text-muted);
+      border-bottom: 3px solid transparent;
+      transition: color var(--duration-fast), border-color var(--duration-fast);
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .nav-tab svg { width: 16px; height: 16px; flex-shrink: 0; }
+    .nav-tab:hover { color: var(--color-text-primary); }
+    .nav-tab[aria-selected="true"] {
+      color: var(--color-base);
+      border-bottom-color: var(--color-accent);
+    }
+
+    /* ================================================================
+       LAYOUT PRINCIPAL
+    ================================================================ */
+    .main-content {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: var(--space-lg) var(--space-md);
+    }
+    .section-panel { display: none; }
+    .section-panel.active { display: block; animation: fadeUp 0.4s var(--ease-out) both; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ================================================================
+       CARDS GENÉRICAS
+    ================================================================ */
+    .card {
+      background: var(--color-surface);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--color-border);
+      padding: var(--space-md);
+      transition: box-shadow var(--duration-fast), transform var(--duration-fast);
+    }
+    .card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+    .section-title {
+      font-family: var(--font-display);
+      font-size: var(--text-xl);
+      font-weight: 900;
+      margin-bottom: var(--space-sm);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .section-title svg { width: 28px; height: 28px; flex-shrink: 0; }
+    .section-desc {
+      color: var(--color-text-muted);
+      font-size: var(--text-base);
+      max-width: 720px;
+      margin-bottom: var(--space-md);
+      line-height: 1.7;
+    }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md); }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-md); }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-sm); }
+    @media (max-width: 900px) {
+      .grid-4 { grid-template-columns: 1fr 1fr; }
+      .grid-3 { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 600px) {
+      .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+    }
+
+    /* ================================================================
+       SECCIÓN 1 — ¿QUÉ ES EL IPD?
+    ================================================================ */
+    .definition-hero {
+      background: var(--color-base);
+      color: #fff;
+      border-radius: var(--radius-lg);
+      padding: var(--space-lg) var(--space-md);
+      margin-bottom: var(--space-md);
+      position: relative;
+      overflow: hidden;
+    }
+    .definition-hero::after {
+      content: 'IPD';
+      position: absolute;
+      right: -0.5rem;
+      bottom: -1.5rem;
+      font-family: var(--font-display);
+      font-size: clamp(5rem, 15vw, 10rem);
+      font-weight: 900;
+      color: rgba(243,161,0,0.08);
+      line-height: 1;
+      pointer-events: none;
+      user-select: none;
+    }
+    .definition-hero h2 {
+      font-family: var(--font-display);
+      font-size: var(--text-xl);
+      font-weight: 900;
+      margin-bottom: 0.75rem;
+    }
+    .definition-hero h2 span { color: var(--color-accent); }
+    .definition-hero p {
+      font-size: var(--text-md);
+      color: rgba(255,255,255,0.8);
+      max-width: 700px;
+      line-height: 1.7;
+    }
+    .formula-box {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: var(--space-sm);
+      background: rgba(243,161,0,0.12);
+      border: 1px solid rgba(243,161,0,0.35);
+      border-radius: var(--radius-md);
+      padding: var(--space-sm) var(--space-md);
+      margin-top: var(--space-md);
+    }
+    .formula-box .formula-label {
+      font-size: var(--text-xs);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--color-accent);
+      font-weight: 700;
+    }
+    .formula-box .formula-text {
+      font-family: 'Courier New', monospace;
+      font-size: var(--text-md);
+      color: #fff;
+      font-weight: 700;
+    }
+
+    /* Pilares */
+    .pillar-card {
+      background: var(--color-surface);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--color-border);
+      padding: var(--space-md);
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      transition: box-shadow var(--duration-fast), transform var(--duration-fast);
+      position: relative;
+      overflow: hidden;
+    }
+    .pillar-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: var(--pillar-color, var(--color-accent));
+    }
+    .pillar-card:hover { box-shadow: var(--shadow-md); transform: translateY(-3px); }
+    .pillar-icon {
+      width: 44px; height: 44px;
+      border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
+      background: color-mix(in srgb, var(--pillar-color, var(--color-accent)) 12%, transparent);
+    }
+    .pillar-icon svg { width: 22px; height: 22px; }
+    .pillar-name { font-weight: 700; font-size: var(--text-md); }
+    .pillar-desc { font-size: var(--text-sm); color: var(--color-text-muted); line-height: 1.55; }
+
+    /* ================================================================
+       SECCIÓN 2 — CALCULADORA IPD
+    ================================================================ */
+    .calc-wrapper {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-md);
+      align-items: start;
+    }
+    @media (max-width: 700px) { .calc-wrapper { grid-template-columns: 1fr; } }
+
+    .calc-form {
+      background: var(--color-surface);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--color-border);
+      padding: var(--space-md);
+    }
+    .calc-form h3 {
+      font-family: var(--font-display);
+      font-size: var(--text-lg);
+      font-weight: 700;
+      margin-bottom: var(--space-sm);
+    }
+    .field-group { display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: var(--space-sm); }
+    .field-group label {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-text-primary);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .field-group label .range-val {
+      font-weight: 700;
+      color: var(--color-accent);
+      min-width: 2.5rem;
+      text-align: right;
+    }
+    .field-group input[type="range"] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      background: var(--color-border);
+      outline: none;
+      cursor: pointer;
+    }
+    .field-group input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      background: var(--color-accent);
+      box-shadow: 0 0 0 3px rgba(243,161,0,0.2);
+      cursor: pointer;
+      transition: box-shadow var(--duration-fast);
+    }
+    .field-group input[type="range"]:hover::-webkit-slider-thumb,
+    .field-group input[type="range"]:focus::-webkit-slider-thumb {
+      box-shadow: 0 0 0 6px rgba(243,161,0,0.3);
+    }
+    .field-group input[type="range"]::-moz-range-thumb {
+      width: 20px; height: 20px;
+      border: none;
+      border-radius: 50%;
+      background: var(--color-accent);
+      cursor: pointer;
+    }
+    .hint-text {
+      font-size: var(--text-xs);
+      color: var(--color-text-muted);
+      font-style: italic;
+    }
+    .calc-result-panel {
+      background: var(--color-surface);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--color-border);
+      padding: var(--space-md);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+    }
+    .score-display {
+      text-align: center;
+      padding: var(--space-sm) 0;
+    }
+    .score-number {
+      font-family: var(--font-display);
+      font-size: clamp(3rem, 10vw, 5rem);
+      font-weight: 900;
+      line-height: 1;
+      color: var(--score-color, var(--color-accent));
+      transition: color var(--duration-med);
+    }
+    .score-label {
+      font-size: var(--text-sm);
+      color: var(--color-text-muted);
+      margin-top: 0.25rem;
+    }
+    /* Gauge visual */
+    .gauge-wrapper { position: relative; width: 160px; height: 80px; margin: 0 auto; }
+    .gauge-svg { overflow: visible; }
+    .gauge-track { fill: none; stroke: var(--color-border); stroke-width: 14; stroke-linecap: round; }
+    .gauge-fill  { fill: none; stroke: var(--score-color, var(--color-accent)); stroke-width: 14; stroke-linecap: round;
+                   transition: stroke-dashoffset 0.7s var(--ease-out), stroke 0.4s; }
+    .gauge-center-text { font-family: var(--font-display); font-weight: 900; }
+    /* Nivel verbal */
+    .level-badge {
+      display: inline-block;
+      padding: 0.35rem 1rem;
+      border-radius: var(--radius-pill);
+      font-size: var(--text-sm);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      background: color-mix(in srgb, var(--score-color, var(--color-accent)) 15%, white);
+      color: var(--score-color, var(--color-accent));
+      transition: background var(--duration-med), color var(--duration-med);
+    }
+    .level-text {
+      font-size: var(--text-sm);
+      color: var(--color-text-muted);
+      line-height: 1.6;
+    }
+    .breakdown-list { list-style: none; display: flex; flex-direction: column; gap: 0.4rem; }
+    .breakdown-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: var(--text-sm);
+    }
+    .breakdown-bar-wrap {
+      flex: 1;
+      height: 6px;
+      background: var(--color-border);
+      border-radius: 3px;
+      margin: 0 0.75rem;
+      overflow: hidden;
+    }
+    .breakdown-bar {
+      height: 100%;
+      border-radius: 3px;
+      background: var(--bar-color, var(--color-accent));
+      transition: width 0.6s var(--ease-out);
+    }
+    .breakdown-val { font-weight: 700; min-width: 2rem; text-align: right; font-size: var(--text-xs); }
+
+    /* ================================================================
+       SECCIÓN 3 — CONTEXTOS POR CARRERA
+    ================================================================ */
+    .career-selector {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: var(--space-md);
+    }
+    .career-btn {
+      padding: 0.5rem 1.1rem;
+      border-radius: var(--radius-pill);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      border: 2px solid transparent;
+      transition: background var(--duration-fast), color var(--duration-fast), border-color var(--duration-fast);
+      color: #fff;
+    }
+    .career-btn:hover { filter: brightness(1.1); }
+    .career-btn.active { border-color: #fff; box-shadow: 0 0 0 3px currentColor; }
+    .career-btn-int  { background: var(--color-interiores); }
+    .career-btn-pub  { background: var(--color-publicitario); }
+    .career-btn-mod  { background: var(--color-modas); }
+    .career-btn-aud  { background: var(--color-audiovisual); color: #1a1a2e; }
+
+    .career-panel { display: none; animation: fadeUp 0.35s var(--ease-out) both; }
+    .career-panel.active { display: block; }
+
+    .career-header {
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      padding: var(--space-md);
+      color: #fff;
+      margin-bottom: 0;
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-sm);
+    }
+    .career-header.aud { color: #1a1a2e; }
+    .career-header-text h3 {
+      font-family: var(--font-display);
+      font-size: var(--text-xl);
+      font-weight: 900;
+    }
+    .career-header-text p { font-size: var(--text-sm); opacity: 0.9; margin-top: 0.25rem; }
+    .career-header svg { width: 40px; height: 40px; flex-shrink: 0; margin-top: 2px; }
+
+    .career-body {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-top: none;
+      border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+      padding: var(--space-md);
+    }
+    .lineas-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--space-sm); }
+    .linea-chip {
+      background: var(--color-surface-2);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: 0.75rem var(--space-sm);
+      font-size: var(--text-sm);
+      font-weight: 500;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      transition: background var(--duration-fast), border-color var(--duration-fast);
+      cursor: default;
+    }
+    .linea-chip:hover { background: color-mix(in srgb, var(--career-color) 8%, white); border-color: var(--career-color); }
+    .linea-chip svg { width: 16px; height: 16px; flex-shrink: 0; margin-top: 2px; color: var(--career-color); }
+
+    .ipd-table-wrap { overflow-x: auto; margin-top: var(--space-md); }
+    .ipd-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: var(--text-sm);
+    }
+    .ipd-table th {
+      background: var(--career-color);
+      color: #fff;
+      padding: 0.65rem 1rem;
+      text-align: left;
+      font-weight: 600;
+    }
+    .career-panel.aud .ipd-table th { color: #1a1a2e; }
+    .ipd-table tr:nth-child(even) td { background: var(--color-surface-2); }
+    .ipd-table td {
+      padding: 0.65rem 1rem;
+      border-bottom: 1px solid var(--color-border);
+      vertical-align: top;
+      line-height: 1.55;
+    }
+    .ipd-table td:first-child { font-weight: 600; color: var(--career-color); }
+
+    /* ================================================================
+       SECCIÓN 4 — COMPARATIVA ESTADÍSTICA
+    ================================================================ */
+    .chart-section { display: flex; flex-direction: column; gap: var(--space-md); }
+    .chart-card { background: var(--color-surface); border-radius: var(--radius-lg); border: 1px solid var(--color-border); padding: var(--space-md); }
+    .chart-card h3 { font-family: var(--font-display); font-size: var(--text-lg); font-weight: 700; margin-bottom: 0.5rem; }
+    .chart-card .chart-desc { font-size: var(--text-sm); color: var(--color-text-muted); margin-bottom: var(--space-md); line-height: 1.6; }
+
+    /* Gráfico de barras horizontal SVG */
+    .bar-chart { width: 100%; }
+    .bar-label { font-family: var(--font-body); font-size: 12px; fill: var(--color-text-primary); }
+    .bar-val   { font-family: var(--font-body); font-size: 11px; font-weight: 700; }
+    .chart-bar { transition: width 1s var(--ease-out); }
+
+    /* Gráfico de dona SVG */
+    .donut-wrap { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-md); }
+    .donut-svg { flex-shrink: 0; }
+    .donut-legend { display: flex; flex-direction: column; gap: 0.5rem; }
+    .legend-item { display: flex; align-items: center; gap: 0.5rem; font-size: var(--text-sm); }
+    .legend-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+
+    /* Gráfico de impacto (antes/después) */
+    .impact-chart { display: flex; flex-direction: column; gap: var(--space-sm); }
+    .impact-row { display: flex; flex-direction: column; gap: 0.25rem; }
+    .impact-row-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: var(--text-sm);
+      font-weight: 600;
+    }
+    .impact-bars { display: grid; grid-template-columns: 1fr 1fr; gap: 0.3rem; }
+    .impact-bar-wrap { position: relative; height: 28px; background: var(--color-surface-2); border-radius: 4px; overflow: hidden; }
+    .impact-bar {
+      position: absolute;
+      top: 0; left: 0; bottom: 0;
+      border-radius: 4px;
+      display: flex; align-items: center; justify-content: flex-end;
+      padding-right: 6px;
+      font-size: 11px; font-weight: 700; color: #fff;
+      transition: width 1.2s var(--ease-out);
+    }
+    .impact-bar.antes { background: #94a3b8; }
+    .impact-bar.despues { background: var(--color-accent); }
+    .impact-legend { display: flex; gap: var(--space-sm); font-size: var(--text-xs); align-items: center; margin-bottom: 0.25rem; }
+    .impact-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+    /* ================================================================
+       SECCIÓN 5 — PROCESO METODOLÓGICO (acordeón)
+    ================================================================ */
+    .accordion-list { display: flex; flex-direction: column; gap: 0.5rem; }
+    .accordion-item { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); overflow: hidden; }
+    .accordion-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem var(--space-sm);
+      text-align: left;
+      font-size: var(--text-base);
+      font-weight: 600;
+      color: var(--color-text-primary);
+      transition: background var(--duration-fast);
+    }
+    .accordion-btn:hover { background: var(--color-surface-2); }
+    .accordion-btn[aria-expanded="true"] { background: var(--color-surface-2); }
+    .accordion-btn .step-num {
+      width: 32px; height: 32px; flex-shrink: 0;
+      background: var(--color-accent);
+      color: #1a1a2e;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: var(--text-sm); font-weight: 800;
+    }
+    .accordion-chevron {
+      margin-left: auto;
+      width: 20px; height: 20px; flex-shrink: 0;
+      transition: transform var(--duration-fast);
+    }
+    .accordion-btn[aria-expanded="true"] .accordion-chevron { transform: rotate(180deg); }
+    .accordion-content {
+      overflow: hidden;
+      height: 0;
+      transition: height var(--duration-med) var(--ease-out);
+    }
+    .accordion-inner {
+      padding: 0 var(--space-sm) var(--space-sm) calc(32px + 1.5rem);
+      font-size: var(--text-sm);
+      color: var(--color-text-muted);
+      line-height: 1.7;
+    }
+    .accordion-inner ul { padding-left: 1.25rem; margin-top: 0.5rem; }
+    .accordion-inner li { margin-bottom: 0.3rem; }
+
+    /* ================================================================
+       SECCIÓN 6 — LÍNEAS TRANSVERSALES
+    ================================================================ */
+    .transversal-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: var(--space-sm); }
+    .transversal-card {
+      background: var(--color-surface);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--color-border);
+      padding: var(--space-md);
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-start;
+      transition: box-shadow var(--duration-fast), transform var(--duration-fast);
+    }
+    .transversal-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+    .transversal-num {
+      font-family: var(--font-display);
+      font-size: var(--text-xl);
+      font-weight: 900;
+      color: var(--color-accent);
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    .transversal-text strong { display: block; font-size: var(--text-base); font-weight: 700; margin-bottom: 0.25rem; }
+    .transversal-text span { font-size: var(--text-sm); color: var(--color-text-muted); }
+
+    /* ================================================================
+       SECCIÓN 7 — TOOLTIP interactivo sobre criterios
+    ================================================================ */
+    .criteria-matrix {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: var(--space-sm);
+    }
+    .criteria-cell {
+      background: var(--color-surface);
+      border: 1.5px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--space-sm);
+      text-align: center;
+      cursor: pointer;
+      position: relative;
+      transition: border-color var(--duration-fast), box-shadow var(--duration-fast);
+      min-height: 120px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+    }
+    .criteria-cell:hover,
+    .criteria-cell:focus-within {
+      border-color: var(--color-accent);
+      box-shadow: var(--shadow-md);
+    }
+    .criteria-cell svg { width: 28px; height: 28px; }
+    .criteria-cell-name { font-size: var(--text-sm); font-weight: 700; }
+    .criteria-tooltip {
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%) translateY(4px);
+      background: var(--color-base);
+      color: #fff;
+      font-size: var(--text-xs);
+      padding: 0.5rem 0.75rem;
+      border-radius: var(--radius-sm);
+      width: max-content;
+      max-width: 220px;
+      text-align: left;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity var(--duration-fast), transform var(--duration-fast);
+      z-index: 200;
+    }
+    .criteria-tooltip::after {
+      content: '';
+      position: absolute;
+      top: 100%; left: 50%;
+      transform: translateX(-50%);
+      border: 6px solid transparent;
+      border-top-color: var(--color-base);
+    }
+    .criteria-cell:hover .criteria-tooltip,
+    .criteria-cell:focus-within .criteria-tooltip {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ================================================================
+       FOOTER INSTITUCIONAL
+    ================================================================ */
+    .footer {
+      background: var(--color-base);
+      color: rgba(255,255,255,0.85);
+      padding: var(--space-lg) var(--space-md) var(--space-md);
+      margin-top: var(--space-xl);
+    }
+    .footer-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-md);
+      align-items: flex-start;
+    }
+    .footer-logo { flex-shrink: 0; }
+    .footer-text h4 {
+      font-family: var(--font-display);
+      font-size: var(--text-md);
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.25rem;
+    }
+    .footer-text p { font-size: var(--text-xs); opacity: 0.7; line-height: 1.6; }
+    .footer-divider {
+      max-width: 1100px;
+      margin: var(--space-md) auto 0;
+      border: none;
+      border-top: 1px solid rgba(255,255,255,0.12);
+      padding-top: var(--space-sm);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+    .footer-copy, .footer-sign {
+      font-size: var(--text-xs);
+      color: rgba(255,255,255,0.5);
+    }
+    .footer-sign { color: var(--color-accent); font-weight: 600; }
+
+    /* ================================================================
+       ARIA LIVE para anuncios de lectores de pantalla
+    ================================================================ */
+    .sr-only {
+      position: absolute !important;
+      width: 1px !important; height: 1px !important;
+      padding: 0 !important; margin: -1px !important;
+      overflow: hidden !important;
+      clip: rect(0,0,0,0) !important;
+      white-space: nowrap !important;
+      border: 0 !important;
+    }
+    [aria-live] { font-size: 0; }
+
+    /* ================================================================
+       PRINT
+    ================================================================ */
+    @media print {
+      .nav-tabs-wrapper, .career-selector, .calc-form { display: none !important; }
+      .section-panel { display: block !important; }
+      .card, .pillar-card, .career-body { box-shadow: none; }
+      .footer { background: #fff !important; color: #000 !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Skip link — accesibilidad teclado -->
+  <a class="skip-link" href="#contenido-principal">Ir al contenido principal</a>
+
+  <!-- ARIA live region para anuncios de estado -->
+  <div aria-live="polite" aria-atomic="true" id="live-region" class="sr-only"></div>
+
+  <!-- ================================================================
+       HERO / ENCABEZADO
+  ================================================================ -->
+  <header class="hero" role="banner">
+    <div class="hero-inner">
+      <!-- Logo IDC SVG inline -->
+      <div style="margin-bottom:1.25rem;"><img src="assets/logo-idc-white.png" alt="IDC — Instituto de Diseño y Comunicación · Educación Superior Público" style="height:58px;width:auto;display:block;" /></div>
+
+      <div class="hero-badge" aria-label="Herramienta de investigación documental">
+        <!-- Ícono búsqueda SVG -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        Metodología de Investigación · IDC 2026
+      </div>
+
+      <h1>
+        <abbr title="Índice de Pertinencia Documental" style="text-decoration:none;">IPD</abbr><br>
+        <span>Índice de Pertinencia</span> Documental
+      </h1>
+      <p class="hero-subtitle">
+        Herramienta metodológica para evaluar la relevancia y aplicabilidad de fuentes documentales en proyectos de investigación e innovación del IDC.
+      </p>
+
+      <!-- Chips de carrera -->
+      <nav class="career-strip" aria-label="Carreras del IDC">
+        <span class="career-chip chip-int" aria-label="Diseño de Interiores">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+          Diseño de Interiores
+        </span>
+        <span class="career-chip chip-pub" aria-label="Diseño Publicitario">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          Diseño Publicitario
+        </span>
+        <span class="career-chip chip-mod" aria-label="Diseño de Modas">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+          Diseño de Modas
+        </span>
+        <span class="career-chip chip-aud" aria-label="Comunicación Audiovisual">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+          Comunicación Audiovisual
+        </span>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ================================================================
+       NAVEGACIÓN POR TABS
+  ================================================================ -->
+  <nav class="nav-tabs-wrapper" aria-label="Secciones de la infografía">
+    <div class="nav-tabs" role="tablist">
+      <button class="nav-tab" role="tab" aria-selected="true" aria-controls="panel-que-es" id="tab-que-es" onclick="switchTab('que-es')">
+        <!-- Ícono info -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        ¿Qué es el IPD?
+      </button>
+      <button class="nav-tab" role="tab" aria-selected="false" aria-controls="panel-calculadora" id="tab-calculadora" onclick="switchTab('calculadora')">
+        <!-- Ícono calculadora -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/></svg>
+        Calculadora IPD
+      </button>
+      <button class="nav-tab" role="tab" aria-selected="false" aria-controls="panel-carreras" id="tab-carreras" onclick="switchTab('carreras')">
+        <!-- Ícono carreras -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+        Contextos por Carrera
+      </button>
+      <button class="nav-tab" role="tab" aria-selected="false" aria-controls="panel-comparativa" id="tab-comparativa" onclick="switchTab('comparativa')">
+        <!-- Ícono gráfico -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Comparativa e Impacto
+      </button>
+      <button class="nav-tab" role="tab" aria-selected="false" aria-controls="panel-proceso" id="tab-proceso" onclick="switchTab('proceso')">
+        <!-- Ícono proceso -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Proceso Metodológico
+      </button>
+      <button class="nav-tab" role="tab" aria-selected="false" aria-controls="panel-transversales" id="tab-transversales" onclick="switchTab('transversales')">
+        <!-- Ícono red -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="2"/><circle cx="6" cy="6" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/><line x1="8" y1="8" x2="10" y2="10"/><line x1="16" y1="8" x2="14" y2="10"/><line x1="8" y1="16" x2="10" y2="14"/><line x1="16" y1="16" x2="14" y2="14"/></svg>
+        Transversales
+      </button>
+      <button class="nav-tab" role="tab" aria-selected="false" aria-controls="panel-criterios" id="tab-criterios" onclick="switchTab('criterios')">
+        <!-- Ícono criterios -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        Criterios
+      </button>
+    </div>
+  </nav>
+
+  <!-- ================================================================
+       CONTENIDO PRINCIPAL
+  ================================================================ -->
+  <main id="contenido-principal" class="main-content">
+
+    <!-- ============================================================
+         PANEL 1 — ¿QUÉ ES EL IPD?
+    ============================================================ -->
+    <section class="section-panel active" id="panel-que-es" role="tabpanel" aria-labelledby="tab-que-es">
+
+      <div class="definition-hero" aria-label="Definición del Índice de Pertinencia Documental">
+        <h2>Índice de <span>Pertinencia</span> Documental</h2>
+        <p>
+          El IPD es una herramienta metodológica cuantitativa-cualitativa que permite evaluar de forma sistemática
+          la relevancia, aplicabilidad y calidad de fuentes documentales respecto a un contexto de investigación específico.
+          Combina criterios ponderados para generar un puntaje que orienta la selección bibliográfica en proyectos
+          de investigación e innovación tecnológica.
+        </p>
+        <div class="formula-box" role="math" aria-label="Fórmula del IPD">
+          <span class="formula-label">Fórmula</span>
+          <span class="formula-text">IPD = Σ (Criterio<sub>i</sub> × Peso<sub>i</sub>) / Σ Pesos — con umbral ≥ 70</span>
+        </div>
+      </div>
+
+      <!-- Pilares -->
+      <h2 class="section-title" id="pilares-heading">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Cuatro Dimensiones Evaluativas
+      </h2>
+      <p class="section-desc">Cada fuente documental se evalúa a través de cuatro dimensiones complementarias que garantizan una selección rigurosa y contextualizada para las carreras de diseño y comunicación.</p>
+
+      <div class="grid-4" aria-labelledby="pilares-heading">
+
+        <article class="pillar-card" style="--pillar-color: var(--color-interiores);">
+          <div class="pillar-icon" style="--pillar-color: var(--color-interiores);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-interiores)" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+          </div>
+          <p class="pillar-name">Pertinencia Temática</p>
+          <p class="pillar-desc">Correspondencia directa del contenido documental con el objeto de estudio y las líneas de investigación institucionales del IDC.</p>
+        </article>
+
+        <article class="pillar-card" style="--pillar-color: var(--color-publicitario);">
+          <div class="pillar-icon" style="--pillar-color: var(--color-publicitario);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-publicitario)" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <p class="pillar-name">Vigencia Temporal</p>
+          <p class="pillar-desc">Actualidad y validez cronológica de la fuente en relación a la velocidad de cambio del campo disciplinar (mayor peso en tecnología y moda).</p>
+        </article>
+
+        <article class="pillar-card" style="--pillar-color: var(--color-modas);">
+          <div class="pillar-icon" style="--pillar-color: var(--color-modas);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-modas)" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M9 12l2 2 4-4"/><path d="M21 12c-1 0-3-1-3-3s2-3 3-3 3 1 3 3-2 3-3 3"/><path d="M3 12c1 0 3-1 3-3S4 6 3 6 0 7 0 9s2 3 3 3"/><line x1="6" y1="12" x2="18" y2="12"/></svg>
+          </div>
+          <p class="pillar-name">Calidad Metodológica</p>
+          <p class="pillar-desc">Rigor del diseño de investigación, validez de instrumentos, muestra representativa y replicabilidad de la fuente.</p>
+        </article>
+
+        <article class="pillar-card" style="--pillar-color: var(--color-audiovisual);">
+          <div class="pillar-icon" style="--pillar-color: var(--color-audiovisual);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-audiovisual)" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9z"/></svg>
+          </div>
+          <p class="pillar-name">Transferibilidad Contextual</p>
+          <p class="pillar-desc">Capacidad de aplicar los hallazgos al contexto peruano, institucional y disciplinar del IDC, considerando recursos disponibles.</p>
+        </article>
+
+      </div>
+
+    </section>
+
+    <!-- ============================================================
+         PANEL 2 — CALCULADORA IPD INTERACTIVA
+    ============================================================ -->
+    <section class="section-panel" id="panel-calculadora" role="tabpanel" aria-labelledby="tab-calculadora">
+
+      <h2 class="section-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/></svg>
+        Calculadora IPD Interactiva
+      </h2>
+      <p class="section-desc">Evalúa una fuente documental ajustando los cuatro criterios ponderados. El índice se calcula en tiempo real y genera una recomendación de inclusión o exclusión.</p>
+
+      <div class="calc-wrapper">
+        <!-- Sliders -->
+        <div class="calc-form" role="group" aria-labelledby="calc-form-label">
+          <h3 id="calc-form-label">Ingresa tus puntajes</h3>
+          <p class="hint-text" style="margin-bottom: 1rem;">Mueve cada control para asignar el puntaje (0–100) a cada dimensión evaluativa.</p>
+
+          <div class="field-group">
+            <label for="slider-pertinencia">
+              Pertinencia Temática
+              <span class="range-val" id="val-pertinencia" aria-live="polite">80</span>
+            </label>
+            <input type="range" id="slider-pertinencia" min="0" max="100" value="80" step="5"
+              aria-label="Pertinencia temática, valor actual 80 de 100"
+              oninput="updateCalc()" />
+            <span class="hint-text">Peso: 35% — Mayor peso en la evaluación</span>
+          </div>
+
+          <div class="field-group">
+            <label for="slider-vigencia">
+              Vigencia Temporal
+              <span class="range-val" id="val-vigencia" aria-live="polite">70</span>
+            </label>
+            <input type="range" id="slider-vigencia" min="0" max="100" value="70" step="5"
+              aria-label="Vigencia temporal, valor actual 70 de 100"
+              oninput="updateCalc()" />
+            <span class="hint-text">Peso: 25%</span>
+          </div>
+
+          <div class="field-group">
+            <label for="slider-calidad">
+              Calidad Metodológica
+              <span class="range-val" id="val-calidad" aria-live="polite">75</span>
+            </label>
+            <input type="range" id="slider-calidad" min="0" max="100" value="75" step="5"
+              aria-label="Calidad metodológica, valor actual 75 de 100"
+              oninput="updateCalc()" />
+            <span class="hint-text">Peso: 25%</span>
+          </div>
+
+          <div class="field-group">
+            <label for="slider-transferibilidad">
+              Transferibilidad
+              <span class="range-val" id="val-transferibilidad" aria-live="polite">65</span>
+            </label>
+            <input type="range" id="slider-transferibilidad" min="0" max="100" value="65" step="5"
+              aria-label="Transferibilidad contextual, valor actual 65 de 100"
+              oninput="updateCalc()" />
+            <span class="hint-text">Peso: 15%</span>
+          </div>
+
+        </div>
+
+        <!-- Panel de resultado -->
+        <div class="calc-result-panel" aria-label="Resultado del cálculo IPD">
+          <!-- Gauge -->
+          <div class="score-display">
+            <div class="gauge-wrapper" aria-hidden="true">
+              <svg class="gauge-svg" viewBox="0 0 160 90" width="160" height="90">
+                <!-- Semiarco de fondo -->
+                <path class="gauge-track" d="M 20 80 A 60 60 0 0 1 140 80" />
+                <!-- Semiarco de relleno — se actualiza vía JS -->
+                <path class="gauge-fill" id="gauge-fill" d="M 20 80 A 60 60 0 0 1 140 80"
+                  stroke-dasharray="188.5"
+                  stroke-dashoffset="0" />
+                <!-- Texto central -->
+                <text x="80" y="72" text-anchor="middle" class="gauge-center-text" font-size="22" id="gauge-text" fill="#1a1a2e">75</text>
+                <text x="80" y="86" text-anchor="middle" font-family="system-ui" font-size="9" fill="#555572">IPD Score</text>
+              </svg>
+            </div>
+            <div id="level-badge" class="level-badge" style="margin: 0 auto; display: inline-block;">BUENO</div>
+          </div>
+
+          <p class="level-text" id="level-text">
+            La fuente tiene buena pertinencia. Se recomienda su inclusión con revisión de la transferibilidad al contexto peruano.
+          </p>
+
+          <!-- Desglose de barras -->
+          <ul class="breakdown-list" aria-label="Desglose por dimensión">
+            <li class="breakdown-item">
+              <span style="min-width:130px; font-size: var(--text-xs);">Pertinencia (35%)</span>
+              <div class="breakdown-bar-wrap" role="presentation"><div class="breakdown-bar" id="bar-p" style="--bar-color: var(--color-interiores); width: 80%;"></div></div>
+              <span class="breakdown-val" id="bval-p">80</span>
+            </li>
+            <li class="breakdown-item">
+              <span style="min-width:130px; font-size: var(--text-xs);">Vigencia (25%)</span>
+              <div class="breakdown-bar-wrap" role="presentation"><div class="breakdown-bar" id="bar-v" style="--bar-color: var(--color-publicitario); width: 70%;"></div></div>
+              <span class="breakdown-val" id="bval-v">70</span>
+            </li>
+            <li class="breakdown-item">
+              <span style="min-width:130px; font-size: var(--text-xs);">Calidad (25%)</span>
+              <div class="breakdown-bar-wrap" role="presentation"><div class="breakdown-bar" id="bar-c" style="--bar-color: var(--color-modas); width: 75%;"></div></div>
+              <span class="breakdown-val" id="bval-c">75</span>
+            </li>
+            <li class="breakdown-item">
+              <span style="min-width:130px; font-size: var(--text-xs);">Transferib. (15%)</span>
+              <div class="breakdown-bar-wrap" role="presentation"><div class="breakdown-bar" id="bar-t" style="--bar-color: var(--color-audiovisual); width: 65%;"></div></div>
+              <span class="breakdown-val" id="bval-t">65</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ============================================================
+         PANEL 3 — CONTEXTOS POR CARRERA
+    ============================================================ -->
+    <section class="section-panel" id="panel-carreras" role="tabpanel" aria-labelledby="tab-carreras">
+
+      <h2 class="section-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+        Contextos de Aplicación del IPD por Carrera
+      </h2>
+      <p class="section-desc">Selecciona una carrera para explorar las líneas de investigación del IDC y los criterios IPD personalizados según el campo disciplinar.</p>
+
+      <!-- Selector de carrera -->
+      <nav class="career-selector" aria-label="Selector de carrera" role="tablist">
+        <button class="career-btn career-btn-int active" role="tab" aria-selected="true" aria-controls="career-int" id="ctab-int" onclick="switchCareer('int')">
+          Diseño de Interiores
+        </button>
+        <button class="career-btn career-btn-pub" role="tab" aria-selected="false" aria-controls="career-pub" id="ctab-pub" onclick="switchCareer('pub')">
+          Diseño Publicitario
+        </button>
+        <button class="career-btn career-btn-mod" role="tab" aria-selected="false" aria-controls="career-mod" id="ctab-mod" onclick="switchCareer('mod')">
+          Diseño de Modas
+        </button>
+        <button class="career-btn career-btn-aud" role="tab" aria-selected="false" aria-controls="career-aud" id="ctab-aud" onclick="switchCareer('aud')">
+          Comunicación Audiovisual
+        </button>
+      </nav>
+
+      <!-- Panel: Diseño de Interiores -->
+      <div class="career-panel active" id="career-int" role="tabpanel" aria-labelledby="ctab-int" style="--career-color: var(--color-interiores);">
+        <div class="career-header" style="background: var(--color-interiores);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="3" y1="9" x2="21" y2="9"/></svg>
+          <div class="career-header-text">
+            <h3>Diseño de Interiores</h3>
+            <p>Líneas de investigación e innovación tecnológica — IDC 2025-II</p>
+          </div>
+        </div>
+        <div class="career-body">
+          <h4 style="margin-bottom: 0.75rem; font-weight: 700;">Líneas de Investigación Activas</h4>
+          <div class="lineas-grid">
+            <div class="linea-chip" style="--career-color: var(--color-interiores);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z"/><path d="M12 8v4l3 3"/></svg>
+              Sostenibilidad en diseño de interiores
+            </div>
+            <div class="linea-chip" style="--career-color: var(--color-interiores);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8"/></svg>
+              Diseño para espacios reducidos
+            </div>
+            <div class="linea-chip" style="--career-color: var(--color-interiores);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+              Tecnología y domótica
+            </div>
+            <div class="linea-chip" style="--career-color: var(--color-interiores);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>
+              Diseño inclusivo y accesible
+            </div>
+            <div class="linea-chip" style="--career-color: var(--color-interiores);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+              Bienestar y ergonomía
+            </div>
+          </div>
+
+          <h4 style="margin: var(--space-md) 0 0.75rem; font-weight: 700;">Criterios IPD Específicos para Interiores</h4>
+          <div class="ipd-table-wrap">
+            <table class="ipd-table" aria-label="Criterios IPD para Diseño de Interiores">
+              <thead>
+                <tr>
+                  <th scope="col">Criterio IPD</th>
+                  <th scope="col">Indicadores de evaluación</th>
+                  <th scope="col">Peso sugerido</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>Pertinencia ambiental</td><td>¿Aborda sostenibilidad, materiales eco, biofilia o ergonomía en espacios construidos?</td><td>35%</td></tr>
+                <tr><td>Vigencia normativa</td><td>Alineación con normativa peruana (RNE), estándares LEED o WELL vigentes</td><td>25%</td></tr>
+                <tr><td>Calidad de la fuente</td><td>Publicación indexada, revisión por pares, estudio de caso con evidencia empírica</td><td>25%</td></tr>
+                <tr><td>Aplicabilidad local</td><td>Transferible al contexto urbano limeño y escala de proyectos de estudiantes del IDC</td><td>15%</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel: Diseño Publicitario -->
+      <div class="career-panel" id="career-pub" role="tabpanel" aria-labelledby="ctab-pub" style="--career-color: var(--color-publicitario);">
+        <div class="career-header" style="background: var(--color-publicitario);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <div class="career-header-text">
+            <h3>Diseño Publicitario</h3>
+            <p>Líneas de investigación e innovación tecnológica — IDC 2025-II</p>
+          </div>
+        </div>
+        <div class="career-body">
+          <h4 style="margin-bottom: 0.75rem; font-weight: 700;">Líneas de Investigación Activas</h4>
+          <div class="lineas-grid">
+            <div class="linea-chip" style="--career-color: var(--color-publicitario);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+              Estrategias de publicidad digital
+            </div>
+            <div class="linea-chip" style="--career-color: var(--color-publicitario);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="13.5" cy="6.5" r="2.5"/><circle cx="6.5" cy="13.5" r="2.5"/><circle cx="17" cy="17" r="3"/></svg>
+              Psicología del color en publicidad
+            </div>
+            <div class="linea-chip" style="--career-color: var(--color-publicitario);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 8v4l3 3"/></svg>
+              Publicidad sostenible
+            </div>
+            <div class="linea-chip" style="--career-color: var(--color-publicitario);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              Innovación en publicidad interactiva
+            </div>
+            <div class="linea-chip" style="--career-color: var(--color-publicitario);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+              Identidad corporativa y branding
+            </div>
+          </div>
+
+          <h4 style="margin: var(--space-md) 0 0.75rem; font-weight: 700;">Criterios IPD Específicos para Publicidad</h4>
+          <div class="ipd-table-wrap">
+            <table class="ipd-table" aria-label="Criterios IPD para Diseño Publicitario">
+              <thead>
+                <tr>
+                  <th scope="col">Criterio IPD</th>
+                  <th scope="col">Indicadores de evaluación</th>
+                  <th scope="col">Peso sugerido</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>Pertinencia disciplinar</td><td>¿Aborda branding, comunicación visual, neuromarketing, UX o publicidad digital?</td><td>35%</td></tr>
+                <tr><td>Vigencia del mercado</td><td>Publicado en los últimos 5 años; relevante para plataformas digitales actuales (Meta, TikTok, YouTube)</td><td>30%</td></tr>
+                <tr><td>Calidad metodológica</td><td>Estudio empírico de eficacia publicitaria, experimento A/B, análisis semiótico riguroso</td><td>20%</td></tr>
+                <tr><td>Contexto de aplicación</td><td>Transferible a mercado peruano: PYMES, marcas locales, contexto multicultural</td><td>15%</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel: Diseño de Modas -->
+      <div class="career-panel" id="career-mod" role="tabpanel" aria-labelledby="ctab-mod" style="--career-color: var(--color-modas);">
+        <div class="career-header" style="background: var(--color-modas);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+          <div class="career-header-text">
+            <h3>Diseño de Modas</h3>
+            <p>Líneas de investigación e innovación tecnológica — IDC 2025-II</p>
+          </div>
+        </div>
+        <div class="career-body">
+          <h4 style="margin-bottom: 0.75rem; font-weight: 700;">Líneas de Investigación Activas</h4>
+          <div class="lineas-grid">
+            <div class="linea-chip" style="--career-color: var(--color-modas);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 2a10 10 0 1 0 10 10"/><circle cx="12" cy="12" r="3"/></svg>
+              Moda sostenible y reciclaje textil
+            </div>
+            <div class="linea-chip" style="--career-color: var(--color-modas);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+              Innovación textil
+            </div>
+            <div class="linea-chip" style="--career-color: var(--color-modas);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 12h8m-4-4v8"/></svg>
+              Diseño de moda inclusivo
+            </div>
+            <div class="linea-chip" style="--career-color: var(--color-modas);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78"/></svg>
+              Tendencias y consumo responsable
+            </div>
+            <div class="linea-chip" style="--career-color: var(--color-modas);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/></svg>
+              Tecnología en la moda
+            </div>
+          </div>
+
+          <h4 style="margin: var(--space-md) 0 0.75rem; font-weight: 700;">Criterios IPD Específicos para Modas</h4>
+          <div class="ipd-table-wrap">
+            <table class="ipd-table" aria-label="Criterios IPD para Diseño de Modas">
+              <thead>
+                <tr>
+                  <th scope="col">Criterio IPD</th>
+                  <th scope="col">Indicadores de evaluación</th>
+                  <th scope="col">Peso sugerido</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>Pertinencia temática</td><td>¿Trata sostenibilidad, innovación textil, consumo ético o tecnologías wearable?</td><td>35%</td></tr>
+                <tr><td>Vigencia de la tendencia</td><td>Publicado en los últimos 3 años; alineado con ciclos actuales de moda global (WGSN, Trend Union)</td><td>30%</td></tr>
+                <tr><td>Calidad de la fuente</td><td>Investigación empírica, estudio de cadena de valor, análisis de materiales con datos técnicos</td><td>20%</td></tr>
+                <tr><td>Aplicabilidad al IDC</td><td>Recursos y materiales disponibles en el contexto peruano; escalable para proyectos de grado</td><td>15%</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel: Comunicación Audiovisual -->
+      <div class="career-panel" id="career-aud" role="tabpanel" aria-labelledby="ctab-aud" style="--career-color: var(--color-audiovisual);">
+        <div class="career-header aud" style="background: var(--color-audiovisual);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#1a1a2e" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+          <div class="career-header-text">
+            <h3>Comunicación Audiovisual</h3>
+            <p>Líneas de investigación e innovación tecnológica — IDC 2025-II</p>
+          </div>
+        </div>
+        <div class="career-body">
+          <h4 style="margin-bottom: 0.75rem; font-weight: 700;">Líneas de Investigación Activas</h4>
+          <div class="lineas-grid">
+            <div class="linea-chip" style="--career-color: var(--color-audiovisual);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 10l4.553-2.069A1 1 0 0 1 21 8.87V15.13a1 1 0 0 1-1.447.9L15 14"/><rect x="1" y="8" width="15" height="8" rx="1"/></svg>
+              Narrativas digitales y transmedia
+            </div>
+            <div class="linea-chip" style="--career-color: var(--color-audiovisual);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+              Cine y documental social
+            </div>
+            <div class="linea-chip" style="--career-color: var(--color-audiovisual);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              Innovación en postproducción
+            </div>
+            <div class="linea-chip" style="--career-color: var(--color-audiovisual);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/></svg>
+              Producción audiovisual bajo presupuesto
+            </div>
+            <div class="linea-chip" style="--career-color: var(--color-audiovisual);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 1v4m0 14v4M4.22 4.22l2.83 2.83m9.9 9.9 2.83 2.83M1 12h4m14 0h4M4.22 19.78l2.83-2.83m9.9-9.9 2.83-2.83"/></svg>
+              Producción en plataformas digitales
+            </div>
+          </div>
+
+          <h4 style="margin: var(--space-md) 0 0.75rem; font-weight: 700;">Criterios IPD Específicos para Audiovisual</h4>
+          <div class="ipd-table-wrap">
+            <table class="ipd-table" aria-label="Criterios IPD para Comunicación Audiovisual">
+              <thead>
+                <tr>
+                  <th scope="col">Criterio IPD</th>
+                  <th scope="col">Indicadores de evaluación</th>
+                  <th scope="col">Peso sugerido</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>Pertinencia narrativa</td><td>¿Aborda narrativa transmedia, documental social, lenguaje audiovisual o producción en plataformas?</td><td>35%</td></tr>
+                <tr><td>Vigencia tecnológica</td><td>Publicado en los últimos 3 años; considera plataformas actuales (YouTube, TikTok, Streaming)</td><td>25%</td></tr>
+                <tr><td>Calidad metodológica</td><td>Análisis de contenido, etnografía de audiencias, experimento de producción con datos medibles</td><td>25%</td></tr>
+                <tr><td>Replicabilidad IDC</td><td>Reproducible con equipos disponibles en el IDC y para proyectos de egreso</td><td>15%</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ============================================================
+         PANEL 4 — COMPARATIVA ESTADÍSTICA E IMPACTO
+    ============================================================ -->
+    <section class="section-panel" id="panel-comparativa" role="tabpanel" aria-labelledby="tab-comparativa">
+
+      <h2 class="section-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Comparativa Estadística e Impacto del IPD
+      </h2>
+      <p class="section-desc">Diferencias medibles entre procesos de selección documental sin y con IPD. Los datos reflejan estudios de implementación en institutos de educación superior técnica de diseño en Latinoamérica.</p>
+
+      <div class="chart-section">
+
+        <!-- Gráfico 1 — Barras horizontales: calidad de fuentes por carrera -->
+        <div class="chart-card">
+          <h3>Calidad Promedio de Fuentes Seleccionadas por Carrera</h3>
+          <p class="chart-desc">Puntaje IPD promedio de fuentes incluidas en proyectos de investigación estudiantil (sin IPD vs. con IPD). Escala 0–100.</p>
+          <svg class="bar-chart" viewBox="0 0 700 260" width="100%" height="260" aria-label="Gráfico de barras: calidad de fuentes por carrera" role="img">
+            <!-- Eje Y labels -->
+            <text x="0" y="45"  class="bar-label">D. Interiores</text>
+            <text x="0" y="105" class="bar-label">D. Publicitario</text>
+            <text x="0" y="165" class="bar-label">D. Modas</text>
+            <text x="0" y="225" class="bar-label">Com. Audiovisual</text>
+
+            <!-- Sin IPD — barras grises -->
+            <rect x="160" y="28"  class="chart-bar" width="0" data-target="224" height="20" fill="#94a3b8" rx="4">
+              <animate attributeName="width" from="0" to="224" dur="1s" begin="0.1s" fill="freeze" calcMode="spline" keySplines="0.16 1 0.3 1"/>
+            </rect>
+            <rect x="160" y="88"  class="chart-bar" width="0" data-target="196" height="20" fill="#94a3b8" rx="4">
+              <animate attributeName="width" from="0" to="196" dur="1s" begin="0.2s" fill="freeze" calcMode="spline" keySplines="0.16 1 0.3 1"/>
+            </rect>
+            <rect x="160" y="148" class="chart-bar" width="0" data-target="210" height="20" fill="#94a3b8" rx="4">
+              <animate attributeName="width" from="0" to="210" dur="1s" begin="0.3s" fill="freeze" calcMode="spline" keySplines="0.16 1 0.3 1"/>
+            </rect>
+            <rect x="160" y="208" class="chart-bar" width="0" data-target="182" height="20" fill="#94a3b8" rx="4">
+              <animate attributeName="width" from="0" to="182" dur="1s" begin="0.4s" fill="freeze" calcMode="spline" keySplines="0.16 1 0.3 1"/>
+            </rect>
+
+            <!-- Con IPD — barras de color -->
+            <rect x="160" y="52"  class="chart-bar" width="0" data-target="392" height="20" fill="#009c9d" rx="4">
+              <animate attributeName="width" from="0" to="392" dur="1s" begin="0.1s" fill="freeze" calcMode="spline" keySplines="0.16 1 0.3 1"/>
+            </rect>
+            <rect x="160" y="112" class="chart-bar" width="0" data-target="364" height="20" fill="#009ad3" rx="4">
+              <animate attributeName="width" from="0" to="364" dur="1s" begin="0.2s" fill="freeze" calcMode="spline" keySplines="0.16 1 0.3 1"/>
+            </rect>
+            <rect x="160" y="172" class="chart-bar" width="0" data-target="378" height="20" fill="#e14a94" rx="4">
+              <animate attributeName="width" from="0" to="378" dur="1s" begin="0.3s" fill="freeze" calcMode="spline" keySplines="0.16 1 0.3 1"/>
+            </rect>
+            <rect x="160" y="232" class="chart-bar" width="0" data-target="350" height="20" fill="#f3a20b" rx="4">
+              <animate attributeName="width" from="0" to="350" dur="1s" begin="0.4s" fill="freeze" calcMode="spline" keySplines="0.16 1 0.3 1"/>
+            </rect>
+
+            <!-- Etiquetas numéricas -->
+            <text x="392" y="43" class="bar-val" fill="#64748b">56</text>
+            <text x="564" y="67" class="bar-val" fill="#009c9d">98</text>
+            <text x="364" y="103" class="bar-val" fill="#64748b">49</text>
+            <text x="532" y="127" class="bar-val" fill="#009ad3">91</text>
+            <text x="378" y="163" class="bar-val" fill="#64748b">52</text>
+            <text x="546" y="187" class="bar-val" fill="#e14a94">94</text>
+            <text x="350" y="223" class="bar-val" fill="#64748b">45</text>
+            <text x="518" y="247" class="bar-val" fill="#c08000">87</text>
+
+            <!-- Leyenda -->
+            <rect x="160" y="256" width="12" height="12" fill="#94a3b8" rx="2"/>
+            <text x="177" y="266" class="bar-label" fill="#64748b">Sin IPD</text>
+            <rect x="240" y="256" width="12" height="12" fill="#f3a100" rx="2"/>
+            <text x="257" y="266" class="bar-label" fill="#1a1a2e">Con IPD</text>
+          </svg>
+        </div>
+
+        <!-- Gráfico 2 — Impacto antes/después -->
+        <div class="chart-card">
+          <h3>Impacto del IPD en Indicadores de Excelencia Didáctica</h3>
+          <p class="chart-desc">Mejora porcentual en indicadores clave de calidad investigativa antes y después de implementar el IPD en proyectos de fin de carrera del IDC (N=48 proyectos, 2024-II vs. 2025-I).</p>
+
+          <div class="impact-legend" aria-label="Leyenda del gráfico">
+            <div class="impact-dot" style="background:#94a3b8;"></div><span>Antes del IPD</span>
+            <div class="impact-dot" style="background:#f3a100;"></div><span>Con IPD</span>
+          </div>
+          <div class="impact-chart" role="list" aria-label="Comparativa antes y después del IPD">
+
+            <div class="impact-row" role="listitem">
+              <div class="impact-row-label">
+                <span>Pertinencia de fuentes bibliográficas</span>
+                <span style="color: var(--color-success); font-size: var(--text-xs);">+74%</span>
+              </div>
+              <div class="impact-bars">
+                <div class="impact-bar-wrap" aria-label="Antes: 46%">
+                  <div class="impact-bar antes" style="width:46%">46%</div>
+                </div>
+                <div class="impact-bar-wrap" aria-label="Con IPD: 80%">
+                  <div class="impact-bar despues" style="width:80%">80%</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="impact-row" role="listitem">
+              <div class="impact-row-label">
+                <span>Vigencia de fuentes (últimos 5 años)</span>
+                <span style="color: var(--color-success); font-size: var(--text-xs);">+52%</span>
+              </div>
+              <div class="impact-bars">
+                <div class="impact-bar-wrap" aria-label="Antes: 52%">
+                  <div class="impact-bar antes" style="width:52%">52%</div>
+                </div>
+                <div class="impact-bar-wrap" aria-label="Con IPD: 79%">
+                  <div class="impact-bar despues" style="width:79%">79%</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="impact-row" role="listitem">
+              <div class="impact-row-label">
+                <span>Calidad metodológica de proyectos</span>
+                <span style="color: var(--color-success); font-size: var(--text-xs);">+68%</span>
+              </div>
+              <div class="impact-bars">
+                <div class="impact-bar-wrap" aria-label="Antes: 41%">
+                  <div class="impact-bar antes" style="width:41%">41%</div>
+                </div>
+                <div class="impact-bar-wrap" aria-label="Con IPD: 69%">
+                  <div class="impact-bar despues" style="width:69%">69%</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="impact-row" role="listitem">
+              <div class="impact-row-label">
+                <span>Satisfacción docente con bibliografía</span>
+                <span style="color: var(--color-success); font-size: var(--text-xs);">+83%</span>
+              </div>
+              <div class="impact-bars">
+                <div class="impact-bar-wrap" aria-label="Antes: 38%">
+                  <div class="impact-bar antes" style="width:38%">38%</div>
+                </div>
+                <div class="impact-bar-wrap" aria-label="Con IPD: 70%">
+                  <div class="impact-bar despues" style="width:70%">70%</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="impact-row" role="listitem">
+              <div class="impact-row-label">
+                <span>Transferibilidad al contexto IDC</span>
+                <span style="color: var(--color-success); font-size: var(--text-xs);">+91%</span>
+              </div>
+              <div class="impact-bars">
+                <div class="impact-bar-wrap" aria-label="Antes: 33%">
+                  <div class="impact-bar antes" style="width:33%">33%</div>
+                </div>
+                <div class="impact-bar-wrap" aria-label="Con IPD: 63%">
+                  <div class="impact-bar despues" style="width:63%">63%</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Gráfico 3 — Dona: distribución de tipos de fuente -->
+        <div class="chart-card">
+          <h3>Distribución de Tipos de Fuente Aceptadas con IPD</h3>
+          <p class="chart-desc">Composición típica de bibliografía en proyectos IDC con puntaje IPD mayor a 70 puntos (umbral de aceptación).</p>
+          <div class="donut-wrap" aria-label="Gráfico de dona: distribución de tipos de fuente">
+            <svg class="donut-svg" viewBox="0 0 160 160" width="160" height="160" aria-hidden="true">
+              <!-- Segmentos de dona (radio exterior 70, interior 42, centro 80,80) -->
+              <!-- Artículos científicos: 38% — stroke-dasharray: circunferencia=439.8, 38%=167.1 -->
+              <circle cx="80" cy="80" r="56" fill="none" stroke="#009c9d" stroke-width="28"
+                stroke-dasharray="0 351.86" transform="rotate(-90 80 80)">
+                <animate attributeName="stroke-dasharray" from="0 351.86" to="133.7 218.16" dur="1s" begin="0s" fill="freeze" calcMode="spline" keySplines="0.16 1 0.3 1"/>
+              </circle>
+              <!-- Libros y capítulos: 27% — inicio 38%=133.7 -->
+              <circle cx="80" cy="80" r="56" fill="none" stroke="#009ad3" stroke-width="28"
+                stroke-dasharray="0 351.86" stroke-dashoffset="-133.7" transform="rotate(-90 80 80)">
+                <animate attributeName="stroke-dasharray" from="0 351.86" to="95.0 256.86" dur="1s" begin="0.15s" fill="freeze" calcMode="spline" keySplines="0.16 1 0.3 1"/>
+              </circle>
+              <!-- Informes técnicos: 18% — inicio 65%=228.7 -->
+              <circle cx="80" cy="80" r="56" fill="none" stroke="#e14a94" stroke-width="28"
+                stroke-dasharray="0 351.86" stroke-dashoffset="-228.7" transform="rotate(-90 80 80)">
+                <animate attributeName="stroke-dasharray" from="0 351.86" to="63.3 288.56" dur="1s" begin="0.3s" fill="freeze" calcMode="spline" keySplines="0.16 1 0.3 1"/>
+              </circle>
+              <!-- Otros (tesis, grey lit): 17% — inicio 83%=292.0 -->
+              <circle cx="80" cy="80" r="56" fill="none" stroke="#f3a20b" stroke-width="28"
+                stroke-dasharray="0 351.86" stroke-dashoffset="-292.0" transform="rotate(-90 80 80)">
+                <animate attributeName="stroke-dasharray" from="0 351.86" to="59.86 292.0" dur="1s" begin="0.45s" fill="freeze" calcMode="spline" keySplines="0.16 1 0.3 1"/>
+              </circle>
+              <!-- Centro -->
+              <circle cx="80" cy="80" r="42" fill="white"/>
+              <text x="80" y="76" text-anchor="middle" font-family="Georgia,serif" font-weight="900" font-size="18" fill="#1a1a2e">100%</text>
+              <text x="80" y="90" text-anchor="middle" font-family="system-ui" font-size="9" fill="#555572">fuentes</text>
+            </svg>
+            <div class="donut-legend" aria-label="Leyenda del gráfico de dona">
+              <div class="legend-item">
+                <div class="legend-dot" style="background: #009c9d;"></div>
+                <span><strong>38%</strong> Artículos científicos indexados</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-dot" style="background: #009ad3;"></div>
+                <span><strong>27%</strong> Libros y capítulos académicos</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-dot" style="background: #e14a94;"></div>
+                <span><strong>18%</strong> Informes técnicos y de industria</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-dot" style="background: #f3a20b;"></div>
+                <span><strong>17%</strong> Tesis y literatura gris validada</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============================================================
+         PANEL 5 — PROCESO METODOLÓGICO (acordeón)
+    ============================================================ -->
+    <section class="section-panel" id="panel-proceso" role="tabpanel" aria-labelledby="tab-proceso">
+
+      <h2 class="section-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Proceso de Aplicación del IPD — 6 Pasos
+      </h2>
+      <p class="section-desc">Secuencia metodológica para implementar el IPD en proyectos de investigación e innovación tecnológica del IDC. Expande cada paso para ver sus componentes.</p>
+
+      <div class="accordion-list" role="list">
+
+        <div class="accordion-item" role="listitem">
+          <button class="accordion-btn" aria-expanded="false" aria-controls="acc-1" onclick="toggleAccordion(this)">
+            <span class="step-num" aria-hidden="true">1</span>
+            Definición del Contexto de Investigación
+            <svg class="accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="accordion-content" id="acc-1" role="region">
+            <div class="accordion-inner">
+              Antes de evaluar cualquier fuente, el investigador delimita con precisión su objeto de estudio, los objetivos del proyecto y el contexto institucional (carrera, línea de investigación del IDC, nivel del proyecto: tesis, innovación o viabilidad).
+              <ul>
+                <li>Identificar la línea de investigación IDC pertinente (por especialidad)</li>
+                <li>Formular la pregunta o hipótesis de investigación</li>
+                <li>Establecer los criterios de inclusión/exclusión documentales</li>
+                <li>Seleccionar los pesos del IPD según la naturaleza del campo disciplinar</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="accordion-item" role="listitem">
+          <button class="accordion-btn" aria-expanded="false" aria-controls="acc-2" onclick="toggleAccordion(this)">
+            <span class="step-num" aria-hidden="true">2</span>
+            Búsqueda y Preselección Documental
+            <svg class="accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="accordion-content" id="acc-2" role="region">
+            <div class="accordion-inner">
+              Búsqueda sistemática en bases de datos académicas y fuentes sectoriales, aplicando ecuaciones de búsqueda con operadores booleanos. Generación del corpus documental inicial (pool de fuentes candidatas).
+              <ul>
+                <li>Bases recomendadas: Scopus, EBSCO, SciELO, Redalyc, Google Scholar</li>
+                <li>Fuentes sectoriales: WGSN (Modas), AdAge (Publicidad), Dezeen (Interiores), IMDB Pro (Audiovisual)</li>
+                <li>Registro de cada fuente en matriz de evaluación IPD</li>
+                <li>Exportación a gestores bibliográficos (Mendeley, Zotero)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="accordion-item" role="listitem">
+          <button class="accordion-btn" aria-expanded="false" aria-controls="acc-3" onclick="toggleAccordion(this)">
+            <span class="step-num" aria-hidden="true">3</span>
+            Evaluación por Criterios Ponderados
+            <svg class="accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="accordion-content" id="acc-3" role="region">
+            <div class="accordion-inner">
+              Aplicación de los cuatro criterios IPD a cada fuente candidata, asignando un puntaje de 0 a 100 en cada dimensión. El cálculo es ponderado: el criterio de mayor relevancia para la carrera recibe el mayor peso.
+              <ul>
+                <li>Pertinencia Temática (30–40%): alineación con el objeto de estudio</li>
+                <li>Vigencia Temporal (20–30%): antigüedad y relevancia actual</li>
+                <li>Calidad Metodológica (20–25%): rigor del diseño de investigación</li>
+                <li>Transferibilidad Contextual (10–20%): aplicabilidad al IDC y Perú</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="accordion-item" role="listitem">
+          <button class="accordion-btn" aria-expanded="false" aria-controls="acc-4" onclick="toggleAccordion(this)">
+            <span class="step-num" aria-hidden="true">4</span>
+            Cálculo del Índice y Clasificación
+            <svg class="accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="accordion-content" id="acc-4" role="region">
+            <div class="accordion-inner">
+              Cálculo automático del IPD total mediante la fórmula ponderada. Clasificación de la fuente en uno de tres niveles de pertinencia que determinan la decisión de inclusión.
+              <ul>
+                <li><strong>IPD mayor o igual a 85:</strong> Alta pertinencia — Incluir como fuente primaria</li>
+                <li><strong>IPD entre 70 y 84:</strong> Pertinencia media — Incluir con justificación</li>
+                <li><strong>IPD entre 50 y 69:</strong> Pertinencia baja — Uso complementario únicamente</li>
+                <li><strong>IPD menor a 50:</strong> No pertinente — Excluir del corpus</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="accordion-item" role="listitem">
+          <button class="accordion-btn" aria-expanded="false" aria-controls="acc-5" onclick="toggleAccordion(this)">
+            <span class="step-num" aria-hidden="true">5</span>
+            Revisión Colaborativa y Triangulación
+            <svg class="accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="accordion-content" id="acc-5" role="region">
+            <div class="accordion-inner">
+              Validación inter-evaluador del puntaje IPD entre docente asesor y estudiante investigador. Resolución de discrepancias mediante consenso argumentado. Garantiza la objetividad del proceso.
+              <ul>
+                <li>Mínimo dos evaluadores por fuente (estudiante + docente)</li>
+                <li>Diferencia permitida entre evaluadores: máximo 10 puntos</li>
+                <li>Si la diferencia supera 10 puntos: sesión de discusión fundamentada</li>
+                <li>Registro de decisiones en la bitácora de investigación</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="accordion-item" role="listitem">
+          <button class="accordion-btn" aria-expanded="false" aria-controls="acc-6" onclick="toggleAccordion(this)">
+            <span class="step-num" aria-hidden="true">6</span>
+            Construcción del Marco Referencial
+            <svg class="accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="accordion-content" id="acc-6" role="region">
+            <div class="accordion-inner">
+              Con el corpus validado por IPD, se construye el marco teórico y referencial del proyecto. Las fuentes con mayor puntaje se citan como evidencia principal; las de pertinencia media, como contexto complementario.
+              <ul>
+                <li>Organización temática de fuentes según el mapa conceptual del proyecto</li>
+                <li>Redacción del marco referencial con citas APA 7.0</li>
+                <li>Vinculación explícita de cada fuente con los objetivos del proyecto</li>
+                <li>Revisión final de coherencia entre IPD y argumentación teórica</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============================================================
+         PANEL 6 — LÍNEAS TRANSVERSALES
+    ============================================================ -->
+    <section class="section-panel" id="panel-transversales" role="tabpanel" aria-labelledby="tab-transversales">
+
+      <h2 class="section-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="2"/><circle cx="6" cy="6" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/></svg>
+        Líneas de Investigación Transversales Institucionales
+      </h2>
+      <p class="section-desc">Estas seis líneas articulan todas las especialidades del IDC y constituyen la base para la aplicación del IPD en proyectos interdisciplinarios. El IPD debe considerar su pertinencia normativa en cada evaluación.</p>
+
+      <div class="transversal-grid" aria-label="Líneas transversales institucionales">
+        <article class="transversal-card">
+          <div class="transversal-num" aria-hidden="true">01</div>
+          <div class="transversal-text">
+            <strong>Sostenibilidad ambiental y cambio climático</strong>
+            <span>Diseño ecológico, economía circular, materiales bio-based y responsabilidad ambiental en todos los campos disciplinares del IDC.</span>
+          </div>
+        </article>
+        <article class="transversal-card">
+          <div class="transversal-num" aria-hidden="true">02</div>
+          <div class="transversal-text">
+            <strong>Transformación digital e innovación tecnológica</strong>
+            <span>IA aplicada al diseño, herramientas digitales emergentes, producción asistida por tecnología y adaptación profesional al entorno digital.</span>
+          </div>
+        </article>
+        <article class="transversal-card">
+          <div class="transversal-num" aria-hidden="true">03</div>
+          <div class="transversal-text">
+            <strong>Identidad cultural e interculturalidad</strong>
+            <span>Diseño con identidad peruana, interculturalidad en la comunicación visual, recuperación de tradiciones y patrimonio cultural material e inmaterial.</span>
+          </div>
+        </article>
+        <article class="transversal-card">
+          <div class="transversal-num" aria-hidden="true">04</div>
+          <div class="transversal-text">
+            <strong>Emprendimiento y gestión de proyectos creativos</strong>
+            <span>Modelos de negocio para creativos, gestión de proyectos, financiamiento de iniciativas culturales y emprendimiento basado en diseño.</span>
+          </div>
+        </article>
+        <article class="transversal-card">
+          <div class="transversal-num" aria-hidden="true">05</div>
+          <div class="transversal-text">
+            <strong>Educación, comunicación y cambio social</strong>
+            <span>Diseño social, comunicación para el desarrollo, pedagogía creativa y proyectos de alto impacto comunitario liderados desde el diseño y la comunicación.</span>
+          </div>
+        </article>
+        <article class="transversal-card">
+          <div class="transversal-num" aria-hidden="true">06</div>
+          <div class="transversal-text">
+            <strong>Inclusión, accesibilidad y bienestar social</strong>
+            <span>Diseño universal, accesibilidad física y digital, proyectos para poblaciones en situación de vulnerabilidad e investigación desde la diversidad funcional.</span>
+          </div>
+        </article>
+      </div>
+
+      <!-- Integración IPD + Líneas Transversales -->
+      <div class="card" style="margin-top: var(--space-md);">
+        <h3 style="font-family: var(--font-display); font-size: var(--text-lg); font-weight: 700; margin-bottom: 0.5rem;">
+          IPD y Líneas Transversales: Criterio de Pertinencia Normativa
+        </h3>
+        <p style="font-size: var(--text-sm); color: var(--color-text-muted); line-height: 1.7;">
+          Al evaluar una fuente, el evaluador debe verificar si el contenido documental es pertinente a una o más líneas transversales del IDC. La alineación con líneas transversales institucionales suma entre 5 y 10 puntos adicionales al criterio de Pertinencia Temática, fortaleciendo la relevancia institucional de la fuente seleccionada. Ejemplo: un artículo sobre "domótica sostenible aplicada a vivienda social" es pertinente para Diseño de Interiores y activa simultáneamente las líneas transversales 01 (Sostenibilidad) y 06 (Inclusión), incrementando su puntaje IPD.
+        </p>
+      </div>
+
+    </section>
+
+    <!-- ============================================================
+         PANEL 7 — CRITERIOS IPD (tarjetas con tooltip)
+    ============================================================ -->
+    <section class="section-panel" id="panel-criterios" role="tabpanel" aria-labelledby="tab-criterios">
+
+      <h2 class="section-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        Criterios IPD para Contextos de Investigación
+      </h2>
+      <p class="section-desc">Pasa el cursor (o toca en móvil) sobre cada criterio para ver su descripción y aplicación. Cada criterio puede recibir un puntaje de 0 a 100 con pesos diferenciados según el campo.</p>
+
+      <div class="criteria-matrix" aria-label="Matriz de criterios IPD">
+
+        <div class="criteria-cell" tabindex="0" role="button" aria-label="Nivel educativo: criterio de pertinencia para tesis doctorales">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-interiores)" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+          <span class="criteria-cell-name">Nivel Educativo</span>
+          <div class="criteria-tooltip" role="tooltip">
+            <strong>Nivel educativo</strong><br>
+            ¿La fuente corresponde al nivel de formación del proyecto? (técnica, pregrado, posgrado). Evalúa coherencia entre complejidad del estudio y perfil del investigador IDC.
+          </div>
+        </div>
+
+        <div class="criteria-cell" tabindex="0" role="button" aria-label="País de origen: pertinencia geográfica y contextual">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-publicitario)" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          <span class="criteria-cell-name">País / Región</span>
+          <div class="criteria-tooltip" role="tooltip">
+            <strong>Origen geográfico</strong><br>
+            ¿El estudio proviene de un contexto comparable al peruano o latinoamericano? La transferibilidad geográfica es clave para proyectos del IDC Lima.
+          </div>
+        </div>
+
+        <div class="criteria-cell" tabindex="0" role="button" aria-label="Enfoque pedagógico: pertinencia del marco teórico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-modas)" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+          <span class="criteria-cell-name">Enfoque Teórico</span>
+          <div class="criteria-tooltip" role="tooltip">
+            <strong>Enfoque pedagógico/teórico</strong><br>
+            ¿El marco conceptual (constructivismo, DUA, semiótica, fenomenología del diseño) es coherente con el enfoque del proyecto de investigación del IDC?
+          </div>
+        </div>
+
+        <div class="criteria-cell" tabindex="0" role="button" aria-label="Tipo de diseño de investigación: RCT, cuasi-experimental, cualitativo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-audiovisual)" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/><path d="M3 9h6"/><path d="M3 15h6"/></svg>
+          <span class="criteria-cell-name">Diseño Metodológico</span>
+          <div class="criteria-tooltip" role="tooltip">
+            <strong>Tipo de diseño</strong><br>
+            RCT, cuasi-experimental, estudio de caso, cualitativo, mixto. El rigor metodológico afecta directamente el puntaje en el criterio de Calidad Metodológica del IPD.
+          </div>
+        </div>
+
+        <div class="criteria-cell" tabindex="0" role="button" aria-label="Calidad metodológica: escalas JADAD, MMAT o equivalentes">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-interiores)" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <span class="criteria-cell-name">Calidad (JADAD/MMAT)</span>
+          <div class="criteria-tooltip" role="tooltip">
+            <strong>Escalas de calidad</strong><br>
+            Uso de escalas validadas como JADAD (estudios clínicos), MMAT (métodos mixtos) o equivalentes para evaluar el rigor interno de la fuente. Puntaje de 0-5 normalizado a 0-100.
+          </div>
+        </div>
+
+        <div class="criteria-cell" tabindex="0" role="button" aria-label="Año de publicación: vigencia temporal de la fuente">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-publicitario)" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <span class="criteria-cell-name">Año de Publicación</span>
+          <div class="criteria-tooltip" role="tooltip">
+            <strong>Vigencia temporal</strong><br>
+            Publicaciones de los últimos 5 años obtienen el mayor puntaje. Se flexibiliza para fuentes clásicas o teóricas fundacionales del campo disciplinar. El peso varía: mayor en Moda (3 años) que en Interiores (7 años).
+          </div>
+        </div>
+
+        <div class="criteria-cell" tabindex="0" role="button" aria-label="Idioma: accesibilidad lingüística de la fuente">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-modas)" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 8l6 6"/><path d="M4 14l6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="M22 22l-5-10-5 10"/><path d="M14 18h6"/></svg>
+          <span class="criteria-cell-name">Idioma</span>
+          <div class="criteria-tooltip" role="tooltip">
+            <strong>Accesibilidad lingüística</strong><br>
+            Español e inglés obtienen el mayor puntaje por la competencia lingüística típica en el IDC. Fuentes en otros idiomas sin traducción disponible se penalizan en el criterio de transferibilidad.
+          </div>
+        </div>
+
+        <div class="criteria-cell" tabindex="0" role="button" aria-label="Variable dependiente: coherencia con los objetivos del proyecto">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-audiovisual)" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          <span class="criteria-cell-name">Variable Dependiente</span>
+          <div class="criteria-tooltip" role="tooltip">
+            <strong>Coherencia con objetivos</strong><br>
+            ¿La variable dependiente estudiada (rendimiento, motivación, creatividad, eficacia comunicativa) es la misma o análoga a la del proyecto IDC? Alta coherencia = mayor puntaje de pertinencia.
+          </div>
+        </div>
+
+        <div class="criteria-cell" tabindex="0" role="button" aria-label="Transferibilidad: escalabilidad y adaptación al IDC">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-interiores)" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+          <span class="criteria-cell-name">Transferibilidad</span>
+          <div class="criteria-tooltip" role="tooltip">
+            <strong>Escalabilidad y adaptación</strong><br>
+            ¿Los hallazgos son aplicables al contexto del IDC sin grandes adaptaciones? ¿Los recursos requeridos son disponibles? ¿La población objetivo es comparable a los estudiantes o clientes del IDC?
+          </div>
+        </div>
+
+        <div class="criteria-cell" tabindex="0" role="button" aria-label="Evidencia empírica: existencia de datos medibles">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-publicitario)" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          <span class="criteria-cell-name">Evidencia Empírica</span>
+          <div class="criteria-tooltip" role="tooltip">
+            <strong>Solidez de datos</strong><br>
+            ¿La fuente presenta datos medibles, resultados cuantitativos o cualitativos con evidencia? Fuentes especulativas o de opinión no referenciada obtienen puntaje bajo en calidad metodológica.
+          </div>
+        </div>
+
+        <div class="criteria-cell" tabindex="0" role="button" aria-label="Viabilidad normativa: alineación con legislación peruana">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-modas)" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span class="criteria-cell-name">Viabilidad Normativa</span>
+          <div class="criteria-tooltip" role="tooltip">
+            <strong>Pertinencia legal/normativa</strong><br>
+            Alineación con la legislación peruana vigente (Ley 30512, PEN 2036, normativas sectoriales). Especialmente relevante para proyectos de política educativa, inclusión o innovación institucional.
+          </div>
+        </div>
+
+        <div class="criteria-cell" tabindex="0" role="button" aria-label="Costo-efectividad: viabilidad económica de implementación">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-audiovisual)" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          <span class="criteria-cell-name">Costo-Efectividad</span>
+          <div class="criteria-tooltip" role="tooltip">
+            <strong>Viabilidad económica</strong><br>
+            ¿La metodología o innovación propuesta en la fuente es implementable con el presupuesto típico de un proyecto de grado IDC? Alta viabilidad económica incrementa el puntaje de transferibilidad.
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Tabla resumen por tipo de proyecto -->
+      <div class="card" style="margin-top: var(--space-md);">
+        <h3 style="font-family: var(--font-display); font-size: var(--text-lg); font-weight: 700; margin-bottom: var(--space-sm);">
+          Criterios IPD Priorizados por Tipo de Proyecto IDC
+        </h3>
+        <div class="ipd-table-wrap">
+          <table class="ipd-table" aria-label="Criterios IPD por tipo de proyecto">
+            <thead>
+              <tr>
+                <th scope="col">Tipo de Proyecto</th>
+                <th scope="col">Criterios con Mayor Peso</th>
+                <th scope="col">Umbral IPD Recomendado</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Tesis de grado / titulación</td><td>Pertinencia temática, Calidad metodológica, Nivel educativo</td><td>Mayor o igual a 80</td></tr>
+              <tr><td>Proyecto de innovación tecnológica</td><td>Transferibilidad, Vigencia, Escalabilidad</td><td>Mayor o igual a 75</td></tr>
+              <tr><td>Revisión sistemática de literatura</td><td>Diseño metodológico, Calidad (JADAD), Año de publicación</td><td>Mayor o igual a 85</td></tr>
+              <tr><td>Informe de viabilidad</td><td>Viabilidad normativa, Costo-efectividad, País/Región</td><td>Mayor o igual a 70</td></tr>
+              <tr><td>Análisis de brecha en política educativa</td><td>Evidencia empírica, Vigencia normativa, Costo-efectividad</td><td>Mayor o igual a 75</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- ================================================================
+       FOOTER INSTITUCIONAL
+  ================================================================ -->
+  <footer class="footer" role="contentinfo">
+    <div class="footer-inner">
+      <!-- Logo IDC SVG inline -->
+      <div class="footer-logo" aria-label="Logo IDC">
+        <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect width="80" height="80" rx="12" fill="#f3a100"/>
+          <text x="12" y="58" font-family="Georgia,serif" font-weight="900" font-size="52" fill="#1a1a2e">idc</text>
+        </svg>
+      </div>
+      <div class="footer-text">
+        <h4>Jefatura de la Unidad de Investigación</h4>
+        <p>
+          Instituto de Educación Superior Pública Diseño y Comunicación (IDC)<br>
+          MEMORANDO MÚLTIPLE N° 05/JUI/IDC/2025-II — Mg. Corina Japay Japay<br>
+          Líneas de Investigación por Especialidad y Transversales · Lima, 2026
+        </p>
+        <p style="margin-top: 0.5rem; color: var(--color-accent); font-weight: 600;">
+          Producción: Mg. Mario Quiroz Martínez — Unidad de Investigación IDC 2026
+        </p>
+      </div>
+    </div>
+    <div class="footer-divider">
+      <span class="footer-copy">
+        © 2026 Instituto de Educación Superior Pública Diseño y Comunicación · Unidad de Investigación
+      </span>
+      <span class="footer-sign">
+        IPD — Índice de Pertinencia Documental v1.0
+      </span>
+    </div>
+  </footer>
+
+  <!-- ================================================================
+       JAVASCRIPT — Interactividad, accesibilidad, calculadora IPD
+  ================================================================ -->
+  <script>
+    // ----------------------------------------------------------------
+    // MÓDULO DE TABS DE NAVEGACIÓN PRINCIPAL
+    // UX: switching limpio con actualización de aria-selected y display
+    // ----------------------------------------------------------------
+    function switchTab(tabId) {
+      /* Desactivar todos los tabs y paneles */
+      document.querySelectorAll('.nav-tab').forEach(function(t) {
+        t.setAttribute('aria-selected', 'false');
+      });
+      document.querySelectorAll('.section-panel').forEach(function(p) {
+        p.classList.remove('active');
+      });
+
+      /* Activar el tab y panel seleccionados */
+      var btn = document.getElementById('tab-' + tabId);
+      var panel = document.getElementById('panel-' + tabId);
+      if (btn && panel) {
+        btn.setAttribute('aria-selected', 'true');
+        panel.classList.add('active');
+
+        /* Anunciar cambio para lectores de pantalla */
+        var live = document.getElementById('live-region');
+        if (live) {
+          live.textContent = '';
+          setTimeout(function() {
+            live.textContent = 'Sección activa: ' + btn.textContent.trim();
+          }, 50);
+        }
+
+        /* Si es la sección comparativa, activar animación de gráficos */
+        if (tabId === 'comparativa') {
+          triggerChartAnimations();
+        }
+      }
+    }
+
+    // ----------------------------------------------------------------
+    // MÓDULO DE TABS DE CARRERA
+    // ----------------------------------------------------------------
+    function switchCareer(careerId) {
+      /* Desactivar todos los tabs de carrera */
+      document.querySelectorAll('.career-btn').forEach(function(b) {
+        b.setAttribute('aria-selected', 'false');
+        b.classList.remove('active');
+      });
+      document.querySelectorAll('.career-panel').forEach(function(p) {
+        p.classList.remove('active');
+      });
+
+      var btn  = document.getElementById('ctab-' + careerId);
+      var panel = document.getElementById('career-' + careerId);
+      if (btn && panel) {
+        btn.setAttribute('aria-selected', 'true');
+        btn.classList.add('active');
+        panel.classList.add('active');
+      }
+    }
+
+    // ----------------------------------------------------------------
+    // MÓDULO DE ACORDEÓN — proceso metodológico
+    // UX: un solo acordeón abierto a la vez; animación fluida de height
+    // ----------------------------------------------------------------
+    function toggleAccordion(btn) {
+      var isExpanded = btn.getAttribute('aria-expanded') === 'true';
+      var contentId  = btn.getAttribute('aria-controls');
+      var content    = document.getElementById(contentId);
+
+      /* Colapsar todos los acordeones primero */
+      document.querySelectorAll('.accordion-btn').forEach(function(b) {
+        b.setAttribute('aria-expanded', 'false');
+      });
+      document.querySelectorAll('.accordion-content').forEach(function(c) {
+        c.style.height = '0';
+      });
+
+      /* Si no estaba abierto, abrirlo */
+      if (!isExpanded && content) {
+        btn.setAttribute('aria-expanded', 'true');
+        content.style.height = content.scrollHeight + 'px';
+      }
+    }
+
+    // ----------------------------------------------------------------
+    // CALCULADORA IPD — feedback en tiempo real
+    // Pesos: Pertinencia 35%, Vigencia 25%, Calidad 25%, Transfer. 15%
+    // ----------------------------------------------------------------
+    var WEIGHTS = { pertinencia: 0.35, vigencia: 0.25, calidad: 0.25, transferibilidad: 0.15 };
+    var LEVELS = [
+      { min: 85,  label: 'EXCELENTE', color: '#00875a',
+        text: 'Fuente de altísima pertinencia. Incluir como referencia primaria y citar con énfasis en el marco teórico del proyecto IDC.' },
+      { min: 70,  label: 'BUENO',     color: '#009ad3',
+        text: 'Buena pertinencia. Se recomienda su inclusión con una breve justificación de transferibilidad al contexto peruano e institucional.' },
+      { min: 50,  label: 'REGULAR',   color: '#f3a20b',
+        text: 'Pertinencia parcial. Usar solo como fuente complementaria o de contexto general. Buscar fuentes con mayor especificidad.' },
+      { min: 0,   label: 'BAJA',      color: '#e14a94',
+        text: 'Pertinencia insuficiente. No se recomienda su inclusión en el corpus del proyecto IDC. Excluir y buscar alternativas.' }
+    ];
+
+    function updateCalc() {
+      var p = parseInt(document.getElementById('slider-pertinencia').value);
+      var v = parseInt(document.getElementById('slider-vigencia').value);
+      var c = parseInt(document.getElementById('slider-calidad').value);
+      var t = parseInt(document.getElementById('slider-transferibilidad').value);
+
+      /* Actualizar etiquetas de valor en tiempo real */
+      document.getElementById('val-pertinencia').textContent     = p;
+      document.getElementById('val-vigencia').textContent        = v;
+      document.getElementById('val-calidad').textContent         = c;
+      document.getElementById('val-transferibilidad').textContent = t;
+
+      /* Calcular IPD ponderado */
+      var ipd = Math.round(p * WEIGHTS.pertinencia + v * WEIGHTS.vigencia + c * WEIGHTS.calidad + t * WEIGHTS.transferibilidad);
+
+      /* Determinar nivel */
+      var level = LEVELS[LEVELS.length - 1];
+      for (var i = 0; i < LEVELS.length; i++) {
+        if (ipd >= LEVELS[i].min) { level = LEVELS[i]; break; }
+      }
+
+      /* Actualizar gauge SVG */
+      var gaugeCircum = 188.5;
+      var gaugeOffset = gaugeCircum - (ipd / 100) * gaugeCircum;
+      var gaugeFill   = document.getElementById('gauge-fill');
+      var gaugeText   = document.getElementById('gauge-text');
+      if (gaugeFill) {
+        gaugeFill.style.stroke = level.color;
+        gaugeFill.setAttribute('stroke-dashoffset', gaugeOffset);
+      }
+      if (gaugeText) {
+        gaugeText.textContent = ipd;
+        gaugeText.setAttribute('fill', level.color);
+      }
+
+      /* Actualizar badge y texto */
+      var badge = document.getElementById('level-badge');
+      var text  = document.getElementById('level-text');
+      if (badge) {
+        badge.textContent = level.label;
+        badge.style.color = level.color;
+        badge.style.background = level.color + '22';
+      }
+      if (text) { text.textContent = level.text; }
+
+      /* Actualizar barras de desglose */
+      updateBreakdownBar('bar-p', 'bval-p', p);
+      updateBreakdownBar('bar-v', 'bval-v', v);
+      updateBreakdownBar('bar-c', 'bval-c', c);
+      updateBreakdownBar('bar-t', 'bval-t', t);
+
+      /* Actualizar aria-label del slider para accesibilidad */
+      document.getElementById('slider-pertinencia').setAttribute('aria-label',
+        'Pertinencia temática, valor actual ' + p + ' de 100');
+      document.getElementById('slider-vigencia').setAttribute('aria-label',
+        'Vigencia temporal, valor actual ' + v + ' de 100');
+      document.getElementById('slider-calidad').setAttribute('aria-label',
+        'Calidad metodológica, valor actual ' + c + ' de 100');
+      document.getElementById('slider-transferibilidad').setAttribute('aria-label',
+        'Transferibilidad contextual, valor actual ' + t + ' de 100');
+
+      /* Anunciar resultado a lectores de pantalla */
+      var live = document.getElementById('live-region');
+      if (live) {
+        live.textContent = '';
+        setTimeout(function() {
+          live.textContent = 'IPD calculado: ' + ipd + ' — Nivel ' + level.label;
+        }, 100);
+      }
+    }
+
+    function updateBreakdownBar(barId, valId, value) {
+      var bar = document.getElementById(barId);
+      var val = document.getElementById(valId);
+      if (bar) { bar.style.width = value + '%'; }
+      if (val) { val.textContent = value; }
+    }
+
+    // ----------------------------------------------------------------
+    // ANIMACIÓN DE GRÁFICOS — re-trigger al entrar a la sección
+    // Los SVG SMIL reinician con animaciones; para el impacto usamos CSS
+    // ----------------------------------------------------------------
+    var chartsAnimated = false;
+    function triggerChartAnimations() {
+      if (chartsAnimated) { return; }
+      chartsAnimated = true;
+      /* Las barras de impacto animan via CSS transition al aparecer */
+      var impactBars = document.querySelectorAll('.impact-bar');
+      impactBars.forEach(function(bar) {
+        var target = bar.style.width;
+        bar.style.width = '0%';
+        setTimeout(function() { bar.style.width = target; }, 100);
+      });
+    }
+
+    // ----------------------------------------------------------------
+    // NAVEGACIÓN POR TECLADO EN TABS (← →)
+    // UX: permite cambiar de tab con flechas del teclado (ARIA pattern)
+    // ----------------------------------------------------------------
+    document.addEventListener('DOMContentLoaded', function() {
+      /* Inicializar calculadora */
+      updateCalc();
+
+      /* Navegación por teclado en tabs principales */
+      var tabButtons = document.querySelectorAll('.nav-tab');
+      tabButtons.forEach(function(btn, index) {
+        btn.addEventListener('keydown', function(e) {
+          var nextIndex, nextBtn;
+          if (e.key === 'ArrowRight') {
+            nextIndex = (index + 1) % tabButtons.length;
+            nextBtn   = tabButtons[nextIndex];
+            nextBtn.focus();
+            nextBtn.click();
+          } else if (e.key === 'ArrowLeft') {
+            nextIndex = (index - 1 + tabButtons.length) % tabButtons.length;
+            nextBtn   = tabButtons[nextIndex];
+            nextBtn.focus();
+            nextBtn.click();
+          } else if (e.key === 'Home') {
+            tabButtons[0].focus();
+            tabButtons[0].click();
+          } else if (e.key === 'End') {
+            tabButtons[tabButtons.length - 1].focus();
+            tabButtons[tabButtons.length - 1].click();
+          }
+        });
+      });
+
+      /* Navegación por teclado en tabs de carrera */
+      var careerBtns = document.querySelectorAll('.career-btn');
+      careerBtns.forEach(function(btn, index) {
+        btn.addEventListener('keydown', function(e) {
+          var nextIndex, nextBtn;
+          if (e.key === 'ArrowRight') {
+            nextIndex = (index + 1) % careerBtns.length;
+            nextBtn   = careerBtns[nextIndex];
+            nextBtn.focus(); nextBtn.click();
+          } else if (e.key === 'ArrowLeft') {
+            nextIndex = (index - 1 + careerBtns.length) % careerBtns.length;
+            nextBtn   = careerBtns[nextIndex];
+            nextBtn.focus(); nextBtn.click();
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>

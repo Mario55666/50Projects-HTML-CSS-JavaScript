@@ -1,0 +1,1905 @@
+<!DOCTYPE html>
+<html lang="es" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Guía de Implementación Pedagógica del IPD para docentes del IDC — simulador interactivo y protocolo paso a paso" />
+  <title>Guía IPD para Docentes · IDC 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,900&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ============================================================
+       TOKENS DE DISEÑO — IDC Brand System
+    ============================================================ */
+    :root {
+      --idc-gold:      #f3a100;
+      --idc-teal:      #009c9d;
+      --idc-blue:      #009ad3;
+      --idc-pink:      #e14a94;
+      --idc-amber:     #f3a20b;
+      --idc-dark:      #1a1a2e;
+      --idc-dark2:     #252542;
+      --idc-surface:   #ffffff;
+      --idc-surface2:  #f5f7fb;
+      --idc-border:    #e2e6f0;
+      --idc-muted:     #5a5a7a;
+      --idc-success:   #00875a;
+      --idc-warn-bg:   #fff8e6;
+      --idc-warn-bdr:  #f3a100;
+      --idc-error-bg:  #fff3e0;
+      --idc-error-bdr: #ff9800;
+
+      --font-display: 'Fraunces', Georgia, serif;
+      --font-body:    'Inter', system-ui, sans-serif;
+
+      --text-xs:   clamp(0.7rem,  1.5vw, 0.8rem);
+      --text-sm:   clamp(0.8rem,  1.8vw, 0.9rem);
+      --text-base: clamp(0.9rem,  2vw,   1rem);
+      --text-md:   clamp(1rem,    2.2vw, 1.125rem);
+      --text-lg:   clamp(1.2rem,  2.8vw, 1.5rem);
+      --text-xl:   clamp(1.5rem,  3.5vw, 2rem);
+      --text-2xl:  clamp(2rem,    5vw,   3rem);
+
+      --sp-xs: 0.5rem;
+      --sp-sm: 1rem;
+      --sp-md: 1.5rem;
+      --sp-lg: 2.5rem;
+      --sp-xl: 4rem;
+
+      --r-sm:   0.5rem;
+      --r-md:   1rem;
+      --r-lg:   1.5rem;
+      --r-pill: 999px;
+
+      --sh-sm: 0 2px 8px rgba(26,26,46,.08);
+      --sh-md: 0 6px 24px rgba(26,26,46,.13);
+      --sh-lg: 0 16px 48px rgba(26,26,46,.18);
+
+      --ease: cubic-bezier(0.16,1,0.3,1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+    body {
+      font-family: var(--font-body);
+      font-size: var(--text-base);
+      color: var(--idc-dark);
+      background: var(--idc-surface2);
+      min-height: 100vh;
+      line-height: 1.65;
+    }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; }
+    svg { display: block; }
+
+    /* Accesibilidad */
+    :focus-visible { outline: 3px solid var(--idc-gold); outline-offset: 3px; border-radius: 4px; }
+    .sr-only { position: absolute !important; width: 1px !important; height: 1px !important;
+               padding: 0 !important; margin: -1px !important; overflow: hidden !important;
+               clip: rect(0,0,0,0) !important; white-space: nowrap !important; border: 0 !important; }
+    .skip-link { position: absolute; top: -100%; left: 1rem; background: var(--idc-gold);
+                 color: #fff; padding: .5rem 1rem; border-radius: 0 0 .5rem .5rem;
+                 font-weight: 700; z-index: 9999; transition: top .2s; }
+    .skip-link:focus { top: 0; }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+
+    /* ============================================================
+       HEADER
+    ============================================================ */
+    .header {
+      background: var(--idc-dark);
+      color: #fff;
+      padding: var(--sp-lg) var(--sp-md) var(--sp-md);
+      position: relative;
+      overflow: hidden;
+    }
+    .header::before {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse at 85% 10%, rgba(243,161,0,.2) 0%, transparent 55%),
+        radial-gradient(ellipse at 5%  90%, rgba(0,154,211,.15) 0%, transparent 50%);
+      pointer-events: none;
+    }
+    .header-inner { max-width: 980px; margin: 0 auto; position: relative; }
+    .header-eyebrow {
+      display: inline-flex; align-items: center; gap: .4rem;
+      background: rgba(243,161,0,.15); border: 1px solid rgba(243,161,0,.4);
+      color: var(--idc-gold); font-size: var(--text-xs); font-weight: 700;
+      text-transform: uppercase; letter-spacing: .1em;
+      padding: .3rem .9rem; border-radius: var(--r-pill); margin-bottom: var(--sp-sm);
+    }
+    .header-eyebrow svg { width: 13px; height: 13px; }
+    .header h1 { font-family: var(--font-display); font-size: var(--text-2xl); font-weight: 900; line-height: 1.08; }
+    .header h1 span { color: var(--idc-gold); }
+    .header-sub { color: rgba(255,255,255,.72); font-size: var(--text-md); max-width: 600px; margin-top: .5rem; line-height: 1.6; }
+    .header-chips { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: var(--sp-md); }
+    .hchip { display: inline-flex; align-items: center; gap: .3rem; padding: .28rem .75rem;
+             border-radius: var(--r-pill); font-size: var(--text-xs); font-weight: 600; color: #fff; }
+    .hchip svg { width: 11px; height: 11px; }
+    .hchip-gold  { background: var(--idc-gold); color: #1a1a2e; }
+    .hchip-teal  { background: var(--idc-teal); }
+    .hchip-blue  { background: var(--idc-blue); }
+    .hchip-pink  { background: var(--idc-pink); }
+
+    /* ============================================================
+       STEPPER de progreso
+    ============================================================ */
+    .stepper-bar {
+      background: var(--idc-surface);
+      border-bottom: 2px solid var(--idc-border);
+      padding: var(--sp-sm) var(--sp-md);
+      position: sticky; top: 0; z-index: 80;
+      box-shadow: var(--sh-sm);
+    }
+    .stepper-inner { max-width: 980px; margin: 0 auto; }
+    .stepper-label { font-size: var(--text-xs); color: var(--idc-muted); font-weight: 600;
+                     text-transform: uppercase; letter-spacing: .07em; margin-bottom: .5rem; }
+    .stepper-track { display: flex; align-items: center; gap: 0; }
+    .step-node {
+      display: flex; flex-direction: column; align-items: center; gap: .2rem;
+      flex: 1; position: relative;
+    }
+    .step-node::after {
+      content: ''; position: absolute;
+      top: 15px; left: 50%; width: 100%; height: 2px;
+      background: var(--idc-border);
+      z-index: -1;
+    }
+    .step-node:last-child::after { display: none; }
+    .step-dot {
+      width: 30px; height: 30px; border-radius: 50%;
+      border: 2px solid var(--idc-border);
+      background: var(--idc-surface);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 800; color: var(--idc-muted);
+      transition: background .3s, border-color .3s, color .3s;
+      position: relative; z-index: 1;
+    }
+    .step-dot.done   { background: var(--idc-success); border-color: var(--idc-success); color: #fff; }
+    .step-dot.active { background: var(--idc-gold);    border-color: var(--idc-gold);    color: #1a1a2e; }
+    .step-name { font-size: 9px; font-weight: 600; color: var(--idc-muted); text-align: center;
+                 line-height: 1.2; max-width: 60px; }
+    .step-node.active .step-name { color: var(--idc-gold); }
+    .step-node.done  .step-name  { color: var(--idc-success); }
+
+    /* Barra de progreso lineal debajo del stepper */
+    .progress-line { height: 4px; background: var(--idc-border); border-radius: 2px; margin-top: .5rem; overflow: hidden; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--idc-teal), var(--idc-gold));
+                     border-radius: 2px; transition: width .5s var(--ease); }
+
+    /* ============================================================
+       LAYOUT MAIN
+    ============================================================ */
+    .main { max-width: 980px; margin: 0 auto; padding: var(--sp-lg) var(--sp-md); }
+    .step-panel { display: none; }
+    .step-panel.active { display: block; animation: fadeUp .4s var(--ease) both; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ============================================================
+       CARDS Y COMPONENTES GENÉRICOS
+    ============================================================ */
+    .card {
+      background: var(--idc-surface); border-radius: var(--r-lg);
+      border: 1px solid var(--idc-border); padding: var(--sp-md);
+      box-shadow: var(--sh-sm); margin-bottom: var(--sp-md);
+    }
+    .card-accent { border-top: 4px solid var(--accent-color, var(--idc-gold)); }
+    .section-title {
+      font-family: var(--font-display); font-size: var(--text-xl);
+      font-weight: 900; margin-bottom: .4rem;
+      display: flex; align-items: center; gap: .5rem;
+    }
+    .section-title svg { width: 26px; height: 26px; flex-shrink: 0; }
+    .section-desc { color: var(--idc-muted); font-size: var(--text-sm); line-height: 1.7; margin-bottom: var(--sp-md); max-width: 700px; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-md); }
+    .grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: var(--sp-md); }
+    @media (max-width: 720px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+    /* ============================================================
+       FORMULARIO — campos, validación, estados
+    ============================================================ */
+    .form-block { display: flex; flex-direction: column; gap: var(--sp-md); }
+
+    .field-wrap { display: flex; flex-direction: column; gap: .35rem; }
+    .field-wrap label {
+      font-size: var(--text-sm); font-weight: 600;
+      display: flex; align-items: center; gap: .35rem;
+    }
+    .field-required { color: var(--idc-pink); font-size: 13px; }
+    .field-wrap input[type="text"],
+    .field-wrap input[type="email"],
+    .field-wrap input[type="number"],
+    .field-wrap select,
+    .field-wrap textarea {
+      width: 100%; padding: .7rem .9rem;
+      border: 1.5px solid var(--idc-border);
+      border-radius: var(--r-md); font-family: var(--font-body);
+      font-size: var(--text-base); color: var(--idc-dark);
+      background: var(--idc-surface);
+      transition: border-color .2s, box-shadow .2s;
+      outline: none; resize: vertical;
+    }
+    .field-wrap input:focus,
+    .field-wrap select:focus,
+    .field-wrap textarea:focus {
+      border-color: var(--idc-gold);
+      box-shadow: 0 0 0 3px rgba(243,161,0,.18);
+    }
+    .field-wrap input.valid   { border-color: var(--idc-success); }
+    .field-wrap input.invalid { border-color: var(--idc-error-bdr); }
+    .field-feedback {
+      font-size: var(--text-xs); min-height: 1.2em;
+      transition: color .2s;
+    }
+    .field-feedback.ok    { color: var(--idc-success); }
+    .field-feedback.error { color: #c0392b; }
+    .field-hint { font-size: var(--text-xs); color: var(--idc-muted); font-style: italic; }
+
+    /* Radio / Checkbox grupos */
+    .radio-group, .check-group { display: flex; flex-wrap: wrap; gap: .5rem; }
+    .radio-opt, .check-opt {
+      display: flex; align-items: center; gap: .4rem;
+      padding: .45rem .85rem;
+      border: 1.5px solid var(--idc-border);
+      border-radius: var(--r-pill);
+      font-size: var(--text-sm); font-weight: 500;
+      cursor: pointer; transition: border-color .2s, background .2s;
+      user-select: none;
+    }
+    .radio-opt input, .check-opt input { display: none; }
+    .radio-opt.selected, .check-opt.selected {
+      border-color: var(--idc-gold);
+      background: rgba(243,161,0,.1);
+      color: #8a6000;
+      font-weight: 700;
+    }
+    .radio-opt svg, .check-opt svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+    /* Slider con track de color */
+    .slider-field { display: flex; flex-direction: column; gap: .35rem; }
+    .slider-header { display: flex; justify-content: space-between; align-items: center; font-size: var(--text-sm); font-weight: 600; }
+    .slider-val { font-weight: 800; color: var(--idc-gold); min-width: 2.5rem; text-align: right; }
+    input[type="range"].idc-range {
+      -webkit-appearance: none; width: 100%; height: 7px;
+      border-radius: 3.5px; background: var(--idc-border); outline: none; cursor: pointer;
+    }
+    input[type="range"].idc-range::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%;
+      background: var(--idc-gold); box-shadow: 0 0 0 4px rgba(243,161,0,.2);
+      cursor: pointer; transition: box-shadow .2s;
+    }
+    input[type="range"].idc-range:hover::-webkit-slider-thumb,
+    input[type="range"].idc-range:focus::-webkit-slider-thumb {
+      box-shadow: 0 0 0 7px rgba(243,161,0,.3);
+    }
+    input[type="range"].idc-range::-moz-range-thumb {
+      width: 22px; height: 22px; border: none; border-radius: 50%;
+      background: var(--idc-gold); cursor: pointer;
+    }
+    .slider-ticks { display: flex; justify-content: space-between;
+                    font-size: 9px; color: var(--idc-muted); margin-top: .15rem; }
+
+    /* Botones de acción */
+    .btn {
+      display: inline-flex; align-items: center; gap: .45rem;
+      padding: .75rem 1.5rem; border-radius: var(--r-pill);
+      font-size: var(--text-base); font-weight: 700;
+      transition: filter .2s, box-shadow .2s, transform .15s;
+      cursor: pointer; border: none; font-family: inherit;
+    }
+    .btn svg { width: 18px; height: 18px; flex-shrink: 0; }
+    .btn:hover { filter: brightness(1.08); }
+    .btn:active { transform: scale(.97); }
+    .btn-primary   { background: var(--idc-gold); color: #1a1a2e; box-shadow: var(--sh-sm); }
+    .btn-secondary { background: var(--idc-dark); color: #fff; }
+    .btn-outline   { background: transparent; border: 2px solid var(--idc-border); color: var(--idc-dark); }
+    .btn-success   { background: var(--idc-success); color: #fff; }
+    .btn-teal      { background: var(--idc-teal); color: #fff; }
+    .btn-sm { padding: .5rem 1rem; font-size: var(--text-sm); }
+    .btn-group { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: var(--sp-md); align-items: center; }
+
+    /* ============================================================
+       COMPONENTES DE RESULTADO / FEEDBACK
+    ============================================================ */
+    .result-banner {
+      border-radius: var(--r-lg); padding: var(--sp-md);
+      display: flex; gap: var(--sp-sm); align-items: flex-start;
+      margin-bottom: var(--sp-md);
+    }
+    .result-banner.success { background: rgba(0,135,90,.08); border: 1.5px solid var(--idc-success); }
+    .result-banner.warn    { background: var(--idc-warn-bg);  border: 1.5px solid var(--idc-warn-bdr); }
+    .result-banner.info    { background: rgba(0,154,211,.08); border: 1.5px solid var(--idc-blue); }
+    .result-banner svg { width: 24px; height: 24px; flex-shrink: 0; margin-top: 2px; }
+    .result-banner-text strong { display: block; font-weight: 700; margin-bottom: .2rem; font-size: var(--text-md); }
+
+    /* Score grande */
+    .score-hero { text-align: center; padding: var(--sp-md) 0; }
+    .score-big {
+      font-family: var(--font-display); font-size: clamp(3.5rem,10vw,6rem);
+      font-weight: 900; line-height: 1;
+      color: var(--score-color, var(--idc-gold));
+      transition: color .4s;
+    }
+    .score-label { font-size: var(--text-sm); color: var(--idc-muted); margin-top: .25rem; }
+    .score-badge {
+      display: inline-block; margin-top: .5rem;
+      padding: .35rem 1.2rem; border-radius: var(--r-pill);
+      font-size: var(--text-sm); font-weight: 800; text-transform: uppercase; letter-spacing: .06em;
+      background: color-mix(in srgb, var(--score-color, var(--idc-gold)) 15%, white);
+      color: var(--score-color, var(--idc-gold));
+      transition: background .4s, color .4s;
+    }
+
+    /* Barra horizontal de criterio */
+    .crit-bar-row { display: flex; align-items: center; gap: .75rem; margin-bottom: .5rem; }
+    .crit-bar-label { font-size: var(--text-xs); font-weight: 600; width: 160px; flex-shrink: 0; }
+    .crit-bar-track { flex: 1; height: 8px; background: var(--idc-border); border-radius: 4px; overflow: hidden; }
+    .crit-bar-fill  { height: 100%; border-radius: 4px; background: var(--idc-gold); transition: width .8s var(--ease); }
+    .crit-bar-val   { font-size: var(--text-xs); font-weight: 800; width: 2.5rem; text-align: right; }
+
+    /* ============================================================
+       GUÍA PEDAGÓGICA — acordeón de fases
+    ============================================================ */
+    .guide-header {
+      background: var(--idc-dark); color: #fff;
+      border-radius: var(--r-lg); padding: var(--sp-md);
+      margin-bottom: var(--sp-md); position: relative; overflow: hidden;
+    }
+    .guide-header::after {
+      content: 'GUÍA'; position: absolute; right: -1rem; bottom: -1rem;
+      font-family: var(--font-display); font-size: clamp(4rem,12vw,8rem);
+      font-weight: 900; color: rgba(243,161,0,.07); line-height: 1; pointer-events: none;
+    }
+    .guide-header h2 { font-family: var(--font-display); font-size: var(--text-xl); font-weight: 900; margin-bottom: .35rem; }
+    .guide-header h2 span { color: var(--idc-gold); }
+    .guide-header p { font-size: var(--text-sm); color: rgba(255,255,255,.75); max-width: 620px; line-height: 1.65; }
+
+    /* Fase card */
+    .phase-list { display: flex; flex-direction: column; gap: .6rem; }
+    .phase-card { background: var(--idc-surface); border: 1px solid var(--idc-border); border-radius: var(--r-md); overflow: hidden; }
+    .phase-btn {
+      width: 100%; display: flex; align-items: center; gap: .75rem;
+      padding: .9rem var(--sp-sm); text-align: left;
+      font-size: var(--text-base); font-weight: 600; color: var(--idc-dark);
+      transition: background .2s;
+    }
+    .phase-btn:hover, .phase-btn[aria-expanded="true"] { background: var(--idc-surface2); }
+    .phase-num {
+      width: 34px; height: 34px; flex-shrink: 0; border-radius: 50%;
+      background: var(--phase-color, var(--idc-gold)); color: #1a1a2e;
+      display: flex; align-items: center; justify-content: center;
+      font-size: var(--text-sm); font-weight: 900;
+    }
+    .phase-num.dark { color: #fff; }
+    .phase-meta { flex: 1; }
+    .phase-meta small { display: block; font-size: var(--text-xs); color: var(--idc-muted); font-weight: 400; margin-top: .1rem; }
+    .phase-chevron { width: 20px; height: 20px; flex-shrink: 0; transition: transform .25s; }
+    .phase-btn[aria-expanded="true"] .phase-chevron { transform: rotate(180deg); }
+    .phase-content { overflow: hidden; height: 0; transition: height .35s var(--ease); }
+    .phase-inner { padding: .5rem var(--sp-sm) var(--sp-sm) calc(34px + 1.5rem); }
+
+    /* Checklist interactivo */
+    .checklist { list-style: none; display: flex; flex-direction: column; gap: .4rem; margin-top: .5rem; }
+    .check-item {
+      display: flex; align-items: flex-start; gap: .6rem;
+      font-size: var(--text-sm); line-height: 1.55;
+      cursor: pointer; user-select: none;
+    }
+    .check-box {
+      width: 22px; height: 22px; flex-shrink: 0;
+      border: 2px solid var(--idc-border); border-radius: 5px;
+      background: var(--idc-surface);
+      display: flex; align-items: center; justify-content: center;
+      transition: background .2s, border-color .2s;
+      margin-top: 1px;
+    }
+    .check-box svg { width: 13px; height: 13px; opacity: 0; transition: opacity .2s; stroke: #fff; }
+    .check-item.checked .check-box { background: var(--idc-success); border-color: var(--idc-success); }
+    .check-item.checked .check-box svg { opacity: 1; }
+    .check-item.checked .check-text { text-decoration: line-through; color: var(--idc-muted); }
+    .phase-tip {
+      background: var(--idc-warn-bg); border: 1px solid rgba(243,161,0,.35);
+      border-radius: var(--r-sm); padding: .6rem .85rem;
+      font-size: var(--text-xs); line-height: 1.6; margin-top: .75rem;
+      display: flex; gap: .4rem;
+    }
+    .phase-tip svg { width: 14px; height: 14px; flex-shrink: 0; margin-top: 2px; color: var(--idc-gold); }
+
+    /* Tabla de criterios */
+    .criteria-tbl { width: 100%; border-collapse: collapse; font-size: var(--text-sm); margin-top: .5rem; }
+    .criteria-tbl th {
+      background: var(--idc-dark); color: #fff;
+      padding: .55rem .9rem; text-align: left; font-weight: 600;
+    }
+    .criteria-tbl tr:nth-child(even) td { background: var(--idc-surface2); }
+    .criteria-tbl td { padding: .55rem .9rem; border-bottom: 1px solid var(--idc-border); vertical-align: top; line-height: 1.5; }
+    .criteria-tbl td:first-child { font-weight: 700; color: var(--idc-teal); }
+
+    /* Semáforo de alerta de IPD */
+    .semaforo { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .5rem; }
+    .sema-item {
+      display: flex; align-items: center; gap: .4rem;
+      padding: .35rem .75rem; border-radius: var(--r-pill);
+      font-size: var(--text-xs); font-weight: 700;
+    }
+    .sema-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .sema-green  { background: rgba(0,135,90,.12);  color: #00523a; }
+    .sema-green  .sema-dot  { background: var(--idc-success); }
+    .sema-yellow { background: rgba(243,161,0,.12); color: #7a5200; }
+    .sema-yellow .sema-dot  { background: var(--idc-gold); }
+    .sema-orange { background: rgba(243,162,11,.12);color: #7a3d00; }
+    .sema-orange .sema-dot  { background: #ff7c00; }
+    .sema-red    { background: rgba(225,74,148,.12);color: #8b0044; }
+    .sema-red    .sema-dot  { background: var(--idc-pink); }
+
+    /* Tabla carrera-criterio */
+    .career-badge {
+      display: inline-flex; align-items: center; gap: .3rem;
+      padding: .2rem .6rem; border-radius: var(--r-pill);
+      font-size: 10px; font-weight: 700; color: #fff;
+    }
+
+    /* ============================================================
+       SIMULADOR DE FUENTE — Panel resumen
+    ============================================================ */
+    .sim-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-md); }
+    @media (max-width: 640px) { .sim-row { grid-template-columns: 1fr; } }
+
+    .fuente-form { background: var(--idc-surface); border: 1px solid var(--idc-border);
+                   border-radius: var(--r-lg); padding: var(--sp-md); }
+    .fuente-result { background: var(--idc-surface); border: 1px solid var(--idc-border);
+                     border-radius: var(--r-lg); padding: var(--sp-md);
+                     display: flex; flex-direction: column; gap: var(--sp-sm); }
+
+    /* Tabla comparativa de resultados */
+    .fuentes-log { width: 100%; border-collapse: collapse; font-size: var(--text-sm); margin-top: var(--sp-sm); }
+    .fuentes-log th { background: var(--idc-dark); color: #fff; padding: .5rem .75rem; text-align: left; }
+    .fuentes-log td { padding: .45rem .75rem; border-bottom: 1px solid var(--idc-border); }
+    .fuentes-log tr:nth-child(even) td { background: var(--idc-surface2); }
+    .badge-score {
+      display: inline-block; padding: .15rem .6rem; border-radius: var(--r-pill);
+      font-size: 11px; font-weight: 800;
+    }
+    .badge-excellent { background: rgba(0,135,90,.15); color: #005c32; }
+    .badge-good      { background: rgba(0,154,211,.15); color: #005c88; }
+    .badge-regular   { background: rgba(243,162,11,.15); color: #7a5200; }
+    .badge-low       { background: rgba(225,74,148,.15); color: #8b0044; }
+    .badge-exclude   { background: rgba(255,0,0,.08);    color: #8b0000; }
+
+    /* ============================================================
+       REPORTE FINAL — exportable
+    ============================================================ */
+    .report-card {
+      background: var(--idc-surface); border: 1px solid var(--idc-border);
+      border-radius: var(--r-lg); padding: var(--sp-md); margin-bottom: var(--sp-md);
+    }
+    .report-title {
+      font-family: var(--font-display); font-size: var(--text-lg);
+      font-weight: 900; margin-bottom: var(--sp-sm);
+      display: flex; align-items: center; gap: .5rem;
+    }
+    .report-title svg { width: 22px; height: 22px; }
+
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px,1fr)); gap: var(--sp-sm); }
+    .kpi-box {
+      background: var(--idc-surface2); border: 1px solid var(--idc-border);
+      border-radius: var(--r-md); padding: .75rem; text-align: center;
+    }
+    .kpi-val { font-family: var(--font-display); font-size: var(--text-xl); font-weight: 900; color: var(--idc-gold); }
+    .kpi-label { font-size: var(--text-xs); color: var(--idc-muted); margin-top: .15rem; }
+
+    /* ============================================================
+       FOOTER
+    ============================================================ */
+    .footer { background: var(--idc-dark); color: rgba(255,255,255,.8);
+               padding: var(--sp-lg) var(--sp-md) var(--sp-md); margin-top: var(--sp-xl); }
+    .footer-inner { max-width: 980px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: var(--sp-md); align-items: flex-start; }
+    .footer-text h4 { font-family: var(--font-display); font-size: var(--text-md); font-weight: 700; color: #fff; }
+    .footer-text p { font-size: var(--text-xs); opacity: .7; line-height: 1.65; margin-top: .2rem; }
+    .footer-sign { color: var(--idc-gold); font-weight: 600; font-size: var(--text-xs); margin-top: .4rem; }
+    .footer-divider { max-width: 980px; margin: var(--sp-md) auto 0;
+                      border-top: 1px solid rgba(255,255,255,.1); padding-top: var(--sp-sm);
+                      display: flex; flex-wrap: wrap; justify-content: space-between; gap: .5rem; }
+    .footer-copy { font-size: var(--text-xs); color: rgba(255,255,255,.4); }
+
+    @media print {
+      .header, .stepper-bar, .btn-group, .footer { display: none !important; }
+      .step-panel { display: block !important; }
+      body { background: #fff; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Ir al contenido</a>
+  <div id="live" aria-live="polite" aria-atomic="true" class="sr-only"></div>
+
+  <!-- HEADER -->
+  <header class="header" role="banner">
+    <div class="header-inner">
+      <!-- Logo IDC inline -->
+      <div style="margin-bottom:1.1rem;"><img src="assets/logo-idc-white.png" alt="IDC — Instituto de Diseño y Comunicación · Educación Superior Público" style="height:54px;width:auto;display:block;" /></div>
+      <div class="header-eyebrow">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+        Herramienta pedagógica · Unidad de Investigación IDC 2026
+      </div>
+      <h1>Guía de <span>Implementación</span> Pedagógica<br>del IPD para Docentes</h1>
+      <p class="header-sub">Simulador interactivo y protocolo paso a paso para aplicar el Índice de Pertinencia Documental en proyectos de investigación e innovación tecnológica del IDC.</p>
+      <div class="header-chips">
+        <span class="hchip hchip-gold">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+          Diseño de Interiores
+        </span>
+        <span class="hchip hchip-blue">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          Diseño Publicitario
+        </span>
+        <span class="hchip hchip-pink">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+          Diseño de Modas
+        </span>
+        <span class="hchip" style="background:#f3a20b; color:#1a1a2e;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+          Comunicación Audiovisual
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <!-- STEPPER -->
+  <nav class="stepper-bar" aria-label="Pasos de la guía pedagógica">
+    <div class="stepper-inner">
+      <p class="stepper-label" id="stepper-label">Paso <span id="step-current">1</span> de 5</p>
+      <div class="stepper-track" role="list">
+        <div class="step-node active" role="listitem" id="node-1">
+          <div class="step-dot active" aria-label="Paso 1 activo">1</div>
+          <span class="step-name">Datos del docente</span>
+        </div>
+        <div class="step-node" role="listitem" id="node-2">
+          <div class="step-dot" aria-label="Paso 2">2</div>
+          <span class="step-name">Contexto del proyecto</span>
+        </div>
+        <div class="step-node" role="listitem" id="node-3">
+          <div class="step-dot" aria-label="Paso 3">3</div>
+          <span class="step-name">Simulador IPD</span>
+        </div>
+        <div class="step-node" role="listitem" id="node-4">
+          <div class="step-dot" aria-label="Paso 4">4</div>
+          <span class="step-name">Guía pedagógica</span>
+        </div>
+        <div class="step-node" role="listitem" id="node-5">
+          <div class="step-dot" aria-label="Paso 5">5</div>
+          <span class="step-name">Reporte final</span>
+        </div>
+      </div>
+      <div class="progress-line"><div class="progress-fill" id="progress-fill" style="width:20%;"></div></div>
+    </div>
+  </nav>
+
+  <main id="main" class="main">
+
+    <!-- =========================================================
+         PASO 1 — DATOS DEL DOCENTE
+    ========================================================= -->
+    <section class="step-panel active" id="panel-1" aria-label="Paso 1: Datos del docente">
+      <h2 class="section-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Registro del Docente
+      </h2>
+      <p class="section-desc">Completa tu información institucional. Estos datos identificarán el reporte de implementación IPD que generarás al final.</p>
+
+      <div class="card">
+        <div class="form-block">
+          <div class="grid-2">
+            <div class="field-wrap">
+              <label for="f-nombre">Nombres y apellidos <span class="field-required" aria-hidden="true">*</span></label>
+              <input type="text" id="f-nombre" placeholder="Ej: Ana Lucía Torres Ríos"
+                     autocomplete="name" required
+                     oninput="validateField(this,'nombre')" />
+              <span class="field-feedback" id="fb-nombre"></span>
+            </div>
+            <div class="field-wrap">
+              <label for="f-email">Correo institucional <span class="field-required" aria-hidden="true">*</span></label>
+              <input type="email" id="f-email" placeholder="docente@idc.edu.pe"
+                     autocomplete="email" required
+                     oninput="validateField(this,'email')" />
+              <span class="field-feedback" id="fb-email"></span>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="field-wrap">
+              <label for="f-carrera">Especialidad que dicta <span class="field-required" aria-hidden="true">*</span></label>
+              <select id="f-carrera" required onchange="validateField(this,'carrera')">
+                <option value="">— Seleccionar especialidad —</option>
+                <option value="int">Diseño de Interiores</option>
+                <option value="pub">Diseño Publicitario</option>
+                <option value="mod">Diseño de Modas</option>
+                <option value="aud">Comunicación Audiovisual</option>
+                <option value="trans">Todas (líneas transversales)</option>
+              </select>
+              <span class="field-feedback" id="fb-carrera"></span>
+            </div>
+            <div class="field-wrap">
+              <label for="f-grado">Grado académico</label>
+              <select id="f-grado">
+                <option value="">— Seleccionar —</option>
+                <option value="lic">Licenciado/a</option>
+                <option value="mg">Magíster</option>
+                <option value="dr">Doctor/a</option>
+                <option value="tec">Técnico especialista</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field-wrap">
+            <label for="f-curso">Curso o asignatura en que aplicará el IPD <span class="field-required" aria-hidden="true">*</span></label>
+            <input type="text" id="f-curso" placeholder="Ej: Investigación e Innovación Tecnológica II" required
+                   oninput="validateField(this,'curso')" />
+            <span class="field-feedback" id="fb-curso"></span>
+          </div>
+
+          <div class="field-wrap">
+            <label>Experiencia previa con metodologías de investigación documental</label>
+            <div class="radio-group" role="radiogroup" aria-label="Nivel de experiencia">
+              <label class="radio-opt" onclick="selectRadio(this,'exp')">
+                <input type="radio" name="exp" value="ninguna">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                Ninguna
+              </label>
+              <label class="radio-opt" onclick="selectRadio(this,'exp')">
+                <input type="radio" name="exp" value="basica">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                Básica
+              </label>
+              <label class="radio-opt" onclick="selectRadio(this,'exp')">
+                <input type="radio" name="exp" value="intermedia">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                Intermedia
+              </label>
+              <label class="radio-opt" onclick="selectRadio(this,'exp')">
+                <input type="radio" name="exp" value="avanzada">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                Avanzada
+              </label>
+            </div>
+          </div>
+
+          <div class="field-wrap">
+            <label>Modalidades de trabajo que usará con estudiantes</label>
+            <div class="check-group" role="group" aria-label="Modalidades de trabajo">
+              <label class="check-opt" onclick="toggleCheck(this)">
+                <input type="checkbox" value="individual">Individual
+              </label>
+              <label class="check-opt" onclick="toggleCheck(this)">
+                <input type="checkbox" value="grupal">Grupal (2–4)
+              </label>
+              <label class="check-opt" onclick="toggleCheck(this)">
+                <input type="checkbox" value="taller">Taller colaborativo
+              </label>
+              <label class="check-opt" onclick="toggleCheck(this)">
+                <input type="checkbox" value="hibrida">Híbrida
+              </label>
+            </div>
+          </div>
+
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-primary" onclick="goStep(2)" aria-label="Continuar al paso 2">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+            Continuar
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         PASO 2 — CONTEXTO DEL PROYECTO DE INVESTIGACIÓN
+    ========================================================= -->
+    <section class="step-panel" id="panel-2" aria-label="Paso 2: Contexto del proyecto">
+      <h2 class="section-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        Contexto del Proyecto de Investigación
+      </h2>
+      <p class="section-desc">Define el marco del proyecto estudiantil donde aplicarás el IPD. Esta información personaliza los pesos de criterios y el umbral de aceptación.</p>
+
+      <div class="card">
+        <div class="form-block">
+          <div class="field-wrap">
+            <label for="f-titulo">Título tentativo del proyecto <span class="field-required" aria-hidden="true">*</span></label>
+            <input type="text" id="f-titulo" placeholder="Ej: Aplicación de materiales reciclados en interiores residenciales Lima Sur" required
+                   oninput="validateField(this,'titulo')" />
+            <span class="field-feedback" id="fb-titulo"></span>
+          </div>
+
+          <div class="grid-2">
+            <div class="field-wrap">
+              <label for="f-tipo-proyecto">Tipo de proyecto <span class="field-required" aria-hidden="true">*</span></label>
+              <select id="f-tipo-proyecto" required onchange="updateUmbral()">
+                <option value="">— Seleccionar tipo —</option>
+                <option value="tesis">Tesis de grado / titulación</option>
+                <option value="innovacion">Proyecto de innovación tecnológica</option>
+                <option value="revision">Revisión sistemática de literatura</option>
+                <option value="viabilidad">Informe de viabilidad</option>
+                <option value="brecha">Análisis de brecha en política educativa</option>
+              </select>
+            </div>
+            <div class="field-wrap">
+              <label for="f-linea">Línea de investigación IDC <span class="field-required" aria-hidden="true">*</span></label>
+              <select id="f-linea" required>
+                <option value="">— Seleccionar línea —</option>
+                <optgroup label="Diseño de Interiores">
+                  <option value="int-sostenible">Sostenibilidad en el diseño de interiores</option>
+                  <option value="int-reducido">Diseño para espacios reducidos</option>
+                  <option value="int-domotica">Tecnología y domótica</option>
+                  <option value="int-inclusivo">Diseño inclusivo y accesible</option>
+                  <option value="int-bienestar">Bienestar y ergonomía</option>
+                </optgroup>
+                <optgroup label="Diseño Publicitario">
+                  <option value="pub-digital">Estrategias de publicidad digital</option>
+                  <option value="pub-color">Psicología del color en publicidad</option>
+                  <option value="pub-sostenible">Publicidad sostenible</option>
+                  <option value="pub-interactiva">Publicidad interactiva</option>
+                  <option value="pub-branding">Identidad corporativa y branding</option>
+                </optgroup>
+                <optgroup label="Diseño de Modas">
+                  <option value="mod-sostenible">Moda sostenible y reciclaje textil</option>
+                  <option value="mod-innovacion">Innovación textil</option>
+                  <option value="mod-inclusivo">Diseño de moda inclusivo</option>
+                  <option value="mod-tendencias">Tendencias y consumo responsable</option>
+                  <option value="mod-tecnologia">Tecnología en la moda</option>
+                </optgroup>
+                <optgroup label="Comunicación Audiovisual">
+                  <option value="aud-narrativas">Narrativas digitales y transmedia</option>
+                  <option value="aud-documental">Cine y documental social</option>
+                  <option value="aud-postproduccion">Innovación en postproducción</option>
+                  <option value="aud-bajo-presupuesto">Producción audiovisual bajo presupuesto</option>
+                  <option value="aud-plataformas">Producción en plataformas digitales</option>
+                </optgroup>
+                <optgroup label="Líneas Transversales">
+                  <option value="trans-sostenibilidad">Sostenibilidad ambiental</option>
+                  <option value="trans-digital">Transformación digital</option>
+                  <option value="trans-identidad">Identidad cultural e interculturalidad</option>
+                  <option value="trans-emprendimiento">Emprendimiento creativo</option>
+                  <option value="trans-educacion">Educación y cambio social</option>
+                  <option value="trans-inclusion">Inclusión y accesibilidad</option>
+                </optgroup>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="field-wrap">
+              <label for="f-num-fuentes">Número estimado de fuentes a evaluar</label>
+              <input type="number" id="f-num-fuentes" min="5" max="100" value="20" placeholder="20" />
+              <span class="field-hint">Mínimo recomendado: 15 fuentes para proyectos de titulación</span>
+            </div>
+            <div class="field-wrap">
+              <label for="f-ciclo">Ciclo académico</label>
+              <select id="f-ciclo">
+                <option value="">— Seleccionar —</option>
+                <option value="2025-I">2025-I</option>
+                <option value="2025-II">2025-II</option>
+                <option value="2026-I">2026-I</option>
+                <option value="2026-II" selected>2026-II</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Umbral sugerido (se actualiza con JS) -->
+          <div class="result-banner info" id="umbral-banner" aria-live="polite">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--idc-blue)" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            <div class="result-banner-text">
+              <strong id="umbral-title">Selecciona el tipo de proyecto para ver el umbral IPD recomendado</strong>
+              <span id="umbral-desc">El umbral determina el puntaje mínimo que una fuente debe obtener para ser incluida en el corpus bibliográfico.</span>
+            </div>
+          </div>
+
+          <div class="field-wrap">
+            <label for="f-pregunta">Pregunta o hipótesis de investigación</label>
+            <textarea id="f-pregunta" rows="3" placeholder="Ej: ¿De qué manera el uso de materiales reciclados en el diseño de interiores residenciales impacta en la percepción de bienestar de los usuarios en Lima Sur?"></textarea>
+          </div>
+
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-outline" onclick="goStep(1)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+            Anterior
+          </button>
+          <button class="btn btn-primary" onclick="goStep(3)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+            Continuar al Simulador IPD
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         PASO 3 — SIMULADOR IPD (evaluación de fuentes)
+    ========================================================= -->
+    <section class="step-panel" id="panel-3" aria-label="Paso 3: Simulador IPD">
+      <h2 class="section-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/></svg>
+        Simulador de Evaluación IPD
+      </h2>
+      <p class="section-desc">Evalúa cada fuente documental candidata asignando un puntaje a cada criterio. Puedes evaluar múltiples fuentes y comparar resultados en la tabla acumulada.</p>
+
+      <div class="sim-row">
+        <!-- Formulario de evaluación de una fuente -->
+        <div class="fuente-form">
+          <h3 style="font-family:var(--font-display); font-size:var(--text-lg); font-weight:700; margin-bottom:var(--sp-sm);">
+            Fuente #<span id="fuente-num">1</span>
+          </h3>
+
+          <div class="field-wrap" style="margin-bottom:var(--sp-sm);">
+            <label for="f-fuente-titulo">Título de la fuente / referencia</label>
+            <input type="text" id="f-fuente-titulo" placeholder="Ej: Hernández, R. (2023). Metodología de la investigación. McGraw-Hill." />
+          </div>
+
+          <div class="field-wrap" style="margin-bottom:var(--sp-sm);">
+            <label for="f-fuente-tipo">Tipo de fuente</label>
+            <select id="f-fuente-tipo">
+              <option value="art">Artículo científico indexado</option>
+              <option value="lib">Libro / capítulo académico</option>
+              <option value="inf">Informe técnico / industrial</option>
+              <option value="tes">Tesis de grado o posgrado</option>
+              <option value="otro">Otro</option>
+            </select>
+          </div>
+
+          <!-- Sliders de criterios -->
+          <div class="slider-field" style="margin-bottom:.75rem;">
+            <div class="slider-header">
+              <span>Pertinencia Temática <small style="color:var(--idc-muted); font-weight:400;">(Peso 35%)</small></span>
+              <span class="slider-val" id="sv-pert">70</span>
+            </div>
+            <input type="range" class="idc-range" id="sl-pert" min="0" max="100" value="70" step="5"
+                   aria-label="Pertinencia temática" oninput="updateSimResult()" />
+            <div class="slider-ticks"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
+          </div>
+
+          <div class="slider-field" style="margin-bottom:.75rem;">
+            <div class="slider-header">
+              <span>Vigencia Temporal <small style="color:var(--idc-muted); font-weight:400;">(Peso 25%)</small></span>
+              <span class="slider-val" id="sv-vig">70</span>
+            </div>
+            <input type="range" class="idc-range" id="sl-vig" min="0" max="100" value="70" step="5"
+                   aria-label="Vigencia temporal" oninput="updateSimResult()" />
+            <div class="slider-ticks"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
+          </div>
+
+          <div class="slider-field" style="margin-bottom:.75rem;">
+            <div class="slider-header">
+              <span>Calidad Metodológica <small style="color:var(--idc-muted); font-weight:400;">(Peso 25%)</small></span>
+              <span class="slider-val" id="sv-cal">70</span>
+            </div>
+            <input type="range" class="idc-range" id="sl-cal" min="0" max="100" value="70" step="5"
+                   aria-label="Calidad metodológica" oninput="updateSimResult()" />
+            <div class="slider-ticks"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
+          </div>
+
+          <div class="slider-field" style="margin-bottom:var(--sp-sm);">
+            <div class="slider-header">
+              <span>Transferibilidad <small style="color:var(--idc-muted); font-weight:400;">(Peso 15%)</small></span>
+              <span class="slider-val" id="sv-trans">70</span>
+            </div>
+            <input type="range" class="idc-range" id="sl-trans" min="0" max="100" value="70" step="5"
+                   aria-label="Transferibilidad contextual" oninput="updateSimResult()" />
+            <div class="slider-ticks"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
+          </div>
+
+          <div class="field-wrap" style="margin-bottom:var(--sp-sm);">
+            <label for="f-fuente-obs">Observaciones del docente</label>
+            <textarea id="f-fuente-obs" rows="2" placeholder="Anotaciones sobre la fuente, justificación de inclusión/exclusión..."></textarea>
+          </div>
+
+          <button class="btn btn-teal" style="width:100%;" onclick="agregarFuente()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Agregar fuente al corpus
+          </button>
+        </div>
+
+        <!-- Panel de resultado en tiempo real -->
+        <div class="fuente-result">
+          <h3 style="font-family:var(--font-display); font-size:var(--text-lg); font-weight:700;">Resultado en tiempo real</h3>
+          <div class="score-hero">
+            <div class="score-big" id="sim-score" style="--score-color: var(--idc-gold);">70</div>
+            <div class="score-label">IPD Score</div>
+            <div class="score-badge" id="sim-badge">BUENO</div>
+          </div>
+          <div>
+            <div class="crit-bar-row">
+              <span class="crit-bar-label">Pertinencia (35%)</span>
+              <div class="crit-bar-track"><div class="crit-bar-fill" id="cb-pert" style="width:70%; background:var(--idc-teal);"></div></div>
+              <span class="crit-bar-val" id="cv-pert">70</span>
+            </div>
+            <div class="crit-bar-row">
+              <span class="crit-bar-label">Vigencia (25%)</span>
+              <div class="crit-bar-track"><div class="crit-bar-fill" id="cb-vig" style="width:70%; background:var(--idc-blue);"></div></div>
+              <span class="crit-bar-val" id="cv-vig">70</span>
+            </div>
+            <div class="crit-bar-row">
+              <span class="crit-bar-label">Calidad (25%)</span>
+              <div class="crit-bar-track"><div class="crit-bar-fill" id="cb-cal" style="width:70%; background:var(--idc-pink);"></div></div>
+              <span class="crit-bar-val" id="cv-cal">70</span>
+            </div>
+            <div class="crit-bar-row">
+              <span class="crit-bar-label">Transferib. (15%)</span>
+              <div class="crit-bar-track"><div class="crit-bar-fill" id="cb-trans" style="width:70%; background:var(--idc-amber);"></div></div>
+              <span class="crit-bar-val" id="cv-trans">70</span>
+            </div>
+          </div>
+          <p class="sim-recomendacion" id="sim-rec" style="font-size:var(--text-sm); color:var(--idc-muted); line-height:1.65; border-top:1px solid var(--idc-border); padding-top:.75rem; margin-top:.25rem;">
+            Fuente con pertinencia adecuada. Puede incluirse con una breve justificación de aplicabilidad al contexto IDC.
+          </p>
+        </div>
+      </div>
+
+      <!-- Tabla acumulada de fuentes evaluadas -->
+      <div class="card" style="margin-top:var(--sp-md);" id="tabla-fuentes-card">
+        <h3 style="font-family:var(--font-display); font-size:var(--text-lg); font-weight:700; margin-bottom:.5rem;">
+          Corpus en construcción — <span id="fuentes-count">0</span> fuente(s) evaluada(s)
+        </h3>
+        <p style="font-size:var(--text-xs); color:var(--idc-muted); margin-bottom:var(--sp-sm);">Las fuentes con IPD menor a 50 se marcan automáticamente para exclusión.</p>
+        <div style="overflow-x:auto;">
+          <table class="fuentes-log" aria-label="Tabla de fuentes evaluadas" id="tabla-fuentes">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Fuente</th>
+                <th>Tipo</th>
+                <th>IPD</th>
+                <th>Nivel</th>
+                <th>Decisión</th>
+                <th>Acción</th>
+              </tr>
+            </thead>
+            <tbody id="fuentes-tbody">
+              <tr id="fila-vacia">
+                <td colspan="7" style="text-align:center; color:var(--idc-muted); padding:1.5rem;">
+                  Aún no hay fuentes evaluadas. Completa el formulario y haz clic en "Agregar fuente al corpus".
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="btn-group">
+        <button class="btn btn-outline" onclick="goStep(2)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+          Anterior
+        </button>
+        <button class="btn btn-primary" onclick="goStep(4)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+          Ver Guía Pedagógica
+        </button>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         PASO 4 — GUÍA PEDAGÓGICA
+    ========================================================= -->
+    <section class="step-panel" id="panel-4" aria-label="Paso 4: Guía pedagógica">
+
+      <div class="guide-header">
+        <h2>Protocolo de <span>Implementación</span> Pedagógica del IPD</h2>
+        <p>Secuencia de 6 fases para que el docente aplique el IPD como herramienta formativa — no solo evaluativa — en los proyectos de investigación del IDC. Cada fase incluye un checklist de acciones verificables.</p>
+      </div>
+
+      <div class="phase-list" role="list">
+
+        <!-- FASE 1 -->
+        <div class="phase-card" role="listitem">
+          <button class="phase-btn" aria-expanded="true" aria-controls="ph1" onclick="togglePhase(this)"
+                  style="--phase-color: var(--idc-teal);">
+            <div class="phase-num dark">1</div>
+            <div class="phase-meta">
+              Sensibilización y encuadre del IPD
+              <small>Semana 1 · Duración estimada: 1 sesión de 90 min</small>
+            </div>
+            <svg class="phase-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="phase-content" id="ph1" style="height:auto;">
+            <div class="phase-inner">
+              <p style="font-size:var(--text-sm); color:var(--idc-muted); margin-bottom:.75rem; line-height:1.65;">
+                Objetivo: que el estudiante comprenda para qué sirve el IPD, cómo se calcula y por qué mejora la calidad de su investigación antes de buscar fuentes.
+              </p>
+              <ul class="checklist" aria-label="Checklist Fase 1">
+                <li class="check-item" onclick="toggleCheckItem(this)" tabindex="0" role="checkbox" aria-checked="false">
+                  <div class="check-box" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                  <span class="check-text">Presentar la infografía interactiva IPD a los estudiantes como material de entrada (modo proyección).</span>
+                </li>
+                <li class="check-item" onclick="toggleCheckItem(this)" tabindex="0" role="checkbox" aria-checked="false">
+                  <div class="check-box" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                  <span class="check-text">Explicar la fórmula IPD = Σ (Criterio × Peso) y los 4 criterios ponderados (Pertinencia 35%, Vigencia 25%, Calidad 25%, Transferibilidad 15%).</span>
+                </li>
+                <li class="check-item" onclick="toggleCheckItem(this)" tabindex="0" role="checkbox" aria-checked="false">
+                  <div class="check-box" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                  <span class="check-text">Realizar un ejercicio grupal de calibración: evaluar juntos 2 fuentes de ejemplo antes de que cada estudiante evalúe por su cuenta.</span>
+                </li>
+                <li class="check-item" onclick="toggleCheckItem(this)" tabindex="0" role="checkbox" aria-checked="false">
+                  <div class="check-box" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                  <span class="check-text">Entregar la Matriz IPD en formato editable (Excel/Sheets) con fórmulas precargadas para que los estudiantes registren sus evaluaciones.</span>
+                </li>
+                <li class="check-item" onclick="toggleCheckItem(this)" tabindex="0" role="checkbox" aria-checked="false">
+                  <div class="check-box" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                  <span class="check-text">Contextualizar el IPD en la línea de investigación de la especialidad (Interiores, Publicidad, Modas o Audiovisual) con ejemplos disciplinares reales.</span>
+                </li>
+              </ul>
+              <div class="phase-tip">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                Principio DUA: Ofrecer múltiples medios de representación. Usar la calculadora visual + la fórmula escrita + un ejemplo en voz alta para activar distintos canales de procesamiento.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- FASE 2 -->
+        <div class="phase-card" role="listitem">
+          <button class="phase-btn" aria-expanded="false" aria-controls="ph2" onclick="togglePhase(this)"
+                  style="--phase-color: var(--idc-blue);">
+            <div class="phase-num dark">2</div>
+            <div class="phase-meta">
+              Búsqueda y preselección documental
+              <small>Semanas 2–3 · Tarea extra-clase supervisada</small>
+            </div>
+            <svg class="phase-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="phase-content" id="ph2">
+            <div class="phase-inner">
+              <p style="font-size:var(--text-sm); color:var(--idc-muted); margin-bottom:.75rem; line-height:1.65;">
+                Objetivo: que el estudiante construya un pool inicial de 20–30 fuentes candidatas usando ecuaciones de búsqueda con operadores booleanos en bases de datos académicas pertinentes a su especialidad.
+              </p>
+              <ul class="checklist">
+                <li class="check-item" onclick="toggleCheckItem(this)" tabindex="0" role="checkbox" aria-checked="false">
+                  <div class="check-box" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                  <span class="check-text">Asignar a cada estudiante/grupo las bases de datos prioritarias según su carrera: Scopus, EBSCO, SciELO, Redalyc, Google Scholar.</span>
+                </li>
+                <li class="check-item" onclick="toggleCheckItem(this)" tabindex="0" role="checkbox" aria-checked="false">
+                  <div class="check-box" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                  <span class="check-text">Indicar bases sectoriales por carrera: WGSN (Modas), AdAge/Warc (Publicidad), Dezeen/Architectural Digest (Interiores), IMDB Pro/Screendaily (Audiovisual).</span>
+                </li>
+                <li class="check-item" onclick="toggleCheckItem(this)" tabindex="0" role="checkbox" aria-checked="false">
+                  <div class="check-box" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                  <span class="check-text">Verificar que cada estudiante registre las fuentes encontradas en el gestor bibliográfico (Zotero, Mendeley) antes de evaluar con el IPD.</span>
+                </li>
+                <li class="check-item" onclick="toggleCheckItem(this)" tabindex="0" role="checkbox" aria-checked="false">
+                  <div class="check-box" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                  <span class="check-text">Revisar que el pool inicial contenga al menos el doble de las fuentes que se planea incluir en el marco teórico final (para que el IPD tenga margen de filtrado).</span>
+                </li>
+                <li class="check-item" onclick="toggleCheckItem(this)" tabindex="0" role="checkbox" aria-checked="false">
+                  <div class="check-box" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                  <span class="check-text">Confirmar que las fuentes cubran los últimos 5 años (ajustar a 3 años para Modas y Publicidad digital).</span>
+                </li>
+              </ul>
+              <div class="phase-tip">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                Principio DUA: Ofrecer múltiples medios de acción y expresión. Algunos estudiantes pueden buscar en inglés, otros en español; ambos son válidos si se registra el idioma como criterio IPD.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- FASE 3 -->
+        <div class="phase-card" role="listitem">
+          <button class="phase-btn" aria-expanded="false" aria-controls="ph3" onclick="togglePhase(this)"
+                  style="--phase-color: var(--idc-pink);">
+            <div class="phase-num dark">3</div>
+            <div class="phase-meta">
+              Evaluación individual con la Matriz IPD
+              <small>Semana 4 · Sesión de taller en aula o virtual</small>
+            </div>
+            <svg class="phase-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="phase-content" id="ph3">
+            <div class="phase-inner">
+              <p style="font-size:var(--text-sm); color:var(--idc-muted); margin-bottom:.75rem; line-height:1.65;">
+                Objetivo: que cada estudiante aplique los 4 criterios ponderados del IPD a cada fuente de su pool, generando puntajes individuales por dimensión y un IPD total.
+              </p>
+
+              <p style="font-size:var(--text-sm); font-weight:700; margin-bottom:.35rem;">Criterios IPD y cómo orientar al estudiante:</p>
+              <div style="overflow-x:auto; margin-bottom:.75rem;">
+                <table class="criteria-tbl">
+                  <thead>
+                    <tr>
+                      <th>Criterio</th>
+                      <th>Peso</th>
+                      <th>Preguntas orientadoras para el estudiante</th>
+                      <th>Indicador de puntaje alto (80+)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Pertinencia Temática</td>
+                      <td>35%</td>
+                      <td>¿Esta fuente aborda directamente mi tema de investigación o mi línea IDC?</td>
+                      <td>La fuente es sobre el mismo fenómeno o variable del proyecto</td>
+                    </tr>
+                    <tr>
+                      <td>Vigencia Temporal</td>
+                      <td>25%</td>
+                      <td>¿Cuándo fue publicada? ¿Sigue siendo relevante en mi campo?</td>
+                      <td>Publicada en los últimos 3–5 años; actualizada para el campo</td>
+                    </tr>
+                    <tr>
+                      <td>Calidad Metodológica</td>
+                      <td>25%</td>
+                      <td>¿La fuente presenta datos, evidencia empírica o rigor en su método?</td>
+                      <td>Estudio empírico, revisión sistemática, escala validada</td>
+                    </tr>
+                    <tr>
+                      <td>Transferibilidad</td>
+                      <td>15%</td>
+                      <td>¿Puedo aplicar lo que dice esta fuente al contexto del IDC y Perú?</td>
+                      <td>Contexto latinoamericano, recursos disponibles, escala adaptable</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <ul class="checklist">
+                <li class="check-item" onclick="toggleCheckItem(this)" tabindex="0" role="checkbox" aria-checked="false">
+                  <div class="check-box" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                  <span class="check-text">Supervisar que cada estudiante lea el abstract completo antes de asignar puntajes (no calificar solo por el título).</span>
+                </li>
+                <li class="check-item" onclick="toggleCheckItem(this)" tabindex="0" role="checkbox" aria-checked="false">
+                  <div class="check-box" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                  <span class="check-text">Verificar que se use el Simulador IPD o la Matriz Excel para el cálculo automático del índice ponderado.</span>
+                </li>
+                <li class="check-item" onclick="toggleCheckItem(this)" tabindex="0" role="checkbox" aria-checked="false">
+                  <div class="check-box" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                  <span class="check-text">Marcar en la matriz el semáforo de decisión: verde (≥85), amarillo (70–84), naranja (50–69), rojo (menor a 50).</span>
+                </li>
+              </ul>
+              <div style="margin-top:.5rem;">
+                <p style="font-size:var(--text-xs); font-weight:700; color:var(--idc-dark); margin-bottom:.3rem;">Semáforo IPD:</p>
+                <div class="semaforo">
+                  <span class="sema-item sema-green"><span class="sema-dot"></span>≥ 85 · Alta pertinencia — Incluir como primaria</span>
+                  <span class="sema-item sema-yellow"><span class="sema-dot"></span>70–84 · Media — Incluir con justificación</span>
+                  <span class="sema-item sema-orange"><span class="sema-dot"></span>50–69 · Baja — Solo complementaria</span>
+                  <span class="sema-item sema-red"><span class="sema-dot"></span>Menor a 50 · Excluir del corpus</span>
+                </div>
+              </div>
+              <div class="phase-tip" style="margin-top:.75rem;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                Principio DUA: Proporcionar múltiples medios de participación. Permitir que estudiantes con dificultades de lectura académica usen herramientas de síntesis (Scholarcy, Elicit) para extraer el abstract antes de evaluar.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- FASE 4 -->
+        <div class="phase-card" role="listitem">
+          <button class="phase-btn" aria-expanded="false" aria-controls="ph4" onclick="togglePhase(this)"
+                  style="--phase-color: var(--idc-amber);">
+            <div class="phase-num">4</div>
+            <div class="phase-meta">
+              Triangulación inter-evaluador docente-estudiante
+              <small>Semana 5 · Sesión de retroalimentación individual o grupal</small>
+            </div>
+            <svg class="phase-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="phase-content" id="ph4">
+            <div class="phase-inner">
+              <p style="font-size:var(--text-sm); color:var(--idc-muted); margin-bottom:.75rem; line-height:1.65;">
+                Objetivo: validar la objetividad del proceso IPD mediante la comparación de puntajes entre el estudiante y el docente, resolviendo discrepancias con argumentación pedagógica.
+              </p>
+              <ul class="checklist">
+                <li class="check-item" onclick="toggleCheckItem(this)" tabindex="0" role="checkbox" aria-checked="false">
+                  <div class="check-box" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                  <span class="check-text">El docente evalúa de forma independiente al menos 5 fuentes del pool del estudiante con la misma Matriz IPD.</span>
+                </li>
+                <li class="check-item" onclick="toggleCheckItem(this)" tabindex="0" role="checkbox" aria-checked="false">
+                  <div class="check-box" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                  <span class="check-text">Comparar los puntajes: si la diferencia entre evaluadores supera 10 puntos en cualquier criterio, iniciar la sesión de discusión argumentada.</span>
+                </li>
+                <li class="check-item" onclick="toggleCheckItem(this)" tabindex="0" role="checkbox" aria-checked="false">
+                  <div class="check-box" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                  <span class="check-text">Registrar la decisión consensuada en la bitácora del proyecto, anotando la justificación académica de la puntuación final acordada.</span>
+                </li>
+                <li class="check-item" onclick="toggleCheckItem(this)" tabindex="0" role="checkbox" aria-checked="false">
+                  <div class="check-box" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                  <span class="check-text">Calcular el coeficiente de concordancia intra-clase (CCI) si el grupo de docentes aplica el IPD en el mismo proyecto (para estudios de fiabilidad inter-evaluador).</span>
+                </li>
+              </ul>
+              <div class="phase-tip">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                Esta fase desarrolla pensamiento crítico y metacognición: el estudiante comprende por qué su fuente tiene el puntaje que tiene, no solo cuánto obtuvo.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- FASE 5 -->
+        <div class="phase-card" role="listitem">
+          <button class="phase-btn" aria-expanded="false" aria-controls="ph5" onclick="togglePhase(this)"
+                  style="--phase-color: var(--idc-teal);">
+            <div class="phase-num dark">5</div>
+            <div class="phase-meta">
+              Construcción del marco referencial con corpus validado
+              <small>Semanas 6–7 · Producto integrador</small>
+            </div>
+            <svg class="phase-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="phase-content" id="ph5">
+            <div class="phase-inner">
+              <p style="font-size:var(--text-sm); color:var(--idc-muted); margin-bottom:.75rem; line-height:1.65;">
+                Objetivo: que el estudiante construya el marco teórico y referencial del proyecto usando exclusivamente fuentes con IPD igual o mayor al umbral establecido, organizadas temáticamente.
+              </p>
+              <ul class="checklist">
+                <li class="check-item" onclick="toggleCheckItem(this)" tabindex="0" role="checkbox" aria-checked="false">
+                  <div class="check-box" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                  <span class="check-text">Organizar el corpus validado en categorías temáticas vinculadas al mapa conceptual del proyecto (no por tipo de fuente, sino por argumento).</span>
+                </li>
+                <li class="check-item" onclick="toggleCheckItem(this)" tabindex="0" role="checkbox" aria-checked="false">
+                  <div class="check-box" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                  <span class="check-text">Verificar que cada fuente citada esté vinculada explícitamente a un objetivo específico del proyecto (coherencia interna del marco).</span>
+                </li>
+                <li class="check-item" onclick="toggleCheckItem(this)" tabindex="0" role="checkbox" aria-checked="false">
+                  <div class="check-box" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                  <span class="check-text">Revisar el formato APA 7.0 de todas las citas y referencias antes de la entrega (usar el validador de Zotero o Citation Machine).</span>
+                </li>
+                <li class="check-item" onclick="toggleCheckItem(this)" tabindex="0" role="checkbox" aria-checked="false">
+                  <div class="check-box" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                  <span class="check-text">Las fuentes con IPD 70–84 (pertinencia media) deben ir acompañadas de una nota justificatoria de 2–3 líneas explicando su inclusión.</span>
+                </li>
+                <li class="check-item" onclick="toggleCheckItem(this)" tabindex="0" role="checkbox" aria-checked="false">
+                  <div class="check-box" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                  <span class="check-text">Incluir como anexo la Matriz IPD completa con todos los puntajes, para sustentar la selección bibliográfica ante el jurado evaluador.</span>
+                </li>
+              </ul>
+              <div class="phase-tip">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                Principio DUA: Fomentar la autorregulación. El estudiante que construye su marco con el IPD desarrolla autonomía investigadora porque puede defender cada fuente con argumentos, no solo con el formato APA.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- FASE 6 -->
+        <div class="phase-card" role="listitem">
+          <button class="phase-btn" aria-expanded="false" aria-controls="ph6" onclick="togglePhase(this)"
+                  style="--phase-color: var(--idc-dark2);">
+            <div class="phase-num dark">6</div>
+            <div class="phase-meta">
+              Evaluación formativa y reflexión sobre el proceso IPD
+              <small>Semana 8 · Sesión de cierre y meta-aprendizaje</small>
+            </div>
+            <svg class="phase-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="phase-content" id="ph6">
+            <div class="phase-inner">
+              <p style="font-size:var(--text-sm); color:var(--idc-muted); margin-bottom:.75rem; line-height:1.65;">
+                Objetivo: cerrar el ciclo experiencial de Kolb mediante la reflexión sobre el proceso IPD. El estudiante evalúa qué aprendió sobre selección documental y cómo lo transferirá a futuros proyectos.
+              </p>
+              <ul class="checklist">
+                <li class="check-item" onclick="toggleCheckItem(this)" tabindex="0" role="checkbox" aria-checked="false">
+                  <div class="check-box" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                  <span class="check-text">Pedir a cada estudiante que complete una hoja de reflexión (1 página): qué criterio IPD fue más difícil de aplicar y por qué.</span>
+                </li>
+                <li class="check-item" onclick="toggleCheckItem(this)" tabindex="0" role="checkbox" aria-checked="false">
+                  <div class="check-box" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                  <span class="check-text">Comparar el corpus del estudiante con el que habrían elegido sin el IPD: preguntar cuántas fuentes habrían incluido con baja pertinencia.</span>
+                </li>
+                <li class="check-item" onclick="toggleCheckItem(this)" tabindex="0" role="checkbox" aria-checked="false">
+                  <div class="check-box" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                  <span class="check-text">El docente presenta el Reporte IPD del grupo (KPIs agregados) para que los estudiantes vean su posición relativa dentro de la cohorte.</span>
+                </li>
+                <li class="check-item" onclick="toggleCheckItem(this)" tabindex="0" role="checkbox" aria-checked="false">
+                  <div class="check-box" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                  <span class="check-text">Guardar los datos del grupo para el seguimiento institucional de la Unidad de Investigación IDC (datos anónimos: IPD promedio, porcentaje de fuentes excluidas por criterio).</span>
+                </li>
+              </ul>
+              <div class="phase-tip">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                Ciclo de Kolb — Fase de Conceptualización Abstracta: al reflexionar sobre el proceso, el estudiante transforma la experiencia en comprensión generalizable. Es la fase más formativa y la más omitida en la práctica docente tradicional.
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /phase-list -->
+
+      <div class="btn-group">
+        <button class="btn btn-outline" onclick="goStep(3)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+          Anterior
+        </button>
+        <button class="btn btn-primary" onclick="goStep(5)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+          Ver Reporte Final
+        </button>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         PASO 5 — REPORTE FINAL
+    ========================================================= -->
+    <section class="step-panel" id="panel-5" aria-label="Paso 5: Reporte final">
+      <h2 class="section-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Reporte de Implementación IPD
+      </h2>
+      <p class="section-desc">Resumen ejecutivo de la sesión de evaluación documental. Exportable para la Unidad de Investigación del IDC.</p>
+
+      <!-- Datos del docente (autocompletados) -->
+      <div class="report-card">
+        <div class="report-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--idc-gold)" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Identificación del Docente
+        </div>
+        <div class="grid-2">
+          <div>
+            <p style="font-size:var(--text-xs); color:var(--idc-muted);">Nombre</p>
+            <p style="font-weight:600;" id="rpt-nombre">—</p>
+          </div>
+          <div>
+            <p style="font-size:var(--text-xs); color:var(--idc-muted);">Correo</p>
+            <p style="font-weight:600;" id="rpt-email">—</p>
+          </div>
+          <div>
+            <p style="font-size:var(--text-xs); color:var(--idc-muted);">Especialidad</p>
+            <p style="font-weight:600;" id="rpt-carrera">—</p>
+          </div>
+          <div>
+            <p style="font-size:var(--text-xs); color:var(--idc-muted);">Curso</p>
+            <p style="font-weight:600;" id="rpt-curso">—</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- KPIs del corpus -->
+      <div class="report-card">
+        <div class="report-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--idc-teal)" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          KPIs del Corpus Evaluado
+        </div>
+        <div class="kpi-grid">
+          <div class="kpi-box">
+            <div class="kpi-val" id="kpi-total">0</div>
+            <div class="kpi-label">Fuentes evaluadas</div>
+          </div>
+          <div class="kpi-box">
+            <div class="kpi-val" style="color:var(--idc-teal);" id="kpi-incluir">0</div>
+            <div class="kpi-label">A incluir (IPD ≥ 70)</div>
+          </div>
+          <div class="kpi-box">
+            <div class="kpi-val" style="color:var(--idc-pink);" id="kpi-excluir">0</div>
+            <div class="kpi-label">A excluir (IPD &lt; 50)</div>
+          </div>
+          <div class="kpi-box">
+            <div class="kpi-val" style="color:var(--idc-gold);" id="kpi-promedio">—</div>
+            <div class="kpi-label">IPD promedio</div>
+          </div>
+          <div class="kpi-box">
+            <div class="kpi-val" style="color:var(--idc-success);" id="kpi-max">—</div>
+            <div class="kpi-label">IPD más alto</div>
+          </div>
+          <div class="kpi-box">
+            <div class="kpi-val" style="color:#ff7c00;" id="kpi-min">—</div>
+            <div class="kpi-label">IPD más bajo</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabla resumen de fuentes -->
+      <div class="report-card">
+        <div class="report-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--idc-blue)" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>
+          Detalle del Corpus
+        </div>
+        <div id="rpt-tabla-wrap" style="overflow-x:auto;">
+          <p style="color:var(--idc-muted); font-size:var(--text-sm);" id="rpt-vacio">
+            No se han evaluado fuentes en el simulador. Regresa al Paso 3 para evaluar fuentes.
+          </p>
+        </div>
+      </div>
+
+      <!-- Recomendaciones finales -->
+      <div class="report-card" style="border-top: 4px solid var(--idc-gold);">
+        <div class="report-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--idc-gold)" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          Recomendaciones Pedagógicas para el Docente
+        </div>
+        <div id="rpt-recomendaciones">
+          <div class="result-banner info">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--idc-blue)" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            <div class="result-banner-text">
+              <strong>Completa el simulador para recibir recomendaciones personalizadas</strong>
+              <span>Las recomendaciones se generan automáticamente según los resultados del corpus evaluado en el Paso 3.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-group">
+        <button class="btn btn-outline" onclick="goStep(4)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+          Anterior
+        </button>
+        <button class="btn btn-success" onclick="window.print()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+          Imprimir / Exportar PDF
+        </button>
+        <button class="btn btn-primary" onclick="generarReporte()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+          Generar reporte completo
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer" role="contentinfo">
+    <div class="footer-inner">
+      <div>
+        <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect width="64" height="64" rx="10" fill="#f3a100"/>
+          <text x="9" y="47" font-family="Georgia,serif" font-weight="900" font-size="40" fill="#1a1a2e">idc</text>
+        </svg>
+      </div>
+      <div class="footer-text">
+        <h4>Jefatura de la Unidad de Investigación</h4>
+        <p>
+          Instituto de Educación Superior Pública Diseño y Comunicación (IDC)<br>
+          MEMORANDO MÚLTIPLE N° 05/JUI/IDC/2025-II · Mg. Corina Japay Japay<br>
+          Líneas de Investigación por Especialidad y Transversales · Lima, 2026
+        </p>
+        <p class="footer-sign">Mg. Mario Quiroz Martínez — Unidad de Investigación IDC 2026</p>
+      </div>
+    </div>
+    <div class="footer-divider">
+      <span class="footer-copy">© 2026 Instituto de Educación Superior Pública Diseño y Comunicación · Todos los derechos reservados</span>
+      <span style="font-size:var(--text-xs); color:var(--idc-gold); font-weight:600;">Guía de Implementación Pedagógica IPD v1.0</span>
+    </div>
+  </footer>
+
+  <!-- ============================================================
+       JAVASCRIPT — Toda la lógica interactiva
+  ============================================================ -->
+  <script>
+    /* ==============================================================
+       ESTADO GLOBAL DE LA APLICACIÓN
+    ============================================================== */
+    var state = {
+      currentStep: 1,
+      totalSteps:  5,
+      fuentes: [],
+      fuenteCounter: 1
+    };
+
+    /* Umbrales y colores por tipo de proyecto */
+    var UMBRALES = {
+      tesis:      { min: 80, label: 'Tesis de grado', desc: 'Umbral IPD: 80 o más. El jurado evaluador exige fuentes primarias de alta calidad metodológica.' },
+      innovacion: { min: 75, label: 'Proyecto de innovación', desc: 'Umbral IPD: 75 o más. Priorizar transferibilidad al contexto IDC y vigencia tecnológica.' },
+      revision:   { min: 85, label: 'Revisión sistemática', desc: 'Umbral IPD: 85 o más. Estándar más estricto: solo fuentes con diseño metodológico sólido.' },
+      viabilidad: { min: 70, label: 'Informe de viabilidad', desc: 'Umbral IPD: 70 o más. Énfasis en viabilidad normativa y costo-efectividad para el contexto IDC.' },
+      brecha:     { min: 75, label: 'Análisis de brecha', desc: 'Umbral IPD: 75 o más. Priorizar evidencia empírica y alineación con políticas educativas peruanas.' }
+    };
+
+    var SCORE_LEVELS = [
+      { min: 85, label: 'EXCELENTE', color: '#00875a',
+        rec: 'Incluir como fuente primaria. Citar con énfasis en el marco teórico.',
+        decision: 'Incluir (primaria)', badgeClass: 'badge-excellent' },
+      { min: 70, label: 'BUENO',     color: '#009ad3',
+        rec: 'Incluir con justificación de transferibilidad al contexto IDC.',
+        decision: 'Incluir (justificar)', badgeClass: 'badge-good' },
+      { min: 50, label: 'REGULAR',   color: '#f3a100',
+        rec: 'Usar solo como fuente complementaria. Buscar fuentes más específicas.',
+        decision: 'Solo complementaria', badgeClass: 'badge-regular' },
+      { min: 0,  label: 'BAJA',      color: '#e14a94',
+        rec: 'No incluir en el corpus. Excluir y buscar alternativas.',
+        decision: 'Excluir', badgeClass: 'badge-low' }
+    ];
+
+    var CARRERAS = {
+      int:   'Diseño de Interiores',
+      pub:   'Diseño Publicitario',
+      mod:   'Diseño de Modas',
+      aud:   'Comunicación Audiovisual',
+      trans: 'Todas las especialidades'
+    };
+
+    var TIPOS_FUENTE = {
+      art:  'Artículo científico',
+      lib:  'Libro / capítulo',
+      inf:  'Informe técnico',
+      tes:  'Tesis',
+      otro: 'Otro'
+    };
+
+    /* ==============================================================
+       NAVEGACIÓN ENTRE PASOS
+    ============================================================== */
+    function goStep(n) {
+      if (n < 1 || n > state.totalSteps) { return; }
+      /* Ocultar panel actual */
+      var currentPanel = document.getElementById('panel-' + state.currentStep);
+      if (currentPanel) { currentPanel.classList.remove('active'); }
+      /* Actualizar nodo anterior */
+      var prevNode = document.getElementById('node-' + state.currentStep);
+      if (prevNode) {
+        var prevDot = prevNode.querySelector('.step-dot');
+        prevDot.classList.remove('active');
+        if (n > state.currentStep) {
+          prevDot.classList.add('done');
+          prevDot.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" style="width:13px;height:13px;"><polyline points="20 6 9 17 4 12"/></svg>';
+          prevNode.classList.add('done');
+        }
+      }
+      state.currentStep = n;
+      /* Mostrar nuevo panel */
+      var newPanel = document.getElementById('panel-' + n);
+      if (newPanel) { newPanel.classList.add('active'); }
+      /* Actualizar stepper */
+      updateStepper();
+      /* Si es el reporte, generarlo */
+      if (n === 5) { generarReporte(); }
+      /* Scroll al top */
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      /* Anunciar a lectores de pantalla */
+      announce('Paso ' + n + ' de ' + state.totalSteps);
+    }
+
+    function updateStepper() {
+      document.getElementById('step-current').textContent = state.currentStep;
+      /* Nodos */
+      for (var i = 1; i <= state.totalSteps; i++) {
+        var node = document.getElementById('node-' + i);
+        var dot  = node.querySelector('.step-dot');
+        dot.classList.remove('active', 'done');
+        node.classList.remove('active', 'done');
+        if (i < state.currentStep) {
+          dot.classList.add('done');
+          dot.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" style="width:13px;height:13px;"><polyline points="20 6 9 17 4 12"/></svg>';
+          node.classList.add('done');
+        } else if (i === state.currentStep) {
+          dot.classList.add('active');
+          dot.textContent = i;
+          node.classList.add('active');
+        } else {
+          dot.textContent = i;
+        }
+      }
+      /* Barra de progreso */
+      var pct = ((state.currentStep - 1) / (state.totalSteps - 1)) * 100;
+      document.getElementById('progress-fill').style.width = pct + '%';
+    }
+
+    /* ==============================================================
+       VALIDACIÓN DE CAMPOS EN TIEMPO REAL
+    ============================================================== */
+    function validateField(el, name) {
+      var fb = document.getElementById('fb-' + name);
+      var val = el.value.trim();
+      var ok = false;
+      var msg = '';
+      if (name === 'email') {
+        ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+        msg = ok ? 'Correo válido' : 'Ingresa un correo electrónico válido';
+      } else if (name === 'carrera' || name === 'curso' || name === 'titulo') {
+        ok = val.length >= 3;
+        msg = ok ? 'Correcto' : 'Este campo es obligatorio (mín. 3 caracteres)';
+      } else {
+        ok = val.length >= 2;
+        msg = ok ? 'Correcto' : 'Este campo es obligatorio';
+      }
+      el.classList.toggle('valid',   ok);
+      el.classList.toggle('invalid', !ok);
+      if (fb) {
+        fb.textContent = msg;
+        fb.className = 'field-feedback ' + (ok ? 'ok' : 'error');
+      }
+    }
+
+    /* ==============================================================
+       RADIO Y CHECKBOX CUSTOM
+    ============================================================== */
+    function selectRadio(el, name) {
+      document.querySelectorAll('[name="' + name + '"]').forEach(function(r) {
+        r.closest('.radio-opt').classList.remove('selected');
+      });
+      el.classList.add('selected');
+    }
+
+    function toggleCheck(el) {
+      el.classList.toggle('selected');
+    }
+
+    /* ==============================================================
+       UMBRAL — actualiza banner según tipo de proyecto
+    ============================================================== */
+    function updateUmbral() {
+      var tipo = document.getElementById('f-tipo-proyecto').value;
+      var banner = document.getElementById('umbral-banner');
+      var title  = document.getElementById('umbral-title');
+      var desc   = document.getElementById('umbral-desc');
+      if (!tipo || !UMBRALES[tipo]) {
+        title.textContent = 'Selecciona el tipo de proyecto para ver el umbral IPD recomendado';
+        desc.textContent  = 'El umbral determina el puntaje mínimo que una fuente debe obtener para ser incluida en el corpus bibliográfico.';
+        banner.className  = 'result-banner info';
+        return;
+      }
+      var u = UMBRALES[tipo];
+      title.textContent = u.label + ' — Umbral mínimo: IPD ' + u.min;
+      desc.textContent  = u.desc;
+      banner.className  = 'result-banner success';
+    }
+
+    /* ==============================================================
+       SIMULADOR IPD — actualización en tiempo real
+    ============================================================== */
+    function getLevel(score) {
+      for (var i = 0; i < SCORE_LEVELS.length; i++) {
+        if (score >= SCORE_LEVELS[i].min) { return SCORE_LEVELS[i]; }
+      }
+      return SCORE_LEVELS[SCORE_LEVELS.length - 1];
+    }
+
+    function calcIPD(p, v, c, t) {
+      return Math.round(p * 0.35 + v * 0.25 + c * 0.25 + t * 0.15);
+    }
+
+    function updateSimResult() {
+      var p = parseInt(document.getElementById('sl-pert').value);
+      var v = parseInt(document.getElementById('sl-vig').value);
+      var c = parseInt(document.getElementById('sl-cal').value);
+      var t = parseInt(document.getElementById('sl-trans').value);
+
+      /* Etiquetas */
+      document.getElementById('sv-pert').textContent  = p;
+      document.getElementById('sv-vig').textContent   = v;
+      document.getElementById('sv-cal').textContent   = c;
+      document.getElementById('sv-trans').textContent = t;
+
+      var ipd   = calcIPD(p, v, c, t);
+      var level = getLevel(ipd);
+
+      /* Score y badge */
+      var scoreEl = document.getElementById('sim-score');
+      scoreEl.textContent = ipd;
+      scoreEl.style.setProperty('--score-color', level.color);
+      var badgeEl = document.getElementById('sim-badge');
+      badgeEl.textContent = level.label;
+      badgeEl.style.color = level.color;
+      badgeEl.style.background = level.color + '22';
+
+      /* Recomendación */
+      document.getElementById('sim-rec').textContent = level.rec;
+
+      /* Barras de desglose */
+      document.getElementById('cb-pert').style.width  = p + '%';
+      document.getElementById('cb-vig').style.width   = v + '%';
+      document.getElementById('cb-cal').style.width   = c + '%';
+      document.getElementById('cb-trans').style.width = t + '%';
+      document.getElementById('cv-pert').textContent  = p;
+      document.getElementById('cv-vig').textContent   = v;
+      document.getElementById('cv-cal').textContent   = c;
+      document.getElementById('cv-trans').textContent = t;
+
+      /* Anunciar a lector de pantalla */
+      announce('IPD calculado: ' + ipd + ', nivel ' + level.label);
+    }
+
+    /* ==============================================================
+       AGREGAR FUENTE AL CORPUS
+    ============================================================== */
+    function agregarFuente() {
+      var p   = parseInt(document.getElementById('sl-pert').value);
+      var v   = parseInt(document.getElementById('sl-vig').value);
+      var c   = parseInt(document.getElementById('sl-cal').value);
+      var t   = parseInt(document.getElementById('sl-trans').value);
+      var ipd = calcIPD(p, v, c, t);
+      var level = getLevel(ipd);
+
+      var titulo = document.getElementById('f-fuente-titulo').value.trim() || 'Fuente sin título #' + state.fuenteCounter;
+      var tipo   = document.getElementById('f-fuente-tipo').value;
+      var obs    = document.getElementById('f-fuente-obs').value.trim();
+
+      var fuente = {
+        num:      state.fuenteCounter,
+        titulo:   titulo,
+        tipo:     TIPOS_FUENTE[tipo] || tipo,
+        p: p, v: v, c: c, t: t,
+        ipd:      ipd,
+        level:    level,
+        obs:      obs,
+        decision: level.decision
+      };
+
+      state.fuentes.push(fuente);
+      state.fuenteCounter++;
+
+      renderFuentesTable();
+      document.getElementById('fuente-num').textContent = state.fuenteCounter;
+
+      /* Limpiar form */
+      document.getElementById('f-fuente-titulo').value = '';
+      document.getElementById('f-fuente-obs').value = '';
+
+      announce('Fuente ' + fuente.num + ' agregada. IPD: ' + ipd + '. ' + level.decision);
+    }
+
+    function eliminarFuente(idx) {
+      state.fuentes.splice(idx, 1);
+      /* Renumerar */
+      state.fuentes.forEach(function(f, i) { f.num = i + 1; });
+      renderFuentesTable();
+      announce('Fuente eliminada del corpus');
+    }
+
+    function renderFuentesTable() {
+      var tbody = document.getElementById('fuentes-tbody');
+      var count = state.fuentes.length;
+      document.getElementById('fuentes-count').textContent = count;
+      document.getElementById('fuente-num').textContent = count + 1;
+
+      if (count === 0) {
+        tbody.innerHTML = '<tr id="fila-vacia"><td colspan="7" style="text-align:center; color:var(--idc-muted); padding:1.5rem;">Aún no hay fuentes evaluadas.</td></tr>';
+        return;
+      }
+
+      var html = '';
+      state.fuentes.forEach(function(f, idx) {
+        html += '<tr>';
+        html += '<td>' + f.num + '</td>';
+        html += '<td style="max-width:220px; word-break:break-word;">' + escHtml(f.titulo) + '</td>';
+        html += '<td>' + escHtml(f.tipo) + '</td>';
+        html += '<td><strong>' + f.ipd + '</strong></td>';
+        html += '<td><span class="badge-score ' + f.level.badgeClass + '">' + f.level.label + '</span></td>';
+        html += '<td>' + escHtml(f.decision) + '</td>';
+        html += '<td><button class="btn btn-outline btn-sm" onclick="eliminarFuente(' + idx + ')" aria-label="Eliminar fuente ' + f.num + '">'
+              + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="width:14px;height:14px;" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>'
+              + '</button></td>';
+        html += '</tr>';
+      });
+      tbody.innerHTML = html;
+    }
+
+    /* ==============================================================
+       FASES / ACORDEÓN DE LA GUÍA
+    ============================================================== */
+    function togglePhase(btn) {
+      var isOpen    = btn.getAttribute('aria-expanded') === 'true';
+      var contentId = btn.getAttribute('aria-controls');
+      var content   = document.getElementById(contentId);
+
+      /* Cerrar todos */
+      document.querySelectorAll('.phase-btn').forEach(function(b) {
+        b.setAttribute('aria-expanded', 'false');
+      });
+      document.querySelectorAll('.phase-content').forEach(function(c) {
+        c.style.height = '0';
+      });
+
+      /* Abrir el pulsado si estaba cerrado */
+      if (!isOpen && content) {
+        btn.setAttribute('aria-expanded', 'true');
+        content.style.height = content.scrollHeight + 'px';
+      }
+    }
+
+    /* Checklist ítems */
+    function toggleCheckItem(el) {
+      el.classList.toggle('checked');
+      var isChecked = el.classList.contains('checked');
+      el.setAttribute('aria-checked', isChecked ? 'true' : 'false');
+      announce(el.querySelector('.check-text').textContent + (isChecked ? ' — marcado como completado.' : ' — desmarcado.'));
+    }
+
+    /* Soporte teclado en checklist */
+    document.addEventListener('keydown', function(e) {
+      if ((e.key === 'Enter' || e.key === ' ') && e.target.classList.contains('check-item')) {
+        e.preventDefault();
+        toggleCheckItem(e.target);
+      }
+    });
+
+    /* ==============================================================
+       REPORTE FINAL — generar con datos del state
+    ============================================================== */
+    function generarReporte() {
+      /* Datos del docente */
+      document.getElementById('rpt-nombre').textContent  = document.getElementById('f-nombre').value || '—';
+      document.getElementById('rpt-email').textContent   = document.getElementById('f-email').value  || '—';
+      var carreraVal = document.getElementById('f-carrera').value;
+      document.getElementById('rpt-carrera').textContent = carreraVal ? (CARRERAS[carreraVal] || carreraVal) : '—';
+      document.getElementById('rpt-curso').textContent   = document.getElementById('f-curso').value  || '—';
+
+      /* KPIs */
+      var total   = state.fuentes.length;
+      var incluir = state.fuentes.filter(function(f) { return f.ipd >= 70; }).length;
+      var excluir = state.fuentes.filter(function(f) { return f.ipd < 50; }).length;
+      var suma    = state.fuentes.reduce(function(acc, f) { return acc + f.ipd; }, 0);
+      var promedio = total > 0 ? (suma / total).toFixed(1) : '—';
+      var maxIPD   = total > 0 ? Math.max.apply(null, state.fuentes.map(function(f) { return f.ipd; })) : '—';
+      var minIPD   = total > 0 ? Math.min.apply(null, state.fuentes.map(function(f) { return f.ipd; })) : '—';
+
+      document.getElementById('kpi-total').textContent    = total;
+      document.getElementById('kpi-incluir').textContent  = incluir;
+      document.getElementById('kpi-excluir').textContent  = excluir;
+      document.getElementById('kpi-promedio').textContent = promedio;
+      document.getElementById('kpi-max').textContent      = maxIPD;
+      document.getElementById('kpi-min').textContent      = minIPD;
+
+      /* Tabla de detalle */
+      var wrap   = document.getElementById('rpt-tabla-wrap');
+      var vacio  = document.getElementById('rpt-vacio');
+      if (total === 0) {
+        if (vacio) { vacio.style.display = 'block'; }
+        return;
+      }
+      if (vacio) { vacio.style.display = 'none'; }
+      var tbl = '<table class="fuentes-log" style="margin-top:0;">'
+              + '<thead><tr><th>#</th><th>Fuente</th><th>Tipo</th><th>Pert.</th><th>Vig.</th><th>Cal.</th><th>Trans.</th><th>IPD</th><th>Decisión</th></tr></thead><tbody>';
+      state.fuentes.forEach(function(f) {
+        tbl += '<tr>'
+            + '<td>' + f.num + '</td>'
+            + '<td style="max-width:200px; word-break:break-word;">' + escHtml(f.titulo) + '</td>'
+            + '<td>' + escHtml(f.tipo) + '</td>'
+            + '<td>' + f.p + '</td><td>' + f.v + '</td><td>' + f.c + '</td><td>' + f.t + '</td>'
+            + '<td><strong>' + f.ipd + '</strong></td>'
+            + '<td><span class="badge-score ' + f.level.badgeClass + '">' + escHtml(f.decision) + '</span></td>'
+            + '</tr>';
+      });
+      tbl += '</tbody></table>';
+      wrap.innerHTML = tbl;
+
+      /* Recomendaciones personalizadas */
+      var rec = '';
+      if (total === 0) {
+        rec = '<div class="result-banner info"><svg viewBox="0 0 24 24" fill="none" stroke="var(--idc-blue)" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg><div class="result-banner-text"><strong>Completa el simulador para recibir recomendaciones personalizadas</strong></div></div>';
+      } else {
+        var pctIncluir = Math.round((incluir / total) * 100);
+        if (pctIncluir >= 75) {
+          rec += '<div class="result-banner success"><svg viewBox="0 0 24 24" fill="none" stroke="var(--idc-success)" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg><div class="result-banner-text"><strong>Corpus de alta calidad (' + pctIncluir + '% de fuentes aprobadas)</strong><span>El corpus evaluado supera el umbral de inclusión en ' + pctIncluir + '% de las fuentes. Recomendación: proceder a la construcción del marco referencial con las fuentes de IPD mayor o igual a 70. Validar la coherencia temática del corpus antes de citar.</span></div></div>';
+        } else if (pctIncluir >= 50) {
+          rec += '<div class="result-banner warn"><svg viewBox="0 0 24 24" fill="none" stroke="var(--idc-gold)" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12.01" y2="8"/><line x1="12" y1="12" x2="12" y2="16"/></svg><div class="result-banner-text"><strong>Corpus con calidad media — ampliar búsqueda (' + pctIncluir + '% aprobadas)</strong><span>Solo el ' + pctIncluir + '% de las fuentes supera el umbral. Se recomienda ampliar la búsqueda documental en bases de datos especializadas de la carrera antes de iniciar el marco teórico.</span></div></div>';
+        } else {
+          rec += '<div class="result-banner" style="background:rgba(225,74,148,.07); border:1.5px solid var(--idc-pink);"><svg viewBox="0 0 24 24" fill="none" stroke="var(--idc-pink)" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg><div class="result-banner-text"><strong>Corpus insuficiente — reformular estrategia de búsqueda (' + pctIncluir + '% aprobadas)</strong><span>Menos del 50% de las fuentes supera el umbral IPD. Revisar la ecuación de búsqueda, ampliar bases de datos y ajustar los criterios de preselección antes de volver a evaluar.</span></div></div>';
+        }
+        if (excluir > 0) {
+          rec += '<div style="margin-top:.5rem; font-size:var(--text-sm); color:var(--idc-muted);">'
+               + '<strong>' + excluir + ' fuente(s) excluida(s)</strong> con IPD menor a 50. '
+               + 'Criterio más frecuentemente bajo: revisar pertinencia temática y transferibilidad. '
+               + 'Estas fuentes pueden reemplazarse por búsquedas más específicas en bases disciplinares.</div>';
+        }
+      }
+      document.getElementById('rpt-recomendaciones').innerHTML = rec;
+    }
+
+    /* ==============================================================
+       UTILIDADES
+    ============================================================== */
+    function escHtml(str) {
+      return String(str)
+        .replace(/&/g,'&amp;')
+        .replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;');
+    }
+
+    function announce(msg) {
+      var live = document.getElementById('live');
+      if (!live) { return; }
+      live.textContent = '';
+      setTimeout(function() { live.textContent = msg; }, 60);
+    }
+
+    /* ==============================================================
+       INICIALIZACIÓN
+    ============================================================== */
+    document.addEventListener('DOMContentLoaded', function() {
+      updateSimResult();
+      updateStepper();
+      /* Abrir la primera fase de la guía por defecto */
+      var ph1Content = document.getElementById('ph1');
+      if (ph1Content) { ph1Content.style.height = ph1Content.scrollHeight + 'px'; }
+    });
+  </script>
+</body>
+</html>
