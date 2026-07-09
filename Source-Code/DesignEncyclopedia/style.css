@@ -1325,3 +1325,184 @@ button:focus-visible {
     translate: 0 0;
   }
 }
+
+/* ==========================================================================
+   FORMULARIO DE NECESIDADES → PROMPT UTILITARIO (uno por estilo)
+   Panel neutro claro para garantizar legibilidad sobre cualquier fondo.
+   ========================================================================== */
+
+.brief {
+  position: relative;
+  z-index: 3;
+  max-width: 1000px;
+  margin: 44px auto 0;
+}
+
+.brief summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font: 700 0.8rem/1 "Space Mono", monospace;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 14px 24px;
+  border: 2px solid currentcolor;
+  border-radius: 999px;
+  user-select: none;
+  list-style: none;
+  transition: opacity 0.2s;
+}
+
+.brief summary::-webkit-details-marker {
+  display: none;
+}
+
+.brief summary:hover {
+  opacity: 0.75;
+}
+
+.brief summary::before {
+  content: "✎";
+  font-size: 1.1em;
+}
+
+.brief[open] summary::before {
+  content: "▾";
+}
+
+.brief-panel {
+  margin-top: 18px;
+  background: #fdfcf9;
+  color: #16131f;
+  border: 1px solid rgb(22 19 31 / 15%);
+  border-radius: 18px;
+  padding: clamp(20px, 4vw, 32px);
+  box-shadow: 0 22px 60px rgb(0 0 0 / 22%);
+  text-align: left;
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 0.95rem;
+}
+
+.brief-panel .bf-intro {
+  margin-bottom: 20px;
+  color: #4b4660;
+  max-width: 70ch;
+}
+
+.bf-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 16px 20px;
+}
+
+.bf-field {
+  display: grid;
+  gap: 6px;
+  align-content: start;
+}
+
+.bf-field > label,
+.bf-fieldset legend {
+  font: 600 0.72rem/1.3 "Inter", sans-serif;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #4b4660;
+}
+
+.bf-field input[type="text"],
+.bf-field select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1.5px solid rgb(22 19 31 / 25%);
+  border-radius: 10px;
+  background: #fff;
+  color: inherit;
+  font: inherit;
+}
+
+.bf-field input:focus-visible,
+.bf-field select:focus-visible,
+.bf-fieldset input:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.bf-fieldset {
+  grid-column: 1 / -1;
+  border: 1.5px solid rgb(22 19 31 / 15%);
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+}
+
+.bf-fieldset label {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.88rem;
+}
+
+.bf-actions {
+  margin-top: 22px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.bf-generate,
+.bf-copy {
+  font: 600 0.95rem/1 "Inter", sans-serif;
+  padding: 13px 26px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: translate 0.2s var(--ease-out), opacity 0.2s;
+}
+
+.bf-generate {
+  background: #16131f;
+  color: #fff;
+  border: 2px solid #16131f;
+}
+
+.bf-generate:hover {
+  translate: 0 -2px;
+}
+
+.bf-copy {
+  background: transparent;
+  color: #16131f;
+  border: 2px solid #16131f;
+}
+
+.bf-copy:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.bf-status {
+  font-size: 0.85rem;
+  color: #2c7a4b;
+  font-weight: 600;
+}
+
+.bf-output {
+  display: none;
+  width: 100%;
+  min-height: 260px;
+  margin-top: 18px;
+  padding: 16px;
+  border: 1.5px dashed rgb(22 19 31 / 35%);
+  border-radius: 12px;
+  background: #f6f3ec;
+  color: #16131f;
+  font: 0.83rem/1.6 "Space Mono", monospace;
+  resize: vertical;
+}
+
+.bf-output.visible {
+  display: block;
+}

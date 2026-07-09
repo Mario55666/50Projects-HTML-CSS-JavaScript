@@ -142,12 +142,41 @@ Cuatro tarjetas, cada una un mini-sistema visual:
 
 ---
 
-## 3 · Estructura de archivos
+## 3 · Formulario de necesidades por estilo → prompt utilitario
+
+Cada estilo incluye un **formulario de necesidades** (botón *"Formulario de necesidades · generar
+prompt"* al final de su sección) que caracteriza la pieza gráfica según contexto, tiempo, espacio y
+grupo objetivo, y genera un **prompt listo para copiar** en dos modos:
+
+- **Brief para diseñador(a):** prompt estructurado (contexto → grupo objetivo → comunicación → ADN
+  del estilo → restricciones → entregables) para pedir dirección de arte a un asistente de IA o
+  usar como brief académico.
+- **Prompt para IA de imágenes:** descripción compacta y visual para generadores de imagen,
+  con la estética, paleta hex y rotulación del estilo ya incorporadas.
+
+### Campos del formulario
+
+| Dimensión | Campos |
+|---|---|
+| **Estilo** | Variante (en estilos múltiples: Cubismo/Expresionismo/Surrealismo/Pop Art · Minimal/Maximal · Retrowave/Y2K/Cybercore) — el ADN visual, paleta y tipografía se inyectan automáticamente |
+| **Pieza** | Proyecto/marca · tipo de pieza (cartel, portada, post, banner, packaging, identidad, infografía, campaña) · formato/proporción |
+| **Tiempo** | Tratamiento temporal (fiel a la época / reinterpretación contemporánea / fusión retro-futurista) · momento/ocasión de uso |
+| **Espacio** | Medios de difusión (impreso, vía pública, pantalla móvil/escritorio, redes, proyección) |
+| **Grupo objetivo** | Rango de edad · perfil (intereses, ocupación, cultura visual) · familiaridad con el estilo (nula/media/alta) |
+| **Comunicación** | Objetivo comunicacional (informar, vender, educar, provocar, celebrar, concientizar) · tono/mood · mensaje principal · elementos obligatorios |
+| **Restricciones** | Nivel de accesibilidad (WCAG AA/AAA) — siempre presente en el prompt generado |
+
+Los campos vacíos aparecen como «(por definir)» en el prompt, útil como lista de pendientes del brief.
+
+---
+
+## 4 · Estructura de archivos
 
 ```
 DesignEncyclopedia/
 ├── index.html   → estructura semántica: nav + hero + 11 secciones + footer
 ├── style.css    → base global mínima + un sistema visual autocontenido por sección
 ├── script.js    → tipografía variable por scroll, revelados, nav activa, toggle min/max
+│                  y generador de formularios de necesidades → prompts por estilo
 └── README.md    → esta propuesta (sitemap + guía de estilos)
 ```
