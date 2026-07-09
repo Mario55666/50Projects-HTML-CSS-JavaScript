@@ -313,6 +313,244 @@ const STYLE_FORMS = [
       paleta: 'fondo noche #0F1024, violeta #7C5CFF, rosa #FF5C8A, teal #2DD4BF, blanco al 10–28% en paneles',
       tipografia: 'palo seco delgada (Inter 200–300) en blanco puro, subiendo de peso donde el fondo se agita'
     }]
+  }  ,
+  {
+    id: 'antiguedad',
+    nombre: 'Antigüedad y Edad Media',
+    epoca: '3000 a. C. – s. XV',
+    variantes: [
+      {
+        label: 'Egipcio',
+        visual: 'frisos en registros horizontales, figuras de perfil con jerarquía por tamaño, símbolos y escritura sagrada como textura decorativa',
+        paleta: 'arena #E4C989, ocre rojizo #A64B2A, lapislázuli #1F4E79, oro #C9A747, basalto #1E1B14',
+        tipografia: 'lapidaria de rasgo grabado, capitales espaciadas (Cinzel); glifos y símbolos como ornamento'
+      },
+      {
+        label: 'Grecorromano',
+        visual: 'proporción y armonía clásicas: columnas, frontones, greca (meandro) como marco, mármol y relieve',
+        paleta: 'mármol #F5F1E8, terracota #B4552F, negro ánfora #26211C',
+        tipografia: 'capitales romanas talladas (Cinzel / Trajan), numeración romana, inscripción monumental'
+      },
+      {
+        label: 'Bizantino',
+        visual: 'mosaico de teselas con fondo de oro, frontalidad hierática, halos y brillo sagrado',
+        paleta: 'oro #C9A747, púrpura imperial #3B1F4E, esmeralda #1F6E5A, marfil #F0E3B2',
+        tipografia: 'uncial solemne, iniciales doradas, texto centrado como icono'
+      },
+      {
+        label: 'Islámico',
+        visual: 'geometría infinita: lacería de estrellas, arabescos vegetales, ausencia de figuración; la escritura como ornamento central',
+        paleta: 'turquesa #0F5E5A, cobalto #1F4E79, oro #C9A747, marfil #F2E8CE',
+        tipografia: 'la caligrafía es protagonista; para alfabeto latino, serifa humanista con orlas geométricas'
+      },
+      {
+        label: 'Románico',
+        visual: 'muro de piedra y arco de medio punto: composición maciza, simétrica y didáctica',
+        paleta: 'piedra #B3A48D, tierra #6E5A3E, rojo almagre #8E3B2F',
+        tipografia: 'carolingia robusta, capitales anchas de trazo firme'
+      },
+      {
+        label: 'Gótico',
+        visual: 'verticalidad y luz coloreada: arcos apuntados, tracería, vitrales de tonos joya sobre piedra oscura',
+        paleta: 'azul vitral #1F3A93, rubí #8E1F3B, oro #C9A747, piedra oscura #171226',
+        tipografia: 'gótica textur (UnifrakturMaguntia) con capitulares miniadas'
+      }
+    ]
+  },
+  {
+    id: 'neoclasico',
+    nombre: 'Neoclasicismo',
+    epoca: '1760 – 1830',
+    variantes: [{
+      label: 'Neoclasicismo',
+      visual: 'orden y racionalidad frente a la frivolidad rococó: simetría axial, filetes finos, blancos de mármol, grises de grabado, ornamento mínimo',
+      paleta: 'mármol #F7F4EE, gris grabado #26303B, azul Wedgwood #5C7A9E',
+      tipografia: 'didonas de contraste extremo (Bodoni Moda / Didot), versales espaciadas de inscripción'
+    }]
+  },
+  {
+    id: 'realismo',
+    nombre: 'Realismo',
+    epoca: '1840 – 1880',
+    variantes: [{
+      label: 'Realismo',
+      visual: 'representación objetiva y exacta de lo cotidiano: fotografía documental sin retoque, luz neutra de galería, pies de foto tipo ficha de museo, retícula honesta sin efectos',
+      paleta: 'tierras #7A5C3D, gris neutro #4A4740, blanco roto #E9E4DB',
+      tipografia: 'serifa de lectura sobria (Lora) y monoespaciada para fichas técnicas; jerarquía discreta, sin idealizar'
+    }]
+  },
+  {
+    id: 'futurismo',
+    nombre: 'Futurismo',
+    epoca: '1909 – 1944',
+    variantes: [{
+      label: 'Futurismo',
+      visual: 'dinamismo y velocidad: diagonales ascendentes, líneas de velocidad, secuencias de movimiento tipo cronofotografía, culto a la máquina, metal y humo',
+      paleta: 'acero #2C2F3A, rojo #E63946, humo #8D99AE, blanco faro #EDEFF5',
+      tipografia: 'palabras en libertad: grotescas pesadas en cursiva forzada (Archivo Black inclinada, Oswald), tamaños que aceleran'
+    }]
+  },
+  {
+    id: 'dadaismo',
+    nombre: 'Dadaísmo',
+    epoca: '1916 – 1924',
+    variantes: [{
+      label: 'Dadaísmo',
+      visual: 'anti-composición: collage de recortes de periódico, rotaciones al azar, sellos, tachaduras y papel envejecido; el absurdo y el azar como método',
+      paleta: 'papel prensa #E8E2D0, negro tinta #1E1A16, rojo #C1272D',
+      tipografia: 'nota de rescate: cada letra de una familia distinta, cuerpos dispares, líneas de base bailando'
+    }]
+  },
+  {
+    id: 'constructivismo',
+    nombre: 'Constructivismo y De Stijl',
+    epoca: '1917 – 1931',
+    variantes: [
+      {
+        label: 'Constructivismo',
+        visual: 'agitación gráfica: diagonales y cuñas (cuña roja de Lissitzky), fotomontaje, flechas, bloques tipográficos a 90° y 45°',
+        paleta: 'rojo #D40920, negro #16131F, crema #F1EBDD',
+        tipografia: 'palo seco condensada en mayúsculas (Oswald), compuesta en bloques y ángulos; la letra como ladrillo'
+      },
+      {
+        label: 'Neoplasticismo (De Stijl)',
+        visual: 'retícula de líneas negras perpendiculares con campos de color primario puro; equilibrio asimétrico absoluto (Mondrian, Rietveld)',
+        paleta: 'blanco #FFFFFF, negro #16131F, rojo #D40920, amarillo #F7D842, azul #1356A2',
+        tipografia: 'geométrica de palo seco, composición estrictamente ortogonal'
+      }
+    ]
+  },
+  {
+    id: 'abstracto',
+    nombre: 'Expresionismo Abstracto',
+    epoca: '1943 – 1965',
+    variantes: [{
+      label: 'Expresionismo Abstracto',
+      visual: 'gesto a escala heroica: goteos y salpicaduras (dripping) sobre lienzo crudo, manchas superpuestas, o grandes campos de color de bordes difusos (color field)',
+      paleta: 'lienzo #EFE9DC, negro gestual #16131F, rojo cadmio #C0392B, ocre #E9B44C',
+      tipografia: 'caligráfica gestual (Caveat) como trazo de pincel, sobre sans neutra que no compite con la mancha'
+    }]
+  },
+  {
+    id: 'opart',
+    nombre: 'Arte Cinético y Op Art',
+    epoca: '1955 – 1970',
+    variantes: [
+      {
+        label: 'Op Art',
+        visual: 'ilusión óptica estática: dameros deformados, ondas y círculos concéntricos en blanco y negro, moiré, pares complementarios que vibran en los bordes',
+        paleta: 'negro #111111, blanco #F7F7F7, un par vibrante puntual',
+        tipografia: 'geométrica de alto contraste; la letra integrada al patrón óptico'
+      },
+      {
+        label: 'Arte Cinético',
+        visual: 'movimiento real o aparente: patrones que se animan con el scroll y el cursor, rotaciones lentas, parallax — siempre desactivable con prefers-reduced-motion',
+        paleta: 'blanco y negro + un color vibrante en movimiento',
+        tipografia: 'geométrica limpia que no compita con el movimiento'
+      }
+    ]
+  },
+  {
+    id: 'conceptual',
+    nombre: 'Conceptual · Land Art · Povera',
+    epoca: '1965 – hoy',
+    variantes: [
+      {
+        label: 'Arte Conceptual',
+        visual: 'la idea sobre el objeto: declaraciones mecanografiadas, certificados e instrucciones, vacío deliberado; la documentación es la obra',
+        paleta: 'blanco papel #FAF7EF, negro tinta, gris archivo',
+        tipografia: 'máquina de escribir (Space Mono), sin jerarquía decorativa'
+      },
+      {
+        label: 'Land Art',
+        visual: 'paisaje intervenido: tierra, espirales y líneas a escala territorial, fotografía aérea como registro de la obra',
+        paleta: 'tierra #8A6F4D, piedra #B3A48D, verde musgo #5C6B47, cielo neutro',
+        tipografia: 'humanista discreta sobre fotografía; coordenadas y datos en monoespaciada'
+      },
+      {
+        label: 'Arte Povera',
+        visual: 'materiales pobres ennoblecidos: arpillera, cartón, kraft, óxido y objetos de desecho; la textura es el mensaje',
+        paleta: 'kraft #C9B594, óxido #8E5B3B, gris ceniza #6F6A60',
+        tipografia: 'serifa gastada o mono de sello; imperfección deliberada'
+      }
+    ]
+  },
+  {
+    id: 'hiperrealismo',
+    nombre: 'Hiperrealismo',
+    epoca: '1965 – hoy',
+    variantes: [{
+      label: 'Hiperrealismo',
+      visual: 'detalle extremo: macrofotografía de altísima resolución, enfoque selectivo, brillos especulares, bordes de un píxel, sombras físicas exactas; interfaz de lupa con zoom',
+      paleta: 'grises de estudio #FAFAFB – #26262B, color fiel de la fotografía',
+      tipografia: 'neutra afinada (Inter con tracking cerrado), cuerpos pequeños de precisión técnica'
+    }]
+  },
+  {
+    id: 'posmoderno',
+    nombre: 'Posmodernismo',
+    epoca: '1975 – 1990',
+    variantes: [{
+      label: 'Posmodernismo',
+      visual: 'pastiche e ironía: códigos clásicos citados sobre tramas pop, marcos dorados en fondos chillones, comillas gigantes, alta y baja cultura en la misma pieza; la retícula moderna se rompe con intención',
+      paleta: 'verdeazulado #3AAFA9, salmón #F28C6B, mostaza #D9A404, púrpura #6B3FA0',
+      tipografia: 'choque deliberado: didona elegante + cómic + geométrica déco conviviendo'
+    }]
+  },
+  {
+    id: 'artsandcrafts',
+    nombre: 'Arts and Crafts',
+    epoca: '1860 – 1910',
+    variantes: [{
+      label: 'Arts and Crafts',
+      visual: 'artesanía y naturaleza: patrones vegetales que tapizan (hojas, zarcillos, granadas), márgenes ornamentados de libro Kelmscott, papel crudo, tintas densas, capitulares ornadas',
+      paleta: 'crema #F2E8D5, oliva #5B6E3F, terracota #A85A38, índigo #33415C',
+      tipografia: 'serifa veneciana caligráfica (estilo Golden Type: Cormorant) con capitulares; texto denso de incunable artesanal'
+    }]
+  },
+  {
+    id: 'megabrutalismo',
+    nombre: 'Megabrutalismo',
+    epoca: '2022 – hoy',
+    variantes: [{
+      label: 'Megabrutalismo',
+      visual: 'impacto inmediato: un titular a 15–25vw llena la pantalla, blanco y negro absolutos más un color eléctrico, marquesinas y cursores enormes; la tipografía es la interfaz',
+      paleta: 'negro #000000, blanco #FFFFFF, lima eléctrico #C6FF00',
+      tipografia: 'grotesca ultra pesada (Archivo Black) a escala de vía pública, tracking negativo, interlineado 0.8; contraste 21:1'
+    }]
+  },
+  {
+    id: 'scrapbook',
+    nombre: 'Scrapbook',
+    epoca: '2023 – hoy',
+    variantes: [{
+      label: 'Scrapbook',
+      visual: 'álbum de recortes: polaroids y papeles rotados, cinta washi translúcida, cuadrícula de cuaderno, kraft, garabatos a bolígrafo, stickers y sellos; espontáneo a propósito',
+      paleta: 'papel #FBF7EC, washi pastel, tinta BIC #2A4DA0, rojo margen #C1272D, kraft #C9B594',
+      tipografia: 'mezcla despareja: manuscrita (Caveat), serifa de revista y mono de etiqueta; líneas de base imperfectas'
+    }]
+  },
+  {
+    id: 'liquidglass',
+    nombre: 'Liquid Glass',
+    epoca: '2025 – hoy',
+    variantes: [{
+      label: 'Liquid Glass',
+      visual: 'vidrio líquido: desenfoque alto con saturación, borde iridiscente de refracción, destello especular que recorre el panel, curvatura acentuada; el material se adapta al contenido y al cursor',
+      paleta: 'fondo noche #0A0B1E, aurora violeta #7C5CFF / teal #2DD4BF / rosa #FF5C8A, blanco vidrio 8–20%',
+      tipografia: 'palo seco de peso medio con grosor dinámico según la agitación del fondo; blanco puro sobre la refracción'
+    }]
+  },
+  {
+    id: 'phygital',
+    nombre: 'Phygital',
+    epoca: '2024 – hoy',
+    variantes: [{
+      label: 'Phygital',
+      visual: 'mundo físico intervenido por capas digitales: corchetes de enfoque AR, etiquetas flotantes ancladas a objetos reales, beams de luz, QR como puente, profundidad espacial real (Spatial UI)',
+      paleta: 'tonos reales cálidos #241F1B – #EFE6D8 + cian digital #45E3FF y acentos de interfaz',
+      tipografia: 'sans neutra para lo físico y monoespaciada de datos para la capa digital; la tipografía señala en qué capa estás'
+    }]
   }
 ];
 

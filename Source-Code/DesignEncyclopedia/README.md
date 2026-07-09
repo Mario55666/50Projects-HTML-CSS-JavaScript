@@ -16,25 +16,45 @@ INICIO (Hero)
 │   fusionada con gradientes y orbes 3D modernos. Titular en tipografía
 │   variable que cambia de peso con el scroll.
 │
-├── I. MOVIMIENTOS CLÁSICOS Y VANGUARDIAS
-│   ├── 1. Renacimiento y Barroco
-│   ├── 2. Impresionismo y Romanticismo
-│   └── 3. Vanguardias del s. XX (Cubismo · Expresionismo · Surrealismo · Pop Art)
+├── I. MOVIMIENTOS CLÁSICOS E HISTÓRICOS
+│   ├── 1. Antigüedad y Edad Media (Egipcio · Grecorromano · Bizantino · Islámico · Románico · Gótico)
+│   ├── 2. Renacimiento y Barroco
+│   ├── 3. Neoclasicismo
+│   ├── 4. Realismo
+│   └── 5. Impresionismo y Romanticismo
 │
-├── II. CORRIENTES DE DISEÑO GRÁFICO
-│   ├── 4. Bauhaus y Estilo Tipográfico Internacional (Suizo)
-│   ├── 5. Art Déco
-│   ├── 6. Minimalismo vs. Maximalismo  ← sección interactiva conmutable
-│   └── 7. Brutalismo
+├── II. VANGUARDIAS DEL SIGLO XX
+│   ├── 6. Cubismo · Expresionismo · Surrealismo · Pop Art
+│   ├── 7. Futurismo
+│   ├── 8. Dadaísmo
+│   ├── 9. Constructivismo y Neoplasticismo (De Stijl)
+│   ├── 10. Expresionismo Abstracto
+│   └── 11. Arte Cinético y Op Art
 │
-└── III. TENDENCIAS DE INTERFACES DIGITALES
-    ├── 8. Cybercore · Y2K · Retrowave
-    ├── 9. Frutiger Aero
-    ├── 10. Glassmorphism
-    └── 11. Tendencias UX/UI 2026 (tipografía variable · Spatial UI · motion graphics)
+├── III. ARTE CONTEMPORÁNEO Y POSMODERNO
+│   ├── 12. Arte Conceptual · Land Art · Arte Povera
+│   ├── 13. Hiperrealismo
+│   └── 14. Posmodernismo
+│
+├── IV. CORRIENTES DE DISEÑO GRÁFICO
+│   ├── 15. Arts and Crafts
+│   ├── 16. Bauhaus y Estilo Tipográfico Internacional (Suizo)
+│   ├── 17. Art Déco
+│   ├── 18. Minimalismo vs. Maximalismo  ← sección interactiva conmutable
+│   ├── 19. Brutalismo
+│   ├── 20. Megabrutalismo
+│   └── 21. Scrapbook
+│
+└── V. TENDENCIAS DE INTERFACES DIGITALES
+    ├── 22. Cybercore · Y2K · Retrowave
+    ├── 23. Frutiger Aero
+    ├── 24. Glassmorphism
+    ├── 25. Liquid Glass
+    ├── 26. Phygital
+    └── 27. Tendencias UX/UI 2026 (tipografía variable · Spatial UI · motion graphics)
 ```
 
-**Navegación:** barra fija con tres menús desplegables (una por categoría), operables con ratón,
+**Navegación:** barra fija con cinco menús desplegables (uno por categoría), operables con ratón,
 teclado (foco + Escape) y táctil; estado activo sincronizado con el scroll mediante
 `IntersectionObserver` y barra de progreso de lectura como metáfora del "viaje" a través de los estilos.
 
@@ -139,6 +159,35 @@ Cuatro tarjetas, cada una un mini-sistema visual:
 - **Accesibilidad transversal:** `prefers-reduced-motion` desactiva las animaciones; skip-link;
   menús con `aria-expanded`/`aria-pressed`; contrastes WCAG AA/AAA incluso en los estilos disruptivos;
   color según Chevreul para que acentos y fondos no compitan.
+
+
+### Ampliación: estilos añadidos
+
+| Estilo | Paleta | Layout CSS | Tipografía (Google Fonts) |
+|---|---|---|---|
+| **Egipcio** | Arena `#E4C989` · Ocre `#A64B2A` · Lapislázuli `#1F4E79` · Oro `#C9A747` | Frisos: bordes superior/inferior gruesos de color, registros horizontales, jerarquía por tamaño | **Cinzel** (lapidaria de capitales) |
+| **Grecorromano** | Mármol `#F5F1E8` · Terracota `#B4552F` · Negro ánfora `#26211C` | `border: double` + `box-shadow inset` como greca; simetría de frontón | **Cinzel** / Trajan |
+| **Bizantino** | Oro `#C9A747` · Púrpura `#3B1F4E` · Esmeralda `#1F6E5A` | Teselas: doble `linear-gradient(45deg)` desplazado 9px (damero dorado) | Uncial (acentos), Cinzel |
+| **Islámico** | Turquesa `#0F5E5A` · Cobalto `#1F4E79` · Oro `#C9A747` | Lacería: `repeating-linear-gradient` ±45° superpuestos; arco con `border-radius` compuesto | Caligrafía protagonista; serifa humanista |
+| **Románico** | Piedra `#B3A48D` · Tierra `#6E5A3E` · Almagre `#8E3B2F` | Arco de medio punto: `border-radius: 120px 120px 10px 10px`; hiladas de piedra con gradiente 1px | Carolingia robusta (Cinzel peso alto) |
+| **Gótico** | Azul vitral `#1F3A93` · Rubí `#8E1F3B` · Oro sobre `#171226` | Vitral: franjas verticales translúcidas con "plomo" oscuro; arco apuntado | **UnifrakturMaguntia** (textur) |
+| **Neoclasicismo** | Mármol `#F7F4EE` · Gris grabado `#26303B` · Azul Wedgwood `#5C7A9E` | Simetría axial, filetes `double`, columnas estriadas laterales (`repeating-linear-gradient` 90°) | **Bodoni Moda** (didona) |
+| **Realismo** | Tierras `#7A5C3D` · Gris `#4A4740` · Blanco roto `#E9E4DB` | Galería neutra: tarjetas-ficha de museo con pie técnico; cero efectos | **Lora** + Space Mono (fichas) |
+| **Futurismo** | Acero `#2C2F3A` · Rojo `#E63946` · Humo `#8D99AE` | Diagonales: `skewX/skewY`, líneas de velocidad con `repeating-linear-gradient(105deg)` | **Oswald** itálica forzada + Archivo Black |
+| **Dadaísmo** | Papel prensa `#E8E2D0` · Negro · Rojo `#C1272D` | Collage: fichas rotadas al azar, sombras duras, borde `dashed`; título "nota de rescate" (una fuente por letra) | Mezcla deliberada de 8 familias |
+| **Constructivismo / De Stijl** | Rojo `#D40920` · Amarillo `#F7D842` · Azul `#1356A2` + negro/blanco | Retícula Mondrian con `background-image` múltiple (líneas 10px + campos primarios); cuña roja con `border` triangular | **Oswald** condensada mayúsculas |
+| **Expresionismo Abstracto** | Lienzo `#EFE9DC` · Negro · Cadmio `#C0392B` · Ocre `#E9B44C` | Dripping: `radial-gradient` puntuales + elipses alargadas; campos de color difusos | **Caveat** (gestual) + Inter |
+| **Op Art / Cinético** | Negro `#111` · Blanco `#F7F7F7` | Damero `repeating-conic-gradient` animado (`background-position`); texto con patrón vía `background-clip: text` | Archivo Black (la letra como patrón) |
+| **Conceptual · Land · Povera** | Kraft `#C9B594` · Óxido `#8E5B3B` · Musgo `#5C6B47` | Hoja mecanografiada rotada + tarjeta kraft `dashed`; vacío deliberado | **Space Mono** (máquina de escribir) |
+| **Hiperrealismo** | Estudio `#FAFAFB`–`#D9DADE` | Lupa decorativa con retícula; sombras físicas en dos capas; `scale(1.025)` al hover | **Inter** tracking cerrado, cuerpos pequeños |
+| **Posmodernismo** | Verdeazulado `#3AAFA9` · Salmón `#F28C6B` · Mostaza `#D9A404` · Púrpura `#6B3FA0` | Fondo partido en diagonal + trama de lunares; comillas Bodoni gigantes; ficha clásica vs. ficha pop | Playfair itálica + Bangers + Bodoni (pastiche) |
+| **Arts and Crafts** | Crema `#F2E8D5` · Oliva `#5B6E3F` · Terracota `#A85A38` | Patrón vegetal de puntos dobles; marco `double` 6px estilo Kelmscott; capitular `::first-letter` | **Cormorant Garamond** (Golden Type) |
+| **Megabrutalismo** | Negro `#000` · Blanco `#FFF` · Lima `#C6FF00` | Titular `clamp(4rem, 19vw, 17rem)`, interlínea 0.82; marquesina CSS infinita; contraste 21:1 | **Archivo Black** + Space Mono |
+| **Scrapbook** | Papel `#FBF7EC` · Tinta BIC `#2A4DA0` · Washi pastel | Cuadrícula de cuaderno + línea de margen roja; polaroids rotadas con cinta washi (`::before` translúcido) | **Caveat** + Lora + Space Mono (desparejas) |
+| **Liquid Glass** | Noche `#0A0B1E` + aurora `#7C5CFF/#2DD4BF/#FF5C8A` | `backdrop-filter: blur(26px) saturate(1.8)`; borde iridiscente `conic-gradient` + `mask-composite`; destello especular animado | **Inter** peso medio dinámico |
+| **Phygital** | Reales cálidos `#241F1B`–`#EFE6D8` + cian AR `#45E3FF` | Corchetes de enfoque en las 4 esquinas (pseudo-bordes) con pulso; ficha física (papel) vs. ficha digital (vidrio `dashed`) | Inter (físico) + Space Mono (capa AR) |
+
+Fuentes añadidas en esta ampliación: **Cinzel**, **Bodoni Moda**, **Caveat** y **Oswald**.
 
 ---
 

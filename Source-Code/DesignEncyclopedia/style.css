@@ -1506,3 +1506,973 @@ button:focus-visible {
 .bf-output.visible {
   display: block;
 }
+
+/* ==========================================================================
+   AMPLIACIÓN · NUEVOS ESTILOS
+   ========================================================================== */
+
+/* ---------- Antigüedad y Edad Media ---------- */
+
+.s-antiguedad {
+  background:
+    radial-gradient(900px 400px at 50% 0%, rgb(110 90 62 / 10%), transparent 70%),
+    #e7dcc4;
+  color: #2e2415;
+  text-align: center;
+}
+
+.s-antiguedad h2 {
+  font-family: "Cinzel", serif;
+  font-weight: 600;
+}
+
+.s-antiguedad h2 em {
+  font-style: normal;
+  color: #a64b2a;
+}
+
+.s-antiguedad .estilo-head {
+  margin-inline: auto;
+}
+
+.s-antiguedad .lede {
+  margin-inline: auto;
+}
+
+.am-grid .v-card {
+  text-align: left;
+}
+
+.am-grid h3 {
+  font-family: "Cinzel", serif;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.am-egipcio {
+  background: linear-gradient(180deg, #e4c989, #d9b978);
+  color: #2e2415;
+  border-top: 9px solid #a64b2a;
+  border-bottom: 9px solid #1f4e79;
+}
+
+.am-grecorromano {
+  background: #f5f1e8;
+  color: #26211c;
+  border: 4px double #26211c;
+  box-shadow: inset 0 0 0 8px #f5f1e8, inset 0 0 0 9px rgb(180 85 47 / 55%);
+}
+
+.am-bizantino {
+  background:
+    linear-gradient(45deg, rgb(201 167 71 / 24%) 25%, transparent 25% 75%, rgb(201 167 71 / 24%) 75%) 0 0 / 18px 18px,
+    linear-gradient(45deg, rgb(201 167 71 / 24%) 25%, transparent 25% 75%, rgb(201 167 71 / 24%) 75%) 9px 9px / 18px 18px,
+    #3b1f4e;
+  color: #f0e3b2;
+  border: 1px solid #c9a747;
+}
+
+.am-bizantino h3 {
+  color: #e8c96a;
+}
+
+.am-islamico {
+  background:
+    repeating-linear-gradient(45deg, rgb(201 167 71 / 30%) 0 1.5px, transparent 1.5px 16px),
+    repeating-linear-gradient(-45deg, rgb(201 167 71 / 30%) 0 1.5px, transparent 1.5px 16px),
+    #0f5e5a;
+  color: #f2e8ce;
+  border: 3px solid #c9a747;
+  border-radius: 50% 50% 14px 14px / 20% 20% 14px 14px;
+}
+
+.am-romanico {
+  background:
+    linear-gradient(rgb(0 0 0 / 6%) 1px, transparent 1px) 0 0 / 100% 34px,
+    #b3a48d;
+  color: #33291b;
+  border: 6px solid #6e5a3e;
+  border-radius: 120px 120px 10px 10px;
+}
+
+.am-gotico {
+  background:
+    linear-gradient(90deg,
+      rgb(31 58 147 / 45%) 0 22%, rgb(23 18 38 / 90%) 22% 24%,
+      rgb(142 31 59 / 45%) 24% 46%, rgb(23 18 38 / 90%) 46% 48%,
+      rgb(201 167 71 / 40%) 48% 70%, rgb(23 18 38 / 90%) 70% 72%,
+      rgb(31 110 90 / 45%) 72% 100%),
+    #171226;
+  color: #e8e3f5;
+  border: 2px solid #c9a747;
+  border-radius: 50% 50% 10px 10px / 32% 32% 10px 10px;
+}
+
+.am-gotico h3 {
+  font-family: "UnifrakturMaguntia", serif;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  color: #e8c96a;
+}
+
+.am-gotico p,
+.am-islamico p,
+.am-bizantino p {
+  background: rgb(0 0 0 / 30%);
+  padding: 10px 12px;
+  border-radius: 8px;
+}
+
+/* ---------- Neoclasicismo ---------- */
+
+.s-neoclasico {
+  background: #f7f4ee;
+  color: #26303b;
+  text-align: center;
+}
+
+.s-neoclasico::before,
+.s-neoclasico::after {
+  content: "";
+  position: absolute;
+  top: 40px;
+  bottom: 40px;
+  width: 22px;
+  background: repeating-linear-gradient(90deg, rgb(38 48 59 / 18%) 0 2px, transparent 2px 7px);
+  opacity: 0.6;
+}
+
+.s-neoclasico::before { left: clamp(10px, 3vw, 42px); }
+.s-neoclasico::after { right: clamp(10px, 3vw, 42px); }
+
+.s-neoclasico .estilo-head {
+  margin-inline: auto;
+  border-top: 3px double #26303b;
+  border-bottom: 3px double #26303b;
+  padding: 34px 12px;
+}
+
+.s-neoclasico h2 {
+  font-family: "Bodoni Moda", serif;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+}
+
+.s-neoclasico .lede {
+  font-family: "Bodoni Moda", serif;
+  font-style: italic;
+  margin-inline: auto;
+}
+
+.s-neoclasico .ficha {
+  background: #fff;
+  border: 1px solid rgb(38 48 59 / 25%);
+  border-top: 3px solid #5c7a9e;
+  border-radius: 0;
+  text-align: left;
+}
+
+.specimen-didona {
+  font-family: "Bodoni Moda", serif;
+  font-weight: 600;
+}
+
+/* ---------- Realismo ---------- */
+
+.s-realismo {
+  background: #e9e4db;
+  color: #33302a;
+}
+
+.s-realismo h2,
+.s-realismo .lede {
+  font-family: "Lora", serif;
+}
+
+.s-realismo .ficha {
+  background: #f7f4ee;
+  border: 1px solid #b9b2a4;
+  border-radius: 4px;
+  font-family: "Lora", serif;
+}
+
+.s-realismo .ficha h3 {
+  font-family: "Space Mono", monospace;
+  font-size: 0.8rem;
+  border-bottom: 1px solid #b9b2a4;
+  padding-bottom: 8px;
+  color: #6a6154;
+  opacity: 1;
+}
+
+.specimen-realista {
+  font-family: "Lora", serif;
+  font-size: clamp(1.4rem, 2.6vw, 1.9rem);
+  color: #7a5c3d;
+}
+
+/* ---------- Futurismo ---------- */
+
+.s-futurismo {
+  background: linear-gradient(105deg, #15171e 0%, #2c2f3a 55%, #3a3e4e 100%);
+  color: #edeff5;
+}
+
+.s-futurismo::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(105deg, transparent 0 110px, rgb(230 57 70 / 22%) 110px 114px, transparent 114px 220px),
+    repeating-linear-gradient(105deg, transparent 0 170px, rgb(255 255 255 / 8%) 170px 171px);
+}
+
+.s-futurismo .estilo-head {
+  transform: skewY(-2deg);
+}
+
+.futur-title {
+  font-family: "Oswald", sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  transform: skewX(-10deg);
+  background: linear-gradient(90deg, #e63946 0%, #edeff5 80%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  letter-spacing: 0.03em;
+}
+
+.s-futurismo .ficha {
+  background: rgb(255 255 255 / 6%);
+  border-left: 8px solid #e63946;
+  border-radius: 0 14px 14px 0;
+  transform: skewX(-3deg);
+}
+
+.s-futurismo .ficha > * {
+  transform: skewX(3deg);
+}
+
+.specimen-futur {
+  font-family: "Oswald", sans-serif;
+  font-weight: 700;
+  font-style: italic;
+  letter-spacing: 0.08em;
+  color: #e63946;
+}
+
+/* ---------- Dadaísmo ---------- */
+
+.s-dadaismo {
+  background:
+    radial-gradient(circle at 20% 30%, rgb(0 0 0 / 4%) 0 2px, transparent 3px) 0 0 / 60px 60px,
+    radial-gradient(circle at 70% 60%, rgb(0 0 0 / 5%) 0 1.5px, transparent 2.5px) 0 0 / 42px 42px,
+    #e8e2d0;
+  color: #1e1a16;
+}
+
+.dada-title span {
+  display: inline-block;
+}
+
+.dada-title span:nth-child(1) { font-family: "Playfair Display", serif; rotate: -6deg; }
+.dada-title span:nth-child(2) { font-family: "Space Mono", monospace; rotate: 4deg; background: #16131f; color: #e8e2d0; padding: 0 0.12em; }
+.dada-title span:nth-child(3) { font-family: "Archivo Black", sans-serif; rotate: 3deg; }
+.dada-title span:nth-child(4) { font-family: "UnifrakturMaguntia", serif; rotate: -4deg; color: #c1272d; }
+.dada-title span:nth-child(5) { font-family: "Bangers", cursive; rotate: 6deg; }
+.dada-title span:nth-child(6) { font-family: "Bodoni Moda", serif; font-style: italic; rotate: -3deg; }
+.dada-title span:nth-child(7) { font-family: "Oswald", sans-serif; rotate: 5deg; background: #c1272d; color: #e8e2d0; padding: 0 0.12em; }
+.dada-title span:nth-child(8) { font-family: "Caveat", cursive; rotate: -7deg; }
+
+.s-dadaismo .ficha {
+  background: #f6f2e6;
+  box-shadow: 6px 6px 0 rgb(0 0 0 / 22%);
+  border-radius: 2px;
+  transform: rotate(-1.6deg);
+}
+
+.s-dadaismo .ficha:nth-child(2) {
+  transform: rotate(1.8deg);
+  border: 2px dashed #16131f;
+}
+
+.specimen-dada {
+  font-family: "Space Mono", monospace;
+}
+
+.specimen-dada::first-letter {
+  font-family: "Bangers", cursive;
+  color: #c1272d;
+  font-size: 1.5em;
+}
+
+/* ---------- Constructivismo y De Stijl ---------- */
+
+.s-constructivismo {
+  background: #f1ebdd;
+  color: #16131f;
+}
+
+.s-constructivismo .mondrian {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(#16131f, #16131f),
+    linear-gradient(#16131f, #16131f),
+    linear-gradient(#16131f, #16131f),
+    linear-gradient(#d40920, #d40920),
+    linear-gradient(#1356a2, #1356a2),
+    linear-gradient(#f7d842, #f7d842);
+  background-size: 10px 100%, 100% 10px, 100% 10px, 17% 24%, 13% 20%, 9% 12%;
+  background-position: 16% 0, 0 10%, 0 88%, 0 0, 100% 100%, 100% 26%;
+  background-repeat: no-repeat;
+  opacity: 0.92;
+}
+
+.s-constructivismo::after {
+  content: "";
+  position: absolute;
+  right: 12%;
+  top: 34%;
+  border-left: 90px solid #d40920;
+  border-top: 26px solid transparent;
+  border-bottom: 26px solid transparent;
+  rotate: -18deg;
+}
+
+.s-constructivismo .estilo-head {
+  background: rgb(241 235 221 / 94%);
+  border: 4px solid #16131f;
+  padding: 30px;
+}
+
+.s-constructivismo h2 {
+  font-family: "Oswald", sans-serif;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.s-constructivismo h2 em {
+  font-style: normal;
+  color: #d40920;
+}
+
+.s-constructivismo .ficha {
+  background: #fff;
+  border: 6px solid #16131f;
+  border-radius: 0;
+}
+
+.s-constructivismo .ficha h3 {
+  display: inline-block;
+  background: #d40920;
+  color: #fff;
+  padding: 6px 10px;
+  opacity: 1;
+}
+
+.s-constructivismo .ficha:nth-child(2) h3 {
+  background: #1356a2;
+}
+
+.specimen-constructivista {
+  font-family: "Oswald", sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+}
+
+/* ---------- Expresionismo Abstracto ---------- */
+
+.s-abstracto {
+  background: #efe9dc;
+  color: #16131f;
+}
+
+.s-abstracto::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 12% 18%, #16131f 0 7px, transparent 8px),
+    radial-gradient(circle at 15% 22%, #16131f 0 3px, transparent 4px),
+    radial-gradient(circle at 78% 12%, #c0392b 0 9px, transparent 10px),
+    radial-gradient(circle at 82% 16%, #c0392b 0 4px, transparent 5px),
+    radial-gradient(circle at 30% 78%, #e9b44c 0 11px, transparent 12px),
+    radial-gradient(circle at 26% 74%, #e9b44c 0 4px, transparent 5px),
+    radial-gradient(circle at 64% 86%, #16131f 0 6px, transparent 7px),
+    radial-gradient(ellipse 70px 5px at 40% 30%, rgb(22 19 31 / 65%), transparent),
+    radial-gradient(ellipse 90px 6px at 70% 60%, rgb(192 57 43 / 55%), transparent),
+    radial-gradient(500px 340px at 72% 34%, rgb(192 57 43 / 16%), transparent 70%),
+    radial-gradient(460px 300px at 24% 60%, rgb(233 180 76 / 20%), transparent 70%);
+}
+
+.abs-title {
+  font-family: "Caveat", cursive;
+  font-weight: 700;
+  font-size: clamp(3rem, 8vw, 6rem);
+  border-bottom: 6px solid #c0392b;
+  display: inline-block;
+  transform: rotate(-1.5deg);
+}
+
+.s-abstracto .ficha {
+  background: rgb(255 255 255 / 72%);
+  border-radius: 14px;
+}
+
+.specimen-gestual {
+  font-family: "Caveat", cursive;
+  font-weight: 700;
+  color: #c0392b;
+}
+
+/* ---------- Arte Cinético y Op Art ---------- */
+
+.s-opart {
+  background: repeating-conic-gradient(#111 0 25%, #f7f7f7 0 50%) 50% / 64px 64px;
+  color: #111;
+  animation: opShift 26s linear infinite;
+}
+
+@keyframes opShift {
+  to { background-position: calc(50% + 64px) 64px; }
+}
+
+.s-opart .estilo-head,
+.s-opart .ficha {
+  background: #fff;
+  border: 4px solid #111;
+}
+
+.s-opart .estilo-head {
+  padding: 32px;
+}
+
+.s-opart h2 {
+  font-family: "Archivo Black", sans-serif;
+  letter-spacing: -0.01em;
+}
+
+.s-opart h2 em {
+  font-style: normal;
+  background: repeating-linear-gradient(90deg, #111 0 6px, #fff 6px 12px);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.s-opart .ficha {
+  border-radius: 0;
+}
+
+.specimen-optico {
+  font-family: "Archivo Black", sans-serif;
+  background: repeating-linear-gradient(180deg, #111 0 4px, #fff 4px 8px);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+/* ---------- Conceptual · Land Art · Povera ---------- */
+
+.s-conceptual {
+  background:
+    repeating-linear-gradient(0deg, rgb(0 0 0 / 3%) 0 2px, transparent 2px 5px),
+    #c9b594;
+  color: #33291b;
+}
+
+.s-conceptual h2 {
+  font-family: "Space Mono", monospace;
+  font-weight: 700;
+  font-size: clamp(1.8rem, 4.5vw, 3.2rem);
+}
+
+.s-conceptual .estilo-head::after {
+  content: "";
+  display: block;
+  width: 120px;
+  height: 5px;
+  background: #5c6b47;
+  margin-top: 18px;
+}
+
+.ficha-mecanografiada {
+  background: #faf7ef;
+  font-family: "Space Mono", monospace;
+  font-size: 0.92rem;
+  transform: rotate(-0.8deg);
+  box-shadow: 0 10px 26px rgb(51 41 27 / 25%);
+  border-radius: 2px;
+}
+
+.s-conceptual .ficha:nth-child(2) {
+  background: #bea77e;
+  border: 2px dashed #6e5a3e;
+  border-radius: 4px;
+}
+
+.specimen-maquina {
+  font-family: "Space Mono", monospace;
+}
+
+/* ---------- Hiperrealismo ---------- */
+
+.s-hiperrealismo {
+  background: radial-gradient(1100px 640px at 50% 12%, #fafafb, #d9dade);
+  color: #1c1d22;
+}
+
+.s-hiperrealismo .lente {
+  position: absolute;
+  right: clamp(20px, 8vw, 120px);
+  top: 90px;
+  width: 300px;
+  height: 300px;
+  border: 1px solid rgb(28 29 34 / 30%);
+  border-radius: 50%;
+  pointer-events: none;
+  background:
+    linear-gradient(rgb(28 29 34 / 25%), rgb(28 29 34 / 25%)) 50% 0 / 1px 100% no-repeat,
+    linear-gradient(rgb(28 29 34 / 25%), rgb(28 29 34 / 25%)) 0 50% / 100% 1px no-repeat;
+}
+
+.s-hiperrealismo .lente::after {
+  content: "×4.0";
+  position: absolute;
+  bottom: 14px;
+  right: 30px;
+  font: 700 0.72rem "Space Mono", monospace;
+  color: rgb(28 29 34 / 55%);
+}
+
+.s-hiperrealismo h2 {
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+
+.s-hiperrealismo .ficha {
+  background: #fff;
+  border: 1px solid #c9cad1;
+  box-shadow: 0 1px 2px rgb(28 29 34 / 20%), 0 24px 48px rgb(28 29 34 / 10%);
+  transition: transform 0.35s var(--ease-out), box-shadow 0.35s var(--ease-out);
+}
+
+.s-hiperrealismo .ficha:hover {
+  transform: scale(1.025);
+  box-shadow: 0 2px 3px rgb(28 29 34 / 22%), 0 34px 64px rgb(28 29 34 / 16%);
+}
+
+.specimen-precision {
+  font-size: 0.95rem;
+  letter-spacing: -0.01em;
+  font-weight: 600;
+}
+
+/* ---------- Posmodernismo ---------- */
+
+.s-posmoderno {
+  background:
+    radial-gradient(circle at 18% 30%, rgb(255 255 255 / 14%) 0 5px, transparent 6px) 0 0 / 70px 70px,
+    linear-gradient(118deg, #3aafa9 0 55%, #f28c6b 55%);
+  color: #201a2e;
+}
+
+.s-posmoderno::before {
+  content: "“";
+  position: absolute;
+  top: -40px;
+  right: 6%;
+  font-family: "Bodoni Moda", serif;
+  font-size: clamp(10rem, 24vw, 22rem);
+  color: rgb(255 255 255 / 30%);
+  pointer-events: none;
+  line-height: 1;
+}
+
+.pomo-title {
+  font-family: "Playfair Display", serif;
+  font-style: italic;
+  font-weight: 800;
+  text-shadow: 6px 6px 0 #d9a404;
+}
+
+.ficha-clasica {
+  background: #f7f1e3;
+  border: 6px double #d9a404;
+  font-family: "Playfair Display", serif;
+  border-radius: 0;
+}
+
+.ficha-pop {
+  background: #6b3fa0;
+  color: #fff;
+  font-family: "Rubik", sans-serif;
+  border: 4px solid #16131f;
+  box-shadow: 10px 10px 0 #f28c6b;
+  transform: rotate(1.2deg);
+  border-radius: 18px 4px 18px 4px;
+}
+
+.specimen-pastiche {
+  font-family: "Bodoni Moda", serif;
+}
+
+.specimen-pastiche em {
+  font-family: "Bangers", cursive;
+  font-style: normal;
+  color: #f7d842;
+  letter-spacing: 0.04em;
+}
+
+/* ---------- Arts and Crafts ---------- */
+
+.s-artsandcrafts {
+  background:
+    radial-gradient(circle at 0 0, rgb(91 110 63 / 15%) 0 7px, transparent 8px) 0 0 / 46px 46px,
+    radial-gradient(circle at 0 0, rgb(168 90 56 / 12%) 0 5px, transparent 6px) 23px 23px / 46px 46px,
+    #f2e8d5;
+  color: #3a3423;
+}
+
+.s-artsandcrafts .estilo-head {
+  border: 6px double #5b6e3f;
+  padding: 32px;
+  background: rgb(242 232 213 / 92%);
+}
+
+.s-artsandcrafts h2,
+.s-artsandcrafts .lede {
+  font-family: "Cormorant Garamond", serif;
+}
+
+.s-artsandcrafts h2 {
+  font-weight: 700;
+}
+
+.s-artsandcrafts h2 em {
+  font-style: italic;
+  color: #a85a38;
+}
+
+.s-artsandcrafts .ficha {
+  background: #f7f0e1;
+  border: 3px solid #5b6e3f;
+  border-radius: 6px;
+  font-family: "Cormorant Garamond", serif;
+  font-size: 1.1rem;
+}
+
+.s-artsandcrafts .ficha:first-child p:last-of-type::first-letter {
+  font-size: 2.3em;
+  color: #a85a38;
+  font-weight: 700;
+  line-height: 1;
+  padding-right: 2px;
+}
+
+.specimen-golden {
+  font-family: "Cormorant Garamond", serif;
+  font-weight: 600;
+  color: #5b6e3f;
+}
+
+/* ---------- Megabrutalismo ---------- */
+
+.s-megabrutalismo {
+  background: #000;
+  color: #fff;
+  font-family: "Space Mono", monospace;
+}
+
+.mega-title {
+  font-family: "Archivo Black", sans-serif;
+  font-size: clamp(4rem, 19vw, 17rem);
+  line-height: 0.82;
+  letter-spacing: -0.05em;
+  word-break: break-word;
+}
+
+.mega-title span {
+  display: block;
+  color: #c6ff00;
+}
+
+.s-megabrutalismo .lede {
+  background: #c6ff00;
+  color: #000;
+  display: inline-block;
+  padding: 12px 16px;
+  font-weight: 700;
+  max-width: 52ch;
+}
+
+.mega-marquee {
+  display: flex;
+  overflow: hidden;
+  white-space: nowrap;
+  border-block: 4px solid #fff;
+  padding: 12px 0;
+  margin: 0 auto 48px;
+  max-width: 1100px;
+  font-family: "Archivo Black", sans-serif;
+  font-size: clamp(1.2rem, 3vw, 2rem);
+}
+
+.mega-marquee span {
+  animation: megaScroll 16s linear infinite;
+}
+
+@keyframes megaScroll {
+  to { translate: -100% 0; }
+}
+
+.s-megabrutalismo .ficha {
+  border: 6px solid #fff;
+  border-radius: 0;
+  background: #000;
+}
+
+.s-megabrutalismo .ficha:nth-child(2) {
+  background: #c6ff00;
+  color: #000;
+  border-color: #c6ff00;
+}
+
+.s-megabrutalismo .ficha h3 {
+  text-decoration: underline 4px;
+  opacity: 1;
+}
+
+.specimen-mega {
+  font-family: "Archivo Black", sans-serif;
+  font-size: clamp(2.4rem, 6vw, 4.4rem);
+}
+
+/* ---------- Scrapbook ---------- */
+
+.s-scrapbook {
+  background:
+    linear-gradient(90deg, transparent 64px, rgb(193 39 45 / 30%) 64px 66px, transparent 66px),
+    linear-gradient(rgb(42 77 160 / 14%) 1px, transparent 1px) 0 0 / 100% 26px,
+    linear-gradient(90deg, rgb(42 77 160 / 9%) 1px, transparent 1px) 0 0 / 26px 100%,
+    #fbf7ec;
+  color: #2b2a33;
+}
+
+.scrap-title {
+  font-family: "Caveat", cursive;
+  font-weight: 700;
+  font-size: clamp(3.4rem, 9vw, 7rem);
+  color: #2a4da0;
+  rotate: -2deg;
+  display: inline-block;
+  text-decoration: underline wavy #c1272d 3px;
+  text-underline-offset: 10px;
+}
+
+.s-scrapbook .ficha {
+  background: #fff;
+  padding: 24px 24px 50px;
+  box-shadow: 0 10px 24px rgb(43 42 51 / 18%);
+  border-radius: 3px;
+  transform: rotate(-1.6deg);
+  position: relative;
+}
+
+.s-scrapbook .ficha:nth-child(2) {
+  transform: rotate(2deg);
+}
+
+.s-scrapbook .ficha::before {
+  content: "";
+  position: absolute;
+  top: -15px;
+  left: 50%;
+  translate: -50% 0;
+  rotate: -4deg;
+  width: 120px;
+  height: 32px;
+  background:
+    repeating-linear-gradient(90deg, rgb(255 255 255 / 25%) 0 6px, transparent 6px 12px),
+    rgb(255 185 125 / 78%);
+  box-shadow: 0 2px 4px rgb(0 0 0 / 12%);
+}
+
+.s-scrapbook .ficha:nth-child(2)::before {
+  rotate: 5deg;
+  background:
+    repeating-linear-gradient(90deg, rgb(255 255 255 / 25%) 0 6px, transparent 6px 12px),
+    rgb(150 208 194 / 78%);
+}
+
+.s-scrapbook .ficha h3 {
+  font-family: "Caveat", cursive;
+  font-size: 1.5rem;
+  text-transform: none;
+  letter-spacing: 0;
+  color: #2a4da0;
+  opacity: 1;
+}
+
+.specimen-manuscrita {
+  font-family: "Caveat", cursive;
+  font-weight: 700;
+  color: #c1272d;
+}
+
+/* ---------- Liquid Glass ---------- */
+
+.s-liquidglass {
+  background: #0a0b1e;
+  color: #fff;
+}
+
+.lg-aurora {
+  position: absolute;
+  inset: -20%;
+  pointer-events: none;
+  background:
+    radial-gradient(480px 420px at 24% 30%, rgb(124 92 255 / 55%), transparent 70%),
+    radial-gradient(520px 460px at 74% 62%, rgb(45 212 191 / 45%), transparent 70%),
+    radial-gradient(420px 380px at 55% 20%, rgb(255 92 138 / 45%), transparent 70%);
+  filter: blur(70px);
+  animation: lgAurora 14s ease-in-out infinite alternate;
+}
+
+@keyframes lgAurora {
+  to {
+    translate: 4% 6%;
+    scale: 1.12;
+    filter: blur(70px) hue-rotate(50deg);
+  }
+}
+
+.s-liquidglass h2 {
+  font-weight: 300;
+  background: linear-gradient(110deg, #fff 40%, #9be8ff 60%, #fff 80%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.lg-panel {
+  position: relative;
+  overflow: hidden;
+  background: rgb(255 255 255 / 9%);
+  backdrop-filter: blur(26px) saturate(1.8);
+  -webkit-backdrop-filter: blur(26px) saturate(1.8);
+  border-radius: 28px;
+  box-shadow: 0 30px 70px rgb(0 0 0 / 45%);
+}
+
+.lg-panel::before {
+  content: "";
+  position: absolute;
+  inset: -140% -60%;
+  background: linear-gradient(115deg, transparent 44%, rgb(255 255 255 / 16%) 50%, transparent 56%);
+  animation: lgSweep 6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes lgSweep {
+  0%, 20% { translate: -30% 0; }
+  60%, 100% { translate: 30% 0; }
+}
+
+.lg-panel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: conic-gradient(#7c5cff, #2dd4bf, #ff5c8a, #7c5cff);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  opacity: 0.55;
+  animation: lgHue 9s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes lgHue {
+  to { filter: hue-rotate(360deg); }
+}
+
+.specimen-liquid {
+  font-weight: 450;
+}
+
+/* ---------- Phygital ---------- */
+
+.s-phygital {
+  background: linear-gradient(180deg, #241f1b 0%, #3a332c 55%, #241f1b 100%);
+  color: #ede8e0;
+}
+
+.phy-target {
+  position: absolute;
+  inset: clamp(48px, 8vw, 110px) clamp(16px, 10vw, 160px) auto;
+  height: min(46vh, 420px);
+  pointer-events: none;
+}
+
+.phy-target i {
+  position: absolute;
+  width: 46px;
+  height: 46px;
+  border: 3px solid #45e3ff;
+  filter: drop-shadow(0 0 8px rgb(69 227 255 / 70%));
+  animation: phyPulse 2.6s ease-in-out infinite;
+}
+
+.phy-target i:nth-child(1) { top: 0; left: 0; border-right: none; border-bottom: none; }
+.phy-target i:nth-child(2) { top: 0; right: 0; border-left: none; border-bottom: none; }
+.phy-target i:nth-child(3) { bottom: 0; left: 0; border-right: none; border-top: none; }
+.phy-target i:nth-child(4) { bottom: 0; right: 0; border-left: none; border-top: none; }
+
+@keyframes phyPulse {
+  50% { opacity: 0.45; }
+}
+
+.s-phygital .epoca {
+  color: #45e3ff;
+  opacity: 1;
+}
+
+.s-phygital h2 {
+  font-weight: 700;
+}
+
+.ficha-fisica {
+  background: #efe6d8;
+  color: #33291b;
+  border-radius: 14px;
+  box-shadow: 0 16px 36px rgb(0 0 0 / 40%);
+}
+
+.ficha-digital {
+  background: rgb(69 227 255 / 8%);
+  border: 1.5px dashed rgb(69 227 255 / 55%);
+  border-radius: 14px;
+  color: #c9f6ff;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.ficha-digital h3 {
+  color: #45e3ff;
+  opacity: 1;
+}
+
+.ficha-digital h3::before {
+  content: "◉ AR ";
+  font-family: "Space Mono", monospace;
+  font-size: 0.85em;
+}
