@@ -1,0 +1,1327 @@
+/* ==========================================================================
+   ESTILO — Enciclopedia interactiva de estilos visuales y tipografía
+   Cada sección define su propio sistema visual mediante custom properties
+   locales; la base global solo aporta estructura, accesibilidad y motion.
+   ========================================================================== */
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --ink: #16131f;
+  --paper: #fdfcf9;
+  --accent: #7c5cff;
+  --nav-h: 64px;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--nav-h) + 12px);
+}
+
+body {
+  font-family: "Inter", system-ui, sans-serif;
+  color: var(--ink);
+  background: var(--paper);
+  line-height: 1.6;
+}
+
+img,
+svg {
+  max-width: 100%;
+}
+
+code {
+  font-family: "Space Mono", monospace;
+  font-size: 0.9em;
+  background: rgb(0 0 0 / 8%);
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+}
+
+/* ---------- Accesibilidad ---------- */
+
+.skip-link {
+  position: absolute;
+  top: -48px;
+  left: 12px;
+  z-index: 100;
+  background: var(--ink);
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 0 0 8px 8px;
+  text-decoration: none;
+  transition: top 0.2s;
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+a:focus-visible,
+button:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* ==========================================================================
+   NAVEGACIÓN
+   ========================================================================== */
+
+.site-nav {
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: var(--nav-h);
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  padding: 0 clamp(16px, 4vw, 48px);
+  background: rgb(253 252 249 / 82%);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgb(22 19 31 / 10%);
+}
+
+.brand {
+  font-family: "Fraunces", serif;
+  font-weight: 700;
+  font-size: 1.25rem;
+  letter-spacing: 0.14em;
+  color: var(--ink);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.brand-mark {
+  color: var(--accent);
+  font-size: 1.1em;
+}
+
+.nav-groups {
+  display: flex;
+  gap: 8px;
+  list-style: none;
+}
+
+.nav-group {
+  position: relative;
+}
+
+.nav-group-btn {
+  font: 600 0.85rem/1 "Inter", sans-serif;
+  letter-spacing: 0.04em;
+  background: none;
+  border: none;
+  color: var(--ink);
+  padding: 12px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.nav-group-btn:hover,
+.nav-group:focus-within .nav-group-btn {
+  background: rgb(124 92 255 / 12%);
+}
+
+.nav-drop {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  min-width: 240px;
+  list-style: none;
+  background: var(--paper);
+  border: 1px solid rgb(22 19 31 / 12%);
+  border-radius: 12px;
+  box-shadow: 0 18px 40px rgb(22 19 31 / 15%);
+  padding: 8px;
+  opacity: 0;
+  translate: 0 -6px;
+  visibility: hidden;
+  transition: opacity 0.2s var(--ease-out), translate 0.2s var(--ease-out), visibility 0.2s;
+}
+
+.nav-group:hover .nav-drop,
+.nav-group:focus-within .nav-drop,
+.nav-group.open .nav-drop {
+  opacity: 1;
+  translate: 0 0;
+  visibility: visible;
+}
+
+.nav-drop a {
+  display: block;
+  padding: 10px 12px;
+  border-radius: 8px;
+  color: var(--ink);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.nav-drop a:hover,
+.nav-drop a.active {
+  background: rgb(124 92 255 / 12%);
+  color: #4a2fd6;
+}
+
+.nav-progress {
+  position: absolute;
+  inset: auto 0 -1px 0;
+  height: 3px;
+  background: transparent;
+}
+
+.nav-progress span {
+  display: block;
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #7c5cff, #ff5c8a, #ffb347);
+}
+
+/* ==========================================================================
+   HERO — armonía renacentista + gráficos modernos
+   ========================================================================== */
+
+.hero {
+  min-height: 100svh;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  gap: 20px;
+  padding: calc(var(--nav-h) + 40px) 24px 60px;
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(1200px 600px at 50% -10%, rgb(124 92 255 / 14%), transparent 60%),
+    var(--paper);
+}
+
+.hero-geometry {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+
+.hero-svg {
+  width: min(78vmin, 640px);
+  opacity: 0.5;
+  animation: heroSpin 90s linear infinite;
+}
+
+.orb {
+  filter: blur(0.5px);
+}
+
+.orb-a { animation: orbFloat 7s ease-in-out infinite; }
+.orb-b { animation: orbFloat 9s ease-in-out -3s infinite; }
+.orb-c { animation: orbFloat 11s ease-in-out -6s infinite; }
+
+@keyframes heroSpin {
+  to { rotate: 360deg; }
+}
+
+@keyframes orbFloat {
+  50% { translate: 0 -18px; }
+}
+
+.hero-kicker {
+  position: relative;
+  font: 600 0.8rem/1 "Space Mono", monospace;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: #5a4bb8;
+}
+
+.hero-title {
+  position: relative;
+  font-family: "Fraunces", serif;
+  font-size: clamp(3rem, 11vw, 8.5rem);
+  line-height: 0.98;
+  font-weight: 300; /* animado por scroll vía font-variation-settings */
+  letter-spacing: -0.02em;
+  background: linear-gradient(100deg, #16131f 30%, #7c5cff 55%, #ff5c8a 75%, #16131f 95%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.hero-sub {
+  position: relative;
+  max-width: 58ch;
+  margin-inline: auto;
+  font-size: 1.05rem;
+  color: #3d3752;
+}
+
+.hero-actions {
+  position: relative;
+  display: grid;
+  gap: 14px;
+  justify-items: center;
+}
+
+.btn-primary {
+  display: inline-block;
+  background: var(--ink);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+  padding: 14px 30px;
+  border-radius: 999px;
+  transition: translate 0.25s var(--ease-out), box-shadow 0.25s var(--ease-out);
+}
+
+.btn-primary:hover {
+  translate: 0 -3px;
+  box-shadow: 0 14px 30px rgb(124 92 255 / 35%);
+}
+
+.hero-hint {
+  font-size: 0.78rem;
+  color: #6f6a85;
+}
+
+/* ==========================================================================
+   ESTRUCTURA COMÚN DE SECCIONES
+   ========================================================================== */
+
+.cat-divider {
+  font: 700 0.85rem/1 "Space Mono", monospace;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  text-align: center;
+  padding: 72px 24px 36px;
+  color: #6f6a85;
+  scroll-margin-top: var(--nav-h);
+}
+
+.estilo {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(72px, 10vw, 128px) clamp(20px, 6vw, 80px);
+}
+
+.estilo-head {
+  position: relative;
+  max-width: 900px;
+  margin: 0 auto 48px;
+  z-index: 2;
+}
+
+.epoca {
+  font: 600 0.78rem/1 "Space Mono", monospace;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  opacity: 0.65;
+  margin-bottom: 14px;
+}
+
+.estilo h2 {
+  font-size: clamp(2.2rem, 6vw, 4.4rem);
+  line-height: 1.05;
+  margin-bottom: 20px;
+}
+
+.lede {
+  font-size: clamp(1.05rem, 1.8vw, 1.3rem);
+  max-width: 62ch;
+}
+
+.cols {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 28px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.ficha {
+  padding: 28px;
+  border-radius: 16px;
+}
+
+.ficha h3 {
+  font-size: 1rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  opacity: 0.8;
+}
+
+.ficha p + p {
+  margin-top: 12px;
+}
+
+.specimen {
+  font-size: clamp(1.6rem, 3.4vw, 2.4rem);
+  line-height: 1.15;
+  margin-bottom: 10px;
+}
+
+.nota {
+  font-size: 0.55em;
+  opacity: 0.7;
+}
+
+/* Animación de entrada (revelado por IntersectionObserver) */
+.reveal {
+  opacity: 0;
+  translate: 0 36px;
+  transition: opacity 0.9s var(--ease-out), translate 0.9s var(--ease-out);
+}
+
+.reveal.in-view {
+  opacity: 1;
+  translate: 0 0;
+}
+
+/* ==========================================================================
+   1 · RENACIMIENTO Y BARROCO — proporción, pergamino y pan de oro
+   ========================================================================== */
+
+.s-renacimiento {
+  --r-ink: #2e1f14;
+  --r-gold: #a67c1e;
+  background:
+    radial-gradient(900px 500px at 50% 0%, rgb(166 124 30 / 12%), transparent 70%),
+    #f3ead8;
+  color: var(--r-ink);
+  text-align: center;
+}
+
+.s-renacimiento .marco {
+  position: absolute;
+  inset: 26px;
+  border: 1.5px solid rgb(166 124 30 / 45%);
+  outline: 1px solid rgb(166 124 30 / 25%);
+  outline-offset: 6px;
+  pointer-events: none;
+}
+
+.s-renacimiento .estilo-head {
+  margin-inline: auto;
+}
+
+.s-renacimiento h2 {
+  font-family: "Cormorant Garamond", serif;
+  font-weight: 600;
+}
+
+.s-renacimiento h2 em {
+  font-style: italic;
+  color: var(--r-gold);
+}
+
+.s-renacimiento .lede {
+  font-family: "Cormorant Garamond", serif;
+  font-size: clamp(1.2rem, 2vw, 1.45rem);
+  margin-inline: auto;
+}
+
+.s-renacimiento .lede::first-letter {
+  font-size: 2.2em;
+  font-weight: 700;
+  color: var(--r-gold);
+  line-height: 1;
+  padding-right: 2px;
+}
+
+.s-renacimiento .ficha {
+  background: rgb(255 252 243 / 75%);
+  border: 1px solid rgb(166 124 30 / 30%);
+  font-family: "Cormorant Garamond", serif;
+  font-size: 1.1rem;
+  text-align: left;
+}
+
+.specimen-garalda {
+  font-family: "Cormorant Garamond", serif;
+  font-weight: 600;
+}
+
+.specimen-gotica {
+  font-family: "UnifrakturMaguntia", serif;
+  color: var(--r-gold);
+}
+
+/* ==========================================================================
+   2 · IMPRESIONISMO Y ROMANTICISMO — luz, bruma y complementarios
+   ========================================================================== */
+
+.s-impresionismo {
+  background: linear-gradient(160deg, #cfd8f5 0%, #e8d9ef 34%, #fbe3d2 68%, #f6ecd9 100%);
+  color: #2f2a45;
+}
+
+.s-impresionismo .pinceladas {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(340px 130px at 18% 22%, rgb(255 158 94 / 30%), transparent 70%),
+    radial-gradient(300px 120px at 82% 30%, rgb(114 137 218 / 30%), transparent 70%),
+    radial-gradient(380px 150px at 30% 82%, rgb(214 130 182 / 26%), transparent 70%),
+    radial-gradient(280px 110px at 74% 74%, rgb(120 190 170 / 28%), transparent 70%);
+  filter: blur(18px);
+  animation: brumaDrift 18s ease-in-out infinite alternate;
+}
+
+@keyframes brumaDrift {
+  to { translate: 0 -26px; scale: 1.05; }
+}
+
+.s-impresionismo h2 {
+  font-family: "Playfair Display", serif;
+  font-weight: 500;
+}
+
+.s-impresionismo h2 em {
+  font-style: italic;
+  color: #b05a2e; /* naranja complementario del azul de fondo */
+}
+
+.s-impresionismo .lede,
+.s-impresionismo .ficha {
+  font-family: "Lora", serif;
+}
+
+.s-impresionismo .ficha {
+  background: rgb(255 255 255 / 45%);
+  border-radius: 24px;
+  box-shadow: 0 10px 40px rgb(80 70 130 / 12%);
+}
+
+.specimen-playfair {
+  font-family: "Playfair Display", serif;
+}
+
+/* ==========================================================================
+   3 · VANGUARDIAS — cuatro rupturas, cuatro mini-sistemas
+   ========================================================================== */
+
+.s-vanguardias {
+  background: #14121a;
+  color: #f4f1ea;
+}
+
+.s-vanguardias h2 {
+  font-family: "Archivo Black", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+}
+
+.vanguardia-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.v-card {
+  padding: 30px 26px;
+  min-height: 240px;
+}
+
+.v-card h3 {
+  font-size: 1.5rem;
+  margin-bottom: 12px;
+}
+
+/* Cubismo: planos fracturados en ocres */
+.v-cubismo {
+  background:
+    linear-gradient(117deg, #b3a184 0 42%, transparent 42%),
+    linear-gradient(-24deg, #8c7a5b 0 30%, transparent 30%),
+    #d9cbaa;
+  color: #241d10;
+  clip-path: polygon(0 4%, 96% 0, 100% 94%, 5% 100%);
+  transform: rotate(-1.2deg);
+}
+
+.v-cubismo h3 {
+  font-family: "Archivo Black", sans-serif;
+  transform: skewX(-8deg);
+}
+
+/* Expresionismo: grito de color */
+.v-expresionismo {
+  background: #e33d2e;
+  color: #fdf3e3;
+  transform: rotate(1deg);
+  box-shadow: 8px 8px 0 #f5c518;
+}
+
+.v-expresionismo h3 {
+  font-family: "Archivo Black", sans-serif;
+  text-transform: uppercase;
+  transform: skewY(-2.5deg);
+  text-shadow: 3px 3px 0 #14121a;
+}
+
+/* Surrealismo: cielo onírico */
+.v-surrealismo {
+  background: linear-gradient(180deg, #7fb4d9 0%, #cfe4ee 60%, #e8d9b8 100%);
+  color: #232c3a;
+  border-radius: 50% 12px 50% 12px / 30% 12px 30% 12px;
+}
+
+.v-surrealismo h3 {
+  font-family: "Playfair Display", serif;
+  font-style: italic;
+}
+
+/* Pop Art: semitono y cómic */
+.v-popart {
+  background:
+    radial-gradient(circle at center, #16131f 18%, transparent 19%) 0 0 / 14px 14px,
+    #f5c518;
+  color: #16131f;
+  border: 4px solid #16131f;
+}
+
+.v-popart h3 {
+  font-family: "Bangers", cursive;
+  font-size: 2rem;
+  letter-spacing: 0.05em;
+  color: #e3306d;
+  -webkit-text-stroke: 1.2px #16131f;
+}
+
+.v-popart p {
+  background: rgb(255 255 255 / 88%);
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-weight: 500;
+}
+
+/* ==========================================================================
+   4 · BAUHAUS Y ESTILO SUIZO — retícula, primarios y bandera izquierda
+   ========================================================================== */
+
+.s-bauhaus {
+  background:
+    linear-gradient(rgb(20 18 26 / 5%) 1px, transparent 1px) 0 0 / 100% 96px,
+    linear-gradient(90deg, rgb(20 18 26 / 5%) 1px, transparent 1px) 0 0 / 8.333% 100%,
+    #fff;
+  color: #14121a;
+  font-family: "Inter", "Helvetica Neue", Helvetica, sans-serif;
+}
+
+.s-bauhaus .estilo-head,
+.s-bauhaus .cols {
+  margin-left: max(calc((100% - 1000px) / 2), 0px);
+  margin-right: auto;
+  text-align: left;
+}
+
+.s-bauhaus h2 {
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  text-transform: none;
+}
+
+.s-bauhaus h2 em {
+  font-style: normal;
+  color: #d02e26;
+}
+
+.s-bauhaus .lede {
+  font-size: 1.6rem;
+  font-weight: 300;
+  border-left: 10px solid #f5c518;
+  padding-left: 18px;
+}
+
+.s-bauhaus .ficha {
+  border-radius: 0;
+  border-top: 4px solid #14121a;
+  padding-left: 0;
+  /* bandera: alineado a la izquierda, derecha irregular */
+  text-align: left;
+  hyphens: none;
+}
+
+.s-bauhaus .ficha:nth-child(2) {
+  border-top-color: #1c50a0;
+}
+
+.bauhaus-shapes {
+  position: absolute;
+  top: 64px;
+  right: clamp(16px, 8vw, 120px);
+  display: flex;
+  gap: 18px;
+  align-items: flex-end;
+}
+
+.bh-circle {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #d02e26;
+}
+
+.bh-triangle {
+  width: 0;
+  height: 0;
+  border-left: 30px solid transparent;
+  border-right: 30px solid transparent;
+  border-bottom: 54px solid #f5c518;
+}
+
+.bh-square {
+  width: 52px;
+  height: 52px;
+  background: #1c50a0;
+}
+
+.specimen-swiss {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* ==========================================================================
+   5 · ART DÉCO — oro sobre negro, simetría y zig-zag
+   ========================================================================== */
+
+.s-artdeco {
+  background: #101014;
+  color: #e8d59a;
+  text-align: center;
+}
+
+.s-artdeco .deco-frame {
+  position: absolute;
+  inset: 22px;
+  pointer-events: none;
+  border: 1px solid #c9a747;
+  outline: 1px solid rgb(201 167 71 / 45%);
+  outline-offset: 8px;
+}
+
+/* zig-zag superior e inferior */
+.s-artdeco::before,
+.s-artdeco::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 16px;
+  background: linear-gradient(135deg, #c9a747 25%, transparent 25%) 0 0 / 24px 16px,
+    linear-gradient(225deg, #c9a747 25%, transparent 25%) 12px 0 / 24px 16px;
+  opacity: 0.8;
+}
+
+.s-artdeco::before { top: 0; }
+.s-artdeco::after { bottom: 0; rotate: 180deg; }
+
+.s-artdeco .estilo-head {
+  margin-inline: auto;
+}
+
+.s-artdeco h2 {
+  font-family: "Poiret One", cursive;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #c9a747;
+}
+
+.s-artdeco .lede {
+  margin-inline: auto;
+  font-weight: 300;
+  color: #efe3b8;
+}
+
+.s-artdeco .ficha {
+  border: 1px solid rgb(201 167 71 / 55%);
+  background: linear-gradient(180deg, rgb(201 167 71 / 8%), transparent);
+  border-radius: 0;
+  text-align: center;
+}
+
+.s-artdeco .ficha h3 {
+  color: #c9a747;
+  letter-spacing: 0.3em;
+}
+
+.specimen-deco {
+  font-family: "Poiret One", cursive;
+  letter-spacing: 0.14em;
+  color: #efe3b8;
+}
+
+.specimen-deco + p {
+  color: #d9c98f;
+}
+
+/* ==========================================================================
+   6 · MINIMALISMO VS MAXIMALISMO — sección conmutable
+   ========================================================================== */
+
+.s-minmax {
+  transition: background 0.7s var(--ease-out), color 0.7s var(--ease-out);
+}
+
+.minmax-toggle {
+  display: inline-flex;
+  gap: 6px;
+  margin-top: 24px;
+  padding: 6px;
+  border-radius: 999px;
+  border: 1.5px solid currentcolor;
+}
+
+.toggle-btn {
+  font: 600 0.9rem/1 "Inter", sans-serif;
+  padding: 12px 22px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  transition: background 0.3s, color 0.3s;
+}
+
+.toggle-btn.is-active {
+  background: currentcolor;
+}
+
+/* --- estado MINIMAL --- */
+.s-minmax[data-mode="min"] {
+  background: #fcfcfa;
+  color: #1c1b22;
+  font-family: "Inter", sans-serif;
+}
+
+.s-minmax[data-mode="min"] h2 {
+  font-weight: 200;
+  letter-spacing: -0.02em;
+}
+
+.s-minmax[data-mode="min"] h2 em {
+  font-style: normal;
+  font-weight: 600;
+}
+
+.s-minmax[data-mode="min"] .ficha {
+  border: 1px solid rgb(28 27 34 / 12%);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.s-minmax[data-mode="min"] .toggle-btn.is-active {
+  background: #1c1b22;
+  color: #fff;
+}
+
+.s-minmax[data-mode="min"] .memphis {
+  opacity: 0;
+}
+
+/* --- estado MAXIMAL (Memphis) --- */
+.s-minmax[data-mode="max"] {
+  background:
+    radial-gradient(circle at 12% 20%, rgb(255 255 255 / 20%) 0 8px, transparent 9px) 0 0 / 90px 90px,
+    #ff5ca8;
+  color: #1c1b22;
+  font-family: "Rubik", sans-serif;
+}
+
+.s-minmax[data-mode="max"] h2 {
+  font-weight: 900;
+  text-transform: uppercase;
+  transform: rotate(-1.5deg);
+  text-shadow: 4px 4px 0 #00b8a9, 8px 8px 0 #16131f;
+  color: #fff338;
+  -webkit-text-stroke: 1.5px #16131f;
+}
+
+.s-minmax[data-mode="max"] h2 em {
+  font-style: italic;
+  color: #fff;
+}
+
+.s-minmax[data-mode="max"] .ficha {
+  background: #fff338;
+  border: 4px solid #16131f;
+  border-radius: 20px 4px 20px 4px;
+  box-shadow: 10px 10px 0 #00b8a9;
+  transform: rotate(0.8deg);
+}
+
+.s-minmax[data-mode="max"] .ficha:nth-child(2) {
+  background: #7de8ff;
+  transform: rotate(-1deg);
+  box-shadow: -10px 10px 0 #ff9f1c;
+}
+
+.s-minmax[data-mode="max"] .toggle-btn.is-active {
+  background: #16131f;
+  color: #fff338;
+}
+
+.specimen-minmax {
+  font-weight: 300;
+}
+
+.s-minmax[data-mode="max"] .specimen-minmax {
+  font-weight: 900;
+}
+
+/* figuras Memphis flotantes */
+.memphis {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transition: opacity 0.6s;
+}
+
+.mf {
+  position: absolute;
+  animation: mfFloat 6s ease-in-out infinite;
+}
+
+.mf-zig {
+  top: 12%;
+  left: 6%;
+  width: 90px;
+  height: 22px;
+  background: linear-gradient(135deg, #16131f 25%, transparent 25%) 0 0 / 22px 22px,
+    linear-gradient(225deg, #16131f 25%, transparent 25%) 11px 0 / 22px 22px;
+}
+
+.mf-dot {
+  top: 22%;
+  right: 10%;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: #00b8a9;
+  border: 4px solid #16131f;
+  animation-delay: -2s;
+}
+
+.mf-tri {
+  bottom: 16%;
+  left: 12%;
+  width: 0;
+  height: 0;
+  border-left: 28px solid transparent;
+  border-right: 28px solid transparent;
+  border-bottom: 50px solid #ff9f1c;
+  animation-delay: -4s;
+}
+
+.mf-squig {
+  bottom: 24%;
+  right: 14%;
+  width: 80px;
+  height: 30px;
+  border-top: 6px dotted #16131f;
+  border-radius: 50%;
+  rotate: -12deg;
+  animation-delay: -1s;
+}
+
+.mf-ring {
+  top: 55%;
+  left: 45%;
+  width: 40px;
+  height: 40px;
+  border: 6px solid #fff;
+  border-radius: 50%;
+  animation-delay: -3s;
+}
+
+@keyframes mfFloat {
+  50% { translate: 0 -16px; rotate: 6deg; }
+}
+
+/* ==========================================================================
+   7 · BRUTALISMO — crudo, roto y a gritos (pero legible: AAA)
+   ========================================================================== */
+
+.s-brutalismo {
+  background: #f5f200;
+  color: #000;
+  font-family: "Space Mono", monospace;
+}
+
+.s-brutalismo h2 {
+  font-family: "Archivo Black", sans-serif;
+  font-size: clamp(4rem, 15vw, 12rem);
+  line-height: 0.85;
+  text-transform: uppercase;
+  letter-spacing: -0.04em;
+  word-break: break-word;
+}
+
+.s-brutalismo .epoca {
+  background: #000;
+  color: #f5f200;
+  display: inline-block;
+  padding: 6px 10px;
+  opacity: 1;
+}
+
+.s-brutalismo .lede {
+  background: #000;
+  color: #fff;
+  display: inline-block;
+  padding: 12px 16px;
+  transform: rotate(-0.6deg);
+  max-width: 46ch;
+}
+
+.s-brutalismo .cols {
+  gap: 0;
+  max-width: 1100px;
+}
+
+.s-brutalismo .ficha {
+  border: 4px solid #000;
+  border-radius: 0;
+  background: #fff;
+  box-shadow: 12px 12px 0 #000;
+}
+
+.s-brutalismo .ficha:nth-child(2) {
+  background: #ff4911;
+  color: #000;
+  transform: translate(-4px, 26px) rotate(0.8deg);
+}
+
+.s-brutalismo .ficha h3 {
+  text-decoration: underline 4px;
+  opacity: 1;
+}
+
+.specimen-brutal {
+  font-family: "Archivo Black", sans-serif;
+  font-size: clamp(2rem, 5vw, 3.4rem);
+}
+
+.s-brutalismo a {
+  color: #00f;
+}
+
+/* ==========================================================================
+   8 · CYBERCORE / Y2K / RETROWAVE — neón, cromo y horizonte de rejilla
+   ========================================================================== */
+
+.s-cyber {
+  background: linear-gradient(180deg, #0b0416 0%, #1b0b33 55%, #33104d 100%);
+  color: #e8e3ff;
+  text-align: center;
+}
+
+.cyber-horizon {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 42%;
+  pointer-events: none;
+  background:
+    linear-gradient(rgb(255 92 200 / 45%) 1.5px, transparent 1.5px) 0 0 / 100% 34px,
+    linear-gradient(90deg, rgb(255 92 200 / 45%) 1.5px, transparent 1.5px) 0 0 / 56px 100%;
+  transform: perspective(360px) rotateX(58deg);
+  transform-origin: top;
+  mask-image: linear-gradient(180deg, transparent, #000 30%);
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000 30%);
+}
+
+.s-cyber .estilo-head {
+  margin-inline: auto;
+}
+
+.chrome-text {
+  font-family: "Orbitron", sans-serif;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  background: linear-gradient(180deg, #fdfdff 0%, #9fb6ff 38%, #3a3d6b 50%, #e6b6ff 62%, #fff 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 14px rgb(124 240 255 / 55%));
+}
+
+.s-cyber .lede {
+  margin-inline: auto;
+  font-family: "Share Tech Mono", monospace;
+  color: #c9f6ff;
+  text-shadow: 0 0 10px rgb(63 210 255 / 60%);
+}
+
+.s-cyber .ficha {
+  background: rgb(20 8 40 / 65%);
+  border: 1px solid rgb(124 240 255 / 45%);
+  box-shadow: 0 0 24px rgb(255 92 200 / 20%), inset 0 0 24px rgb(124 240 255 / 8%);
+  font-family: "Share Tech Mono", monospace;
+  text-align: left;
+}
+
+.s-cyber .ficha h3 {
+  color: #7cf0ff;
+  text-shadow: 0 0 12px rgb(124 240 255 / 80%);
+  opacity: 1;
+}
+
+.specimen-orbitron {
+  font-family: "Orbitron", sans-serif;
+  font-weight: 700;
+  color: #ff5cc8;
+  text-shadow: 0 0 16px rgb(255 92 200 / 70%);
+}
+
+.specimen-arcade {
+  font-family: "Press Start 2P", cursive;
+  font-size: clamp(0.9rem, 2vw, 1.3rem);
+  color: #7cf0ff;
+}
+
+/* ==========================================================================
+   9 · FRUTIGER AERO — cielo, agua, césped y brillo esqueumórfico
+   ========================================================================== */
+
+.s-frutiger {
+  background:
+    linear-gradient(180deg, #7ec9f5 0%, #b8e6fb 42%, #e6f7ff 58%, #8fd44a 100%);
+  color: #123a5c;
+  font-family: "Nunito Sans", sans-serif;
+}
+
+.aero-bubbles span {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle at 32% 28%, rgb(255 255 255 / 95%) 0 12%, rgb(255 255 255 / 25%) 40%, rgb(255 255 255 / 5%) 70%);
+  border: 1px solid rgb(255 255 255 / 55%);
+  animation: bubbleUp 14s linear infinite;
+  bottom: -80px;
+}
+
+.aero-bubbles span:nth-child(1) { left: 8%;  width: 52px; height: 52px; animation-duration: 16s; }
+.aero-bubbles span:nth-child(2) { left: 24%; width: 26px; height: 26px; animation-delay: -4s; }
+.aero-bubbles span:nth-child(3) { left: 46%; width: 68px; height: 68px; animation-delay: -9s; animation-duration: 20s; }
+.aero-bubbles span:nth-child(4) { left: 64%; width: 34px; height: 34px; animation-delay: -6s; }
+.aero-bubbles span:nth-child(5) { left: 80%; width: 48px; height: 48px; animation-delay: -12s; animation-duration: 18s; }
+.aero-bubbles span:nth-child(6) { left: 92%; width: 20px; height: 20px; animation-delay: -2s; }
+
+@keyframes bubbleUp {
+  to { translate: 0 -120vh; }
+}
+
+.s-frutiger h2 {
+  font-weight: 800;
+  color: #0d4f8b;
+  text-shadow: 0 2px 0 rgb(255 255 255 / 80%);
+}
+
+.aero-panel {
+  background: linear-gradient(180deg, rgb(255 255 255 / 85%) 0%, rgb(255 255 255 / 45%) 48%, rgb(224 245 255 / 55%) 52%, rgb(255 255 255 / 65%) 100%);
+  border: 1px solid rgb(255 255 255 / 90%);
+  border-radius: 18px;
+  box-shadow: 0 12px 28px rgb(13 79 139 / 22%), inset 0 1px 0 #fff;
+}
+
+.aero-panel h3 {
+  color: #0d4f8b;
+}
+
+.specimen-frutiger {
+  font-weight: 800;
+  color: #0d4f8b;
+}
+
+/* ==========================================================================
+   10 · GLASSMORPHISM — vidrio esmerilado sobre color
+   ========================================================================== */
+
+.s-glass {
+  background: #0f1024;
+  color: #fff;
+}
+
+.glass-blobs span {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(70px);
+  opacity: 0.75;
+  animation: blobDrift 16s ease-in-out infinite alternate;
+}
+
+.glass-blobs span:nth-child(1) {
+  width: 420px;
+  height: 420px;
+  top: -80px;
+  left: -60px;
+  background: #7c5cff;
+}
+
+.glass-blobs span:nth-child(2) {
+  width: 380px;
+  height: 380px;
+  bottom: -100px;
+  right: 4%;
+  background: #ff5c8a;
+  animation-delay: -6s;
+}
+
+.glass-blobs span:nth-child(3) {
+  width: 300px;
+  height: 300px;
+  top: 34%;
+  left: 46%;
+  background: #2dd4bf;
+  animation-delay: -11s;
+}
+
+@keyframes blobDrift {
+  to { translate: 40px -40px; scale: 1.12; }
+}
+
+.s-glass h2 {
+  font-weight: 250;
+  letter-spacing: 0.01em;
+}
+
+.glass-panel {
+  background: rgb(255 255 255 / 10%);
+  border: 1px solid rgb(255 255 255 / 28%);
+  border-radius: 20px;
+  backdrop-filter: blur(18px) saturate(1.4);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  box-shadow: 0 24px 60px rgb(0 0 0 / 35%);
+}
+
+.glass-panel h3 {
+  opacity: 1;
+  font-weight: 300;
+  letter-spacing: 0.2em;
+}
+
+.specimen-glass {
+  font-weight: 200;
+}
+
+.s-glass code {
+  background: rgb(255 255 255 / 15%);
+  color: #c8f5ec;
+}
+
+/* ==========================================================================
+   11 · TENDENCIAS UX/UI 2026
+   ========================================================================== */
+
+.s-tendencias {
+  background: var(--paper);
+  color: var(--ink);
+  perspective: 1000px;
+}
+
+.variable-demo {
+  font-family: "Fraunces", serif;
+  font-variation-settings: "wght" 250, "opsz" 144;
+  font-size: clamp(3rem, 9vw, 7rem);
+  will-change: font-variation-settings;
+}
+
+.tendencia-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 22px;
+  max-width: 1200px;
+  margin: 0 auto;
+  transform-style: preserve-3d;
+}
+
+.t-card {
+  background: #fff;
+  border: 1px solid rgb(22 19 31 / 10%);
+  border-radius: 18px;
+  padding: 26px;
+  box-shadow: 0 10px 30px rgb(22 19 31 / 7%);
+  transition: transform 0.4s var(--ease-out), box-shadow 0.4s var(--ease-out);
+}
+
+.t-card:hover {
+  transform: translateZ(34px) rotateX(2deg);
+  box-shadow: 0 26px 50px rgb(124 92 255 / 18%);
+}
+
+.t-card h3 {
+  margin-bottom: 10px;
+  font-size: 1.05rem;
+}
+
+/* ==========================================================================
+   FOOTER
+   ========================================================================== */
+
+.site-footer {
+  background: var(--ink);
+  color: #cfc9e6;
+  text-align: center;
+  padding: 44px 24px;
+  font-size: 0.9rem;
+  display: grid;
+  gap: 6px;
+}
+
+/* ==========================================================================
+   RESPONSIVE Y MOTION
+   ========================================================================== */
+
+@media (max-width: 860px) {
+  .site-nav {
+    flex-wrap: wrap;
+    height: auto;
+    padding-block: 10px;
+    row-gap: 4px;
+  }
+
+  .nav-groups {
+    flex-wrap: wrap;
+  }
+
+  html {
+    scroll-padding-top: 140px;
+  }
+
+  .bauhaus-shapes {
+    position: static;
+    margin-bottom: 28px;
+    justify-content: flex-start;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.15s !important;
+  }
+
+  .reveal {
+    opacity: 1;
+    translate: 0 0;
+  }
+}

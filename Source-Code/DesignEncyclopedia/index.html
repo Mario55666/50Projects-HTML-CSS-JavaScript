@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ESTILO · Enciclopedia Interactiva de Estilos Visuales</title>
+  <meta name="description" content="Enciclopedia interactiva e inmersiva de los estilos visuales y artísticos: del Renacimiento al Glassmorphism, con su entorno visual y su tipografía." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,100..900;1,9..144,100..900&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&family=UnifrakturMaguntia&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Lora:ital,wght@0,400..700;1,400..700&family=Archivo+Black&family=Bangers&family=Poiret+One&family=Limelight&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Orbitron:wght@400..900&family=Press+Start+2P&family=Share+Tech+Mono&family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&family=Rubik:ital,wght@0,300..900;1,300..900&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <a class="skip-link" href="#contenido">Saltar al contenido</a>
+
+  <!-- ============ NAVEGACIÓN ============ -->
+  <header class="site-nav" id="nav">
+    <a class="brand" href="#hero" aria-label="ESTILO — inicio">
+      <span class="brand-mark" aria-hidden="true">◐</span> ESTILO
+    </a>
+    <nav aria-label="Estilos visuales">
+      <ul class="nav-groups">
+        <li class="nav-group">
+          <button class="nav-group-btn" aria-expanded="false" aria-controls="menu-clasicos">
+            Clásicos y Vanguardias <span aria-hidden="true">▾</span>
+          </button>
+          <ul class="nav-drop" id="menu-clasicos">
+            <li><a href="#renacimiento">Renacimiento y Barroco</a></li>
+            <li><a href="#impresionismo">Impresionismo y Romanticismo</a></li>
+            <li><a href="#vanguardias">Vanguardias del s. XX</a></li>
+          </ul>
+        </li>
+        <li class="nav-group">
+          <button class="nav-group-btn" aria-expanded="false" aria-controls="menu-grafico">
+            Diseño Gráfico <span aria-hidden="true">▾</span>
+          </button>
+          <ul class="nav-drop" id="menu-grafico">
+            <li><a href="#bauhaus">Bauhaus y Estilo Suizo</a></li>
+            <li><a href="#artdeco">Art Déco</a></li>
+            <li><a href="#minmax">Minimalismo vs. Maximalismo</a></li>
+            <li><a href="#brutalismo">Brutalismo</a></li>
+          </ul>
+        </li>
+        <li class="nav-group">
+          <button class="nav-group-btn" aria-expanded="false" aria-controls="menu-digital">
+            Interfaces Digitales <span aria-hidden="true">▾</span>
+          </button>
+          <ul class="nav-drop" id="menu-digital">
+            <li><a href="#cybercore">Cybercore · Y2K · Retrowave</a></li>
+            <li><a href="#frutiger">Frutiger Aero</a></li>
+            <li><a href="#glass">Glassmorphism</a></li>
+            <li><a href="#tendencias">Tendencias UX/UI 2026</a></li>
+          </ul>
+        </li>
+      </ul>
+    </nav>
+    <div class="nav-progress" aria-hidden="true"><span id="progressBar"></span></div>
+  </header>
+
+  <main id="contenido">
+    <!-- ============ HERO ============ -->
+    <section class="hero" id="hero">
+      <div class="hero-geometry" aria-hidden="true">
+        <!-- Armonía renacentista: círculo + cuadrado + proporción áurea, tratados como gráfico 3D moderno -->
+        <svg viewBox="0 0 600 600" class="hero-svg">
+          <defs>
+            <linearGradient id="gradModern" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#7c5cff" />
+              <stop offset="50%" stop-color="#ff5c8a" />
+              <stop offset="100%" stop-color="#ffb347" />
+            </linearGradient>
+          </defs>
+          <circle cx="300" cy="300" r="240" fill="none" stroke="url(#gradModern)" stroke-width="1.5" />
+          <rect x="130" y="130" width="340" height="340" fill="none" stroke="url(#gradModern)" stroke-width="1.5" />
+          <path d="M300 60 L300 540 M60 300 L540 300" stroke="url(#gradModern)" stroke-width="0.6" />
+          <!-- espiral áurea aproximada -->
+          <path d="M300 300 a60 60 0 0 1 60 -60 a97 97 0 0 1 97 97 a157 157 0 0 1 -157 157 a254 254 0 0 1 -254 -254"
+                fill="none" stroke="url(#gradModern)" stroke-width="1.2" opacity="0.8" />
+          <circle class="orb orb-a" cx="360" cy="240" r="26" fill="url(#gradModern)" />
+          <circle class="orb orb-b" cx="146" cy="396" r="14" fill="url(#gradModern)" opacity="0.85" />
+          <circle class="orb orb-c" cx="470" cy="430" r="9" fill="url(#gradModern)" opacity="0.7" />
+        </svg>
+      </div>
+      <p class="hero-kicker">Enciclopedia interactiva de estilos visuales y tipografía</p>
+      <h1 class="hero-title" id="heroTitle">De la proporción<br />al píxel.</h1>
+      <p class="hero-sub">
+        Un viaje inmersivo por los movimientos que definieron cómo vemos —y cómo leemos— el mundo:
+        composición, color, textura y letra, del taller de Gutenberg a las interfaces espaciales.
+      </p>
+      <div class="hero-actions">
+        <a class="btn-primary" href="#renacimiento">Comenzar el viaje ↓</a>
+        <p class="hero-hint" aria-hidden="true">La cabecera es una tipografía variable: cambia de peso al hacer scroll.</p>
+      </div>
+    </section>
+
+    <!-- ============ CATEGORÍA A ============ -->
+    <p class="cat-divider" id="clasicos">I · Movimientos Clásicos y Vanguardias</p>
+
+    <!-- RENACIMIENTO Y BARROCO -->
+    <section class="estilo s-renacimiento" id="renacimiento" aria-labelledby="t-renacimiento">
+      <div class="marco" aria-hidden="true"></div>
+      <header class="estilo-head">
+        <p class="epoca">s. XV – XVII</p>
+        <h2 id="t-renacimiento">Renacimiento <em>&amp;</em> Barroco</h2>
+        <p class="lede">
+          Proporción, simetría, armonía y antropocentrismo: el ser humano como medida de todas las cosas.
+          Frente a esa serenidad matemática, el Barroco responde con ornamentación elaborada, teatralidad
+          y un dramático contraste de luces y sombras.
+        </p>
+      </header>
+      <div class="cols">
+        <article class="ficha">
+          <h3>Entorno visual</h3>
+          <p>
+            Composición centrada y especular sobre retícula áurea; márgenes generosos como en un incunable.
+            Paleta de pergamino, sepia y pan de oro; texturas de fresco y papel verjurado. El Barroco entra
+            en los detalles: capitulares ornamentadas, filigranas en los bordes y un claroscuro que enmarca
+            el contenido como un retablo.
+          </p>
+        </article>
+        <article class="ficha">
+          <h3>Tipografía</h3>
+          <p class="specimen specimen-garalda">Cormorant Garamond</p>
+          <p class="specimen specimen-gotica">Gutenberg, 1455 <span class="nota">(gótica textur — primeros tipos móviles)</span></p>
+          <p>
+            Serifas humanistas y garaldas (Cormorant Garamond, EB Garamond), herederas directas de los
+            primeros tipos móviles. Versalitas, ligaduras y numerales antiguos; la gótica solo como cita histórica.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <!-- IMPRESIONISMO Y ROMANTICISMO -->
+    <section class="estilo s-impresionismo" id="impresionismo" aria-labelledby="t-impresionismo">
+      <div class="pinceladas" aria-hidden="true"></div>
+      <header class="estilo-head">
+        <p class="epoca">s. XIX</p>
+        <h2 id="t-impresionismo">Impresionismo <em>&amp;</em> Romanticismo</h2>
+        <p class="lede">
+          La luz como protagonista: pinceladas de colores puros que el ojo mezcla a distancia, siguiendo la
+          teoría del contraste simultáneo de Chevreul. El Romanticismo aporta lo sublime: la emoción
+          desbordando a la razón.
+        </p>
+      </header>
+      <div class="cols">
+        <article class="ficha">
+          <h3>Entorno visual</h3>
+          <p>
+            Fondos degradados como cielos de Monet: lavandas, celestes y melocotón en transición suave, con
+            acentos complementarios (naranja sobre azul) que vibran sin romper la armonía. Bordes difusos,
+            sombras suaves, movimiento lento tipo bruma; nada de aristas duras.
+          </p>
+        </article>
+        <article class="ficha">
+          <h3>Tipografía</h3>
+          <p class="specimen specimen-playfair">Playfair Display <em>italic</em></p>
+          <p>
+            Familias orgánicas y fluidas, con remates suaves y cursivas caligráficas: Playfair Display para
+            titulares emotivos y Lora para lectura, cuya modulación a pincel acompaña la pincelada.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <!-- VANGUARDIAS -->
+    <section class="estilo s-vanguardias" id="vanguardias" aria-labelledby="t-vanguardias">
+      <header class="estilo-head">
+        <p class="epoca">1907 – 1970</p>
+        <h2 id="t-vanguardias">Vanguardias del siglo XX</h2>
+        <p class="lede">
+          Cuatro rupturas que dinamitaron la representación: la geometría del Cubismo, el grito del
+          Expresionismo, el sueño del Surrealismo y la cultura de masas del Pop Art.
+        </p>
+      </header>
+      <div class="vanguardia-grid">
+        <article class="v-card v-cubismo">
+          <h3>Cubismo</h3>
+          <p>Deconstrucción geométrica: planos fracturados, puntos de vista simultáneos, collage. Layout de bloques rotados y solapados en ocres, grises y negro.</p>
+        </article>
+        <article class="v-card v-expresionismo">
+          <h3>Expresionismo</h3>
+          <p>Emoción antes que forma: colores brillantes y arbitrarios, trazos violentos, distorsión deliberada. Titulares angulosos de peso máximo.</p>
+        </article>
+        <article class="v-card v-surrealismo">
+          <h3>Surrealismo</h3>
+          <p>Estética onírica: yuxtaposiciones imposibles, perspectivas infinitas, elementos que flotan fuera de contexto. Transiciones que desafían la gravedad.</p>
+        </article>
+        <article class="v-card v-popart">
+          <h3>Pop Art</h3>
+          <p>Cultura de masas: colores saturados, tramas de semitono, repetición serial y estética de cómic. ¡Onomatopeyas como titulares!</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ============ CATEGORÍA B ============ -->
+    <p class="cat-divider" id="grafico">II · Corrientes de Diseño Gráfico</p>
+
+    <!-- BAUHAUS Y ESTILO SUIZO -->
+    <section class="estilo s-bauhaus" id="bauhaus" aria-labelledby="t-bauhaus">
+      <div class="bauhaus-shapes" aria-hidden="true">
+        <span class="bh-circle"></span><span class="bh-triangle"></span><span class="bh-square"></span>
+      </div>
+      <header class="estilo-head">
+        <p class="epoca">1919 – 1970</p>
+        <h2 id="t-bauhaus">Bauhaus <em>&amp;</em> Estilo Tipográfico Internacional</h2>
+        <p class="lede">La forma sigue a la función.</p>
+      </header>
+      <div class="cols">
+        <article class="ficha">
+          <h3>Entorno visual</h3>
+          <p>
+            Limpieza y objetividad: fondo blanco, retícula matemática visible, composición asimétrica pero
+            equilibrada. Los tres primarios —rojo, azul, amarillo— sobre negro y blanco, usados como señal,
+            nunca como decoración. Fotografía objetiva en lugar de ilustración.
+          </p>
+        </article>
+        <article class="ficha">
+          <h3>Tipografía</h3>
+          <p class="specimen specimen-swiss">Helvetica / Inter</p>
+          <p>
+            Estrictamente sans-serif (palo seco), de proporciones neutras: Helvética o su equivalente libre
+            Inter. Alineación a la izquierda con margen derecho irregular (bandera), jerarquía por tamaño y
+            peso, jamás por adorno.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ART DÉCO -->
+    <section class="estilo s-artdeco" id="artdeco" aria-labelledby="t-artdeco">
+      <div class="deco-frame" aria-hidden="true"></div>
+      <header class="estilo-head">
+        <p class="epoca">1920 – 1939</p>
+        <h2 id="t-artdeco">Art Déco</h2>
+        <p class="lede">
+          Simetría, línea recta y zig-zag; el lujo de la era de la máquina: oro sobre negro, mármol,
+          lacas y cromados en elegante contraste.
+        </p>
+      </header>
+      <div class="cols">
+        <article class="ficha">
+          <h3>Entorno visual</h3>
+          <p>
+            Composición rigurosamente simétrica en eje central, como el vestíbulo del Chrysler Building.
+            Marcos escalonados, rayos de sol (sunburst), zig-zags y abanicos como ornamento geométrico.
+            Negro profundo + dorado metálico + esmeralda o borgoña como acento de lujo.
+          </p>
+        </article>
+        <article class="ficha">
+          <h3>Tipografía</h3>
+          <p class="specimen specimen-deco">Poiret One · LIMELIGHT</p>
+          <p>
+            Geométrica, elegante y estilizada: astas altísimas, barras desplazadas, versales espaciadas.
+            Poiret One para elegancia lineal, Limelight para rótulos de marquesina.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <!-- MINIMALISMO VS MAXIMALISMO -->
+    <section class="estilo s-minmax" id="minmax" aria-labelledby="t-minmax" data-mode="min">
+      <header class="estilo-head">
+        <p class="epoca">1960 – hoy</p>
+        <h2 id="t-minmax">Minimalismo <em>vs.</em> Maximalismo</h2>
+        <p class="lede">Dos respuestas opuestas a la misma pregunta: ¿cuánto es suficiente?</p>
+        <div class="minmax-toggle" role="group" aria-label="Alternar entre minimalismo y maximalismo">
+          <button class="toggle-btn is-active" id="btnMin" aria-pressed="true">Menos es más</button>
+          <button class="toggle-btn" id="btnMax" aria-pressed="false">Más es más</button>
+        </div>
+      </header>
+      <div class="cols">
+        <article class="ficha">
+          <h3 data-min="Entorno minimalista" data-max="Entorno maximalista">Entorno minimalista</h3>
+          <p class="txt-swap"
+             data-min="Reducción a lo esencial: un solo acento de color, espacio en blanco como material de diseño, claridad visual y funcional. Cada elemento debe justificar su existencia."
+             data-max="Acumulación gozosa: mezcla de formas, texturas y patrones; colores vivos que chocan a propósito; estética ecléctica heredera del Grupo Memphis. El horror vacui como celebración.">
+            Reducción a lo esencial: un solo acento de color, espacio en blanco como material de diseño,
+            claridad visual y funcional. Cada elemento debe justificar su existencia.
+          </p>
+        </article>
+        <article class="ficha">
+          <h3>Tipografía</h3>
+          <p class="specimen specimen-minmax">Inter Light / RUBIK BLACK</p>
+          <p class="txt-swap"
+             data-min="Una sola familia (Inter), dos pesos como máximo, interlineado amplio y jerarquía por espacio, no por ornamento."
+             data-max="Contrastes tipográficos deliberados: Rubik en pesos máximos, tamaños desproporcionados, rotaciones y colores por letra — pero siempre legible.">
+            Una sola familia (Inter), dos pesos como máximo, interlineado amplio y jerarquía por espacio,
+            no por ornamento.
+          </p>
+        </article>
+      </div>
+      <div class="memphis" aria-hidden="true">
+        <span class="mf mf-zig"></span><span class="mf mf-dot"></span><span class="mf mf-tri"></span>
+        <span class="mf mf-squig"></span><span class="mf mf-ring"></span>
+      </div>
+    </section>
+
+    <!-- BRUTALISMO -->
+    <section class="estilo s-brutalismo" id="brutalismo" aria-labelledby="t-brutalismo">
+      <header class="estilo-head">
+        <p class="epoca">2014 – hoy</p>
+        <h2 id="t-brutalismo">BRUTA-<br />LISMO</h2>
+        <p class="lede">Crudo. Sin pulir. Deliberadamente incómodo. La web enseñando el hormigón.</p>
+      </header>
+      <div class="cols">
+        <article class="ficha">
+          <h3>ENTORNO_VISUAL</h3>
+          <p>
+            Composiciones caóticas que rompen la retícula a propósito: elementos solapados, bordes duros de
+            4px, colores de sistema a plena saturación, subrayados por defecto y cero sombras suaves.
+            Busca provocar, no agradar — pero el contraste AAA se mantiene: provocación no es ilegibilidad.
+          </p>
+        </article>
+        <article class="ficha">
+          <h3>TIPOGRAFÍA</h3>
+          <p class="specimen specimen-brutal">ARCHIVO BLACK</p>
+          <p>
+            Enorme, desproporcionada y utilitaria: titulares que no caben en pantalla, monoespaciada de
+            sistema (Space Mono) para todo lo demás, como si el CSS nunca hubiera cargado.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ============ CATEGORÍA C ============ -->
+    <p class="cat-divider" id="digital">III · Tendencias de Interfaces Digitales</p>
+
+    <!-- CYBERCORE / Y2K / RETROWAVE -->
+    <section class="estilo s-cyber" id="cybercore" aria-labelledby="t-cyber">
+      <div class="cyber-horizon" aria-hidden="true"></div>
+      <header class="estilo-head">
+        <p class="epoca">1982 / 2000 / 2015 – hoy</p>
+        <h2 id="t-cyber" class="chrome-text">Cybercore · Y2K · Retrowave</h2>
+        <p class="lede">
+          Futurismo pop y tecnológico: efectos metalizados, neón sobre negro y logotipos cromados líquidos;
+          la nostalgia de un futuro que nunca llegó.
+        </p>
+      </header>
+      <div class="cols">
+        <article class="ficha">
+          <h3>Entorno visual</h3>
+          <p>
+            Fondo negro-violeta con rejilla en perspectiva hacia un sol degradado; brillos de neón cian y
+            magenta (glow), reflejos cromados líquidos en titulares, glitch sutil al pasar el cursor y
+            estética de CD-ROM y salvapantallas para el Y2K.
+          </p>
+        </article>
+        <article class="ficha">
+          <h3>Tipografía</h3>
+          <p class="specimen specimen-orbitron">ORBITRON</p>
+          <p class="specimen specimen-arcade">PRESS START 2P</p>
+          <p>
+            Monoespaciada tecnológica (Share Tech Mono) para datos, Orbitron para rótulos retrofuturistas y
+            una pixel arcade como acento nostálgico.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <!-- FRUTIGER AERO -->
+    <section class="estilo s-frutiger" id="frutiger" aria-labelledby="t-frutiger">
+      <div class="aero-bubbles" aria-hidden="true">
+        <span></span><span></span><span></span><span></span><span></span><span></span>
+      </div>
+      <header class="estilo-head">
+        <p class="epoca">2004 – 2013</p>
+        <h2 id="t-frutiger">Frutiger Aero</h2>
+        <p class="lede">
+          Optimismo tecnológico: cielos azules, agua cristalina, césped y peces conviviendo con botones de
+          vidrio brillante. La naturaleza renderizada en glossy.
+        </p>
+      </header>
+      <div class="cols">
+        <article class="ficha aero-panel">
+          <h3>Entorno visual</h3>
+          <p>
+            Esqueumorfismo luminoso: paneles con brillo especular, degradados cielo-agua, burbujas y
+            reflejos lens-flare. Verde césped saturado como suelo, azul cielo como techo, blanco brillante
+            como interfaz. Todo transmite limpieza, frescura y futuro amable.
+          </p>
+        </article>
+        <article class="ficha aero-panel">
+          <h3>Tipografía</h3>
+          <p class="specimen specimen-frutiger">Nunito Sans</p>
+          <p>
+            Humanista, clara y redondeada, evocando a la familia Frutiger (aquí, Nunito Sans): cálida y
+            legible incluso sobre brillos y transparencias.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <!-- GLASSMORPHISM -->
+    <section class="estilo s-glass" id="glass" aria-labelledby="t-glass">
+      <div class="glass-blobs" aria-hidden="true"><span></span><span></span><span></span></div>
+      <header class="estilo-head">
+        <p class="epoca">2020 – hoy</p>
+        <h2 id="t-glass">Glassmorphism</h2>
+        <p class="lede">
+          Paneles de vidrio esmerilado que flotan sobre color: superposición de capas, desenfoque de fondo
+          y bordes de luz de un píxel.
+        </p>
+      </header>
+      <div class="cols">
+        <article class="ficha glass-panel">
+          <h3>Entorno visual</h3>
+          <p>
+            Capas translúcidas con <code>backdrop-filter: blur()</code> sobre fondos de gradientes vivos;
+            jerarquía por profundidad (más cerca = menos blur, más opacidad). Bordes blancos semitransparentes
+            que simulan el canto del vidrio y sombras amplias muy difusas.
+          </p>
+        </article>
+        <article class="ficha glass-panel">
+          <h3>Tipografía</h3>
+          <p class="specimen specimen-glass">Inter Thin → Medium</p>
+          <p>
+            Palo seco delgada y de gran altura-x, con contraste reforzado (blanco puro + sombra sutil) para
+            asegurar la legibilidad sobre las transparencias. El peso sube donde el fondo se agita.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <!-- TENDENCIAS 2026 -->
+    <section class="estilo s-tendencias" id="tendencias" aria-labelledby="t-tendencias">
+      <header class="estilo-head">
+        <p class="epoca">2026 →</p>
+        <h2 id="t-tendencias" class="variable-demo">Tipografía viva</h2>
+        <p class="lede">
+          Las tendencias que ya usa esta página: tipografías variables que respiran con el scroll,
+          Spatial UI con profundidad real y motion graphics como transición narrativa entre estilos.
+        </p>
+      </header>
+      <div class="tendencia-grid">
+        <article class="t-card">
+          <h3>Tipografía variable y experimental</h3>
+          <p>Ejes <code>wght</code> y <code>opsz</code> animados en tiempo real según la posición de scroll — el titular de esta sección (y el del hero) cambian de grosor y de tamaño óptico mientras lees.</p>
+        </article>
+        <article class="t-card">
+          <h3>Spatial UI</h3>
+          <p>Capas con paralaje y profundidad (transform 3D + perspective), heredando del glassmorphism la jerarquía por planos: lo importante flota más cerca.</p>
+        </article>
+        <article class="t-card">
+          <h3>Motion graphics de transición</h3>
+          <p>Cada estilo entra en escena con su propia coreografía (revelado por retícula en Bauhaus, deriva onírica en Surrealismo), respetando <code>prefers-reduced-motion</code>.</p>
+        </article>
+        <article class="t-card">
+          <h3>Accesibilidad primero</h3>
+          <p>Por disruptivo que sea el estilo —Brutalismo, Maximalismo—, el contraste de color y la legibilidad tipográfica cumplen WCAG AA/AAA: la provocación es estética, nunca funcional.</p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>ESTILO — Enciclopedia interactiva de estilos visuales y tipografía · Proyecto educativo para carreras de diseño.</p>
+    <p>Color según Chevreul · Retícula según Müller-Brockmann · Letra según Frutiger.</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
