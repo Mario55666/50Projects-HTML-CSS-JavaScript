@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lector EPUB (Diseño fijo)</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-dot"></span>
+      <h1>Lector EPUB</h1>
+      <span id="layoutBadge" class="badge hidden">Diseño fijo · animaciones</span>
+    </div>
+
+    <div class="controls">
+      <label class="file-btn">
+        Abrir .epub
+        <input type="file" id="fileInput" accept=".epub,application/epub+zip" hidden>
+      </label>
+      <button id="prevBtn" class="icon-btn" title="Página anterior" disabled>&#10094;</button>
+      <button id="nextBtn" class="icon-btn" title="Página siguiente" disabled>&#10095;</button>
+      <button id="fullscreenBtn" class="icon-btn" title="Pantalla completa" disabled>&#9974;</button>
+    </div>
+  </header>
+
+  <main id="stage">
+    <div id="dropHint">
+      <p>Arrastra un archivo <strong>.epub</strong> aquí o usa "Abrir .epub".</p>
+      <p class="hint-small">Los EPUB de diseño fijo (cómics, libros ilustrados) con animaciones CSS/JS se muestran página a página, sin reflujo de texto.</p>
+    </div>
+
+    <div id="loadingSpinner" class="spinner hidden" aria-hidden="true"></div>
+
+    <div id="viewer" class="viewer hidden"></div>
+  </main>
+
+  <footer class="statusbar">
+    <span id="statusText">Sin libro cargado</span>
+    <div class="progress-track">
+      <div id="progressFill" class="progress-fill"></div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/epubjs@0.3.93/dist/epub.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
