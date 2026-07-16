@@ -169,7 +169,7 @@ In order to run this project you need:
 <li>
 <details>
 <summary>Choice Picker</summary>
-<p>A cutting-edge web application leveraging HTML, CSS, and JavaScript technologies to facilitate user selection from a customizable range of options. The application features an intuitive interface with a text input field, where users can enter their preferred choices. Upon submission, the system randomly cycles through the entered options and lands on a selected choice, which is prominently highlighted with a distinct color scheme, distinguishing it from the other options.</p>
+<p>A cutting-edge web application leveraging HTML, CSS, and JavaScript technologies to facilitate user selection from a customizable range of options. The application features an intuitive interface with a text input field, where users can enter their preferred choices. Upon submission, the system randomly cycles through the entered options and lands on a selected choice, which is prominently highlighted with a distinct color scheme, distinguishing it from the other options.</p>
 <ul>
 <li><a href="https://tajulafreen.github.io/50Projects-HTML-CSS-JavaScript/Source-Code/ChoicePicker/">Live Demo</a></li>
 <li><a href="https://github.com/tajulafreen/50Projects-HTML-CSS-JavaScript/tree/main/Source-Code/ChoicePicker">Source</a></li>
@@ -591,6 +591,16 @@ In order to run this project you need:
 <ul>
 <li><a href="https://tajulafreen.github.io/50Projects-HTML-CSS-JavaScript/Source-Code/AdsBlockerExtension/">Live Demo</a></li>
 <li><a href="https://github.com/tajulafreen/50Projects-HTML-CSS-JavaScript/tree/main/Source-Code/AdsBlockerExtension">Source</a></li>
+</ul> 
+</details>
+</li>
+
+<li>
+<details>
+<summary>EPUB Reader (Fixed Layout)</summary>
+<p>A vanilla HTML, CSS and JavaScript EPUB reader built on epub.js. It detects EPUB3 fixed-layout ("diseño fijo") books — comics and illustrated books with CSS keyframe animations and embedded JavaScript — and renders them page by page at their intended size instead of reflowing the text, re-triggering each page's animations and scripts as you navigate. Drag and drop (or open) any .epub file to try it.</p>
+<ul>
+<li><a href="https://github.com/Mario55666/50Projects-HTML-CSS-JavaScript/tree/main/Source-Code/EpubReader">Source</a></li>
 </ul> 
 </details>
 </li>
