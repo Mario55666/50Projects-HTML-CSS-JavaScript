@@ -78,7 +78,11 @@
     .spinner { position: absolute; top: 50%; left: 50%; margin: -1.5rem 0 0 -1.5rem; width: 3rem; height: 3rem; border-radius: 50%; border: 4px solid rgba(148, 163, 184, 0.2); border-top-color: var(--accent); animation: spin 0.9s linear infinite; z-index: 2; }
     @keyframes spin { to { transform: rotate(360deg); } }
     .hidden { display: none !important; }
-    .viewer-statusbar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0.6rem 1rem; background: var(--panel); border-top: 1px solid var(--border); font-size: 0.78rem; flex-shrink: 0; }
+    .viewer-statusbar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0.6rem 1rem; background: var(--panel); border-top: 1px solid var(--border); font-size: 0.78rem; flex-shrink: 0; flex-wrap: wrap; }
+    .workspace-tools { display: flex; align-items: center; gap: 0.5rem; }
+    .ws-label { color: var(--muted); font-weight: 700; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    .ws-btn { width: 1.9rem; height: 1.9rem; font-size: 0.8rem; }
+    .ws-danger:hover:not(:disabled) { background: rgba(249, 115, 22, 0.2); border-color: var(--danger); }
     .text-mode-toggle { display: flex; align-items: center; gap: 0.4rem; cursor: pointer; color: var(--muted); }
     .dirty-indicator { color: var(--danger); font-weight: 600; }
     .tools-pane { flex: 1 1 40%; max-width: 34rem; display: flex; flex-direction: column; background: var(--panel); min-width: 0; }
@@ -199,6 +203,15 @@
         <div id="loadingSpinner" class="spinner hidden"></div>
       </div>
       <div class="viewer-statusbar">
+        <div class="workspace-tools">
+          <span class="ws-label">Mesa de trabajo:</span>
+          <label class="text-mode-toggle" title="Activa y arrastra cualquier objeto en el visor para reubicarlo">
+            <input type="checkbox" id="moveModeToggle"> Mover
+          </label>
+          <button id="moveUpBtn" class="icon-btn ws-btn" title="Subir objeto (antes de su hermano anterior)" disabled>⬆</button>
+          <button id="moveDownBtn" class="icon-btn ws-btn" title="Bajar objeto (después de su hermano siguiente)" disabled>⬇</button>
+          <button id="deleteObjBtn" class="icon-btn ws-btn ws-danger" title="Eliminar objeto seleccionado (tecla Supr)" disabled>🗑</button>
+        </div>
         <label class="text-mode-toggle">
           <input type="checkbox" id="textEditModeToggle">
           Modo edición de texto
@@ -314,7 +327,12 @@
           </div>
         </div>
         <div id="tab-buttons" class="tab-panel">
-          <p class="hint-small">Inserta un botón pre-diseñado o edita el botón seleccionado.</p>
+          <p class="hint-small">
+            Haz clic en un estilo para <strong>insertar un botón nuevo</strong> (dentro del objeto
+            seleccionado, o al final de la página). Si tienes seleccionado un botón o enlace,
+            el clic le <strong>cambia el estilo</strong> a ese botón. Su texto y enlace se editan abajo,
+            y con la "Mesa de trabajo" del visor puedes moverlo, reordenarlo o eliminarlo.
+          </p>
           <div class="button-catalog-grid">
             <div class="button-catalog-item" data-btn-class="epub-btn-holographic"><button class="epub-btn-holographic">Holográfico</button><span class="cat-label">Holográfico</span></div>
             <div class="button-catalog-item" data-btn-class="epub-btn-liquid"><button class="epub-btn-liquid">Líquido</button><span class="cat-label">Líquido</span></div>
@@ -355,7 +373,7 @@
     const state = {
       zip: null, opfPath: '', opfDir: '', manifest: new Map(), spine: [], toc: [],
       chapterIndex: -1, chapterState: new Map(), bookViewport: null,
-      selectedUid: null, textEditMode: false, theme: 'dark', hasBook: false, exportDirty: false,
+      selectedUid: null, textEditMode: false, moveMode: false, theme: 'dark', hasBook: false, exportDirty: false,
     };
 
     let euidCounter = 0;
@@ -393,6 +411,8 @@
       selectedElementLayerInfo: document.getElementById('selectedElementLayerInfo'), buttonEditorSection: document.getElementById('buttonEditorSection'),
       buttonLabelInput: document.getElementById('buttonLabelInput'), buttonHrefInput: document.getElementById('buttonHrefInput'),
       applyButtonEditBtn: document.getElementById('applyButtonEditBtn'), insertButtonBtn: document.getElementById('insertButtonBtn'),
+      moveModeToggle: document.getElementById('moveModeToggle'), moveUpBtn: document.getElementById('moveUpBtn'),
+      moveDownBtn: document.getElementById('moveDownBtn'), deleteObjBtn: document.getElementById('deleteObjBtn'),
       tabs: Array.from(document.querySelectorAll('.tab-btn')), panels: Array.from(document.querySelectorAll('.tab-panel')),
       toast: document.getElementById('toast'),
     };
@@ -605,8 +625,8 @@
       }
     }
 
-    const EDITOR_INTERNAL_CSS = '.epub-editor-selected { outline: 3px solid #38bdf8 !important; outline-offset: 1px !important; background-color: rgba(56, 189, 248, 0.12) !important; } .epub-editor-editable-text { outline: 2px dashed #f97316 !important; outline-offset: 1px !important; } .epub-editor-textmode { cursor: text; }';
-    const EDITOR_TRANSIENT_CLASSES = ['epub-editor-selected', 'epub-editor-editable-text', 'epub-editor-textmode', 'epub-editor-anim-preview'];
+    const EDITOR_INTERNAL_CSS = '.epub-editor-selected { outline: 3px solid #38bdf8 !important; outline-offset: 1px !important; background-color: rgba(56, 189, 248, 0.12) !important; } .epub-editor-editable-text { outline: 2px dashed #f97316 !important; outline-offset: 1px !important; } .epub-editor-textmode { cursor: text; } .epub-editor-movemode * { cursor: move !important; }';
+    const EDITOR_TRANSIENT_CLASSES = ['epub-editor-selected', 'epub-editor-editable-text', 'epub-editor-textmode', 'epub-editor-movemode', 'epub-editor-anim-preview'];
 
     function stripEditorArtifacts(doc) {
       doc.querySelectorAll('#epub-editor-internal-css, #epub-editor-custom-css, #epub-editor-anim-preview-css').forEach((n) => n.remove());
@@ -776,8 +796,131 @@
         if (state.textEditMode) { enableInlineTextEdit(target, chapter); return; }
         e.preventDefault(); selectElementByUid(target.getAttribute('data-euid'), chapter);
       }, true);
+      wireMoveMode(chapter, frameDoc);
+      frameDoc.addEventListener('keydown', (e) => {
+        if (e.key === 'Delete' && state.selectedUid && !state.textEditMode) deleteSelectedObject();
+      });
       applyTextEditModeToFrame();
+      applyMoveModeToFrame();
       if (state.selectedUid) highlightInFrame(state.selectedUid);
+    }
+
+    /* ------------------------------------------------------------------
+       MESA DE TRABAJO: mover (arrastrar), reordenar y eliminar objetos.
+       ------------------------------------------------------------------ */
+
+    // Con "Mover" activo, cualquier objeto del visor se arrastra con el
+    // ratón y, al soltarlo, queda fijado con position:absolute en las
+    // coordenadas de destino (relativas al body de la página). El cambio
+    // se guarda en el documento del capítulo, pasa por el historial de
+    // deshacer y viaja en el EPUB exportado.
+    function wireMoveMode(chapter, frameDoc) {
+      let dragEl = null, startX = 0, startY = 0, moved = false;
+
+      frameDoc.addEventListener('mousedown', (e) => {
+        if (!state.moveMode) return;
+        const target = e.target.closest('[data-euid]');
+        if (!target || target === frameDoc.body) return;
+        dragEl = target; startX = e.clientX; startY = e.clientY; moved = false;
+        e.preventDefault();
+      });
+
+      // En modo mover, bloquea el drag nativo HTML5 de enlaces e imágenes:
+      // sin esto, al arrastrar un <a> o <img> el navegador inicia su propio
+      // arrastre (fantasma semitransparente) y nuestro mouseup nunca llega,
+      // dejando el objeto sin reubicar.
+      frameDoc.addEventListener('dragstart', (e) => {
+        if (state.moveMode) e.preventDefault();
+      });
+
+      // Si el puntero sale de la página a mitad de arrastre, se cancela la
+      // operación y el objeto vuelve a su lugar (evita objetos "colgados").
+      frameDoc.documentElement.addEventListener('mouseleave', () => {
+        if (dragEl) { dragEl.style.transform = ''; dragEl = null; }
+      });
+
+      frameDoc.addEventListener('mousemove', (e) => {
+        if (!dragEl) return;
+        e.preventDefault();
+        const dx = e.clientX - startX, dy = e.clientY - startY;
+        if (Math.abs(dx) + Math.abs(dy) > 3) moved = true;
+        dragEl.style.transform = 'translate(' + dx + 'px,' + dy + 'px)';
+      });
+
+      frameDoc.addEventListener('mouseup', (e) => {
+        if (!dragEl) return;
+        const target = dragEl; dragEl = null;
+        target.style.transform = '';
+        if (!moved) return;
+        const dx = e.clientX - startX, dy = e.clientY - startY;
+        const rect = target.getBoundingClientRect();       // posición original (sin transform)
+        const bodyRect = frameDoc.body.getBoundingClientRect();
+        target.style.position = 'absolute';
+        target.style.left = Math.round(rect.left + dx - bodyRect.left) + 'px';
+        target.style.top = Math.round(rect.top + dy - bodyRect.top) + 'px';
+        target.style.margin = '0';
+        ensureBodyRelativeCss(chapter);                     // ancla las coordenadas al body
+        syncDocFromFrame(chapter);
+        pushHistory(chapter); updateUndoRedoUI(); setDirty(true);
+        selectElementByUid(target.getAttribute('data-euid'), chapter);
+        showToast('Objeto reubicado (posición fijada dentro de la página).');
+      });
+    }
+
+    // Las coordenadas absolutas necesitan que el body sea el contenedor de
+    // referencia; esta regla viaja con el EPUB para que la posición se
+    // respete igual en cualquier lector.
+    function ensureBodyRelativeCss(chapter) {
+      if (chapter.customCss.includes('/* mesa-de-trabajo */')) return;
+      chapter.customCss += (chapter.customCss.trim() ? '\n\n' : '') + '/* mesa-de-trabajo */\nbody { position: relative; }';
+      setEditorValue(cssEditorCM, el.cssEditorArea, chapter.customCss);
+      previewCssInFrame();
+    }
+
+    function applyMoveModeToFrame() {
+      const frameDoc = el.chapterFrame.contentDocument;
+      if (!frameDoc) return;
+      frameDoc.body.classList.toggle('epub-editor-movemode', state.moveMode);
+    }
+
+    function deleteSelectedObject() {
+      const chapter = currentChapter(); if (!chapter || !state.selectedUid) return;
+      const target = findElementByUid(chapter.doc, state.selectedUid);
+      if (!target || target === chapter.doc.body) return;
+      const desc = describeElement(target);
+      target.remove();
+      state.selectedUid = null;
+      renderChapterDoc(chapter).then(() => {
+        renderDomTree(); clearSelectionUI(); pushHistory(chapter); updateUndoRedoUI(); setDirty(true);
+        showToast('Objeto ' + desc + ' eliminado. Usa Deshacer si te arrepientes.');
+      });
+    }
+
+    function moveSelectedObject(direction) {
+      const chapter = currentChapter(); if (!chapter || !state.selectedUid) return;
+      const target = findElementByUid(chapter.doc, state.selectedUid);
+      if (!target) return;
+      if (direction < 0 && target.previousElementSibling) {
+        target.parentNode.insertBefore(target, target.previousElementSibling);
+      } else if (direction > 0 && target.nextElementSibling) {
+        target.parentNode.insertBefore(target.nextElementSibling, target);
+      } else {
+        showToast('El objeto ya está en el extremo de su contenedor.', true);
+        return;
+      }
+      const uid = state.selectedUid;
+      renderChapterDoc(chapter).then(() => {
+        renderDomTree(); selectElementByUid(uid, chapter);
+        pushHistory(chapter); updateUndoRedoUI(); setDirty(true);
+        showToast(direction < 0 ? 'Objeto movido hacia arriba.' : 'Objeto movido hacia abajo.');
+      });
+    }
+
+    function updateWorkspaceToolbar() {
+      const has = Boolean(state.selectedUid);
+      el.moveUpBtn.disabled = !has;
+      el.moveDownBtn.disabled = !has;
+      el.deleteObjBtn.disabled = !has;
     }
 
     function enableInlineTextEdit(target, chapter) {
@@ -880,7 +1023,7 @@
       el.propColorNone.checked = true; el.propColor.disabled = true;
       el.propBackgroundNone.checked = true; el.propBackground.disabled = true;
       el.selectedElementLayerInfo.textContent = ''; el.buttonEditorSection.classList.add('hidden');
-      setEditorValue(htmlEditorCM, el.htmlEditorArea, ''); updateInsertButtonState();
+      setEditorValue(htmlEditorCM, el.htmlEditorArea, ''); updateInsertButtonState(); updateWorkspaceToolbar();
     }
 
     function ensureStableId(node, uid) { if (!node.id) node.id = 'edobj-' + uid; return node.id; }
@@ -900,7 +1043,7 @@
       el.cssTargetSelector.value = '#' + source.id;
       loadComputedPropsIntoPanel(uid);
       el.previewAnimBtn.disabled = false; el.applyAnimBtn.disabled = false;
-      updateAnimCssPreviewText(); updateLayerInfo(source, liveEl); updateButtonEditorUI(source); updateInsertButtonState();
+      updateAnimCssPreviewText(); updateLayerInfo(source, liveEl); updateButtonEditorUI(source); updateInsertButtonState(); updateWorkspaceToolbar();
     }
 
     function identifyLayerType(node) {
@@ -1281,6 +1424,24 @@
         applyTextEditModeToFrame();
       });
 
+      // Mesa de trabajo: mover / reordenar / eliminar objetos
+      el.moveModeToggle.addEventListener('change', e => {
+        state.moveMode = e.target.checked;
+        applyMoveModeToFrame();
+        if (state.moveMode) showToast('Modo mover: arrastra cualquier objeto del visor para reubicarlo.');
+      });
+      el.moveUpBtn.addEventListener('click', () => moveSelectedObject(-1));
+      el.moveDownBtn.addEventListener('click', () => moveSelectedObject(1));
+      el.deleteObjBtn.addEventListener('click', deleteSelectedObject);
+      // Tecla Supr elimina el objeto seleccionado (salvo que el foco esté
+      // en un campo de texto o en un editor de código)
+      document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Delete') return;
+        const a = document.activeElement;
+        if (a && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA' || a.closest('.CodeMirror'))) return;
+        if (state.selectedUid && !state.textEditMode) deleteSelectedObject();
+      });
+
       // Ayuda
       el.helpToggleBtn.addEventListener('click', () => el.helpPanel.classList.toggle('hidden'));
       el.helpCloseBtn.addEventListener('click', () => el.helpPanel.classList.add('hidden'));
@@ -1345,7 +1506,44 @@
           if (!chapter) { showToast('Carga un EPUB primero.', true); return; }
           const cls = item.dataset.btnClass;
           const label = item.querySelector('.cat-label').textContent;
-          const parent = (state.selectedUid && findElementByUid(chapter.doc, state.selectedUid)) || chapter.doc.body;
+
+          // Inyecta el CSS COMPLETO del botón (clase + pseudo-elementos +
+          // @keyframes) en el customCss del capítulo, para que el estilo
+          // viaje dentro del archivo EPUB al exportar y el botón se vea
+          // idéntico en cualquier lector.
+          const ensureButtonCss = () => {
+            if (!chapter.customCss.includes('.' + cls + ' ')) {
+              chapter.customCss += (chapter.customCss.trim() ? '\n\n' : '') + BUTTON_CATALOG_CSS[cls];
+              setEditorValue(cssEditorCM, el.cssEditorArea, chapter.customCss);
+            }
+          };
+
+          const selected = state.selectedUid ? findElementByUid(chapter.doc, state.selectedUid) : null;
+
+          // MODO EDICIÓN: si hay un botón/enlace seleccionado, el clic en el
+          // catálogo le CAMBIA el estilo (reemplaza su clase epub-btn-*) en
+          // vez de insertar un botón nuevo.
+          if (selected && isButtonLike(selected)) {
+            const otherClasses = (selected.getAttribute('class') || '')
+              .split(/\s+/).filter(c => c && !c.startsWith('epub-btn'));
+            otherClasses.push(cls);
+            selected.setAttribute('class', otherClasses.join(' '));
+            if (cls === 'epub-btn-flip' && !selected.getAttribute('data-reverso')) {
+              selected.setAttribute('data-reverso', '¡Reverso!');
+            }
+            ensureButtonCss();
+            const uid = state.selectedUid;
+            renderChapterDoc(chapter).then(() => {
+              renderDomTree(); selectElementByUid(uid, chapter);
+              pushHistory(chapter); updateUndoRedoUI(); setDirty(true);
+              showToast('Estilo "' + label + '" aplicado al botón seleccionado.');
+            });
+            return;
+          }
+
+          // MODO INSERCIÓN: sin botón seleccionado, se crea uno nuevo dentro
+          // del objeto seleccionado (o al final de la página).
+          const parent = selected || chapter.doc.body;
           const newBtn = chapter.doc.createElement('a');
           newBtn.setAttribute('href', '#');
           newBtn.setAttribute('class', cls);
@@ -1354,16 +1552,7 @@
           newBtn.textContent = label;
           parent.appendChild(newBtn);
           assignUids(chapter.doc);
-
-          // Inyecta el CSS COMPLETO del botón (clase + pseudo-elementos +
-          // @keyframes) en el customCss del capítulo, para que el estilo
-          // viaje dentro del archivo EPUB al exportar y el botón se vea
-          // idéntico en cualquier lector. Sin esto, el botón se insertaba
-          // pero llegaba al EPUB sin ningún estilo.
-          if (!chapter.customCss.includes('.' + cls + ' ')) {
-            chapter.customCss += (chapter.customCss.trim() ? '\n\n' : '') + BUTTON_CATALOG_CSS[cls];
-            setEditorValue(cssEditorCM, el.cssEditorArea, chapter.customCss);
-          }
+          ensureButtonCss();
 
           renderChapterDoc(chapter).then(() => {
             renderDomTree(); pushHistory(chapter); updateUndoRedoUI(); setDirty(true);
