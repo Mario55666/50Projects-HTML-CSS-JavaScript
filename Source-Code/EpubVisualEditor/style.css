@@ -205,6 +205,19 @@ body {
   overflow: auto;
 }
 
+/* Cuando el EPUB declara un tamaño de página propio, el iframe deja de ocupar
+   el 100% del panel (se le asigna un ancho/alto fijo en px vía JS) y este
+   modificador centra esa "página" dentro del espacio disponible. */
+.viewer-container-fixed {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.viewer-container-fixed #chapterFrame {
+  flex-shrink: 0;
+}
+
 .viewer-container.hidden,
 .drop-hint.hidden {
   display: none;
@@ -306,6 +319,50 @@ body {
 .tab-btn.active {
   color: var(--accent);
   border-bottom-color: var(--accent);
+}
+
+.tab-help-btn {
+  flex-shrink: 0;
+  width: 2.2rem;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--muted);
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.tab-help-btn:hover {
+  color: var(--accent);
+}
+
+.help-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: flex-start;
+  padding: 0.8rem 0.9rem;
+  background: rgba(56, 189, 248, 0.08);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--text);
+}
+
+.help-close-btn {
+  padding: 0.3rem 0.8rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  font-size: 0.7rem;
+  cursor: pointer;
+}
+
+.help-close-btn:hover {
+  background: rgba(148, 163, 184, 0.15);
 }
 
 .tab-panels {
@@ -423,6 +480,18 @@ body {
   color: #f472b6;
 }
 
+.dom-type-badge {
+  flex-shrink: 0;
+  width: 1rem;
+  text-align: center;
+  font-size: 0.7rem;
+}
+
+.dom-type-vector { color: #c084fc; }
+.dom-type-image { color: #38bdf8; }
+.dom-type-text { color: var(--muted); }
+.dom-type-container { color: var(--muted); opacity: 0.6; }
+
 .dom-id {
   color: #38bdf8;
 }
@@ -453,6 +522,26 @@ body {
   font-size: 0.78rem;
   color: var(--muted);
   font-family: "SFMono-Regular", Consolas, monospace;
+}
+
+.layer-badge {
+  margin: 0.3rem 0 0;
+  font-size: 0.72rem;
+  color: var(--accent);
+}
+
+.layer-badge:empty {
+  display: none;
+}
+
+.button-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 0.7rem;
+  border-radius: 8px;
+  background: rgba(163, 230, 53, 0.08);
+  border: 1px solid var(--border);
 }
 
 .CodeMirror {
@@ -514,10 +603,16 @@ body {
   flex-shrink: 0;
 }
 
-.common-props label {
+.common-props label,
+.common-props .prop-group {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+.prop-label {
   font-size: 0.72rem;
   color: var(--muted);
 }
@@ -535,6 +630,36 @@ body {
 .common-props input[type="color"] {
   height: 1.8rem;
   padding: 0.1rem;
+  cursor: pointer;
+}
+
+.common-props input[type="color"]:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.color-field {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.color-field input[type="color"] {
+  flex-shrink: 0;
+  width: 2.2rem;
+}
+
+.none-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-direction: row !important;
+  font-size: 0.68rem !important;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.none-toggle input[type="checkbox"] {
   cursor: pointer;
 }
 
@@ -587,6 +712,18 @@ body {
    .epub-editor-editable-text, .epub-editor-textmode) se inyectan directamente en el
    <iframe> del capítulo desde script.js, ya que ese documento es independiente de
    esta hoja de estilos. */
+
+/* Footer ------------------------------------------------------------------ */
+
+.site-footer {
+  flex-shrink: 0;
+  padding: 0.5rem 1.5rem;
+  text-align: center;
+  font-size: 0.72rem;
+  color: var(--muted);
+  background: var(--panel);
+  border-top: 1px solid var(--border);
+}
 
 /* Toast ---------------------------------------------------------------------- */
 

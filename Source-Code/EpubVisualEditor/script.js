@@ -13,6 +13,7 @@ const state = {
   toc: [],                  // [{ label, href, depth }]
   chapterIndex: -1,
   chapterState: new Map(),  // href -> { doc, history:[], historyIndex, blobUrls:Map, dirty }
+  bookViewport: null,       // { width, height } declarado a nivel de libro (rendition:viewport), si existe
   selectedUid: null,
   textEditMode: false,
   theme: 'dark',
@@ -40,6 +41,7 @@ const el = {
   undoBtn: document.getElementById('undoBtn'),
   redoBtn: document.getElementById('redoBtn'),
   exportBtn: document.getElementById('exportBtn'),
+  readerPreviewBtn: document.getElementById('readerPreviewBtn'),
   themeToggleBtn: document.getElementById('themeToggleBtn'),
   textEditModeToggle: document.getElementById('textEditModeToggle'),
   dirtyIndicator: document.getElementById('dirtyIndicator'),
@@ -53,7 +55,9 @@ const el = {
   cssEditorArea: document.getElementById('cssEditor'),
   applyCssBtn: document.getElementById('applyCssBtn'),
   propColor: document.getElementById('propColor'),
+  propColorNone: document.getElementById('propColorNone'),
   propBackground: document.getElementById('propBackground'),
+  propBackgroundNone: document.getElementById('propBackgroundNone'),
   propFontFamily: document.getElementById('propFontFamily'),
   propFontSize: document.getElementById('propFontSize'),
   propMargin: document.getElementById('propMargin'),
@@ -70,6 +74,16 @@ const el = {
   animCssPreview: document.getElementById('animCssPreview'),
   previewAnimBtn: document.getElementById('previewAnimBtn'),
   applyAnimBtn: document.getElementById('applyAnimBtn'),
+  helpToggleBtn: document.getElementById('helpToggleBtn'),
+  helpPanel: document.getElementById('helpPanel'),
+  helpPanelText: document.getElementById('helpPanelText'),
+  helpCloseBtn: document.getElementById('helpCloseBtn'),
+  selectedElementLayerInfo: document.getElementById('selectedElementLayerInfo'),
+  buttonEditorSection: document.getElementById('buttonEditorSection'),
+  buttonLabelInput: document.getElementById('buttonLabelInput'),
+  buttonHrefInput: document.getElementById('buttonHrefInput'),
+  applyButtonEditBtn: document.getElementById('applyButtonEditBtn'),
+  insertButtonBtn: document.getElementById('insertButtonBtn'),
   tabs: Array.from(document.querySelectorAll('.tab-btn')),
   panels: Array.from(document.querySelectorAll('.tab-panel')),
   toast: document.getElementById('toast'),
@@ -129,6 +143,7 @@ async function loadEpubFile(file) {
     el.dropHint.classList.add('hidden');
     el.viewerContainer.classList.remove('hidden');
     el.exportBtn.disabled = false;
+    el.readerPreviewBtn.disabled = false;
     setDirty(false);
     renderToc();
     await loadChapter(0);
@@ -175,7 +190,26 @@ async function parseEpub(zip) {
     }
   });
 
+  const viewportMeta = opfDoc.querySelector('metadata meta[property="rendition:viewport"]');
+  state.bookViewport = viewportMeta
+    ? parseViewportSize((viewportMeta.textContent || '').trim() || viewportMeta.getAttribute('content'))
+    : null;
+
   await loadToc(zip, opfDoc);
+}
+
+// Lee un tamaño de página tipo "width=600,height=800" (o "width=600, height=800px"),
+// tal como lo declaran el <meta name="viewport"> de un capítulo XHTML o el
+// <meta property="rendition:viewport"> a nivel de libro en el .opf.
+function parseViewportSize(content) {
+  if (!content) return null;
+  const w = /width\s*=\s*([\d.]+)/i.exec(content);
+  const h = /height\s*=\s*([\d.]+)/i.exec(content);
+  if (!w || !h) return null;
+  const width = parseFloat(w[1]);
+  const height = parseFloat(h[1]);
+  if (!width || !height) return null;
+  return { width, height };
 }
 
 async function loadToc(zip, opfDoc) {
@@ -305,6 +339,7 @@ async function loadChapter(index) {
     highlightActiveToc();
     renderDomTree();
     updateUndoRedoUI();
+    el.insertButtonBtn.disabled = false;
   } catch (err) {
     console.error(err);
     showToast('No se pudo cargar el capítulo: ' + err.message, true);
@@ -326,6 +361,7 @@ async function buildChapterState(href) {
 
 function finalizeChapterState(href, doc) {
   assignUids(doc);
+  const viewportEl = doc.querySelector('meta[name="viewport"]');
   const chapter = {
     href,
     dir: dirOf(href),
@@ -334,6 +370,7 @@ function finalizeChapterState(href, doc) {
     history: [],
     historyIndex: -1,
     blobUrls: new Map(), // ruta original -> blob URL
+    pageSize: viewportEl ? parseViewportSize(viewportEl.getAttribute('content')) : null,
   };
   pushHistory(chapter);
   return chapter;
@@ -382,11 +419,40 @@ async function renderChapterDoc(chapter) {
     const onLoad = () => {
       frame.removeEventListener('load', onLoad);
       wireIframeInteractions(chapter);
+      applyViewerFormat(chapter);
       resolve();
     };
     frame.addEventListener('load', onLoad);
     frame.srcdoc = withCss;
   });
+}
+
+// Ajusta el tamaño del visor al formato de página que declare el propio EPUB
+// (meta viewport del capítulo, o rendition:viewport del libro) en vez de estirar
+// siempre el iframe al 100% del panel. Si el libro no declara un tamaño de
+// página (típico en EPUB de flujo continuo/reflowable), el iframe vuelve a
+// ocupar todo el espacio disponible.
+function applyViewerFormat(chapter) {
+  const pageSize = (chapter && chapter.pageSize) || state.bookViewport || null;
+  const container = el.viewerContainer;
+
+  if (!pageSize) {
+    el.chapterFrame.style.width = '';
+    el.chapterFrame.style.height = '';
+    container.classList.remove('viewer-container-fixed');
+    return;
+  }
+
+  container.classList.add('viewer-container-fixed');
+  const style = getComputedStyle(container);
+  const padX = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
+  const padY = parseFloat(style.paddingTop) + parseFloat(style.paddingBottom);
+  const availW = Math.max(container.clientWidth - padX, 50);
+  const availH = Math.max(container.clientHeight - padY, 50);
+  const scale = Math.min(availW / pageSize.width, availH / pageSize.height);
+
+  el.chapterFrame.style.width = Math.round(pageSize.width * scale) + 'px';
+  el.chapterFrame.style.height = Math.round(pageSize.height * scale) + 'px';
 }
 
 function injectStyleTag(html, id, css) {
@@ -458,7 +524,13 @@ function serializeLive(doc) {
   return html;
 }
 
-function serializeForExport(doc, customCss) {
+// Limpia un documento de capítulo de todo rastro interno del editor (data-euid,
+// contenteditable, clases/estilos de resaltado y de vista previa) y reinserta el
+// CSS aplicado como una hoja de estilos permanente. Con revertBlobUrls=true las
+// imágenes/CSS vuelven a sus rutas relativas originales (para el EPUB exportado);
+// con revertBlobUrls=false se conservan las blob: URLs (para la ventana emergente
+// de "probar como lector", que no tiene un servidor de archivos detrás).
+function serializeCleanDoc(doc, customCss, revertBlobUrls) {
   const clone = doc.cloneNode(true);
   clone.querySelectorAll('[data-euid]').forEach((n) => n.removeAttribute('data-euid'));
   clone.querySelectorAll('[contenteditable]').forEach((n) =>
@@ -468,14 +540,11 @@ function serializeForExport(doc, customCss) {
 
   ['src', 'href'].forEach((attr) => {
     clone.querySelectorAll('[data-original-' + attr + ']').forEach((n) => {
-      n.setAttribute(attr, n.getAttribute('data-original-' + attr));
+      if (revertBlobUrls) n.setAttribute(attr, n.getAttribute('data-original-' + attr));
       n.removeAttribute('data-original-' + attr);
     });
   });
 
-  // stripEditorArtifacts elimina el <style> temporal usado para la vista previa en
-  // vivo del CSS; aquí se reinserta como un <style> permanente para que las reglas
-  // (incluidas las animaciones aplicadas) sobrevivan en el EPUB exportado.
   if (customCss && customCss.trim()) {
     const styleEl = clone.createElement('style');
     styleEl.textContent = customCss;
@@ -485,6 +554,34 @@ function serializeForExport(doc, customCss) {
   }
 
   return serializeLive(clone);
+}
+
+function serializeForExport(doc, customCss) {
+  return serializeCleanDoc(doc, customCss, true);
+}
+
+function serializeForReaderPreview(chapter) {
+  return serializeCleanDoc(chapter.doc, chapter.customCss, false);
+}
+
+function openReaderPreview() {
+  const chapter = currentChapter();
+  if (!chapter) return;
+
+  const pageSize = chapter.pageSize || state.bookViewport;
+  const popupW = pageSize ? Math.min(Math.round(pageSize.width) + 40, screen.availWidth - 60) : 820;
+  const popupH = pageSize ? Math.min(Math.round(pageSize.height) + 80, screen.availHeight - 60) : 1000;
+
+  const html = serializeForReaderPreview(chapter).replace(/^<\?xml[^>]*\?>\s*/, '');
+  const popup = window.open('', '_blank', 'width=' + popupW + ',height=' + popupH);
+  if (!popup) {
+    showToast('El navegador bloqueó la ventana emergente. Permite ventanas emergentes para este sitio.', true);
+    return;
+  }
+  popup.opener = null;
+  popup.document.open();
+  popup.document.write(html);
+  popup.document.close();
 }
 
 /* ------------------------------------------------------------------ */
@@ -648,11 +745,18 @@ function buildDomNodeUI(element, depth) {
   toggle.className = 'dom-toggle';
   toggle.textContent = children.length ? '▾' : '';
 
+  const type = identifyLayerType(element);
+  const typeSpan = document.createElement('span');
+  typeSpan.className = 'dom-type-badge dom-type-' + type.kind;
+  typeSpan.textContent = type.icon;
+  typeSpan.title = type.label;
+
   const tagSpan = document.createElement('span');
   tagSpan.className = 'dom-tag';
   tagSpan.textContent = '<' + element.tagName.toLowerCase() + '>';
 
   row.appendChild(toggle);
+  row.appendChild(typeSpan);
   row.appendChild(tagSpan);
 
   if (element.id) {
@@ -718,9 +822,12 @@ function applyDomSearchFilter() {
 function selectElementByUid(uid, chapter) {
   if (!uid || !chapter) return;
   state.selectedUid = uid;
+  // Se lee el estilo computado (para identificar transparencia real) ANTES de
+  // aplicar el resaltado de selección: el propio resaltado usa un fondo semi-
+  // transparente que, si ya estuviera aplicado, contaminaría esa lectura.
+  loadElementIntoEditors(uid, chapter);
   highlightInFrame(uid);
   highlightInDomTree(uid);
-  loadElementIntoEditors(uid, chapter);
 }
 
 function findElementByUid(doc, uid) {
@@ -756,6 +863,12 @@ function clearSelectionUI() {
   el.cssTargetSelector.value = '';
   el.previewAnimBtn.disabled = true;
   el.applyAnimBtn.disabled = true;
+  el.propColorNone.checked = true;
+  el.propColor.disabled = true;
+  el.propBackgroundNone.checked = true;
+  el.propBackground.disabled = true;
+  el.selectedElementLayerInfo.textContent = '';
+  el.buttonEditorSection.classList.add('hidden');
   setEditorValue(htmlEditorCM, el.htmlEditorArea, '');
   updateAnimCssPreviewText();
 }
@@ -799,6 +912,147 @@ function loadElementIntoEditors(uid, chapter) {
   el.previewAnimBtn.disabled = false;
   el.applyAnimBtn.disabled = false;
   updateAnimCssPreviewText();
+
+  updateLayerInfo(source, liveEl);
+  updateButtonEditorUI(source);
+}
+
+/* ------------------------------------------------------------------ */
+/* Identificación de capas (imagen / vector / texto / transparencia)   */
+/* ------------------------------------------------------------------ */
+
+function identifyLayerType(node) {
+  const tag = node.tagName.toLowerCase();
+  // Preferir data-original-src/href: una vez que resolveAssets() reescribe src/href
+  // a una blob: URL para poder previsualizar la imagen, la extensión original
+  // (.svg vs .png/.jpg) ya no es visible en el atributo src/href en sí.
+  const ref = (node.getAttribute && (
+    node.getAttribute('data-original-src')
+    || node.getAttribute('data-original-href')
+    || node.getAttribute('src')
+    || node.getAttribute('href')
+    || (node.getAttributeNS ? node.getAttributeNS('http://www.w3.org/1999/xlink', 'href') : '')
+  )) || '';
+
+  if (tag === 'svg' || /\.svg(\?|#|$)/i.test(ref)) {
+    return { kind: 'vector', icon: '◆', label: 'Vectorial (SVG)' };
+  }
+  if (tag === 'img' || tag === 'image') {
+    return { kind: 'image', icon: '▧', label: 'Imagen' };
+  }
+  const textTags = ['p', 'span', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'a', 'li', 'td', 'th', 'em', 'strong', 'b', 'i', 'button'];
+  if (textTags.includes(tag) && node.children.length === 0) {
+    return { kind: 'text', icon: 'T', label: 'Texto' };
+  }
+  return { kind: 'container', icon: '▢', label: 'Contenedor' };
+}
+
+function describeTransparency(computed) {
+  const opacity = parseFloat(computed.opacity);
+  const bgMatch = /rgba?\(\s*[\d.]+\s*,\s*[\d.]+\s*,\s*[\d.]+\s*(?:,\s*([\d.]+)\s*)?\)/.exec(computed.backgroundColor || '');
+  const bgAlpha = bgMatch ? (bgMatch[1] === undefined ? 1 : parseFloat(bgMatch[1])) : null;
+
+  const parts = [];
+  if (!Number.isNaN(opacity) && opacity < 1) parts.push('opacidad ' + Math.round(opacity * 100) + '%');
+  if (bgAlpha !== null && bgAlpha < 1) {
+    parts.push(bgAlpha === 0 ? 'fondo transparente' : 'fondo ' + Math.round(bgAlpha * 100) + '% opaco');
+  }
+  return parts.length ? parts.join(', ') : 'totalmente opaco';
+}
+
+function updateLayerInfo(source, liveEl) {
+  const type = identifyLayerType(source);
+  let text = 'Tipo: ' + type.label;
+  if (liveEl && el.chapterFrame.contentDocument && el.chapterFrame.contentDocument.defaultView) {
+    const computed = el.chapterFrame.contentDocument.defaultView.getComputedStyle(liveEl);
+    text += ' · ' + describeTransparency(computed);
+  }
+  el.selectedElementLayerInfo.textContent = text;
+}
+
+/* ------------------------------------------------------------------ */
+/* Editor de botones                                                    */
+/* ------------------------------------------------------------------ */
+
+function isButtonLike(node) {
+  const tag = node.tagName.toLowerCase();
+  if (tag === 'button' || tag === 'a') return true;
+  if (tag === 'input') {
+    const type = (node.getAttribute('type') || '').toLowerCase();
+    return type === 'button' || type === 'submit' || type === 'reset';
+  }
+  return false;
+}
+
+function updateButtonEditorUI(source) {
+  const isBtn = isButtonLike(source);
+  el.buttonEditorSection.classList.toggle('hidden', !isBtn);
+  if (!isBtn) return;
+
+  const tag = source.tagName.toLowerCase();
+  el.buttonLabelInput.value = tag === 'input' ? (source.getAttribute('value') || '') : source.textContent.trim();
+  el.buttonHrefInput.value = tag === 'a' ? (source.getAttribute('href') || '') : '';
+  el.buttonHrefInput.disabled = tag !== 'a';
+}
+
+function applyButtonEdit() {
+  const chapter = currentChapter();
+  if (!chapter || !state.selectedUid) return;
+  const source = findElementByUid(chapter.doc, state.selectedUid);
+  if (!source || !isButtonLike(source)) return;
+
+  const tag = source.tagName.toLowerCase();
+  if (tag === 'input') source.setAttribute('value', el.buttonLabelInput.value);
+  else source.textContent = el.buttonLabelInput.value;
+
+  if (tag === 'a') {
+    const href = el.buttonHrefInput.value.trim();
+    if (href) source.setAttribute('href', href);
+    else source.removeAttribute('href');
+  }
+
+  renderChapterDoc(chapter).then(() => {
+    renderDomTree();
+    loadElementIntoEditors(state.selectedUid, chapter);
+    pushHistory(chapter);
+    updateUndoRedoUI();
+    setDirty(true);
+    showToast('Botón actualizado.');
+  });
+}
+
+const DEFAULT_BUTTON_CSS = '.epub-btn {\n  display: inline-block;\n  padding: 0.5em 1.2em;\n'
+  + '  border-radius: 6px;\n  background: #2563eb;\n  color: #ffffff;\n'
+  + '  text-decoration: none;\n  font-weight: 600;\n  cursor: pointer;\n}';
+
+function insertNewButton() {
+  const chapter = currentChapter();
+  if (!chapter) {
+    showToast('Carga un EPUB primero.', true);
+    return;
+  }
+  const parent = (state.selectedUid && findElementByUid(chapter.doc, state.selectedUid)) || chapter.doc.body;
+  if (!parent) return;
+
+  const newBtn = chapter.doc.createElement('a');
+  newBtn.setAttribute('href', '#');
+  newBtn.setAttribute('class', 'epub-btn');
+  newBtn.textContent = 'Nuevo botón';
+  parent.appendChild(newBtn);
+  assignUids(chapter.doc);
+
+  if (!chapter.customCss.includes('.epub-btn')) {
+    chapter.customCss += (chapter.customCss.trim() ? '\n\n' : '') + DEFAULT_BUTTON_CSS;
+    setEditorValue(cssEditorCM, el.cssEditorArea, chapter.customCss);
+  }
+
+  renderChapterDoc(chapter).then(() => {
+    renderDomTree();
+    pushHistory(chapter);
+    updateUndoRedoUI();
+    setDirty(true);
+    showToast('Botón insertado. Selecciónalo en el panel DOM para editar su texto y destino.');
+  });
 }
 
 function describeElement(node) {
@@ -815,12 +1069,25 @@ function loadComputedPropsIntoPanel(uid) {
   const liveEl = frameDoc && findElementByUid(frameDoc, uid);
   if (!liveEl || !frameDoc.defaultView) return;
   const computed = frameDoc.defaultView.getComputedStyle(liveEl);
+  // El color se muestra solo a modo informativo (valor computado actual) y queda
+  // deshabilitado con "Ninguno" marcado, para no forzar un color al aplicar CSS
+  // hasta que el usuario decida explícitamente cambiarlo.
   el.propColor.value = rgbToHex(computed.color) || '#000000';
+  el.propColorNone.checked = true;
+  el.propColor.disabled = true;
   el.propBackground.value = rgbToHex(computed.backgroundColor) || '#ffffff';
+  el.propBackgroundNone.checked = true;
+  el.propBackground.disabled = true;
   el.propFontSize.value = parseInt(computed.fontSize, 10) || '';
   el.propMargin.value = parseInt(computed.marginTop, 10) || '';
   el.propPadding.value = parseInt(computed.paddingTop, 10) || '';
   el.propFontFamily.value = '';
+}
+
+function wireNoneToggle(checkbox, input) {
+  checkbox.addEventListener('change', () => {
+    input.disabled = checkbox.checked;
+  });
 }
 
 function rgbToHex(rgb) {
@@ -920,8 +1187,8 @@ function applyCssChanges() {
 function buildCssRuleFromProps() {
   const selector = el.cssTargetSelector.value.trim() || '*';
   const declarations = [];
-  if (el.propColor.value) declarations.push('color: ' + el.propColor.value + ';');
-  if (el.propBackground.value) declarations.push('background-color: ' + el.propBackground.value + ';');
+  if (!el.propColorNone.checked) declarations.push('color: ' + el.propColor.value + ';');
+  if (!el.propBackgroundNone.checked) declarations.push('background-color: ' + el.propBackground.value + ';');
   if (el.propFontFamily.value) declarations.push('font-family: ' + el.propFontFamily.value + ';');
   if (el.propFontSize.value) declarations.push('font-size: ' + el.propFontSize.value + 'px;');
   if (el.propMargin.value) declarations.push('margin: ' + el.propMargin.value + 'px;');
@@ -1096,12 +1363,23 @@ function previewAnimationOnSelected() {
   const target = frameDoc && findElementByUid(frameDoc, state.selectedUid);
   if (!target) return;
 
+  const selector = el.cssTargetSelector.value.trim();
+  if (!selector) {
+    showToast('Indica un selector CSS destino.', true);
+    return;
+  }
+
   const preset = getSelectedPreset();
   const duration = el.animDuration.value || preset.defaultDuration;
   const easing = el.animEasing.value || preset.defaultEasing;
   const delay = el.animDelay.value || '0';
   const iterations = el.animIterations.value || preset.defaultIterations;
   const previewClass = 'epub-editor-anim-preview';
+  // Combina el selector real del objeto con la clase de vista previa: así esta
+  // regla temporal siempre tiene más especificidad que cualquier animación o CSS
+  // ya aplicado y persistido (que usa un simple "#id"), y la vista previa nunca
+  // queda tapada silenciosamente por una regla anterior sobre el mismo objeto.
+  const previewSelector = selector + '.' + previewClass;
 
   let styleTag = frameDoc.getElementById('epub-editor-anim-preview-css');
   if (!styleTag) {
@@ -1110,12 +1388,14 @@ function previewAnimationOnSelected() {
     frameDoc.head.appendChild(styleTag);
   }
   styleTag.textContent = buildAnimationCssBlock(
-    previewClass, preset, '.' + previewClass, duration, easing, delay, iterations,
+    'epub-editor-anim-preview-kf', preset, previewSelector, duration, easing, delay, iterations,
   );
 
   target.classList.remove(previewClass);
   void target.offsetWidth; // fuerza reflow para poder reiniciar la animación
   target.classList.add(previewClass);
+  target.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  showToast('Reproduciendo vista previa en el visor...');
 }
 
 function applyAnimationToSelected() {
@@ -1213,12 +1493,59 @@ async function cloneZip() {
 /* Pestañas                                                             */
 /* ------------------------------------------------------------------ */
 
+let activeTabName = 'dom';
+
 function activateTab(tabName) {
+  activeTabName = tabName;
   el.tabs.forEach((btn) => btn.classList.toggle('active', btn.dataset.tab === tabName));
   el.panels.forEach((panel) =>
     panel.classList.toggle('active', panel.id === 'panel-' + tabName));
   if (tabName === 'html' && htmlEditorCM) setTimeout(() => htmlEditorCM.refresh(), 0);
   if (tabName === 'css' && cssEditorCM) setTimeout(() => cssEditorCM.refresh(), 0);
+  if (!el.helpPanel.classList.contains('hidden')) showHelpForActiveTab();
+}
+
+/* ------------------------------------------------------------------ */
+/* Sistema de ayuda por pestaña                                        */
+/* ------------------------------------------------------------------ */
+
+const HELP_TEXTS = {
+  dom: 'Este panel muestra el árbol de elementos HTML reales del capítulo actual '
+    + '(las etiquetas <p>, <div>, <img>, etc. que forman el archivo .xhtml de ese '
+    + 'capítulo dentro del .epub). El icono junto a cada elemento indica su tipo: '
+    + 'imagen, vector (SVG), texto o contenedor. Hacer clic en un elemento solo lo '
+    + 'selecciona para editarlo en las demás pestañas — por sí solo no modifica el archivo.',
+  html: 'Edita directamente el código HTML del elemento seleccionado. Al pulsar '
+    + '"Aplicar cambios" se reemplaza ese fragmento dentro del archivo .xhtml del '
+    + 'capítulo — el mismo formato que usa cualquier lector EPUB para mostrar el '
+    + 'contenido — así que un error de sintaxis aquí puede impedir que el capítulo '
+    + 'se abra bien en otros lectores. "Reiniciar" descarta lo escrito sin tocar el archivo.',
+  css: 'Escribe reglas CSS libres o usa el panel de propiedades comunes. Al aplicar, '
+    + 'esas reglas se guardan como una hoja de estilos dentro del propio archivo '
+    + '.xhtml del capítulo, igual que el CSS que ya trae el EPUB — por eso conviven '
+    + 'con los estilos originales del libro y pueden sobrescribirlos si tienen más '
+    + 'especificidad (por ejemplo, un selector "#id" le gana a uno de clase ".clase").',
+  text: 'Cambia el texto visible del objeto seleccionado, ya sea haciendo clic '
+    + 'directamente en el visor con "Modo edición de texto" activo, o escribiendo en '
+    + 'el campo de abajo. Esto modifica el contenido de texto dentro del archivo '
+    + '.xhtml del capítulo; el marcado HTML alrededor del texto no cambia.',
+  toc: 'Muestra la tabla de contenidos que ya declara el propio EPUB (nav.xhtml en '
+    + 'EPUB3 o toc.ncx en EPUB2). Sirve para navegar rápido entre capítulos; no se '
+    + 'edita desde aquí ni modifica ningún archivo del libro.',
+  anim: 'Aplica animaciones CSS (@keyframes) al objeto seleccionado. "Aplicar '
+    + 'animación" guarda el código generado en la misma hoja de estilos del capítulo '
+    + '(igual que la pestaña CSS), así que la animación queda dentro del .xhtml '
+    + 'exportado y se reproduce en cualquier lector EPUB compatible con animaciones CSS.',
+};
+
+function showHelpForActiveTab() {
+  el.helpPanelText.textContent = HELP_TEXTS[activeTabName] || '';
+  el.helpPanel.classList.remove('hidden');
+}
+
+function toggleHelpPanel() {
+  if (el.helpPanel.classList.contains('hidden')) showHelpForActiveTab();
+  else el.helpPanel.classList.add('hidden');
 }
 
 /* ------------------------------------------------------------------ */
@@ -1321,6 +1648,7 @@ function initEvents() {
   });
 
   el.exportBtn.addEventListener('click', exportEpub);
+  el.readerPreviewBtn.addEventListener('click', openReaderPreview);
   el.themeToggleBtn.addEventListener('click', toggleTheme);
 
   el.textEditModeToggle.addEventListener('change', () => {
@@ -1336,6 +1664,8 @@ function initEvents() {
   el.applyCssBtn.addEventListener('click', applyCssChanges);
   [el.propColor, el.propBackground, el.propFontFamily, el.propFontSize, el.propMargin, el.propPadding]
     .forEach((input) => input.addEventListener('change', buildCssRuleFromProps));
+  wireNoneToggle(el.propColorNone, el.propColor);
+  wireNoneToggle(el.propBackgroundNone, el.propBackground);
 
   el.applyTextBtn.addEventListener('click', applyBulkTextChanges);
 
@@ -1344,6 +1674,12 @@ function initEvents() {
     input.addEventListener('input', updateAnimCssPreviewText));
   el.previewAnimBtn.addEventListener('click', previewAnimationOnSelected);
   el.applyAnimBtn.addEventListener('click', applyAnimationToSelected);
+
+  el.applyButtonEditBtn.addEventListener('click', applyButtonEdit);
+  el.insertButtonBtn.addEventListener('click', insertNewButton);
+
+  el.helpToggleBtn.addEventListener('click', toggleHelpPanel);
+  el.helpCloseBtn.addEventListener('click', () => el.helpPanel.classList.add('hidden'));
 
   el.tabs.forEach((btn) => {
     btn.addEventListener('click', () => activateTab(btn.dataset.tab));
@@ -1354,6 +1690,14 @@ function initEvents() {
       e.preventDefault();
       e.returnValue = '';
     }
+  });
+
+  let resizeTimer = null;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      if (state.hasBook) applyViewerFormat(currentChapter());
+    }, 150);
   });
 }
 

@@ -30,6 +30,7 @@
         Abrir .epub
         <input type="file" id="fileInput" accept=".epub,application/epub+zip" hidden>
       </label>
+      <button id="readerPreviewBtn" class="file-btn" title="Abre el capítulo actual en una ventana emergente, tal como lo vería un lector" disabled>Probar como lector &#8599;</button>
       <button id="exportBtn" class="file-btn file-btn-accent" disabled>Exportar EPUB</button>
       <button id="themeToggleBtn" class="icon-btn" title="Cambiar tema claro/oscuro">&#9788;</button>
     </div>
@@ -65,6 +66,12 @@
         <button class="tab-btn" data-tab="text" role="tab">Texto</button>
         <button class="tab-btn" data-tab="toc" role="tab">Índice</button>
         <button class="tab-btn" data-tab="anim" role="tab">Animación</button>
+        <button id="helpToggleBtn" class="tab-help-btn" type="button" title="Ayuda sobre esta herramienta">?</button>
+      </div>
+
+      <div id="helpPanel" class="help-panel hidden">
+        <p id="helpPanelText"></p>
+        <button id="helpCloseBtn" class="help-close-btn" type="button">Cerrar</button>
       </div>
 
       <div class="tab-panels">
@@ -81,10 +88,28 @@
           <div class="editor-toolbar">
             <span id="selectedElementLabel" class="selected-label">Ningún elemento seleccionado</span>
           </div>
+          <p id="selectedElementLayerInfo" class="layer-badge"></p>
+
+          <div id="buttonEditorSection" class="button-editor hidden">
+            <p class="hint-small">Este objeto es un botón/enlace. Puedes editar su texto y destino sin tocar el HTML a mano.</p>
+            <div class="common-props">
+              <label>Texto del botón
+                <input type="text" id="buttonLabelInput" class="text-input" placeholder="Texto visible">
+              </label>
+              <label>Destino (href)
+                <input type="text" id="buttonHrefInput" class="text-input" placeholder="capitulo2.xhtml, #, https://...">
+              </label>
+            </div>
+            <div class="editor-actions">
+              <button id="applyButtonEditBtn" class="action-btn action-btn-accent" type="button">Aplicar botón</button>
+            </div>
+          </div>
+
           <textarea id="htmlEditor"></textarea>
           <div class="editor-actions">
             <button id="applyHtmlBtn" class="action-btn action-btn-accent" disabled>Aplicar cambios</button>
             <button id="resetHtmlBtn" class="action-btn" disabled>Reiniciar</button>
+            <button id="insertButtonBtn" class="action-btn" disabled>Insertar botón nuevo</button>
           </div>
         </div>
 
@@ -95,12 +120,20 @@
           </div>
 
           <div class="common-props">
-            <label>Color texto
-              <input type="color" id="propColor" value="#000000">
-            </label>
-            <label>Fondo
-              <input type="color" id="propBackground" value="#ffffff">
-            </label>
+            <div class="prop-group">
+              <span class="prop-label">Color texto</span>
+              <div class="color-field">
+                <input type="color" id="propColor" value="#000000" disabled>
+                <label class="none-toggle" for="propColorNone"><input type="checkbox" id="propColorNone" checked>Ninguno</label>
+              </div>
+            </div>
+            <div class="prop-group">
+              <span class="prop-label">Fondo</span>
+              <div class="color-field">
+                <input type="color" id="propBackground" value="#ffffff" disabled>
+                <label class="none-toggle" for="propBackgroundNone"><input type="checkbox" id="propBackgroundNone" checked>Ninguno</label>
+              </div>
+            </div>
             <label>Fuente
               <select id="propFontFamily">
                 <option value="">(heredada)</option>
@@ -198,6 +231,10 @@
       </div>
     </aside>
   </main>
+
+  <footer class="site-footer">
+    Curso de Infografía 2026 · Docente: Mg Mario Quiroz Martinez
+  </footer>
 
   <div id="toast" class="toast hidden" role="status"></div>
 
