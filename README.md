@@ -615,6 +615,16 @@ In order to run this project you need:
 </details>
 </li>
 
+<li>
+<details>
+<summary>EPUB Interactive Button Catalog</summary>
+<p>A self-contained interactive button catalog designed to be embedded as a chapter of a scripted EPUB3. Six CSS hover effects (sliding underline, liquid fill, double-sided 3D flip, holographic gradient, lift with shadow, border draw — inspired by Prismic's CSS hover effects article) paired with Anime.js click animations using camelCase CSS properties. Includes a book-format 600x800 container, a button navigation list, three modal dialogs (welcome, confirmation, test), an event diagnostic tool, and robust click+touchend handling that solves the classic "buttons don't respond" problem in EPUB readers. Ships both as a single HTML file and as a ready-to-read .epub with Anime.js bundled inside.</p>
+<ul>
+<li><a href="https://github.com/Mario55666/50Projects-HTML-CSS-JavaScript/tree/main/Source-Code/EpubButtonCatalog">Source</a></li>
+</ul> 
+</details>
+</li>
+
 </ol>
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>

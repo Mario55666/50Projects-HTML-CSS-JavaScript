@@ -483,6 +483,18 @@ async function resolveAssets(chapter) {
     if (raw && !raw.startsWith('blob:')) refs.push({ node, attr: 'href', raw });
   });
 
+  // Scripts empaquetados dentro del EPUB (EPUB3 "scripted"). Sin esto, un
+  // <script src="js/..."> relativo nunca carga en la ventana "Probar como
+  // lector" (no hay servidor detrás del srcdoc/popup) y los botones del
+  // libro parecen muertos. En el iframe del editor siguen sin ejecutarse
+  // (sandbox sin allow-scripts, a propósito); en el popup sí corren.
+  doc.querySelectorAll('script[src]').forEach((node) => {
+    const raw = node.getAttribute('src');
+    if (raw && !raw.startsWith('blob:') && !raw.startsWith('data:') && !/^([a-z]+:)?\/\//i.test(raw)) {
+      refs.push({ node, attr: 'src', raw });
+    }
+  });
+
   for (const ref of refs) {
     const fullPath = resolvePath(chapter.dir, ref.raw);
     let blobUrl = chapter.blobUrls.get(fullPath);
@@ -507,6 +519,7 @@ function guessMediaType(path) {
   const map = {
     png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', gif: 'image/gif',
     svg: 'image/svg+xml', webp: 'image/webp', css: 'text/css',
+    js: 'text/javascript', mjs: 'text/javascript',
   };
   return map[ext] || '';
 }

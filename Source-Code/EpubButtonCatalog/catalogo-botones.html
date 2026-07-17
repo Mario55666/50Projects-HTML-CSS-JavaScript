@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<!--
+  ============================================================================
+  CATÁLOGO DE BOTONES INTERACTIVOS PARA EPUB3
+  ============================================================================
+  Archivo autocontenido (HTML + CSS + JS en un solo documento) pensado para
+  insertarse como capítulo de un EPUB3 con la propiedad "scripted" en el
+  manifiesto:
+
+    <item id="catalogo" href="catalogo-botones.html"
+          media-type="application/xhtml+xml" properties="scripted"/>
+
+  El marcado es XHTML válido (etiquetas vacías auto-cerradas y JavaScript
+  envuelto en CDATA), de modo que el mismo archivo funciona tanto abierto
+  directamente en un navegador como parseado por un lector EPUB estricto
+  en modo application/xhtml+xml.
+
+  Efectos hover inspirados en el artículo de Prismic
+  (https://prismic.io/blog/css-hover-effects):
+    1. Subrayado deslizante  (Text underline hover)
+    2. Relleno líquido       (Liquid / background fill)
+    3. Tarjeta de dos caras  (Double-sided card / 3D flip)
+    4. Holográfico           (Holographic card: degradado animado + brillo)
+    5. Elevación con sombra  (Lift / grow shadow)
+    6. Borde dibujado        (Border draw)
+
+  Animaciones de clic/tacto con Anime.js v3
+  (https://animejs.com/v3/documentation/#cssProperties), usando propiedades
+  CSS en camelCase (backgroundColor, borderRadius, letterSpacing...).
+  ============================================================================
+-->
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8"/>
+  <!-- Tamaño de página declarado (600x800): los visores que respetan el
+       formato del documento (como el Editor Visual de EPUB) enmarcan la
+       vista con esta proporción de libro. El CONTENIDO sigue siendo fluido
+       (reflowable) dentro del contenedor .libro definido más abajo. -->
+  <meta name="viewport" content="width=600, height=800"/>
+  <title>Catálogo de Botones Interactivos</title>
+
+  <style>
+    /* ==================================================================
+       BASE: contenedor central con proporción de libro (600x800) y
+       scroll interno. El contenido interior es fluido: si el visor es
+       más angosto, .libro se encoge con max-width y todo refluye.
+       ================================================================== */
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
+
+    body {
+      font-family: Georgia, "Times New Roman", serif;
+      background: #e8e4da;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 0.8em;
+    }
+
+    .libro {
+      width: 600px;
+      max-width: 100%;
+      height: 800px;
+      max-height: 96vh;
+      background: #fdfcf8;
+      border: 1px solid #c9c2b2;
+      border-radius: 6px;
+      box-shadow: 0 12px 35px rgba(60, 50, 30, 0.25);
+      overflow-y: auto;        /* scroll interno, como la página de un lector */
+      padding: 1.6em 1.8em 2.2em;
+      position: relative;
+    }
+
+    h1 {
+      font-size: 1.35em;
+      margin: 0 0 0.2em;
+      color: #3d3427;
+    }
+
+    .subtitulo {
+      font-size: 0.85em;
+      color: #7a6f5c;
+      margin: 0 0 1em;
+    }
+
+    /* Insignia de estado de JavaScript.
+       IMPORTANTE: el HTML declara "inactivo" por defecto; es el propio
+       JavaScript quien la cambia a "activo" al arrancar. Así, en un lector
+       EPUB con scripts desactivados, el usuario ve inmediatamente por qué
+       los botones no responden, en vez de creer que están rotos. */
+    .js-status {
+      display: inline-block;
+      padding: 0.25em 0.8em;
+      border-radius: 999px;
+      font-size: 0.7em;
+      font-family: Arial, sans-serif;
+      font-weight: bold;
+      letter-spacing: 0.03em;
+      background: #fbe3e0;
+      color: #a33326;
+      border: 1px solid #dda49c;
+      margin-bottom: 1.2em;
+    }
+
+    .js-status.activo {
+      background: #e4f3d9;
+      color: #3c6e1f;
+      border-color: #a4c88a;
+    }
+
+    /* ==================================================================
+       LISTA DE OBJETOS (panel desplegable de navegación).
+       No es un panel de capas: solo enumera los botones del catálogo
+       por nombre para saltar rápidamente a cada uno.
+       ================================================================== */
+    .lista-objetos {
+      border: 1px solid #d6cfc0;
+      border-radius: 8px;
+      background: #f6f2e9;
+      margin-bottom: 1.4em;
+      font-family: Arial, sans-serif;
+    }
+
+    .lista-objetos summary {
+      cursor: pointer;
+      padding: 0.6em 0.9em;
+      font-size: 0.82em;
+      font-weight: bold;
+      color: #4c422f;
+      list-style: none;
+    }
+
+    .lista-objetos summary::before { content: "☰  "; }
+
+    .lista-objetos ol {
+      margin: 0;
+      padding: 0 0.9em 0.8em 2.4em;
+      font-size: 0.8em;
+    }
+
+    .lista-objetos li { margin: 0.25em 0; }
+
+    .lista-objetos a {
+      color: #1d5d8f;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .lista-objetos a:hover { text-decoration: underline; }
+
+    /* Resalte temporal del botón al que se navega desde la lista */
+    .card.destacada {
+      outline: 3px solid #e8a13c;
+      outline-offset: 3px;
+      transition: outline-color 0.4s ease;
+    }
+
+    /* ==================================================================
+       TARJETAS DEL CATÁLOGO
+       ================================================================== */
+    .card {
+      border: 1px solid #e0d9c8;
+      border-radius: 10px;
+      padding: 1em 1.1em 1.2em;
+      margin-bottom: 1.3em;
+      background: #ffffff;
+    }
+
+    .card h2 {
+      font-size: 0.95em;
+      margin: 0 0 0.15em;
+      color: #4c422f;
+      font-family: Arial, sans-serif;
+    }
+
+    .card .fuente {
+      font-size: 0.7em;
+      color: #97906d;
+      margin: 0 0 0.9em;
+      font-family: Arial, sans-serif;
+    }
+
+    /* Base común para todos los botones de demostración */
+    .btn {
+      display: inline-block;
+      font-family: Arial, sans-serif;
+      font-size: 0.9em;
+      font-weight: bold;
+      padding: 0.75em 1.6em;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background: #2d5d8f;
+      color: #ffffff;
+      position: relative;
+      /* touch-action: manipulation elimina el retraso de ~300ms del doble
+         toque en visores táctiles antiguos, primera causa de "el botón no
+         responde" en lectores EPUB móviles. */
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: rgba(0, 0, 0, 0.15);
+    }
+
+    /* ------------------------------------------------------------------
+       EFECTO 1 · Subrayado deslizante (Prismic: "Text underline hover")
+       Una línea crece de izquierda a derecha bajo el texto.
+       ------------------------------------------------------------------ */
+    .fx-subrayado {
+      background: transparent;
+      color: #2d5d8f;
+      border-radius: 0;
+      padding-left: 0.2em;
+      padding-right: 0.2em;
+    }
+
+    .fx-subrayado::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: 0.35em;
+      width: 100%;
+      height: 3px;
+      background: #e8a13c;
+      transform: scaleX(0);
+      transform-origin: left center;
+      transition: transform 0.35s ease-out;
+    }
+
+    .fx-subrayado:hover::after,
+    .fx-subrayado:focus::after { transform: scaleX(1); }
+
+    /* ------------------------------------------------------------------
+       EFECTO 2 · Relleno líquido (Prismic: "Liquid morph / fill")
+       Un fondo "líquido" sube desde abajo e inunda el botón.
+       ------------------------------------------------------------------ */
+    .fx-liquido {
+      background: #14655e;
+      overflow: hidden;
+      z-index: 0;
+    }
+
+    .fx-liquido::before {
+      content: "";
+      position: absolute;
+      left: -25%;
+      bottom: -120%;
+      width: 150%;
+      height: 130%;
+      background: #6cc5a1;
+      border-radius: 45% 47% 42% 46%;   /* borde irregular: aspecto de ola */
+      transition: transform 0.55s ease-in-out;
+      z-index: -1;
+    }
+
+    .fx-liquido:hover::before,
+    .fx-liquido:focus::before { transform: translateY(-105%) rotate(8deg); }
+
+    /* ------------------------------------------------------------------
+       EFECTO 3 · Tarjeta de dos caras (Prismic: "Double-sided card")
+       El botón gira en 3D y muestra su reverso.
+       ------------------------------------------------------------------ */
+    .fx-flip-escena { display: inline-block; perspective: 600px; }
+
+    .fx-flip {
+      background: transparent;
+      padding: 0;
+      transform-style: preserve-3d;
+      transition: transform 0.6s ease;
+    }
+
+    .fx-flip:hover,
+    .fx-flip:focus { transform: rotateY(180deg); }
+
+    .fx-flip .cara {
+      display: block;
+      padding: 0.75em 1.6em;
+      border-radius: 8px;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+
+    .fx-flip .cara-frontal {
+      background: #7c3aa5;
+      color: #ffffff;
+    }
+
+    .fx-flip .cara-trasera {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: #e8a13c;
+      color: #3d3427;
+      transform: rotateY(180deg);
+    }
+
+    /* ------------------------------------------------------------------
+       EFECTO 4 · Holográfico (Prismic: "Holographic card")
+       Degradado multicolor que se desplaza + halo brillante.
+       ------------------------------------------------------------------ */
+    .fx-holo {
+      background: linear-gradient(115deg, #3ec9e0, #7c3aa5, #e84c8b, #e8a13c);
+      background-size: 300% 300%;
+      background-position: 0% 50%;
+      transition: background-position 0.7s ease, box-shadow 0.4s ease;
+    }
+
+    .fx-holo:hover,
+    .fx-holo:focus {
+      background-position: 100% 50%;
+      box-shadow: 0 0 18px rgba(124, 58, 165, 0.55),
+                  0 0 36px rgba(62, 201, 224, 0.35);
+    }
+
+    /* ------------------------------------------------------------------
+       EFECTO 5 · Elevación con sombra (Prismic: "Grow / lift hover")
+       El botón se levanta de la página y proyecta sombra.
+       ------------------------------------------------------------------ */
+    .fx-elevar {
+      background: #b5432e;
+      transition: transform 0.25s ease-out, box-shadow 0.25s ease-out;
+    }
+
+    .fx-elevar:hover,
+    .fx-elevar:focus {
+      transform: translateY(-6px) scale(1.04);
+      box-shadow: 0 14px 22px rgba(120, 40, 20, 0.35);
+    }
+
+    /* ------------------------------------------------------------------
+       EFECTO 6 · Borde dibujado (Prismic: "Border animation hover")
+       Dos esquinas dibujan el marco completo del botón.
+       ------------------------------------------------------------------ */
+    .fx-borde {
+      background: transparent;
+      color: #3d3427;
+      border-radius: 0;
+    }
+
+    .fx-borde::before,
+    .fx-borde::after {
+      content: "";
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      transition: width 0.3s ease, height 0.3s ease;
+    }
+
+    .fx-borde::before {
+      top: 0;
+      left: 0;
+      border-top: 3px solid #14655e;
+      border-left: 3px solid #14655e;
+    }
+
+    .fx-borde::after {
+      bottom: 0;
+      right: 0;
+      border-bottom: 3px solid #14655e;
+      border-right: 3px solid #14655e;
+    }
+
+    .fx-borde:hover::before,
+    .fx-borde:focus::before,
+    .fx-borde:hover::after,
+    .fx-borde:focus::after {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Animación CSS de respaldo si Anime.js no pudo cargarse (lector sin
+       acceso a la red): el botón "late" al tocarlo, de modo que el tacto
+       siempre tiene una respuesta visual, con o sin librería. */
+    @keyframes pulso-respaldo {
+      0%   { transform: scale(1); }
+      50%  { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+
+    .anim-respaldo { animation: pulso-respaldo 0.45s ease-in-out; }
+
+    /* ==================================================================
+       SECCIÓN DE DIAGNÓSTICO Y PRUEBA
+       ================================================================== */
+    .zona-prueba {
+      border-top: 2px dashed #d6cfc0;
+      margin-top: 1.6em;
+      padding-top: 1.2em;
+    }
+
+    .btn-prueba {
+      background: #4c422f;
+      margin-right: 0.6em;
+      margin-bottom: 0.5em;
+    }
+
+    #salidaDiagnostico {
+      font-family: "Courier New", monospace;
+      font-size: 0.72em;
+      background: #f3efe5;
+      border: 1px solid #d6cfc0;
+      border-radius: 6px;
+      padding: 0.7em 0.9em;
+      margin-top: 0.7em;
+      white-space: pre-wrap;
+      color: #4c422f;
+      display: none;
+    }
+
+    /* ==================================================================
+       CUADROS DE DIÁLOGO MODALES
+       Implementados con divs superpuestos (no con el elemento "dialog")
+       por máxima compatibilidad: varios motores de lectores EPUB aún no
+       soportan el elemento dialog nativo. (Sin angulares en este
+       comentario: dentro de un XHTML estricto romperían el XML.)
+       ================================================================== */
+    .velo {
+      position: absolute;         /* absolute respecto a .libro: el diálogo
+                                     queda DENTRO de la página del libro */
+      inset: 0;
+      background: rgba(40, 32, 18, 0.55);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 50;
+      padding: 1.5em;
+    }
+
+    .velo.visible { display: flex; }
+
+    .dialogo {
+      background: #fdfcf8;
+      border-radius: 12px;
+      max-width: 24em;
+      width: 100%;
+      padding: 1.3em 1.5em 1.4em;
+      box-shadow: 0 18px 45px rgba(30, 22, 8, 0.45);
+      font-family: Arial, sans-serif;
+      animation: dialogo-entra 0.25s ease-out;
+    }
+
+    @keyframes dialogo-entra {
+      from { opacity: 0; transform: translateY(14px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .dialogo h2 {
+      margin: 0 0 0.5em;
+      font-size: 1em;
+      color: #3d3427;
+    }
+
+    .dialogo p {
+      margin: 0 0 1.1em;
+      font-size: 0.85em;
+      line-height: 1.55;
+      color: #55492f;
+    }
+
+    .dialogo .btn { background: #2d5d8f; }
+
+    footer {
+      margin-top: 2em;
+      padding-top: 0.8em;
+      border-top: 1px solid #e0d9c8;
+      font-size: 0.72em;
+      color: #97906d;
+      text-align: center;
+      font-family: Arial, sans-serif;
+    }
+  </style>
+
+  <!-- Anime.js v3 desde CDN. En un EPUB definitivo conviene EMPAQUETAR la
+       librería dentro del propio archivo (ej. js/anime.min.js) y cambiar
+       esta ruta, porque muchos lectores abren los libros sin conexión. -->
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.2/lib/anime.min.js"></script>
+</head>
+
+<body>
+  <div class="libro" id="libro">
+
+    <h1>Catálogo de Botones Interactivos</h1>
+    <p class="subtitulo">Efectos hover en CSS + animaciones de clic con Anime.js, para EPUB3</p>
+
+    <!-- El script cambia esta insignia a "activo" al arrancar -->
+    <span class="js-status" id="jsStatus">JavaScript inactivo — los botones no responderán</span>
+
+    <!-- ============ LISTA DE OBJETOS (navegación rápida) ============ -->
+    <details class="lista-objetos" open="open">
+      <summary>Lista de botones del catálogo</summary>
+      <ol id="listaObjetos">
+        <li><a data-destino="card-subrayado">Botón 1 · Subrayado deslizante</a></li>
+        <li><a data-destino="card-liquido">Botón 2 · Relleno líquido</a></li>
+        <li><a data-destino="card-flip">Botón 3 · Tarjeta de dos caras</a></li>
+        <li><a data-destino="card-holo">Botón 4 · Holográfico</a></li>
+        <li><a data-destino="card-elevar">Botón 5 · Elevación con sombra</a></li>
+        <li><a data-destino="card-borde">Botón 6 · Borde dibujado</a></li>
+      </ol>
+    </details>
+
+    <!-- ==================== CATÁLOGO DE BOTONES ==================== -->
+
+    <section class="card" id="card-subrayado">
+      <h2>1 · Subrayado deslizante</h2>
+      <p class="fuente">Hover: línea que crece bajo el texto · Clic: rebote elástico (scale)</p>
+      <button type="button" class="btn fx-subrayado boton-catalogo"
+              id="btnSubrayado" data-nombre="Subrayado deslizante" data-anim="elastico">
+        Pasa y toca aquí
+      </button>
+    </section>
+
+    <section class="card" id="card-liquido">
+      <h2>2 · Relleno líquido</h2>
+      <p class="fuente">Hover: ola que inunda el fondo · Clic: cambio de color (backgroundColor)</p>
+      <button type="button" class="btn fx-liquido boton-catalogo"
+              id="btnLiquido" data-nombre="Relleno líquido" data-anim="color">
+        Sumérgete
+      </button>
+    </section>
+
+    <section class="card" id="card-flip">
+      <h2>3 · Tarjeta de dos caras</h2>
+      <p class="fuente">Hover: giro 3D que muestra el reverso · Clic: giro completo (rotateY)</p>
+      <span class="fx-flip-escena">
+        <button type="button" class="btn fx-flip boton-catalogo"
+                id="btnFlip" data-nombre="Tarjeta de dos caras" data-anim="giro">
+          <span class="cara cara-frontal">Cara frontal</span>
+          <span class="cara cara-trasera">¡Reverso!</span>
+        </button>
+      </span>
+    </section>
+
+    <section class="card" id="card-holo">
+      <h2>4 · Holográfico</h2>
+      <p class="fuente">Hover: degradado que se desplaza + brillo · Clic: pulso de radio (borderRadius)</p>
+      <button type="button" class="btn fx-holo boton-catalogo"
+              id="btnHolo" data-nombre="Holográfico" data-anim="radio">
+        Holograma
+      </button>
+    </section>
+
+    <section class="card" id="card-elevar">
+      <h2>5 · Elevación con sombra</h2>
+      <p class="fuente">Hover: se levanta de la página · Clic: sacudida horizontal (translateX)</p>
+      <button type="button" class="btn fx-elevar boton-catalogo"
+              id="btnElevar" data-nombre="Elevación con sombra" data-anim="sacudida">
+        Levántame
+      </button>
+    </section>
+
+    <section class="card" id="card-borde">
+      <h2>6 · Borde dibujado</h2>
+      <p class="fuente">Hover: el marco se dibuja solo · Clic: espaciado de letras (letterSpacing)</p>
+      <button type="button" class="btn fx-borde boton-catalogo"
+              id="btnBorde" data-nombre="Borde dibujado" data-anim="letras">
+        Márcame
+      </button>
+    </section>
+
+    <!-- ============== PRUEBA RÁPIDA Y DIAGNÓSTICO ============== -->
+    <section class="zona-prueba" id="card-prueba">
+      <h2>Zona de prueba</h2>
+      <button type="button" class="btn btn-prueba" id="btnProbarEfecto">Probar efecto</button>
+      <button type="button" class="btn btn-prueba" id="btnDiagnostico">Diagnóstico de eventos</button>
+      <pre id="salidaDiagnostico"></pre>
+    </section>
+
+    <footer>Curso de Infografía 2026 · Mg Mario Quiroz Martinez</footer>
+
+    <!-- ==================== DIÁLOGO MODAL ==================== -->
+    <div class="velo" id="velo">
+      <div class="dialogo" role="dialog" aria-modal="true" aria-labelledby="dialogoTitulo">
+        <h2 id="dialogoTitulo">Título</h2>
+        <p id="dialogoMensaje">Mensaje</p>
+        <button type="button" class="btn" id="dialogoCerrar">Entendido</button>
+      </div>
+    </div>
+
+  </div><!-- /.libro -->
+
+  <script>
+  //<![CDATA[
+  /* ========================================================================
+     LÓGICA DEL CATÁLOGO
+     Envuelta en CDATA para que este mismo archivo sea XHTML válido cuando
+     un lector EPUB lo parsee como application/xhtml+xml (fuera de CDATA,
+     los operadores "<" y "&&" romperían el XML).
+     ======================================================================== */
+  'use strict';
+
+  (function () {
+
+    /* --------------------------------------------------------------------
+       SOLUCIÓN AL PROBLEMA CRÍTICO: botones que no responden en el lector.
+
+       En los lectores de EPUB fallan los clics por tres causas típicas:
+
+       1. El visor solo entrega eventos táctiles (touchstart/touchend) y el
+          "click" sintético llega tarde, o el propio lector lo intercepta
+          para pasar de página. SOLUCIÓN: escuchar "touchend" directamente
+          y ejecutar ahí la acción, sin esperar al click.
+
+       2. Si se escuchan touchend Y click a la vez, la acción se dispara
+          DOS veces (el navegador emula un click ~300ms después del toque).
+          SOLUCIÓN: preventDefault() en touchend (cancela el click emulado)
+          más un sello de tiempo como red de seguridad: cualquier click que
+          llegue menos de 700ms después de un toque se ignora.
+
+       3. El visor tiene JavaScript desactivado. Eso NO se puede resolver
+          desde el código; por eso la insignia de estado y el botón de
+          diagnóstico existen: hacen visible esa situación al instante.
+       -------------------------------------------------------------------- */
+    var selloUltimoToque = 0;
+    var oyentesRegistrados = 0;   // contador para el diagnóstico
+
+    function alTocar(elemento, accion) {
+      if (!elemento) { return; }
+
+      elemento.addEventListener('touchend', function (e) {
+        selloUltimoToque = Date.now();
+        e.preventDefault();       // cancela el click emulado que seguiría
+        accion(e);
+      }, false);
+
+      elemento.addEventListener('click', function (e) {
+        // Red de seguridad: si acaba de dispararse por touchend, ignorar.
+        if (Date.now() - selloUltimoToque < 700) { return; }
+        accion(e);
+      }, false);
+
+      oyentesRegistrados += 2;
+    }
+
+    /* ------------------------- Diálogos modales ------------------------- */
+    var velo = document.getElementById('velo');
+    var dialogoTitulo = document.getElementById('dialogoTitulo');
+    var dialogoMensaje = document.getElementById('dialogoMensaje');
+
+    function mostrarDialogo(titulo, mensaje) {
+      dialogoTitulo.textContent = titulo;
+      dialogoMensaje.textContent = mensaje;
+      velo.classList.add('visible');
+    }
+
+    function cerrarDialogo() {
+      velo.classList.remove('visible');
+    }
+
+    alTocar(document.getElementById('dialogoCerrar'), cerrarDialogo);
+    // Tocar el velo oscuro (fuera de la caja) también cierra el diálogo.
+    alTocar(velo, function (e) {
+      if (e.target === velo) { cerrarDialogo(); }
+    });
+
+    /* ------------------- Animaciones de clic (Anime.js) ------------------
+       Cada botón declara en data-anim cuál de estas animaciones ejecuta.
+       Todas usan propiedades CSS en camelCase, tal como documenta Anime.js
+       v3 (backgroundColor, borderRadius, letterSpacing...).
+       -------------------------------------------------------------------- */
+    var hayAnime = (typeof window.anime === 'function');
+
+    var animaciones = {
+      elastico: function (btn) {
+        window.anime({
+          targets: btn,
+          scale: [1, 1.35, 1],
+          duration: 700,
+          easing: 'easeOutElastic(1, 0.4)'
+        });
+      },
+      color: function (btn) {
+        window.anime({
+          targets: btn,
+          backgroundColor: ['#14655e', '#e8a13c', '#14655e'],
+          duration: 900,
+          easing: 'easeInOutQuad'
+        });
+      },
+      giro: function (btn) {
+        window.anime({
+          targets: btn,
+          rotateY: '+=360',
+          duration: 800,
+          easing: 'easeInOutSine'
+        });
+      },
+      radio: function (btn) {
+        window.anime({
+          targets: btn,
+          borderRadius: ['8px', '30px', '8px'],
+          scale: [1, 0.92, 1],
+          duration: 650,
+          easing: 'easeInOutQuad'
+        });
+      },
+      sacudida: function (btn) {
+        window.anime({
+          targets: btn,
+          translateX: [0, -12, 10, -7, 5, 0],
+          duration: 550,
+          easing: 'easeInOutSine'
+        });
+      },
+      letras: function (btn) {
+        window.anime({
+          targets: btn,
+          letterSpacing: ['0em', '0.35em', '0em'],
+          duration: 750,
+          easing: 'easeInOutQuad'
+        });
+      }
+    };
+
+    function ejecutarAnimacion(btn) {
+      var clave = btn.getAttribute('data-anim');
+      if (hayAnime && animaciones[clave]) {
+        animaciones[clave](btn);
+        return;
+      }
+      // Respaldo sin Anime.js (lector sin red): pulso definido en CSS puro.
+      btn.classList.remove('anim-respaldo');
+      void btn.offsetWidth;               // reinicia la animación CSS
+      btn.classList.add('anim-respaldo');
+    }
+
+    /* ----------------- Botones del catálogo + confirmación ---------------- */
+    var botones = document.querySelectorAll('.boton-catalogo');
+
+    Array.prototype.forEach.call(botones, function (btn) {
+      alTocar(btn, function () {
+        ejecutarAnimacion(btn);
+        var nombre = btn.getAttribute('data-nombre') || btn.id;
+        // Texto exigido por la especificación del catálogo:
+        mostrarDialogo(
+          'Efecto aplicado',
+          'Efecto aplicado correctamente sobre "' + nombre + '".'
+        );
+      });
+    });
+
+    /* --------------------- Lista de objetos (navegación) ------------------ */
+    var enlaces = document.querySelectorAll('#listaObjetos a[data-destino]');
+
+    Array.prototype.forEach.call(enlaces, function (enlace) {
+      alTocar(enlace, function () {
+        var carta = document.getElementById(enlace.getAttribute('data-destino'));
+        if (!carta) { return; }
+        carta.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // Resalte temporal para localizar visualmente el botón
+        carta.classList.add('destacada');
+        window.setTimeout(function () {
+          carta.classList.remove('destacada');
+        }, 1600);
+      });
+    });
+
+    /* --------------------------- Botón de prueba -------------------------- */
+    alTocar(document.getElementById('btnProbarEfecto'), function () {
+      // Dispara la animación del primer botón del catálogo como muestra
+      var primero = document.querySelector('.boton-catalogo');
+      if (primero) { ejecutarAnimacion(primero); }
+      // Texto exigido por la especificación del catálogo:
+      mostrarDialogo(
+        'Prueba',
+        'Prueba realizada. Revisa la previsualización para ver el efecto en acción.'
+      );
+    });
+
+    /* ------------------------------ Diagnóstico ---------------------------
+       Verifica y muestra: si JavaScript corre, si Anime.js cargó, cuántos
+       oyentes de eventos se registraron y si el entorno reporta soporte
+       táctil. Útil para saber POR QUÉ algo no responde dentro de un lector.
+       ----------------------------------------------------------------------- */
+    alTocar(document.getElementById('btnDiagnostico'), function () {
+      var soporteTactil = ('ontouchstart' in window) ||
+        (navigator.maxTouchPoints !== undefined ? navigator.maxTouchPoints > 0 : false);
+
+      var lineas = [
+        'JavaScript ............. ACTIVO',
+        'Anime.js cargado ....... ' + (hayAnime ? 'SI (v' + (window.anime.version || '3') + ')' : 'NO — usando respaldo CSS'),
+        'Oyentes registrados .... ' + oyentesRegistrados + ' (click + touchend)',
+        'Soporte tactil ......... ' + (soporteTactil ? 'SI' : 'NO (solo raton)'),
+        'Motor .................. ' + (navigator.userAgent || 'desconocido')
+      ];
+
+      var salida = document.getElementById('salidaDiagnostico');
+      salida.textContent = lineas.join('\n');
+      salida.style.display = 'block';
+
+      mostrarDialogo(
+        'Diagnóstico',
+        'JavaScript y los oyentes de eventos están activos. Detalle en la zona de prueba.'
+      );
+    });
+
+    /* ----------------- Arranque: insignia + bienvenida --------------------
+       Si este código corre, JavaScript está activo: se actualiza la insignia
+       y se muestra el diálogo de bienvenida. En un lector con scripts
+       desactivados nada de esto ocurre y la insignia roja lo delata.
+       ----------------------------------------------------------------------- */
+    function iniciar() {
+      var insignia = document.getElementById('jsStatus');
+      insignia.textContent = 'JavaScript activo — catálogo interactivo listo';
+      insignia.classList.add('activo');
+
+      mostrarDialogo(
+        'Bienvenido al catálogo',
+        'Este libro demuestra 6 efectos hover en CSS y animaciones de clic con ' +
+        'Anime.js. Pasa el puntero sobre cada botón para ver su efecto hover, y ' +
+        'haz clic (o toca) para disparar su animación. Usa la "Lista de botones" ' +
+        'para saltar a cada uno, y la zona de prueba para verificar que todo funciona.'
+      );
+    }
+
+    // DOMContentLoaded puede haber pasado ya si el lector inyecta el script tarde.
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', iniciar, false);
+    } else {
+      iniciar();
+    }
+
+  })();
+  //]]>
+  </script>
+</body>
+</html>
