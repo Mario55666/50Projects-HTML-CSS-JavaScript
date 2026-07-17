@@ -9,6 +9,11 @@ const nextBtn = document.getElementById('nextBtn');
 const fullscreenBtn = document.getElementById('fullscreenBtn');
 const statusText = document.getElementById('statusText');
 const progressFill = document.getElementById('progressFill');
+const linkModal = document.getElementById('linkModal');
+const modalBox = document.getElementById('modalBox');
+const modalTitle = document.getElementById('modalTitle');
+const modalBody = document.getElementById('modalBody');
+const modalCloseBtn = document.getElementById('modalCloseBtn');
 
 let book = null;
 let rendition = null;
@@ -47,9 +52,148 @@ const updateProgress = (location) => {
   nextBtn.disabled = location.atEnd;
 };
 
+// ---- Video/hyperlink popup modal -----------------------------------
+//
+// Any <video> or absolute (external, href contains "://") <a> inside the
+// EPUB content opens here instead of navigating away or opening a new
+// browser tab. Relative links (chapters within the book) are left alone
+// so normal reading navigation keeps working.
+
+const YOUTUBE_RE = /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]{6,})/i;
+const VIMEO_RE = /vimeo\.com\/(\d+)/i;
+const VIDEO_FILE_RE = /\.(mp4|webm|ogv|ogg|mov)(\?.*)?$/i;
+
+const getVideoEmbedUrl = (href) => {
+  const yt = href.match(YOUTUBE_RE);
+  if (yt) return `https://www.youtube-nocookie.com/embed/${yt[1]}?autoplay=1`;
+
+  const vm = href.match(VIMEO_RE);
+  if (vm) return `https://player.vimeo.com/video/${vm[1]}?autoplay=1`;
+
+  return null;
+};
+
+const openModal = (title) => {
+  modalTitle.textContent = title;
+  modalBody.innerHTML = '';
+  linkModal.classList.remove('hidden');
+};
+
+const closeModal = () => {
+  linkModal.classList.add('hidden');
+  // Clearing the body stops any playing <video>/<iframe> embed immediately.
+  modalBody.innerHTML = '';
+};
+
+const openVideoFileModal = (src) => {
+  openModal('Video');
+  const video = document.createElement('video');
+  video.src = src;
+  video.controls = true;
+  video.autoplay = true;
+  video.className = 'modal-video';
+  modalBody.appendChild(video);
+};
+
+const openVideoEmbedModal = (embedUrl) => {
+  openModal('Video');
+  const iframe = document.createElement('iframe');
+  iframe.src = embedUrl;
+  iframe.className = 'modal-video-frame';
+  iframe.allow = 'autoplay; fullscreen; picture-in-picture; encrypted-media';
+  iframe.allowFullscreen = true;
+  modalBody.appendChild(iframe);
+};
+
+const openLinkPreviewModal = (href) => {
+  openModal(href);
+
+  const iframe = document.createElement('iframe');
+  iframe.src = href;
+  iframe.className = 'modal-link-frame';
+  modalBody.appendChild(iframe);
+
+  const fallback = document.createElement('a');
+  fallback.href = href;
+  fallback.target = '_blank';
+  fallback.rel = 'noopener noreferrer';
+  fallback.className = 'modal-fallback-link';
+  fallback.textContent = 'Abrir en una pestaña nueva ↗';
+  modalBody.appendChild(fallback);
+};
+
+const handleExternalLink = (href) => {
+  if (VIDEO_FILE_RE.test(href)) {
+    openVideoFileModal(href);
+    return;
+  }
+
+  const embedUrl = getVideoEmbedUrl(href);
+  if (embedUrl) {
+    openVideoEmbedModal(embedUrl);
+    return;
+  }
+
+  openLinkPreviewModal(href);
+};
+
+// Intercepts clicks inside a rendered EPUB page. Attached per-page (in the
+// 'rendered' hook) because epub.js swaps in a fresh iframe/document for
+// every section. Uses the capture phase so it always runs before epub.js's
+// own bubble-phase link handling and any script bundled in the EPUB page.
+const attachContentLinkHandling = (_section, view) => {
+  try {
+    const win = (view && view.window) || (view && view.iframe && view.iframe.contentWindow);
+    const doc = win && win.document;
+    if (!doc || doc.__linkModalBound) return;
+    doc.__linkModalBound = true;
+
+    doc.addEventListener('click', (e) => {
+      const link = e.target.closest && e.target.closest('a[href]');
+      if (link) {
+        const rawHref = link.getAttribute('href') || '';
+        // Matches epub.js's own definition of "external": epub.js leaves
+        // these as normal target="_blank" anchors instead of intercepting
+        // them for internal chapter navigation.
+        if (rawHref.indexOf('://') > -1) {
+          e.preventDefault();
+          e.stopPropagation();
+          handleExternalLink(link.href);
+        }
+        return;
+      }
+
+      const video = e.target.closest && e.target.closest('video');
+      if (video) {
+        const source = video.currentSrc || video.getAttribute('src')
+          || (video.querySelector('source') && video.querySelector('source').src);
+        if (source) {
+          e.preventDefault();
+          e.stopPropagation();
+          video.pause();
+          openVideoFileModal(source);
+        }
+      }
+    }, true);
+  } catch (err) {
+    console.warn('No se pudo activar la pantalla emergente de enlaces/videos en esta página', err);
+  }
+};
+
+modalCloseBtn.addEventListener('click', closeModal);
+
+linkModal.addEventListener('click', (e) => {
+  if (!modalBox.contains(e.target)) closeModal();
+});
+
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && !linkModal.classList.contains('hidden')) closeModal();
+});
+
 const openBook = async (file) => {
   if (!file) return;
 
+  closeModal();
   setLoading(true);
   viewerEl.innerHTML = '';
   // The viewer must stay laid out (not display:none) while epub.js renders
@@ -90,6 +234,7 @@ const openBook = async (file) => {
     });
 
     rendition.on('rendered', rekickPageAnimations);
+    rendition.on('rendered', attachContentLinkHandling);
     rendition.on('relocated', updateProgress);
 
     await rendition.display();
