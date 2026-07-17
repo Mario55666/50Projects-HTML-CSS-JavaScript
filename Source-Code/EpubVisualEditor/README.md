@@ -41,10 +41,13 @@ Aplicación web hecha en **HTML, CSS y JavaScript puro** (sin frameworks ni comp
 
 ```
 EpubVisualEditor/
-├── index.html   # Estructura de la página: visor + panel de herramientas en pestañas
-├── style.css    # Estilos, tema claro/oscuro y diseño en dos paneles
-└── script.js    # Lógica: parseo del EPUB, navegación, DOM explorer,
-                 # editores de HTML/CSS/texto, undo/redo y exportación
+├── index.html              # Estructura de la página: visor + panel de herramientas en pestañas
+├── style.css               # Estilos, tema claro/oscuro y diseño en dos paneles
+├── script.js               # Lógica: parseo del EPUB, navegación, DOM explorer,
+│                           # editores de HTML/CSS/texto, undo/redo y exportación
+└── editor-todo-en-uno.html # Variante autocontenida (HTML+CSS+JS en un archivo) con
+                            # pestaña "Botones": catálogo de 11 botones con efectos
+                            # hover cuyo CSS completo se inserta en el EPUB exportado
 ```
 
 ## Notas técnicas
