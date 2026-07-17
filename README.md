@@ -605,6 +605,16 @@ In order to run this project you need:
 </details>
 </li>
 
+<li>
+<details>
+<summary>EPUB Visual Editor</summary>
+<p>A vanilla HTML, CSS and JavaScript web app to read and visually edit an EPUB's HTML, CSS and text. Load a .epub, browse its DOM tree per chapter, click any element to highlight and select it, edit its HTML or CSS (CodeMirror editors with syntax highlighting, CSS property autocomplete and a common-properties panel with color/font/size pickers), edit text inline or in bulk, undo/redo your changes, and export the result as a new .epub file.</p>
+<ul>
+<li><a href="https://github.com/Mario55666/50Projects-HTML-CSS-JavaScript/tree/main/Source-Code/EpubVisualEditor">Source</a></li>
+</ul> 
+</details>
+</li>
+
 </ol>
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
