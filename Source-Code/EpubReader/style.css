@@ -139,15 +139,31 @@ body {
 }
 
 #dropHint {
-  text-align: center;
+  text-align: left;
   color: var(--muted);
-  max-width: 26rem;
+  max-width: 30rem;
   animation: fade-in 0.5s ease-out;
 }
 
-.hint-small {
-  font-size: 0.8rem;
-  opacity: 0.75;
+.hint-title {
+  margin: 0 0 1rem;
+  font-size: 1.1rem;
+  color: var(--text);
+  text-align: center;
+}
+
+.hint-steps {
+  margin: 0;
+  padding-left: 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.hint-steps strong {
+  color: var(--text);
 }
 
 .viewer {
