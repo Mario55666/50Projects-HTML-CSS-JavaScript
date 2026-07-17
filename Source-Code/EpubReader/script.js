@@ -4,6 +4,7 @@ const dropHint = document.getElementById('dropHint');
 const spinner = document.getElementById('loadingSpinner');
 const viewerEl = document.getElementById('viewer');
 const layoutBadge = document.getElementById('layoutBadge');
+const fontBadge = document.getElementById('fontBadge');
 const prevBtn = document.getElementById('prevBtn');
 const nextBtn = document.getElementById('nextBtn');
 const fullscreenBtn = document.getElementById('fullscreenBtn');
@@ -14,6 +15,9 @@ const popupToast = document.getElementById('popupToast');
 let book = null;
 let rendition = null;
 let toastTimeoutId = null;
+let isFixedLayoutBook = false;
+let bookAspect = null;
+let pendingSizeSync = false;
 
 const setLoading = (isLoading) => {
   spinner.classList.toggle('hidden', !isLoading);
@@ -47,6 +51,183 @@ const updateProgress = (location) => {
   }
   prevBtn.disabled = location.atStart;
   nextBtn.disabled = location.atEnd;
+
+  // Now that epub.js has a location to redisplay after a resize, it's
+  // safe to run any size sync that syncViewerSize() deferred earlier.
+  if (pendingSizeSync) {
+    pendingSizeSync = false;
+    syncViewerSize();
+  }
+};
+
+// ---- Adapt the viewer to the EPUB's own page format -------------------
+//
+// Fixed-layout books (comics, illustrated books, infographics) author
+// their pages at a specific pixel size, declared either as book-level
+// <meta property="rendition:viewport"> in the OPF, or as a per-page
+// <meta name="viewport" content="width=W,height=H"> inside each XHTML
+// page. Rather than stretching that page into a generic reading pane,
+// size the viewer box to the same aspect ratio (like object-fit: contain)
+// so it reads as an actual page of the book, at the largest size that
+// fits the available space.
+
+const parseViewportMeta = (content) => {
+  if (!content) return null;
+  const w = content.match(/width\s*[:=]\s*(\d+(?:\.\d+)?)/i);
+  const h = content.match(/height\s*[:=]\s*(\d+(?:\.\d+)?)/i);
+  if (!w || !h) return null;
+  const width = parseFloat(w[1]);
+  const height = parseFloat(h[1]);
+  if (!width || !height) return null;
+  return { width, height };
+};
+
+const fitViewerToBook = () => {
+  if (!bookAspect) {
+    viewerEl.style.removeProperty('width');
+    viewerEl.style.removeProperty('height');
+    viewerEl.style.removeProperty('max-width');
+    return;
+  }
+
+  const stageStyles = getComputedStyle(stage);
+  const paddingX = parseFloat(stageStyles.paddingLeft) + parseFloat(stageStyles.paddingRight);
+  const paddingY = parseFloat(stageStyles.paddingTop) + parseFloat(stageStyles.paddingBottom);
+  const availWidth = stage.clientWidth - paddingX;
+  const availHeight = stage.clientHeight - paddingY;
+  const scale = Math.min(availWidth / bookAspect.width, availHeight / bookAspect.height);
+
+  viewerEl.style.maxWidth = 'none';
+  viewerEl.style.width = `${Math.floor(bookAspect.width * scale)}px`;
+  viewerEl.style.height = `${Math.floor(bookAspect.height * scale)}px`;
+};
+
+// Resizes the viewer to the book's format (if known) and lets epub.js
+// resize its own internal layout to match the viewer's actual box.
+//
+// epub.js only re-displays content after a manager resize if
+// `rendition.location` is already set (see Rendition#onResized) — on the
+// very first page that isn't true yet, so resizing at that exact moment
+// would clear the page and never redraw it. Defer to updateProgress()
+// (the 'relocated' handler, which is what actually sets `location`) when
+// that's the case; peekBookAspectRatio() sizing the viewer *before*
+// renderTo normally avoids ever hitting this path at all.
+const syncViewerSize = () => {
+  fitViewerToBook();
+  if (!rendition) return;
+  if (!rendition.location) {
+    pendingSizeSync = true;
+    return;
+  }
+  requestAnimationFrame(() => {
+    const rect = viewerEl.getBoundingClientRect();
+    rendition.resize(rect.width, rect.height);
+  });
+};
+
+// Peeks at the first page's <meta name="viewport"> before rendering
+// anything, so the viewer can already be the right shape by the time
+// epub.js measures its container in renderTo() — most fixed-layout EPUBs
+// only declare width/height per-page (not at the book level), and there
+// is no way to read that without loading a page's markup first.
+const peekBookAspectRatio = async (theBook) => {
+  try {
+    const firstSection = theBook.spine.first();
+    if (!firstSection) return null;
+    const contents = await firstSection.load(theBook.load.bind(theBook));
+    const doc = contents && contents.ownerDocument;
+    const meta = doc && doc.querySelector('meta[name="viewport"]');
+    return meta && parseViewportMeta(meta.getAttribute('content'));
+  } catch (err) {
+    console.warn('No se pudo leer el formato de página del EPUB', err);
+    return null;
+  }
+};
+
+// Self-correcting fallback: re-checks the aspect ratio against whichever
+// page is actually on screen, in case a book's pages aren't all the same
+// size (rare, but allowed by the spec) or the initial peek failed.
+const syncBookAspectRatio = (_section, view) => {
+  if (!isFixedLayoutBook) return;
+  try {
+    const win = (view && view.window) || (view && view.iframe && view.iframe.contentWindow);
+    const doc = win && win.document;
+    const meta = doc && doc.querySelector('meta[name="viewport"]');
+    const parsed = meta && parseViewportMeta(meta.getAttribute('content'));
+    if (parsed && (!bookAspect || bookAspect.width !== parsed.width || bookAspect.height !== parsed.height)) {
+      bookAspect = parsed;
+      syncViewerSize();
+    }
+  } catch (err) {
+    console.warn('No se pudo ajustar la pantalla al formato del EPUB', err);
+  }
+};
+
+// ---- Identify (never override) the book's own typography --------------
+//
+// This reader deliberately never injects font-family/font-size CSS into
+// the EPUB's pages — each page renders inside its own sandboxed iframe
+// with the book's original stylesheet, so the author's typography (and
+// any font embedded in the EPUB via @font-face) comes through untouched.
+// This only *reads* the fonts actually in use, to show the reader which
+// ones are active, as proof nothing is being substituted.
+
+const detectPageFont = (doc) => {
+  // Embedded/custom fonts declared by the book itself (e.g. shipped as
+  // .otf/.woff files inside the EPUB) take priority, since that's the
+  // typography the author specifically chose and packaged.
+  const embedded = new Set();
+  try {
+    Array.from(doc.styleSheets).forEach((sheet) => {
+      let rules;
+      try {
+        rules = sheet.cssRules;
+      } catch (err) {
+        return; // cross-origin stylesheet; nothing we can inspect
+      }
+      Array.from(rules || []).forEach((rule) => {
+        if (rule.constructor && rule.constructor.name === 'CSSFontFaceRule') {
+          const name = rule.style.getPropertyValue('font-family').replace(/["']/g, '').trim();
+          if (name) embedded.add(name);
+        }
+      });
+    });
+  } catch (err) {
+    // ignore — falls back to the computed font below
+  }
+
+  if (embedded.size > 0) {
+    return { names: Array.from(embedded), isEmbedded: true };
+  }
+
+  // No embedded font: report whichever font-family the book's own CSS
+  // (or the browser's default) actually resolved to for the body text.
+  const bodyFont = doc.body && getComputedStyle(doc.body).fontFamily;
+  if (bodyFont) {
+    const first = bodyFont.split(',')[0].replace(/["']/g, '').trim();
+    if (first) return { names: [first], isEmbedded: false };
+  }
+
+  return null;
+};
+
+const syncFontBadge = (_section, view) => {
+  try {
+    const win = (view && view.window) || (view && view.iframe && view.iframe.contentWindow);
+    const doc = win && win.document;
+    if (!doc) return;
+
+    const font = detectPageFont(doc);
+    if (!font) {
+      fontBadge.classList.add('hidden');
+      return;
+    }
+
+    fontBadge.textContent = `${font.isEmbedded ? 'Fuente incrustada' : 'Fuente'}: ${font.names.join(', ')}`;
+    fontBadge.classList.remove('hidden');
+  } catch (err) {
+    console.warn('No se pudo identificar la tipografía de esta página', err);
+  }
 };
 
 // ---- Video/hyperlink popup windows -----------------------------------
@@ -218,12 +399,16 @@ const openBook = async (file) => {
   closeAllPopups();
   setLoading(true);
   viewerEl.innerHTML = '';
+  isFixedLayoutBook = false;
+  bookAspect = null;
+  fitViewerToBook();
   // The viewer must stay laid out (not display:none) while epub.js renders
   // into it, otherwise it measures a 0x0 container and every page comes out
   // collapsed. The spinner overlays on top instead.
   viewerEl.classList.remove('hidden');
   dropHint.classList.add('hidden');
   layoutBadge.classList.add('hidden');
+  fontBadge.classList.add('hidden');
   setStatus(`Cargando "${file.name}"...`);
 
   if (book) {
@@ -242,7 +427,21 @@ const openBook = async (file) => {
     // epub.js exposes it on book.packaging.metadata.layout once book.ready resolves.
     const layout = (book.packaging && book.packaging.metadata && book.packaging.metadata.layout) || '';
     const isFixedLayout = layout === 'pre-paginated';
+    isFixedLayoutBook = isFixedLayout;
     layoutBadge.classList.toggle('hidden', !isFixedLayout);
+
+    // Determine the book's page format *before* rendering, so the viewer
+    // is already the right shape by the time epub.js measures its
+    // container in renderTo() below (see syncViewerSize() for why doing
+    // this reactively, after the first render, doesn't work reliably).
+    // Book-level <meta property="rendition:viewport"> is checked first
+    // since it's free; falling back to peeking at the first page's own
+    // <meta name="viewport"> covers the much more common case.
+    if (isFixedLayout) {
+      bookAspect = parseViewportMeta(book.packaging.metadata.viewport)
+        || await peekBookAspectRatio(book);
+    }
+    fitViewerToBook();
 
     rendition = book.renderTo(viewerEl, {
       width: '100%',
@@ -257,6 +456,8 @@ const openBook = async (file) => {
 
     rendition.on('rendered', rekickPageAnimations);
     rendition.on('rendered', attachContentLinkHandling);
+    rendition.on('rendered', syncBookAspectRatio);
+    rendition.on('rendered', syncFontBadge);
     rendition.on('relocated', updateProgress);
 
     await rendition.display();
@@ -320,11 +521,6 @@ fullscreenBtn.addEventListener('click', () => {
   }
 });
 
-// Keep the rendition sized correctly as the viewer box changes.
-window.addEventListener('resize', () => {
-  if (!rendition) return;
-  requestAnimationFrame(() => {
-    const rect = viewerEl.getBoundingClientRect();
-    rendition.resize(rect.width, rect.height);
-  });
-});
+// Keep the viewer's size (and epub.js's own layout) matching both the
+// available space and the book's own page format as the window changes.
+window.addEventListener('resize', syncViewerSize);

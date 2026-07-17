@@ -78,6 +78,24 @@ body {
   animation: fade-in 0.4s ease-out;
 }
 
+.badge-font {
+  color: #a3e635;
+  border-color: #a3e635;
+  background: rgba(163, 230, 53, 0.1);
+  text-transform: none;
+  letter-spacing: 0.02em;
+  max-width: 14rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+  .badge-font {
+    display: none;
+  }
+}
+
 .hidden {
   display: none !important;
 }
@@ -177,6 +195,10 @@ body {
   opacity: 0;
   transform: scale(0.98);
   animation: viewer-in 0.4s ease-out forwards;
+  /* Fixed-layout books get an explicit width/height in px set by
+     script.js to match the book's own page format; animate into that
+     size instead of snapping. */
+  transition: width 0.3s ease, height 0.3s ease;
 }
 
 @keyframes viewer-in {
