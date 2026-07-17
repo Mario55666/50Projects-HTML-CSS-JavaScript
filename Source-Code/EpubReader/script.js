@@ -9,14 +9,11 @@ const nextBtn = document.getElementById('nextBtn');
 const fullscreenBtn = document.getElementById('fullscreenBtn');
 const statusText = document.getElementById('statusText');
 const progressFill = document.getElementById('progressFill');
-const linkModal = document.getElementById('linkModal');
-const modalBox = document.getElementById('modalBox');
-const modalTitle = document.getElementById('modalTitle');
-const modalBody = document.getElementById('modalBody');
-const modalCloseBtn = document.getElementById('modalCloseBtn');
+const popupToast = document.getElementById('popupToast');
 
 let book = null;
 let rendition = null;
+let toastTimeoutId = null;
 
 const setLoading = (isLoading) => {
   spinner.classList.toggle('hidden', !isLoading);
@@ -52,16 +49,19 @@ const updateProgress = (location) => {
   nextBtn.disabled = location.atEnd;
 };
 
-// ---- Video/hyperlink popup modal -----------------------------------
+// ---- Video/hyperlink popup windows -----------------------------------
 //
 // Any <video> or absolute (external, href contains "://") <a> inside the
-// EPUB content opens here instead of navigating away or opening a new
-// browser tab. Relative links (chapters within the book) are left alone
-// so normal reading navigation keeps working.
+// EPUB content opens enlarged in a real browser popup window
+// (window.open), instead of navigating away in place or replacing the
+// reader. Relative links (chapters within the book) are left alone so
+// normal reading navigation keeps working.
 
 const YOUTUBE_RE = /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]{6,})/i;
 const VIMEO_RE = /vimeo\.com\/(\d+)/i;
 const VIDEO_FILE_RE = /\.(mp4|webm|ogv|ogg|mov)(\?.*)?$/i;
+
+const openPopups = [];
 
 const getVideoEmbedUrl = (href) => {
   const yt = href.match(YOUTUBE_RE);
@@ -73,68 +73,100 @@ const getVideoEmbedUrl = (href) => {
   return null;
 };
 
-const openModal = (title) => {
-  modalTitle.textContent = title;
-  modalBody.innerHTML = '';
-  linkModal.classList.remove('hidden');
+const showToast = (message) => {
+  popupToast.textContent = message;
+  popupToast.classList.remove('hidden');
+  clearTimeout(toastTimeoutId);
+  toastTimeoutId = setTimeout(() => popupToast.classList.add('hidden'), 4000);
 };
 
-const closeModal = () => {
-  linkModal.classList.add('hidden');
-  // Clearing the body stops any playing <video>/<iframe> embed immediately.
-  modalBody.innerHTML = '';
+// Centers a sensibly large popup window on the user's screen so a video or
+// linked page reads as "enlarged", not a cramped little box.
+const popupFeatures = () => {
+  const width = Math.min(1100, Math.round(window.screen.availWidth * 0.85));
+  const height = Math.min(760, Math.round(window.screen.availHeight * 0.85));
+  const left = Math.round((window.screen.availWidth - width) / 2);
+  const top = Math.round((window.screen.availHeight - height) / 2);
+  // Not "noopener" here: that feature makes window.open() return null,
+  // which we need for tracking/closing popups and for writing the video
+  // player markup into the video/embed ones.
+  return `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`;
 };
 
-const openVideoFileModal = (src) => {
-  openModal('Video');
-  const video = document.createElement('video');
-  video.src = src;
-  video.controls = true;
-  video.autoplay = true;
-  video.className = 'modal-video';
-  modalBody.appendChild(video);
+const trackPopup = (popup) => {
+  if (!popup) {
+    showToast('El navegador bloqueó la ventana emergente. Permite ventanas emergentes para este sitio y vuelve a intentarlo.');
+    return null;
+  }
+  openPopups.push(popup);
+  return popup;
 };
 
-const openVideoEmbedModal = (embedUrl) => {
-  openModal('Video');
-  const iframe = document.createElement('iframe');
-  iframe.src = embedUrl;
-  iframe.className = 'modal-video-frame';
-  iframe.allow = 'autoplay; fullscreen; picture-in-picture; encrypted-media';
-  iframe.allowFullscreen = true;
-  modalBody.appendChild(iframe);
+const writePopupDocument = (popup, title, bodyHtml) => {
+  popup.document.open();
+  popup.document.write(`<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>${title}</title>
+  <style>
+    html, body { margin: 0; height: 100%; background: #000; }
+    body { display: flex; align-items: center; justify-content: center; }
+    video, iframe { width: 100%; height: 100%; border: 0; background: #000; }
+  </style>
+</head>
+<body>${bodyHtml}</body>
+</html>`);
+  popup.document.close();
 };
 
-const openLinkPreviewModal = (href) => {
-  openModal(href);
+const openVideoFilePopup = (src) => {
+  const popup = trackPopup(window.open('', '_blank', popupFeatures()));
+  if (!popup) return;
+  writePopupDocument(popup, 'Video', `<video src="${src}" controls autoplay></video>`);
+};
 
-  const iframe = document.createElement('iframe');
-  iframe.src = href;
-  iframe.className = 'modal-link-frame';
-  modalBody.appendChild(iframe);
+const openVideoEmbedPopup = (embedUrl) => {
+  const popup = trackPopup(window.open('', '_blank', popupFeatures()));
+  if (!popup) return;
+  writePopupDocument(
+    popup,
+    'Video',
+    `<iframe src="${embedUrl}" allow="autoplay; fullscreen; picture-in-picture; encrypted-media" allowfullscreen></iframe>`,
+  );
+};
 
-  const fallback = document.createElement('a');
-  fallback.href = href;
-  fallback.target = '_blank';
-  fallback.rel = 'noopener noreferrer';
-  fallback.className = 'modal-fallback-link';
-  fallback.textContent = 'Abrir en una pestaña nueva ↗';
-  modalBody.appendChild(fallback);
+// Generic external links navigate the popup window directly to the href
+// (rather than embedding it in an iframe) so the linked site renders with
+// its own layout/scripts intact instead of hitting X-Frame-Options blocks.
+const openLinkPopup = (href) => {
+  const popup = trackPopup(window.open(href, '_blank', popupFeatures()));
+  // Manual opener isolation (instead of the "noopener" window feature,
+  // which would make window.open() return null and break tracking above):
+  // the external page shouldn't be able to reach back into this reader.
+  if (popup) popup.opener = null;
 };
 
 const handleExternalLink = (href) => {
   if (VIDEO_FILE_RE.test(href)) {
-    openVideoFileModal(href);
+    openVideoFilePopup(href);
     return;
   }
 
   const embedUrl = getVideoEmbedUrl(href);
   if (embedUrl) {
-    openVideoEmbedModal(embedUrl);
+    openVideoEmbedPopup(embedUrl);
     return;
   }
 
-  openLinkPreviewModal(href);
+  openLinkPopup(href);
+};
+
+const closeAllPopups = () => {
+  while (openPopups.length) {
+    const popup = openPopups.pop();
+    if (popup && !popup.closed) popup.close();
+  }
 };
 
 // Intercepts clicks inside a rendered EPUB page. Attached per-page (in the
@@ -145,8 +177,8 @@ const attachContentLinkHandling = (_section, view) => {
   try {
     const win = (view && view.window) || (view && view.iframe && view.iframe.contentWindow);
     const doc = win && win.document;
-    if (!doc || doc.__linkModalBound) return;
-    doc.__linkModalBound = true;
+    if (!doc || doc.__popupWindowBound) return;
+    doc.__popupWindowBound = true;
 
     doc.addEventListener('click', (e) => {
       const link = e.target.closest && e.target.closest('a[href]');
@@ -171,29 +203,19 @@ const attachContentLinkHandling = (_section, view) => {
           e.preventDefault();
           e.stopPropagation();
           video.pause();
-          openVideoFileModal(source);
+          openVideoFilePopup(source);
         }
       }
     }, true);
   } catch (err) {
-    console.warn('No se pudo activar la pantalla emergente de enlaces/videos en esta página', err);
+    console.warn('No se pudo activar la ventana emergente de enlaces/videos en esta página', err);
   }
 };
-
-modalCloseBtn.addEventListener('click', closeModal);
-
-linkModal.addEventListener('click', (e) => {
-  if (!modalBox.contains(e.target)) closeModal();
-});
-
-window.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && !linkModal.classList.contains('hidden')) closeModal();
-});
 
 const openBook = async (file) => {
   if (!file) return;
 
-  closeModal();
+  closeAllPopups();
   setLoading(true);
   viewerEl.innerHTML = '';
   // The viewer must stay laid out (not display:none) while epub.js renders

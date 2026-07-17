@@ -251,92 +251,33 @@ body {
   }
 }
 
-/* Link/video popup modal --------------------------------------------- */
+/* Popup-blocked toast ------------------------------------------------- */
+/*
+ * Videos and hyperlinks inside the EPUB open in a real, enlarged browser
+ * popup window (window.open), not an in-page overlay, so they render with
+ * the browser's own chrome/controls and aren't limited by iframe embedding
+ * restrictions many sites set. This toast only appears if the browser's
+ * popup blocker stops that window from opening.
+ */
 
-.modal-overlay {
+.toast {
   position: fixed;
-  inset: 0;
+  left: 50%;
+  bottom: 1.5rem;
   z-index: 50;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem;
-  background: rgba(2, 6, 15, 0.75);
-  backdrop-filter: blur(3px);
-  animation: fade-in 0.2s ease-out;
-}
-
-.modal-box {
-  width: 100%;
-  max-width: 48rem;
-  max-height: 100%;
-  display: flex;
-  flex-direction: column;
+  transform: translateX(-50%);
+  max-width: 90vw;
+  padding: 0.7rem 1.2rem;
+  border-radius: 10px;
   background: var(--panel);
   border: 1px solid var(--border);
-  border-radius: 14px;
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.55);
-  overflow: hidden;
-  opacity: 0;
-  transform: scale(0.96) translateY(8px);
-  animation: viewer-in 0.25s ease-out forwards;
-}
-
-.modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid var(--border);
-}
-
-.modal-title {
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
   font-size: 0.8rem;
-  color: var(--muted);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  color: var(--text);
+  animation: toast-in 0.25s ease-out;
 }
 
-.modal-body {
-  flex: 1;
-  min-height: 20rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  padding: 1rem;
-  overflow: auto;
-  background: #000;
-}
-
-.modal-video,
-.modal-video-frame {
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  border: none;
-  border-radius: 6px;
-  background: #000;
-}
-
-.modal-link-frame {
-  width: 100%;
-  height: 60vh;
-  border: none;
-  border-radius: 6px;
-  background: #fff;
-}
-
-.modal-fallback-link {
-  align-self: center;
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--accent);
-  text-decoration: none;
-}
-
-.modal-fallback-link:hover {
-  text-decoration: underline;
+@keyframes toast-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
