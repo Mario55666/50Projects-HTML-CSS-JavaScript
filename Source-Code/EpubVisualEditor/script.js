@@ -61,6 +61,15 @@ const el = {
   textBulkEditor: document.getElementById('textBulkEditor'),
   applyTextBtn: document.getElementById('applyTextBtn'),
   tocList: document.getElementById('tocList'),
+  animPresetSelect: document.getElementById('animPresetSelect'),
+  animPresetDescription: document.getElementById('animPresetDescription'),
+  animDuration: document.getElementById('animDuration'),
+  animDelay: document.getElementById('animDelay'),
+  animEasing: document.getElementById('animEasing'),
+  animIterations: document.getElementById('animIterations'),
+  animCssPreview: document.getElementById('animCssPreview'),
+  previewAnimBtn: document.getElementById('previewAnimBtn'),
+  applyAnimBtn: document.getElementById('applyAnimBtn'),
   tabs: Array.from(document.querySelectorAll('.tab-btn')),
   panels: Array.from(document.querySelectorAll('.tab-panel')),
   toast: document.getElementById('toast'),
@@ -349,8 +358,20 @@ const EDITOR_INTERNAL_CSS = '.epub-editor-selected { outline: 3px solid #38bdf8 
   + '.epub-editor-editable-text { outline: 2px dashed #f97316 !important; outline-offset: 1px !important; } '
   + '.epub-editor-textmode { cursor: text; }';
 
+const EDITOR_TRANSIENT_CLASSES = [
+  'epub-editor-selected', 'epub-editor-editable-text', 'epub-editor-textmode', 'epub-editor-anim-preview',
+];
+
+function stripEditorArtifacts(doc) {
+  doc.querySelectorAll('#epub-editor-internal-css, #epub-editor-custom-css, #epub-editor-anim-preview-css')
+    .forEach((n) => n.remove());
+  EDITOR_TRANSIENT_CLASSES.forEach((cls) => {
+    doc.querySelectorAll('.' + cls).forEach((n) => n.classList.remove(cls));
+  });
+}
+
 async function renderChapterDoc(chapter) {
-  stripEditorStyleTags(chapter.doc);
+  stripEditorArtifacts(chapter.doc);
   await resolveAssets(chapter);
   const html = serializeLive(chapter.doc);
   const withInternalCss = injectStyleTag(html, 'epub-editor-internal-css', EDITOR_INTERNAL_CSS);
@@ -437,19 +458,13 @@ function serializeLive(doc) {
   return html;
 }
 
-function serializeForExport(doc) {
+function serializeForExport(doc, customCss) {
   const clone = doc.cloneNode(true);
   clone.querySelectorAll('[data-euid]').forEach((n) => n.removeAttribute('data-euid'));
-  clone.querySelectorAll('.epub-editor-selected').forEach((n) =>
-    n.classList.remove('epub-editor-selected'));
-  clone.querySelectorAll('.epub-editor-editable-text').forEach((n) =>
-    n.classList.remove('epub-editor-editable-text'));
-  clone.querySelectorAll('.epub-editor-textmode').forEach((n) =>
-    n.classList.remove('epub-editor-textmode'));
   clone.querySelectorAll('[contenteditable]').forEach((n) =>
     n.removeAttribute('contenteditable'));
+  stripEditorArtifacts(clone);
   clone.querySelectorAll('[class=""]').forEach((n) => n.removeAttribute('class'));
-  stripEditorStyleTags(clone);
 
   ['src', 'href'].forEach((attr) => {
     clone.querySelectorAll('[data-original-' + attr + ']').forEach((n) => {
@@ -457,6 +472,17 @@ function serializeForExport(doc) {
       n.removeAttribute('data-original-' + attr);
     });
   });
+
+  // stripEditorArtifacts elimina el <style> temporal usado para la vista previa en
+  // vivo del CSS; aquí se reinserta como un <style> permanente para que las reglas
+  // (incluidas las animaciones aplicadas) sobrevivan en el EPUB exportado.
+  if (customCss && customCss.trim()) {
+    const styleEl = clone.createElement('style');
+    styleEl.textContent = customCss;
+    const head = clone.querySelector('head');
+    if (head) head.appendChild(styleEl);
+    else clone.documentElement.insertBefore(styleEl, clone.documentElement.firstChild);
+  }
 
   return serializeLive(clone);
 }
@@ -572,10 +598,6 @@ function enableInlineTextEdit(target, chapter) {
   target.addEventListener('blur', commit, { once: true });
 }
 
-function stripEditorStyleTags(doc) {
-  doc.querySelectorAll('#epub-editor-internal-css, #epub-editor-custom-css').forEach((n) => n.remove());
-}
-
 function syncDocFromFrame(chapter) {
   // Reconstruye chapter.doc a partir del DOM actual del iframe (fuente de verdad tras ediciones inline).
   const frameDoc = el.chapterFrame.contentDocument;
@@ -586,7 +608,7 @@ function syncDocFromFrame(chapter) {
     ? html
     : '<?xml version="1.0" encoding="UTF-8"?>\n' + html;
   chapter.doc = new DOMParser().parseFromString(cleanHtml, 'application/xhtml+xml');
-  stripEditorStyleTags(chapter.doc);
+  stripEditorArtifacts(chapter.doc);
   frameDoc.body.classList.toggle('epub-editor-textmode', state.textEditMode);
 }
 
@@ -731,12 +753,33 @@ function clearSelectionUI() {
   el.textBulkEditor.disabled = true;
   el.textBulkEditor.value = '';
   el.applyTextBtn.disabled = true;
+  el.cssTargetSelector.value = '';
+  el.previewAnimBtn.disabled = true;
+  el.applyAnimBtn.disabled = true;
   setEditorValue(htmlEditorCM, el.htmlEditorArea, '');
+  updateAnimCssPreviewText();
+}
+
+// Muchos EPUB exportados (p. ej. desde Adobe InDesign) reutilizan la misma clase
+// CSS en decenas de objetos distintos (como "_idGenObjectAttribute-1"), así que
+// identificar el objeto seleccionado por su clase no lo distingue de los demás.
+// Por eso, al seleccionarlo, se le asigna un id propio y estable (si no tiene uno
+// ya) para poder identificarlo y aplicarle HTML/CSS/animaciones de forma exclusiva.
+function ensureStableId(node, uid) {
+  if (!node.id) {
+    node.id = 'edobj-' + uid;
+  }
+  return node.id;
 }
 
 function loadElementIntoEditors(uid, chapter) {
   const source = findElementByUid(chapter.doc, uid);
   if (!source) return;
+
+  ensureStableId(source, uid);
+  const frameDoc = el.chapterFrame.contentDocument;
+  const liveEl = frameDoc && findElementByUid(frameDoc, uid);
+  if (liveEl && !liveEl.id) liveEl.id = source.id;
 
   const label = describeElement(source);
   el.selectedElementLabel.textContent = label;
@@ -750,8 +793,12 @@ function loadElementIntoEditors(uid, chapter) {
   el.textBulkEditor.value = source.textContent;
   el.applyTextBtn.disabled = false;
 
-  el.cssTargetSelector.value = cssSelectorFor(source);
+  el.cssTargetSelector.value = '#' + source.id;
   loadComputedPropsIntoPanel(uid);
+
+  el.previewAnimBtn.disabled = false;
+  el.applyAnimBtn.disabled = false;
+  updateAnimCssPreviewText();
 }
 
 function describeElement(node) {
@@ -761,14 +808,6 @@ function describeElement(node) {
     desc += ' .' + node.className.trim().split(/\s+/).join('.');
   }
   return desc;
-}
-
-function cssSelectorFor(node) {
-  if (node.id) return '#' + node.id;
-  if (node.className && typeof node.className === 'string' && node.className.trim()) {
-    return '.' + node.className.trim().split(/\s+/)[0];
-  }
-  return node.tagName.toLowerCase();
 }
 
 function loadComputedPropsIntoPanel(uid) {
@@ -897,6 +936,220 @@ function buildCssRuleFromProps() {
 }
 
 /* ------------------------------------------------------------------ */
+/* Catálogo de animaciones CSS                                          */
+/* Propiedades inspiradas en https://animejs.com/v3/documentation/#cssProperties */
+/* ------------------------------------------------------------------ */
+
+const ANIMATION_PRESETS = [
+  {
+    id: 'fadeIn', name: 'Aparecer (Fade In)',
+    description: 'Aparece gradualmente desde transparente hasta opaco.',
+    keyframes: '  0% { opacity: 0; }\n  100% { opacity: 1; }',
+    defaultDuration: 0.8, defaultEasing: 'ease-out', defaultIterations: '1',
+  },
+  {
+    id: 'fadeOut', name: 'Desaparecer (Fade Out)',
+    description: 'Desaparece gradualmente desde opaco hasta transparente.',
+    keyframes: '  0% { opacity: 1; }\n  100% { opacity: 0; }',
+    defaultDuration: 0.8, defaultEasing: 'ease-in', defaultIterations: '1',
+  },
+  {
+    id: 'slideInLeft', name: 'Entrada desde la izquierda',
+    description: 'Entra deslizándose desde la izquierda.',
+    keyframes: '  0% { transform: translateX(-60px); opacity: 0; }\n  100% { transform: translateX(0); opacity: 1; }',
+    defaultDuration: 0.7, defaultEasing: 'ease-out', defaultIterations: '1',
+  },
+  {
+    id: 'slideInRight', name: 'Entrada desde la derecha',
+    description: 'Entra deslizándose desde la derecha.',
+    keyframes: '  0% { transform: translateX(60px); opacity: 0; }\n  100% { transform: translateX(0); opacity: 1; }',
+    defaultDuration: 0.7, defaultEasing: 'ease-out', defaultIterations: '1',
+  },
+  {
+    id: 'slideInUp', name: 'Entrada desde abajo',
+    description: 'Entra deslizándose desde abajo hacia arriba.',
+    keyframes: '  0% { transform: translateY(40px); opacity: 0; }\n  100% { transform: translateY(0); opacity: 1; }',
+    defaultDuration: 0.7, defaultEasing: 'ease-out', defaultIterations: '1',
+  },
+  {
+    id: 'slideInDown', name: 'Entrada desde arriba',
+    description: 'Entra deslizándose desde arriba hacia abajo.',
+    keyframes: '  0% { transform: translateY(-40px); opacity: 0; }\n  100% { transform: translateY(0); opacity: 1; }',
+    defaultDuration: 0.7, defaultEasing: 'ease-out', defaultIterations: '1',
+  },
+  {
+    id: 'zoomIn', name: 'Acercamiento (Zoom In)',
+    description: 'Aparece agrandándose desde el centro.',
+    keyframes: '  0% { transform: scale(0.4); opacity: 0; }\n  100% { transform: scale(1); opacity: 1; }',
+    defaultDuration: 0.6, defaultEasing: 'cubic-bezier(0.68, -0.55, 0.27, 1.55)', defaultIterations: '1',
+  },
+  {
+    id: 'zoomOut', name: 'Alejamiento (Zoom Out)',
+    description: 'Desaparece encogiéndose hacia el centro.',
+    keyframes: '  0% { transform: scale(1); opacity: 1; }\n  100% { transform: scale(0.4); opacity: 0; }',
+    defaultDuration: 0.6, defaultEasing: 'ease-in', defaultIterations: '1',
+  },
+  {
+    id: 'rotateIn', name: 'Rotación de entrada',
+    description: 'Entra girando sobre sí mismo.',
+    keyframes: '  0% { transform: rotate(-200deg); opacity: 0; }\n  100% { transform: rotate(0deg); opacity: 1; }',
+    defaultDuration: 0.8, defaultEasing: 'ease-out', defaultIterations: '1',
+  },
+  {
+    id: 'bounce', name: 'Rebote (Bounce)',
+    description: 'Rebota verticalmente, como una pelota.',
+    keyframes: '  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }\n'
+      + '  40% { transform: translateY(-20px); }\n  60% { transform: translateY(-10px); }',
+    defaultDuration: 1, defaultEasing: 'ease', defaultIterations: 'infinite',
+  },
+  {
+    id: 'pulse', name: 'Pulso (Pulse)',
+    description: 'Late suavemente cambiando de tamaño.',
+    keyframes: '  0%, 100% { transform: scale(1); }\n  50% { transform: scale(1.08); }',
+    defaultDuration: 1.2, defaultEasing: 'ease-in-out', defaultIterations: 'infinite',
+  },
+  {
+    id: 'shake', name: 'Sacudida (Shake)',
+    description: 'Se sacude horizontalmente (efecto de alerta).',
+    keyframes: '  0%, 100% { transform: translateX(0); }\n  20% { transform: translateX(-8px); }\n'
+      + '  40% { transform: translateX(8px); }\n  60% { transform: translateX(-6px); }\n  80% { transform: translateX(6px); }',
+    defaultDuration: 0.6, defaultEasing: 'ease-in-out', defaultIterations: '1',
+  },
+  {
+    id: 'swing', name: 'Balanceo (Swing)',
+    description: 'Se balancea como un péndulo colgado desde arriba.',
+    keyframes: '  20% { transform: rotate(12deg); }\n  40% { transform: rotate(-8deg); }\n'
+      + '  60% { transform: rotate(4deg); }\n  80% { transform: rotate(-2deg); }\n  100% { transform: rotate(0deg); }',
+    defaultDuration: 1, defaultEasing: 'ease-in-out', defaultIterations: '3',
+    extraCss: 'transform-origin: top center;',
+  },
+  {
+    id: 'flipX', name: 'Voltear (Flip)',
+    description: 'Se voltea sobre su eje horizontal (efecto tarjeta).',
+    keyframes: '  0% { transform: rotateY(0deg); }\n  50% { transform: rotateY(90deg); }\n  100% { transform: rotateY(0deg); }',
+    defaultDuration: 0.9, defaultEasing: 'ease-in-out', defaultIterations: '1',
+  },
+  {
+    id: 'blurIn', name: 'Desenfoque de entrada (Blur In)',
+    description: 'Aparece desde un desenfoque hasta verse nítido.',
+    keyframes: '  0% { filter: blur(8px); opacity: 0; }\n  100% { filter: blur(0); opacity: 1; }',
+    defaultDuration: 1, defaultEasing: 'ease-out', defaultIterations: '1',
+  },
+  {
+    id: 'grayscaleIn', name: 'Escala de grises',
+    description: 'Pasa de color a escala de grises.',
+    keyframes: '  0% { filter: grayscale(0); }\n  100% { filter: grayscale(1); }',
+    defaultDuration: 1, defaultEasing: 'linear', defaultIterations: '1',
+  },
+];
+
+function populateAnimPresetSelect() {
+  el.animPresetSelect.innerHTML = ANIMATION_PRESETS.map((p) =>
+    '<option value="' + p.id + '">' + p.name + '</option>').join('');
+}
+
+function getSelectedPreset() {
+  const id = el.animPresetSelect.value;
+  return ANIMATION_PRESETS.find((p) => p.id === id) || ANIMATION_PRESETS[0];
+}
+
+function onAnimPresetChange() {
+  const preset = getSelectedPreset();
+  el.animDuration.value = preset.defaultDuration;
+  el.animEasing.value = preset.defaultEasing;
+  el.animIterations.value = preset.defaultIterations;
+  updateAnimCssPreviewText();
+}
+
+function buildAnimationCssBlock(animName, preset, selector, duration, easing, delay, iterations) {
+  const extra = preset.extraCss ? '\n  ' + preset.extraCss : '';
+  return '@keyframes ' + animName + ' {\n' + preset.keyframes + '\n}\n\n'
+    + selector + ' {\n'
+    + '  animation-name: ' + animName + ';\n'
+    + '  animation-duration: ' + duration + 's;\n'
+    + '  animation-timing-function: ' + easing + ';\n'
+    + '  animation-delay: ' + delay + 's;\n'
+    + '  animation-iteration-count: ' + iterations + ';\n'
+    + '  animation-fill-mode: both;' + extra + '\n'
+    + '}';
+}
+
+function updateAnimCssPreviewText() {
+  const preset = getSelectedPreset();
+  el.animPresetDescription.textContent = preset.description;
+  const duration = el.animDuration.value || preset.defaultDuration;
+  const easing = el.animEasing.value || preset.defaultEasing;
+  const delay = el.animDelay.value || '0';
+  const iterations = el.animIterations.value || preset.defaultIterations;
+  const selector = el.cssTargetSelector.value.trim() || '.mi-elemento';
+  el.animCssPreview.textContent = buildAnimationCssBlock(
+    'anim-' + preset.id, preset, selector, duration, easing, delay, iterations,
+  );
+}
+
+function previewAnimationOnSelected() {
+  if (!state.selectedUid) {
+    showToast('Selecciona un objeto primero.', true);
+    return;
+  }
+  const frameDoc = el.chapterFrame.contentDocument;
+  const target = frameDoc && findElementByUid(frameDoc, state.selectedUid);
+  if (!target) return;
+
+  const preset = getSelectedPreset();
+  const duration = el.animDuration.value || preset.defaultDuration;
+  const easing = el.animEasing.value || preset.defaultEasing;
+  const delay = el.animDelay.value || '0';
+  const iterations = el.animIterations.value || preset.defaultIterations;
+  const previewClass = 'epub-editor-anim-preview';
+
+  let styleTag = frameDoc.getElementById('epub-editor-anim-preview-css');
+  if (!styleTag) {
+    styleTag = frameDoc.createElement('style');
+    styleTag.id = 'epub-editor-anim-preview-css';
+    frameDoc.head.appendChild(styleTag);
+  }
+  styleTag.textContent = buildAnimationCssBlock(
+    previewClass, preset, '.' + previewClass, duration, easing, delay, iterations,
+  );
+
+  target.classList.remove(previewClass);
+  void target.offsetWidth; // fuerza reflow para poder reiniciar la animación
+  target.classList.add(previewClass);
+}
+
+function applyAnimationToSelected() {
+  const chapter = currentChapter();
+  if (!chapter || !state.selectedUid) {
+    showToast('Selecciona un objeto primero.', true);
+    return;
+  }
+  const selector = el.cssTargetSelector.value.trim();
+  if (!selector) {
+    showToast('Indica un selector CSS destino.', true);
+    return;
+  }
+
+  const preset = getSelectedPreset();
+  const duration = el.animDuration.value || preset.defaultDuration;
+  const easing = el.animEasing.value || preset.defaultEasing;
+  const delay = el.animDelay.value || '0';
+  const iterations = el.animIterations.value || preset.defaultIterations;
+  const animName = 'anim-' + preset.id + '-' + Date.now().toString(36);
+
+  const cssBlock = buildAnimationCssBlock(animName, preset, selector, duration, easing, delay, iterations);
+  const existingCss = getEditorValue(cssEditorCM, el.cssEditorArea);
+  const newCss = existingCss + (existingCss.trim() ? '\n\n' : '') + cssBlock;
+  setEditorValue(cssEditorCM, el.cssEditorArea, newCss);
+  chapter.customCss = newCss;
+  previewCssInFrame();
+  pushHistory(chapter);
+  updateUndoRedoUI();
+  setDirty(true);
+  showToast('Animación aplicada al objeto seleccionado.');
+}
+
+/* ------------------------------------------------------------------ */
 /* Editor de texto (masivo)                                            */
 /* ------------------------------------------------------------------ */
 
@@ -927,7 +1180,7 @@ async function exportEpub() {
     const newZip = state.zip.clone ? state.zip.clone() : await cloneZip();
 
     for (const [href, chapter] of state.chapterState.entries()) {
-      const exportedHtml = serializeForExport(chapter.doc);
+      const exportedHtml = serializeForExport(chapter.doc, chapter.customCss);
       newZip.file(href, exportedHtml);
     }
 
@@ -1086,6 +1339,12 @@ function initEvents() {
 
   el.applyTextBtn.addEventListener('click', applyBulkTextChanges);
 
+  el.animPresetSelect.addEventListener('change', onAnimPresetChange);
+  [el.animDuration, el.animDelay, el.animEasing, el.animIterations].forEach((input) =>
+    input.addEventListener('input', updateAnimCssPreviewText));
+  el.previewAnimBtn.addEventListener('click', previewAnimationOnSelected);
+  el.applyAnimBtn.addEventListener('click', applyAnimationToSelected);
+
   el.tabs.forEach((btn) => {
     btn.addEventListener('click', () => activateTab(btn.dataset.tab));
   });
@@ -1106,6 +1365,8 @@ function init() {
   initEditors();
   initEvents();
   initFileLoading();
+  populateAnimPresetSelect();
+  updateAnimCssPreviewText();
 }
 
 document.addEventListener('DOMContentLoaded', init);

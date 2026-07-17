@@ -64,6 +64,7 @@
         <button class="tab-btn" data-tab="css" role="tab">CSS</button>
         <button class="tab-btn" data-tab="text" role="tab">Texto</button>
         <button class="tab-btn" data-tab="toc" role="tab">Índice</button>
+        <button class="tab-btn" data-tab="anim" role="tab">Animación</button>
       </div>
 
       <div class="tab-panels">
@@ -144,6 +145,55 @@
           <ol id="tocList" class="toc-list">
             <li class="empty-hint">Carga un EPUB para ver su índice.</li>
           </ol>
+        </div>
+
+        <!-- Animation catalog -->
+        <div class="tab-panel" id="panel-anim">
+          <p class="hint-small">
+            Catálogo de animaciones CSS listas para usar (propiedades inspiradas en la documentación de
+            <a href="https://animejs.com/v3/documentation/#cssProperties" target="_blank" rel="noopener">anime.js</a>:
+            transformaciones, filtros, opacidad y color). Selecciona un objeto en el visor o en el panel DOM,
+            elige una animación del catálogo y aplícala.
+          </p>
+
+          <div class="editor-toolbar">
+            <select id="animPresetSelect" class="text-input"></select>
+          </div>
+          <p id="animPresetDescription" class="hint-small"></p>
+
+          <div class="common-props">
+            <label>Duración (s)
+              <input type="number" id="animDuration" min="0.1" max="10" step="0.1" value="0.8">
+            </label>
+            <label>Retraso (s)
+              <input type="number" id="animDelay" min="0" max="10" step="0.1" value="0">
+            </label>
+            <label>Easing
+              <select id="animEasing">
+                <option value="ease">ease</option>
+                <option value="ease-in">ease-in</option>
+                <option value="ease-out" selected>ease-out</option>
+                <option value="ease-in-out">ease-in-out</option>
+                <option value="linear">linear</option>
+                <option value="cubic-bezier(0.68, -0.55, 0.27, 1.55)">back (cubic-bezier)</option>
+              </select>
+            </label>
+            <label>Repetición
+              <select id="animIterations">
+                <option value="1">1 vez</option>
+                <option value="2">2 veces</option>
+                <option value="3">3 veces</option>
+                <option value="infinite">infinito</option>
+              </select>
+            </label>
+          </div>
+
+          <pre class="anim-css-preview"><code id="animCssPreview">/* Selecciona un objeto y una animación del catálogo... */</code></pre>
+
+          <div class="editor-actions">
+            <button id="previewAnimBtn" class="action-btn" disabled>Reproducir vista previa</button>
+            <button id="applyAnimBtn" class="action-btn action-btn-accent" disabled>Aplicar animación</button>
+          </div>
         </div>
       </div>
     </aside>

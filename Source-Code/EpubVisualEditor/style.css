@@ -354,6 +354,28 @@ body {
   line-height: 1.4;
 }
 
+.hint-small a {
+  color: var(--accent);
+}
+
+/* Animation catalog -------------------------------------------------------- */
+
+.anim-css-preview {
+  margin: 0;
+  padding: 0.7rem;
+  border-radius: 8px;
+  background: var(--panel-alt);
+  border: 1px solid var(--border);
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-size: 0.74rem;
+  line-height: 1.5;
+  color: var(--text);
+  overflow: auto;
+  max-height: 12rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 /* DOM tree --------------------------------------------------------------- */
 
 .dom-tree {

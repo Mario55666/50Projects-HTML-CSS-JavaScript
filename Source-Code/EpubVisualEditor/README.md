@@ -7,13 +7,15 @@ Aplicación web hecha en **HTML, CSS y JavaScript puro** (sin frameworks ni comp
 - **Carga de EPUB** por arrastrar-y-soltar o con el botón "Abrir .epub" ([JSZip](https://stuk.github.io/jszip/) lee el `.epub` como archivo ZIP y ubica el `.opf`, el `manifest`, el `spine` y el índice — `nav.xhtml` en EPUB 3 o `toc.ncx` en EPUB 2).
 - **Navegación por capítulos**: botones anterior/siguiente y panel de Índice con los enlaces del propio libro.
 - **Explorador de DOM**: árbol jerárquico del capítulo actual (etiqueta, `id`, clases). Al hacer clic en un nodo se resalta en el visor y se carga en el editor de HTML. Incluye un buscador por tag, `.clase` o `#id`.
+- **Identificación única de objetos**: muchos EPUB exportados desde herramientas como Adobe InDesign reutilizan la misma clase CSS en decenas de objetos distintos (p. ej. `_idGenObjectAttribute-1`). Al seleccionar cualquier objeto, el editor le asigna automáticamente un `id` propio y estable (si no tiene uno) para poder identificarlo y editar su HTML/CSS/animación de forma exclusiva, sin afectar a otros objetos que compartan la misma clase.
 - **Editor de HTML** (CodeMirror, resaltado de sintaxis): muestra el HTML del elemento seleccionado. "Aplicar cambios" reemplaza ese elemento en el documento y actualiza el visor; "Reiniciar" descarta lo escrito y vuelve a cargar el HTML original del elemento.
 - **Editor de CSS** (CodeMirror con autocompletado de propiedades, `Ctrl+Espacio`): reglas CSS libres con vista previa en vivo mientras escribes. Incluye un panel de propiedades comunes (color de texto, fondo, fuente, tamaño, margen, padding) con selectores visuales que generan la regla CSS automáticamente para el selector indicado.
+- **Catálogo de animaciones CSS** (pestaña "Animación"): 16 animaciones listas para usar (aparecer/desaparecer, deslizamientos, zoom, rotación, rebote, pulso, sacudida, balanceo, voltear, desenfoque, escala de grises), con propiedades inspiradas en las que documenta [anime.js](https://animejs.com/v3/documentation/#cssProperties) (transformaciones, filtros, opacidad y color). Cada animación muestra su código `@keyframes` real, permite ajustar duración, retraso, easing y repetición, reproducir una vista previa en vivo sobre el propio objeto seleccionado, y aplicarla de forma permanente.
 - **Edición de texto**:
   - Modo "Edición de texto": actívalo y haz clic en cualquier texto del visor para editarlo directamente en la página (`contentEditable`), con guardado automático al salir del campo.
   - O selecciona un elemento y edita todo su texto de una vez en el campo dedicado del panel "Texto".
 - **Deshacer / rehacer** (`Ctrl+Z` / `Ctrl+Y`) por capítulo, con historial de hasta 60 pasos.
-- **Exportar EPUB**: genera un `.epub` nuevo con todos los cambios aplicados a los capítulos visitados, conservando el resto del archivo original intacto.
+- **Exportar EPUB**: genera un `.epub` nuevo con todos los cambios aplicados a los capítulos visitados (incluyendo el CSS y las animaciones aplicadas, que se guardan como una hoja de estilos permanente en cada capítulo), conservando el resto del archivo original intacto.
 - **Modo oscuro / claro** y editores de código a juego.
 - Diseño en dos paneles pensado para pantallas de **1366px** de ancho en adelante.
 
@@ -25,9 +27,10 @@ Aplicación web hecha en **HTML, CSS y JavaScript puro** (sin frameworks ni comp
 4. En el panel **DOM** explora la estructura del capítulo y haz clic en un elemento para seleccionarlo (se resalta en el visor).
 5. Edita su HTML en el panel **HTML** y pulsa **"Aplicar cambios"**.
 6. Define estilos en el panel **CSS** (a mano o con el panel de propiedades comunes) y pulsa **"Aplicar CSS"**; la vista previa se actualiza mientras escribes.
-7. Edita texto en el panel **Texto**, o activa "Modo edición de texto" en el visor y haz clic directamente sobre el contenido.
-8. Usa **deshacer/rehacer** si te equivocas.
-9. Cuando termines, pulsa **"Exportar EPUB"** para descargar el archivo modificado.
+7. Anima el objeto seleccionado desde el panel **Animación**: elige una animación del catálogo, ajusta duración/retraso/easing/repetición, pulsa **"Reproducir vista previa"** para verla en el objeto real, y **"Aplicar animación"** para guardarla.
+8. Edita texto en el panel **Texto**, o activa "Modo edición de texto" en el visor y haz clic directamente sobre el contenido.
+9. Usa **deshacer/rehacer** si te equivocas.
+10. Cuando termines, pulsa **"Exportar EPUB"** para descargar el archivo modificado.
 
 ## Estructura de archivos
 
