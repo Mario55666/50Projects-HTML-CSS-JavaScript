@@ -172,43 +172,52 @@ const syncBookAspectRatio = (_section, view) => {
 // This only *reads* the fonts actually in use, to show the reader which
 // ones are active, as proof nothing is being substituted.
 
-const detectPageFont = (doc) => {
-  // Embedded/custom fonts declared by the book itself (e.g. shipped as
-  // .otf/.woff files inside the EPUB) take priority, since that's the
-  // typography the author specifically chose and packaged.
-  const embedded = new Set();
-  try {
-    Array.from(doc.styleSheets).forEach((sheet) => {
-      let rules;
-      try {
-        rules = sheet.cssRules;
-      } catch (err) {
-        return; // cross-origin stylesheet; nothing we can inspect
-      }
-      Array.from(rules || []).forEach((rule) => {
-        if (rule.constructor && rule.constructor.name === 'CSSFontFaceRule') {
-          const name = rule.style.getPropertyValue('font-family').replace(/["']/g, '').trim();
-          if (name) embedded.add(name);
-        }
-      });
-    });
-  } catch (err) {
-    // ignore — falls back to the computed font below
+const setFontBadge = (text, hasError) => {
+  fontBadge.textContent = text;
+  fontBadge.classList.toggle('badge-font-error', hasError);
+  fontBadge.classList.remove('hidden');
+};
+
+// Reports what's actually true about the page's fonts, not just what CSS
+// asked for. A page's <link>/<style> can declare a custom @font-face and
+// still end up rendering with a fallback font if that font file 404s, is
+// missing from the EPUB's manifest (so epub.js never got a chance to
+// resolve/inline it), or is in a format the browser can't parse — the
+// CSS Font Loading API (`document.fonts`) is the only way to tell the
+// difference between "declared" and "actually loaded", since each
+// FontFace's `.status` only becomes 'loaded' once the browser has
+// genuinely fetched and parsed the font data.
+const reportPageFont = (doc) => {
+  const customFonts = doc.fonts ? Array.from(doc.fonts) : [];
+  const failed = customFonts.filter((f) => f.status === 'error');
+  const loaded = customFonts.filter((f) => f.status === 'loaded');
+
+  if (failed.length > 0) {
+    const names = [...new Set(failed.map((f) => f.family.replace(/["']/g, '')))];
+    console.warn(
+      `El EPUB declara la fuente incrustada "${names.join(', ')}" pero no se pudo cargar `
+      + '(revisa que el archivo de la fuente exista y esté declarado en el manifiesto del EPUB); '
+      + 'el texto se está mostrando con una fuente de reemplazo.',
+    );
+    setFontBadge(`Fuente incrustada no cargó: ${names.join(', ')}`, true);
+    return;
   }
 
-  if (embedded.size > 0) {
-    return { names: Array.from(embedded), isEmbedded: true };
+  if (loaded.length > 0) {
+    const names = [...new Set(loaded.map((f) => f.family.replace(/["']/g, '')))];
+    setFontBadge(`Fuente incrustada: ${names.join(', ')}`, false);
+    return;
   }
 
-  // No embedded font: report whichever font-family the book's own CSS
-  // (or the browser's default) actually resolved to for the body text.
+  // No @font-face at all: report whichever font-family the book's own
+  // CSS (or the browser's default) actually resolved to for the body.
   const bodyFont = doc.body && getComputedStyle(doc.body).fontFamily;
-  if (bodyFont) {
-    const first = bodyFont.split(',')[0].replace(/["']/g, '').trim();
-    if (first) return { names: [first], isEmbedded: false };
+  const first = bodyFont && bodyFont.split(',')[0].replace(/["']/g, '').trim();
+  if (first) {
+    setFontBadge(`Fuente: ${first}`, false);
+  } else {
+    fontBadge.classList.add('hidden');
   }
-
-  return null;
 };
 
 const syncFontBadge = (_section, view) => {
@@ -217,14 +226,17 @@ const syncFontBadge = (_section, view) => {
     const doc = win && win.document;
     if (!doc) return;
 
-    const font = detectPageFont(doc);
-    if (!font) {
-      fontBadge.classList.add('hidden');
-      return;
-    }
+    fontBadge.classList.add('hidden');
 
-    fontBadge.textContent = `${font.isEmbedded ? 'Fuente incrustada' : 'Fuente'}: ${font.names.join(', ')}`;
-    fontBadge.classList.remove('hidden');
+    // doc.fonts.ready resolves once every font-face actually needed by
+    // the page's rendered text has finished attempting to load (success
+    // or failure) — reading .status any earlier could catch fonts still
+    // mid-fetch and misreport them.
+    if (doc.fonts && doc.fonts.ready) {
+      doc.fonts.ready.then(() => reportPageFont(doc)).catch(() => reportPageFont(doc));
+    } else {
+      reportPageFont(doc);
+    }
   } catch (err) {
     console.warn('No se pudo identificar la tipografía de esta página', err);
   }
@@ -524,3 +536,13 @@ fullscreenBtn.addEventListener('click', () => {
 // Keep the viewer's size (and epub.js's own layout) matching both the
 // available space and the book's own page format as the window changes.
 window.addEventListener('resize', syncViewerSize);
+
+// #stage jumps straight to the screen's full size the instant fullscreen
+// is entered/exited, but the viewer keeps whatever pixel size it had
+// before that (its own CSS doesn't recompute automatically), leaving big
+// blank margins around it. No 'resize' event is guaranteed to fire for
+// this, so resync explicitly; the rAF lets the fullscreen layout settle
+// before #stage is measured.
+document.addEventListener('fullscreenchange', () => {
+  requestAnimationFrame(syncViewerSize);
+});

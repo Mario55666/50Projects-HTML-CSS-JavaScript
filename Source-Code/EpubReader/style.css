@@ -84,10 +84,19 @@ body {
   background: rgba(163, 230, 53, 0.1);
   text-transform: none;
   letter-spacing: 0.02em;
-  max-width: 14rem;
+  max-width: 18rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* Set when the book declares an embedded font that failed to actually
+   load, so the reader can see typography isn't rendering as authored
+   instead of silently assuming everything is fine. */
+.badge-font.badge-font-error {
+  color: #f97316;
+  border-color: #f97316;
+  background: rgba(249, 115, 22, 0.12);
 }
 
 @media (max-width: 900px) {
@@ -195,10 +204,12 @@ body {
   opacity: 0;
   transform: scale(0.98);
   animation: viewer-in 0.4s ease-out forwards;
-  /* Fixed-layout books get an explicit width/height in px set by
-     script.js to match the book's own page format; animate into that
-     size instead of snapping. */
-  transition: width 0.3s ease, height 0.3s ease;
+  /* No width/height transition: script.js reads this box's final size
+     via getBoundingClientRect() right after setting it (to size the
+     book's actual page content, not just its background), so an
+     animated transition would hand epub.js a stale mid-animation size
+     instead of the real target — the content ends up a different size
+     than its own background box. Resizes must apply instantly. */
 }
 
 @keyframes viewer-in {
