@@ -8,6 +8,8 @@ Lector de libros **EPUB** hecho en **HTML, CSS y JavaScript puro** (sin framewor
 - **Detección automática de diseño fijo**: si el libro declara `rendition:layout = pre-paginated` en su metadata, la página se muestra fija a su tamaño original (sin reflujo de texto) y aparece la insignia "Diseño fijo · animaciones".
 - **Animaciones CSS/JS activas**: las animaciones `@keyframes`, scripts embebidos y elementos interactivos de cada página del EPUB se re-disparan correctamente cada vez que el lector cambia de página.
 - **Videos e hipervínculos en ventana emergente**: cualquier video (archivo directo, YouTube o Vimeo) y cualquier hipervínculo externo dentro del libro se abre **ampliado en una ventana emergente del navegador**, sin salir de la lectura. Los enlaces internos (capítulos del propio libro) siguen navegando con normalidad.
+- **La pantalla se adapta al formato del EPUB**: en libros de diseño fijo, el visor toma exactamente el ancho/alto de página que declara el libro (proporción real, sin estirar ni recortar), en vez de forzar un rectángulo genérico.
+- **Identificación de tipografía**: el lector detecta y muestra la fuente que usa cada página (incluida cualquier fuente incrustada por el propio EPUB vía `@font-face`) en una insignia junto al título. Nunca inyecta ni reemplaza fuentes: la tipografía del autor se respeta siempre.
 - **Navegación**: flechas `‹ ›` de la barra superior, flechas del teclado, toques a los lados de la página, o pantalla completa.
 - **Barra de progreso** de lectura en el pie de página.
 
