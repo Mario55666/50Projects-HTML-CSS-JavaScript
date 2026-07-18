@@ -489,7 +489,7 @@
         showToast('EPUB cargado: ' + (state.spine.length) + ' capítulo(s).');
       } catch (err) {
         console.error(err);
-        showToast('No se pudo leer el archivo .epub: ' + err.message, true);
+        showToast('No se pudo leer el archivo .epub: ' + err.message + '. Verifica que sea un .epub válido (ZIP con META-INF/container.xml).', true);
       } finally {
         showSpinner(false);
       }
@@ -619,8 +619,16 @@
       } finally { showSpinner(false); }
     }
 
+    function zipEntry(href) {
+      let f = state.zip.file(href);
+      if (!f) { try { f = state.zip.file(decodeURIComponent(href)); } catch (e) { /* ruta no decodificable */ } }
+      return f;
+    }
+
     async function buildChapterState(href) {
-      const rawXml = await state.zip.file(href).async('string');
+      const entry = zipEntry(href);
+      if (!entry) throw new Error('No existe en el EPUB el archivo "' + href + '"');
+      const rawXml = await entry.async('string');
       const doc = new DOMParser().parseFromString(rawXml, 'application/xhtml+xml');
       if (doc.querySelector('parsererror')) {
         const fallback = new DOMParser().parseFromString(rawXml, 'text/html');
@@ -630,6 +638,7 @@
     }
 
     function finalizeChapterState(href, doc) {
+      if (!doc.body) throw new Error('El capítulo no tiene <body> legible');
       assignUids(doc);
       const viewportEl = doc.querySelector('meta[name="viewport"]');
       const chapter = {
@@ -739,7 +748,7 @@
         const fullPath = resolvePath(chapter.dir, ref.raw);
         let blobUrl = chapter.blobUrls.get(fullPath);
         if (!blobUrl) {
-          const zipFile = state.zip.file(fullPath);
+          const zipFile = zipEntry(fullPath);
           if (!zipFile) continue;
           const mediaType = guessMediaType(fullPath);
           const blob = await zipFile.async('blob');
