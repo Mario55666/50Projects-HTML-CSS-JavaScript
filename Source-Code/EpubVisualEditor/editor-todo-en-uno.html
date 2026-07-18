@@ -343,7 +343,7 @@
           </div>
         </div>
         <div id="tab-buttons" class="tab-panel">
-          <p class="hint-small"><strong>CONFIGURACIÓN DE BOTÓN</strong> (texto · hiperenlace · colores · acción sobre animaciones u objetos): selecciona un botón para habilitar el panel de abajo.</p>
+          <p class="hint-small"><strong>CONFIGURACIÓN DE BOTÓN</strong> (texto · hiperenlace · colores · acción sobre animaciones u objetos): selecciona CUALQUIER objeto del visor o del árbol DOM (botón, imagen o contenedor) y el panel de abajo se habilita para convertirlo en botón interactivo.</p>
           <p class="hint-small">
             Haz clic en un estilo para <strong>insertar un botón nuevo</strong> (dentro del objeto
             seleccionado, o al final de la página). Si tienes seleccionado un botón o enlace,
@@ -1051,8 +1051,8 @@
       buttons: 'BOTONES — Catálogo de 11 botones con efectos hover. Clic en un estilo: si tienes un '
         + 'botón/enlace seleccionado, le CAMBIA el estilo; si no, INSERTA un botón nuevo (dentro del '
         + 'objeto seleccionado o al final de la página). Su CSS completo se copia al capítulo para '
-        + 'que el botón se vea igual en el EPUB exportado. CONFIGURAR FUNCIONES: 1) selecciona el '
-        + 'botón, 2) escribe su texto y su hiperenlace, 3) elige colores, 4) en "Acción al tocar" elige '
+        + 'que el botón se vea igual en el EPUB exportado. CONFIGURAR FUNCIONES: 1) selecciona CUALQUIER objeto '
+        + '(no hace falta que sea un botón), 2) escribe su texto y su hiperenlace, 3) elige colores, 4) en "Acción al tocar" elige '
         + 'animar u ocultar/mostrar un objeto y su objetivo, 5) pulsa "Actualizar Botón", 6) verifica con '
         + '"▶ Probar acción" y ubícalo con "📍 Ubicar botón". Los objetos ocultos se ven semitransparentes '
         + 'con borde naranja solo en el editor.',
@@ -1298,13 +1298,18 @@
 
     function updateButtonEditorUI(source) {
       const isBtn = isButtonLike(source);
-      [el.buttonLabelInput, el.buttonHrefInput, el.btnPropColor, el.btnPropBg, el.buttonActionSelect,
-       el.buttonActionTarget, el.buttonActionAnim, el.applyButtonEditBtn].forEach(i => { i.disabled = !isBtn; });
-      if (!isBtn) return;
       const tag = source.tagName.toLowerCase();
-      el.buttonLabelInput.value = tag === 'input' ? (source.getAttribute('value') || '') : source.textContent.trim();
-      el.buttonHrefInput.value = tag === 'a' ? (source.getAttribute('href') || '') : '';
-      el.buttonHrefInput.disabled = tag !== 'a';
+      // Cualquier objeto (botón, enlace, imagen o contenedor de InDesign) puede
+      // configurarse como botón interactivo: colores, acción e hiperenlace.
+      [el.btnPropColor, el.btnPropBg, el.buttonActionSelect,
+       el.buttonActionTarget, el.buttonActionAnim, el.applyButtonEditBtn].forEach(i => { i.disabled = false; });
+      // El texto directo solo se edita si el objeto no tiene hijos (para no
+      // destruir el contenido de un contenedor); usa la pestaña Texto en ese caso.
+      el.buttonLabelInput.disabled = (source.children.length > 0 && !isBtn);
+      el.buttonLabelInput.value = tag === 'input' ? (source.getAttribute('value') || '')
+        : (el.buttonLabelInput.disabled ? '(contenedor: edita su texto en la pestaña Texto)' : source.textContent.trim());
+      el.buttonHrefInput.value = source.getAttribute('href') || source.getAttribute('data-enlace') || '';
+      el.buttonHrefInput.disabled = (tag === 'input');
 
       // Objetivos posibles de la acción: todos los objetos con id del capítulo
       const chapter = currentChapter();
@@ -1335,7 +1340,7 @@
     // OJO: este codigo NO puede contener <, ni ampersands, ni comparadores
     // mayor/menor: al serializarse dentro del XHTML, XMLSerializer los
     // escaparia como entidades y el script llegaria roto al lector.
-    const ACTION_RUNTIME = "(function(){var tocado=false;function go(e){var b=e.target.closest('[data-accion]');if(!b){return;}"
+    const ACTION_RUNTIME = "(function(){var tocado=false;function go(e){var n=e.target.closest('[data-enlace]');if(n){e.preventDefault();window.location.href=n.getAttribute('data-enlace');return;}var b=e.target.closest('[data-accion]');if(!b){return;}"
       + "var a=b.getAttribute('data-accion');if(!a){return;}e.preventDefault();"
       + "var s=b.getAttribute('data-objetivo')||'';var t=s?document.querySelector(s):null;if(!t){return;}"
       + "if(a==='animar'){var c='epub-act-'+b.getAttribute('data-anim-preset');t.classList.remove(c);void t.offsetWidth;t.classList.add(c);}"
@@ -1365,14 +1370,19 @@
     function applyButtonEdit() {
       const chapter = currentChapter(); if (!chapter || !state.selectedUid) return;
       const source = findElementByUid(chapter.doc, state.selectedUid);
-      if (!source || !isButtonLike(source)) return;
+      if (!source) return;
       const tag = source.tagName.toLowerCase();
-      if (tag === 'input') source.setAttribute('value', el.buttonLabelInput.value);
-      else source.textContent = el.buttonLabelInput.value;
-      if (tag === 'a') {
-        const href = el.buttonHrefInput.value.trim();
-        if (href) source.setAttribute('href', href); else source.removeAttribute('href');
+      if (!el.buttonLabelInput.disabled) {
+        if (tag === 'input') source.setAttribute('value', el.buttonLabelInput.value);
+        else source.textContent = el.buttonLabelInput.value;
       }
+      // Hiperenlace: en un <a> va en href; en cualquier otro objeto se guarda
+      // como data-enlace y el runtime navega al tocarlo.
+      const href = el.buttonHrefInput.value.trim();
+      if (tag === 'a') {
+        if (href) source.setAttribute('href', href); else source.removeAttribute('href');
+      } else if (href) { source.setAttribute('data-enlace', href); ensureActionRuntime(chapter); }
+      else source.removeAttribute('data-enlace');
 
       // COLORES: regla por id (gana a la clase del catalogo) que viaja en el EPUB
       ensureStableId(source, state.selectedUid);
