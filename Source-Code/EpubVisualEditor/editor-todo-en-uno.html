@@ -675,7 +675,7 @@
       const withCss = injectStyleTag(withInternalCss, 'epub-editor-custom-css', chapter.customCss);
       await new Promise((resolve) => {
         const frame = el.chapterFrame;
-        const onLoad = () => { frame.removeEventListener('load', onLoad); wireIframeInteractions(chapter); applyViewerFormat(chapter); resolve(); };
+        const onLoad = () => { frame.removeEventListener('load', onLoad); wireIframeInteractions(chapter); applyViewerFormat(chapter); setTimeout(() => applyViewerFormat(chapter), 400); resolve(); };
         frame.addEventListener('load', onLoad); frame.srcdoc = withCss;
       });
     }
@@ -708,12 +708,24 @@
       const padY = parseFloat(style.paddingTop) + parseFloat(style.paddingBottom);
       const availW = Math.max(container.clientWidth - padX, 50);
       const availH = Math.max(container.clientHeight - padY, 50);
-      const scale = Math.min(availW / pageSize.width, availH / pageSize.height);
+      // Si el contenido real desborda el tamaño declarado (muy común: el EPUB
+      // declara 600×800 pero el capítulo es más largo), se usa el tamaño REAL
+      // del contenido para que el documento se vea COMPLETO, nunca recortado.
       el.chapterFrame.style.width = pageSize.width + 'px';
       el.chapterFrame.style.height = pageSize.height + 'px';
+      let effW = pageSize.width, effH = pageSize.height;
+      if (frameDoc && frameDoc.documentElement) {
+        effW = Math.max(effW, frameDoc.documentElement.scrollWidth, frameDoc.body ? frameDoc.body.scrollWidth : 0);
+        effH = Math.max(effH, frameDoc.documentElement.scrollHeight, frameDoc.body ? frameDoc.body.scrollHeight : 0);
+      }
+      el.chapterFrame.style.width = effW + 'px';
+      el.chapterFrame.style.height = effH + 'px';
+      const scale = Math.min(availW / effW, availH / effH);
       el.chapterFrame.style.transform = 'translate(-50%, -50%) scale(' + scale + ')';
       if (frameDoc) frameDoc.documentElement.classList.add('epub-editor-fixedpage');
-      pageInfo.doc = 'Documento original: ' + pageSize.width + ' × ' + pageSize.height + ' px (escala ' + Math.round(scale * 100) + '%)';
+      pageInfo.doc = 'Documento original: ' + pageSize.width + ' × ' + pageSize.height + ' px'
+        + ((effH !== pageSize.height || effW !== pageSize.width) ? ' · contenido real: ' + effW + ' × ' + effH + ' px' : '')
+        + ' (escala ' + Math.round(scale * 100) + '%)';
       renderPageInfo();
     }
 
