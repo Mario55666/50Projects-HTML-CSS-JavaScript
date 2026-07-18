@@ -73,8 +73,8 @@
     .drop-hint h2 { font-size: 1.1rem; color: var(--text); margin: 0 0 0.5rem; }
     .drop-hint p { margin: 0; font-size: 0.85rem; }
     .viewer-container { flex: 1; padding: 1rem; background: var(--panel-alt); overflow: auto; }
-    .viewer-container-fixed { display: flex; align-items: center; justify-content: center; }
-    .viewer-container-fixed #chapterFrame { flex-shrink: 0; }
+    .viewer-container-fixed { overflow: hidden; position: relative; }
+    .viewer-container-fixed #chapterFrame { position: absolute; left: 50%; top: 50%; }
     .viewer-container.hidden, .drop-hint.hidden { display: none; }
     #chapterFrame { width: 100%; height: 100%; min-height: 100%; border: none; border-radius: 8px; background: #ffffff; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25); }
     .spinner { position: absolute; top: 50%; left: 50%; margin: -1.5rem 0 0 -1.5rem; width: 3rem; height: 3rem; border-radius: 50%; border: 4px solid rgba(148, 163, 184, 0.2); border-top-color: var(--accent); animation: spin 0.9s linear infinite; z-index: 2; }
@@ -85,6 +85,7 @@
     .ws-label { color: var(--muted); font-weight: 700; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; }
     .ws-btn { width: 1.9rem; height: 1.9rem; font-size: 0.8rem; }
     .ws-danger:hover:not(:disabled) { background: rgba(249, 115, 22, 0.2); border-color: var(--danger); }
+    .page-info { color: var(--muted); font-size: 0.72rem; font-family: "SFMono-Regular", Consolas, monospace; }
     .text-mode-toggle { display: flex; align-items: center; gap: 0.4rem; cursor: pointer; color: var(--muted); }
     .dirty-indicator { color: var(--danger); font-weight: 600; }
     .tools-pane { flex: 1 1 45%; width: 100%; display: flex; flex-direction: column; background: var(--panel); min-width: 0; min-height: 0; }
@@ -218,6 +219,7 @@
           <input type="checkbox" id="textEditModeToggle">
           Modo edición de texto
         </label>
+        <span id="pageInfoLabel" class="page-info"></span>
         <span id="dirtyIndicator" class="dirty-indicator hidden">● Cambios sin guardar</span>
       </div>
     </section>
@@ -413,6 +415,7 @@
       selectedElementLayerInfo: document.getElementById('selectedElementLayerInfo'), buttonEditorSection: document.getElementById('buttonEditorSection'),
       buttonLabelInput: document.getElementById('buttonLabelInput'), buttonHrefInput: document.getElementById('buttonHrefInput'),
       applyButtonEditBtn: document.getElementById('applyButtonEditBtn'), insertButtonBtn: document.getElementById('insertButtonBtn'),
+      pageInfoLabel: document.getElementById('pageInfoLabel'),
       moveModeToggle: document.getElementById('moveModeToggle'), moveUpBtn: document.getElementById('moveUpBtn'),
       moveDownBtn: document.getElementById('moveDownBtn'), deleteObjBtn: document.getElementById('deleteObjBtn'),
       tabs: Array.from(document.querySelectorAll('.tab-btn')), panels: Array.from(document.querySelectorAll('.tab-panel')),
@@ -627,8 +630,8 @@
       }
     }
 
-    const EDITOR_INTERNAL_CSS = '.epub-editor-selected { outline: 3px solid #38bdf8 !important; outline-offset: 1px !important; background-color: rgba(56, 189, 248, 0.12) !important; } .epub-editor-editable-text { outline: 2px dashed #f97316 !important; outline-offset: 1px !important; } .epub-editor-textmode { cursor: text; } .epub-editor-movemode * { cursor: move !important; }';
-    const EDITOR_TRANSIENT_CLASSES = ['epub-editor-selected', 'epub-editor-editable-text', 'epub-editor-textmode', 'epub-editor-movemode', 'epub-editor-anim-preview'];
+    const EDITOR_INTERNAL_CSS = '.epub-editor-selected { outline: 3px solid #38bdf8 !important; outline-offset: 1px !important; background-color: rgba(56, 189, 248, 0.12) !important; } .epub-editor-editable-text { outline: 2px dashed #f97316 !important; outline-offset: 1px !important; } .epub-editor-textmode { cursor: text; } .epub-editor-movemode * { cursor: move !important; } .epub-editor-fixedpage, .epub-editor-fixedpage body { overflow: hidden !important; }';
+    const EDITOR_TRANSIENT_CLASSES = ['epub-editor-selected', 'epub-editor-editable-text', 'epub-editor-textmode', 'epub-editor-movemode', 'epub-editor-fixedpage', 'epub-editor-anim-preview'];
 
     function stripEditorArtifacts(doc) {
       doc.querySelectorAll('#epub-editor-internal-css, #epub-editor-custom-css, #epub-editor-anim-preview-css').forEach((n) => n.remove());
@@ -648,12 +651,27 @@
       });
     }
 
+    // Modo página fija SIN scroll: el iframe se renderiza al tamaño ORIGINAL
+    // declarado por el EPUB (p. ej. 600×800 px reales) y se escala visualmente
+    // con transform para caber COMPLETO en el visor. Así no hay scroll, las
+    // coordenadas dentro del documento son píxeles reales del original, y la
+    // barra de estado informa dimensiones y escala.
+    const pageInfo = { doc: '', obj: '', cursor: '' };
+    function renderPageInfo() {
+      el.pageInfoLabel.textContent = [pageInfo.doc, pageInfo.obj, pageInfo.cursor].filter(Boolean).join('  ·  ');
+    }
+
     function applyViewerFormat(chapter) {
       const pageSize = (chapter && chapter.pageSize) || state.bookViewport || null;
       const container = el.viewerContainer;
+      const frameDoc = el.chapterFrame.contentDocument;
       if (!pageSize) {
-        el.chapterFrame.style.width = ''; el.chapterFrame.style.height = '';
-        container.classList.remove('viewer-container-fixed'); return;
+        el.chapterFrame.style.width = ''; el.chapterFrame.style.height = ''; el.chapterFrame.style.transform = '';
+        container.classList.remove('viewer-container-fixed');
+        if (frameDoc) frameDoc.documentElement.classList.remove('epub-editor-fixedpage');
+        pageInfo.doc = 'Documento fluido (sin tamaño de página declarado)';
+        renderPageInfo();
+        return;
       }
       container.classList.add('viewer-container-fixed');
       const style = getComputedStyle(container);
@@ -662,8 +680,12 @@
       const availW = Math.max(container.clientWidth - padX, 50);
       const availH = Math.max(container.clientHeight - padY, 50);
       const scale = Math.min(availW / pageSize.width, availH / pageSize.height);
-      el.chapterFrame.style.width = Math.round(pageSize.width * scale) + 'px';
-      el.chapterFrame.style.height = Math.round(pageSize.height * scale) + 'px';
+      el.chapterFrame.style.width = pageSize.width + 'px';
+      el.chapterFrame.style.height = pageSize.height + 'px';
+      el.chapterFrame.style.transform = 'translate(-50%, -50%) scale(' + scale + ')';
+      if (frameDoc) frameDoc.documentElement.classList.add('epub-editor-fixedpage');
+      pageInfo.doc = 'Documento original: ' + pageSize.width + ' × ' + pageSize.height + ' px (escala ' + Math.round(scale * 100) + '%)';
+      renderPageInfo();
     }
 
     function injectStyleTag(html, id, css) {
@@ -802,6 +824,14 @@
       frameDoc.addEventListener('keydown', (e) => {
         if (e.key === 'Delete' && state.selectedUid && !state.textEditMode) deleteSelectedObject();
       });
+      // Coordenadas del cursor en píxeles REALES del documento original
+      // (el iframe se renderiza al tamaño declarado, así que clientX/Y ya
+      // son coordenadas del documento, no de la pantalla escalada).
+      frameDoc.addEventListener('mousemove', (e) => {
+        pageInfo.cursor = 'Cursor: ' + Math.round(e.clientX) + ', ' + Math.round(e.clientY) + ' px';
+        renderPageInfo();
+      });
+      frameDoc.addEventListener('mouseleave', () => { pageInfo.cursor = ''; renderPageInfo(); });
       applyTextEditModeToFrame();
       applyMoveModeToFrame();
       if (state.selectedUid) highlightInFrame(state.selectedUid);
@@ -1080,6 +1110,7 @@
       el.propBackgroundNone.checked = true; el.propBackground.disabled = true;
       el.selectedElementLayerInfo.textContent = ''; el.buttonEditorSection.classList.add('hidden');
       setEditorValue(htmlEditorCM, el.htmlEditorArea, ''); updateInsertButtonState(); updateWorkspaceToolbar();
+      pageInfo.obj = ''; renderPageInfo();
     }
 
     function ensureStableId(node, uid) { if (!node.id) node.id = 'edobj-' + uid; return node.id; }
@@ -1127,6 +1158,13 @@
       if (liveEl && el.chapterFrame.contentDocument && el.chapterFrame.contentDocument.defaultView) {
         const computed = el.chapterFrame.contentDocument.defaultView.getComputedStyle(liveEl);
         text += ' · ' + describeTransparency(computed);
+        // Coordenadas y tamaño del objeto en píxeles reales del documento
+        const r = liveEl.getBoundingClientRect();
+        const win = el.chapterFrame.contentDocument.defaultView;
+        const ox = Math.round(r.left + win.scrollX), oy = Math.round(r.top + win.scrollY);
+        text += ' · Posición: ' + ox + ', ' + oy + ' px · Tamaño: ' + Math.round(r.width) + ' × ' + Math.round(r.height) + ' px';
+        pageInfo.obj = 'Objeto: ' + ox + ', ' + oy + ' · ' + Math.round(r.width) + ' × ' + Math.round(r.height) + ' px';
+        renderPageInfo();
       }
       el.selectedElementLayerInfo.textContent = text;
     }
