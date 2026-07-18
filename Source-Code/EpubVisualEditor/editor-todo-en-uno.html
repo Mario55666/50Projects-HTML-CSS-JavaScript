@@ -214,6 +214,9 @@
       <div class="viewer-statusbar">
         <div class="workspace-tools">
           <span class="ws-label">Mesa de trabajo:</span>
+          <label class="text-mode-toggle" title="Fuerza a la vista todos los objetos que las animaciones de entrada o los scripts del EPUB mantienen invisibles, para poder seleccionarlos y editarlos">
+            <input type="checkbox" id="showAllToggle" checked> Mostrar ocultos
+          </label>
           <label class="text-mode-toggle" title="Activa y arrastra cualquier objeto en el visor para reubicarlo">
             <input type="checkbox" id="moveModeToggle"> Mover
           </label>
@@ -411,7 +414,7 @@
     const state = {
       zip: null, opfPath: '', opfDir: '', manifest: new Map(), spine: [], toc: [],
       chapterIndex: -1, chapterState: new Map(), bookViewport: null,
-      selectedUid: null, textEditMode: false, moveMode: false, theme: 'dark', hasBook: false, exportDirty: false,
+      selectedUid: null, textEditMode: false, moveMode: false, showAll: true, theme: 'dark', hasBook: false, exportDirty: false,
     };
 
     let euidCounter = 0;
@@ -676,8 +679,8 @@
       }
     }
 
-    const EDITOR_INTERNAL_CSS = '.epub-editor-selected { outline: 3px solid #38bdf8 !important; outline-offset: 1px !important; background-color: rgba(56, 189, 248, 0.12) !important; } .epub-editor-editable-text { outline: 2px dashed #f97316 !important; outline-offset: 1px !important; } .epub-editor-textmode { cursor: text; } .epub-editor-movemode * { cursor: move !important; } .epub-editor-fixedpage, .epub-editor-fixedpage body { overflow: hidden !important; } [style*="display: none"], [style*="display:none"] { display: inline-block !important; opacity: 0.25 !important; outline: 2px dashed #f97316 !important; }';
-    const EDITOR_TRANSIENT_CLASSES = ['epub-editor-selected', 'epub-editor-editable-text', 'epub-editor-textmode', 'epub-editor-movemode', 'epub-editor-fixedpage', 'epub-editor-anim-preview'];
+    const EDITOR_INTERNAL_CSS = '.epub-editor-selected { outline: 3px solid #38bdf8 !important; outline-offset: 1px !important; background-color: rgba(56, 189, 248, 0.12) !important; } .epub-editor-editable-text { outline: 2px dashed #f97316 !important; outline-offset: 1px !important; } .epub-editor-textmode { cursor: text; } .epub-editor-movemode * { cursor: move !important; } .epub-editor-fixedpage, .epub-editor-fixedpage body { overflow: hidden !important; } .epub-editor-showall body * { opacity: 1 !important; visibility: visible !important; animation: none !important; transition: none !important; } [style*="display: none"], [style*="display:none"] { display: inline-block !important; opacity: 0.25 !important; outline: 2px dashed #f97316 !important; }';
+    const EDITOR_TRANSIENT_CLASSES = ['epub-editor-selected', 'epub-editor-editable-text', 'epub-editor-textmode', 'epub-editor-movemode', 'epub-editor-fixedpage', 'epub-editor-showall', 'epub-editor-anim-preview'];
 
     function stripEditorArtifacts(doc) {
       doc.querySelectorAll('#epub-editor-internal-css, #epub-editor-custom-css, #epub-editor-anim-preview-css').forEach((n) => n.remove());
@@ -886,6 +889,7 @@
       frameDoc.addEventListener('mouseleave', () => { pageInfo.cursor = ''; renderPageInfo(); });
       applyTextEditModeToFrame();
       applyMoveModeToFrame();
+      applyShowAllToFrame();
       if (state.selectedUid) highlightInFrame(state.selectedUid);
     }
 
@@ -968,6 +972,16 @@
       const frameDoc = el.chapterFrame.contentDocument;
       if (!frameDoc) return;
       frameDoc.body.classList.toggle('epub-editor-movemode', state.moveMode);
+    }
+
+    // Modo "Mostrar ocultos": los EPUB animados (p. ej. de InDesign) dejan sus
+    // objetos con opacity:0 hasta que un script dispara la animación de
+    // entrada; ese script no corre en el visor de edición (sandbox), así que
+    // sin este modo la página se ve vacía y nada puede seleccionarse.
+    function applyShowAllToFrame() {
+      const frameDoc = el.chapterFrame.contentDocument;
+      if (!frameDoc) return;
+      frameDoc.documentElement.classList.toggle('epub-editor-showall', state.showAll);
     }
 
     function deleteSelectedObject() {
@@ -1717,6 +1731,11 @@
         state.moveMode = e.target.checked;
         applyMoveModeToFrame();
         if (state.moveMode) showToast('Modo mover: arrastra cualquier objeto del visor para reubicarlo.');
+      });
+      document.getElementById('showAllToggle').addEventListener('change', e => {
+        state.showAll = e.target.checked;
+        applyShowAllToFrame();
+        if (state.showAll) showToast('Objetos ocultos visibles: ya puedes seleccionarlos y editarlos.');
       });
       el.moveUpBtn.addEventListener('click', () => moveSelectedObject(-1));
       el.moveDownBtn.addEventListener('click', () => moveSelectedObject(1));
