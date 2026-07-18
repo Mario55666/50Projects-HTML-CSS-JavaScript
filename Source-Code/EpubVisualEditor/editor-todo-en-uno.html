@@ -35,7 +35,7 @@
     body {
       margin: 0; display: flex; flex-direction: column;
       font-family: "Segoe UI", system-ui, sans-serif;
-      background: var(--bg); color: var(--text); min-width: 1366px;
+      background: var(--bg); color: var(--text); min-width: 720px;
     }
     .topbar {
       display: flex; align-items: center; justify-content: space-between;
@@ -65,8 +65,10 @@
     .file-btn:disabled { opacity: 0.35; cursor: not-allowed; }
     .file-btn-accent { background: var(--accent); border-color: var(--accent); color: #04121f; }
     .file-btn-accent:hover:not(:disabled) { background: var(--accent-strong); transform: translateY(-1px); }
-    .workspace { flex: 1; display: flex; min-height: 0; }
-    .viewer-pane { flex: 1 1 60%; display: flex; flex-direction: column; min-width: 0; border-right: 1px solid var(--border); position: relative; }
+    /* Disposición VERTICAL: el visor arriba y las herramientas debajo,
+       pensada para lectura de pantalla en vertical. */
+    .workspace { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+    .viewer-pane { flex: 1 1 55%; display: flex; flex-direction: column; min-width: 0; min-height: 0; border-bottom: 1px solid var(--border); position: relative; }
     .drop-hint { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: var(--muted); padding: 2rem; }
     .drop-hint h2 { font-size: 1.1rem; color: var(--text); margin: 0 0 0.5rem; }
     .drop-hint p { margin: 0; font-size: 0.85rem; }
@@ -85,7 +87,7 @@
     .ws-danger:hover:not(:disabled) { background: rgba(249, 115, 22, 0.2); border-color: var(--danger); }
     .text-mode-toggle { display: flex; align-items: center; gap: 0.4rem; cursor: pointer; color: var(--muted); }
     .dirty-indicator { color: var(--danger); font-weight: 600; }
-    .tools-pane { flex: 1 1 40%; max-width: 34rem; display: flex; flex-direction: column; background: var(--panel); min-width: 0; }
+    .tools-pane { flex: 1 1 45%; width: 100%; display: flex; flex-direction: column; background: var(--panel); min-width: 0; min-height: 0; }
     .tabs { display: flex; border-bottom: 1px solid var(--border); flex-shrink: 0; }
     .tab-btn { flex: 1; padding: 0.7rem 0.5rem; background: transparent; border: none; border-bottom: 2px solid transparent; color: var(--muted); font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; cursor: pointer; transition: color 0.15s ease, border-color 0.15s ease; }
     .tab-btn:hover { color: var(--text); }
@@ -361,7 +363,7 @@
     </aside>
   </main>
 
-  <footer class="site-footer">Editor Visual EPUB © 2024 | Carga un archivo para comenzar</footer>
+  <footer class="site-footer">Curso de Infografía 2026 · Docente: Mg Mario Quiroz Martinez · Editor Visual de EPUB</footer>
   <div id="toast" class="toast hidden"></div>
 
   <script>
@@ -916,6 +918,60 @@
       });
     }
 
+    /* ------------------------------------------------------------------
+       AYUDA CONTEXTUAL POR PANTALLA
+       Cada pestaña tiene su propio texto de ayuda, que explica qué hace la
+       herramienta Y cómo afecta al archivo EPUB. Se muestra automáticamente
+       la primera vez que se abre cada pantalla (tutorial paso a paso) y en
+       cualquier momento con el botón "?".
+       ------------------------------------------------------------------ */
+    const HELP_TEXTS = {
+      toc: 'ÍNDICE — Muestra la tabla de contenidos que declara el propio EPUB. Haz clic en un '
+        + 'capítulo para abrirlo en el visor de arriba. No modifica el archivo. En el visor: la '
+        + '"Mesa de trabajo" permite mover (arrastrando), reordenar (⬆⬇) y eliminar (🗑 o tecla '
+        + 'Supr) cualquier objeto seleccionado.',
+      dom: 'DOM — Árbol de los elementos HTML reales del capítulo (párrafos, imágenes, botones...). '
+        + 'El icono de cada fila indica su tipo: imagen, vectorial, texto o contenedor. Haz clic en '
+        + 'un elemento para SELECCIONARLO: se resalta en el visor y queda listo para editarse en '
+        + 'las demás pestañas. Seleccionar no modifica el archivo.',
+      html: 'HTML — Edita el código del elemento seleccionado. "Aplicar HTML" reemplaza ese '
+        + 'fragmento dentro del archivo .xhtml del capítulo (el mismo que leen los lectores EPUB); '
+        + 'un error de sintaxis puede impedir que el capítulo se abra en otros lectores. '
+        + '"Restablecer" descarta lo escrito sin tocar el archivo.',
+      css: 'CSS — Escribe reglas de estilo libres o usa el panel de propiedades (los colores tienen '
+        + 'casilla "Ninguno" para no forzarlos). Al pulsar "Aplicar CSS", las reglas se guardan como '
+        + 'hoja de estilos dentro del capítulo y viajan en el EPUB exportado, conviviendo con los '
+        + 'estilos originales del libro.',
+      text: 'TEXTO — Cambia el texto visible del elemento seleccionado desde este campo, o activa '
+        + '"Modo edición de texto" en el visor y haz clic directamente sobre el contenido para '
+        + 'editarlo en el lugar. Solo cambia el texto: el marcado HTML alrededor se conserva.',
+      anim: 'ANIMACIONES — Aplica animaciones CSS (@keyframes) al elemento seleccionado: elige un '
+        + 'preset, ajusta duración/retraso/curva/iteraciones, mira el código generado y pulsa '
+        + '"Aplicar Animación". El código queda en la hoja de estilos del capítulo y se reproduce '
+        + 'en cualquier lector EPUB compatible con animaciones CSS.',
+      buttons: 'BOTONES — Catálogo de 11 botones con efectos hover. Clic en un estilo: si tienes un '
+        + 'botón/enlace seleccionado, le CAMBIA el estilo; si no, INSERTA un botón nuevo (dentro del '
+        + 'objeto seleccionado o al final de la página). Su CSS completo se copia al capítulo para '
+        + 'que el botón se vea igual en el EPUB exportado. Abajo editas su texto y su enlace; con la '
+        + 'Mesa de trabajo del visor lo mueves, reordenas o eliminas.',
+    };
+    let activeTabName = 'toc';
+    const visitedTabs = new Set();
+
+    function showHelpForActiveTab() {
+      el.helpPanelText.textContent = HELP_TEXTS[activeTabName] || '';
+      el.helpPanel.classList.remove('hidden');
+    }
+
+    function onTabChanged(name) {
+      activeTabName = name;
+      const firstVisit = !visitedTabs.has(name);
+      visitedTabs.add(name);
+      if (!el.helpPanel.classList.contains('hidden')) { showHelpForActiveTab(); return; }
+      // Mini-tutorial: la primera visita a cada pantalla muestra su ayuda
+      if (firstVisit) showHelpForActiveTab();
+    }
+
     function updateWorkspaceToolbar() {
       const has = Boolean(state.selectedUid);
       el.moveUpBtn.disabled = !has;
@@ -1397,6 +1453,7 @@
           document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
           if (htmlEditorCM) htmlEditorCM.refresh();
           if (cssEditorCM) cssEditorCM.refresh();
+          onTabChanged(tab.dataset.tab);
         });
       });
 
@@ -1442,9 +1499,17 @@
         if (state.selectedUid && !state.textEditMode) deleteSelectedObject();
       });
 
-      // Ayuda
-      el.helpToggleBtn.addEventListener('click', () => el.helpPanel.classList.toggle('hidden'));
+      // Ayuda contextual POR PANTALLA (no genérica): el botón "?" muestra la
+      // explicación de la pestaña activa, y cada pestaña muestra su tutorial
+      // automáticamente la primera vez que se abre.
+      el.helpToggleBtn.addEventListener('click', () => {
+        if (el.helpPanel.classList.contains('hidden')) showHelpForActiveTab();
+        else el.helpPanel.classList.add('hidden');
+      });
       el.helpCloseBtn.addEventListener('click', () => el.helpPanel.classList.add('hidden'));
+      // Tutorial inicial: al abrir el aplicativo se explica la primera pantalla
+      visitedTabs.add(activeTabName);
+      showHelpForActiveTab();
 
       // DOM
       el.domSearch.addEventListener('input', applyDomSearchFilter);
