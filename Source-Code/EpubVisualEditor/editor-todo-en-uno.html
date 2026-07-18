@@ -84,6 +84,7 @@
     .workspace-tools { display: flex; align-items: center; gap: 0.5rem; }
     .ws-label { color: var(--muted); font-weight: 700; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; }
     .ws-btn { width: 1.9rem; height: 1.9rem; font-size: 0.8rem; }
+    .ws-btn-txt { padding: 0.3rem 0.6rem; font-size: 0.72rem; }
     .ws-danger:hover:not(:disabled) { background: rgba(249, 115, 22, 0.2); border-color: var(--danger); }
     .page-info { color: var(--muted); font-size: 0.72rem; font-family: "SFMono-Regular", Consolas, monospace; }
     .ed-velo { position: fixed; inset: 0; background: rgba(2, 8, 20, 0.6); display: flex; align-items: center; justify-content: center; z-index: 60; }
@@ -219,6 +220,9 @@
           <button id="moveUpBtn" class="icon-btn ws-btn" title="Subir objeto (antes de su hermano anterior)" disabled>⬆</button>
           <button id="moveDownBtn" class="icon-btn ws-btn" title="Bajar objeto (después de su hermano siguiente)" disabled>⬇</button>
           <button id="deleteObjBtn" class="icon-btn ws-btn ws-danger" title="Eliminar objeto seleccionado (tecla Supr)" disabled>🗑</button>
+          <button id="testActionBtn" class="action-btn ws-btn-txt" title="Ejecuta la acción configurada del botón seleccionado aquí en el visor" disabled>▶ Probar acción</button>
+          <button id="placeBtnBtn" class="action-btn ws-btn-txt" title="Activa el modo mover para arrastrar el objeto a su posición" disabled>📍 Ubicar</button>
+          <button id="reviewBtn" class="action-btn ws-btn-txt" title="Revisión: abre el capítulo como lo verá el lector (con scripts activos)">👁 Revisar</button>
         </div>
         <label class="text-mode-toggle">
           <input type="checkbox" id="textEditModeToggle">
@@ -336,6 +340,7 @@
           </div>
         </div>
         <div id="tab-buttons" class="tab-panel">
+          <p class="hint-small"><strong>CONFIGURACIÓN DE BOTÓN</strong> (texto · hiperenlace · colores · acción sobre animaciones u objetos): selecciona un botón para habilitar el panel de abajo.</p>
           <p class="hint-small">
             Haz clic en un estilo para <strong>insertar un botón nuevo</strong> (dentro del objeto
             seleccionado, o al final de la página). Si tienes seleccionado un botón o enlace,
@@ -355,7 +360,7 @@
             <div class="button-catalog-item" data-btn-class="epub-btn-lift"><button class="epub-btn-lift">Elevación</button><span class="cat-label">Elevación con sombra</span></div>
             <div class="button-catalog-item" data-btn-class="epub-btn-draw"><button class="epub-btn-draw">Borde</button><span class="cat-label">Borde dibujado</span></div>
           </div>
-          <div class="button-preview-area hidden" id="buttonEditorSection">
+          <div class="button-preview-area" id="buttonEditorSection">
             <label class="prop-label">Texto del botón</label>
             <input type="text" id="buttonLabelInput" class="text-input" placeholder="Ej. Haz clic aquí">
             <label class="prop-label">Hiperenlace (href): capítulo del EPUB (cap2.xhtml), ancla (#seccion) o URL externa</label>
@@ -377,11 +382,7 @@
                 <select id="buttonActionAnim"></select>
               </label>
             </div>
-            <div class="editor-actions">
-              <button id="applyButtonEditBtn" class="action-btn action-btn-accent">Actualizar Botón</button>
-              <button id="testActionBtn" class="action-btn">▶ Probar acción</button>
-              <button id="placeBtnBtn" class="action-btn">📍 Ubicar botón</button>
-            </div>
+            <button id="applyButtonEditBtn" class="action-btn action-btn-accent">Actualizar Botón</button>
           </div>
           <div class="editor-actions" style="margin-top: 1rem;">
             <button id="insertButtonBtn" class="action-btn action-btn-accent" disabled>Insertar Nuevo Botón</button>
@@ -707,17 +708,11 @@
     }
 
     function applyViewerFormat(chapter) {
-      const pageSize = (chapter && chapter.pageSize) || state.bookViewport || null;
+      let pageSize = (chapter && chapter.pageSize) || state.bookViewport || null;
       const container = el.viewerContainer;
       const frameDoc = el.chapterFrame.contentDocument;
-      if (!pageSize) {
-        el.chapterFrame.style.width = ''; el.chapterFrame.style.height = ''; el.chapterFrame.style.transform = '';
-        container.classList.remove('viewer-container-fixed');
-        if (frameDoc) frameDoc.documentElement.classList.remove('epub-editor-fixedpage');
-        pageInfo.doc = 'Documento fluido (sin tamaño de página declarado)';
-        renderPageInfo();
-        return;
-      }
+      let declared = true;
+      if (!pageSize) { pageSize = { width: 600, height: 800 }; declared = false; }
       container.classList.add('viewer-container-fixed');
       const style = getComputedStyle(container);
       const padX = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
@@ -739,7 +734,7 @@
       const scale = Math.min(availW / effW, availH / effH);
       el.chapterFrame.style.transform = 'translate(-50%, -50%) scale(' + scale + ')';
       if (frameDoc) frameDoc.documentElement.classList.add('epub-editor-fixedpage');
-      pageInfo.doc = 'Documento original: ' + pageSize.width + ' × ' + pageSize.height + ' px'
+      pageInfo.doc = (declared ? 'Documento original: ' : 'Formato de salida (por defecto): ') + pageSize.width + ' × ' + pageSize.height + ' px'
         + ((effH !== pageSize.height || effW !== pageSize.width) ? ' · contenido real: ' + effW + ' × ' + effH + ' px' : '')
         + ' (escala ' + Math.round(scale * 100) + '%)';
       renderPageInfo();
@@ -945,8 +940,11 @@
         const rect = target.getBoundingClientRect();       // posición original (sin transform)
         const bodyRect = frameDoc.body.getBoundingClientRect();
         target.style.position = 'absolute';
-        target.style.left = Math.round(rect.left + dx - bodyRect.left) + 'px';
-        target.style.top = Math.round(rect.top + dy - bodyRect.top) + 'px';
+        const de = frameDoc.documentElement;
+        const maxL = Math.max(0, de.scrollWidth - Math.round(rect.width));
+        const maxT = Math.max(0, de.scrollHeight - Math.round(rect.height));
+        target.style.left = Math.min(maxL, Math.max(0, Math.round(rect.left + dx - bodyRect.left))) + 'px';
+        target.style.top = Math.min(maxT, Math.max(0, Math.round(rect.top + dy - bodyRect.top))) + 'px';
         target.style.margin = '0';
         ensureBodyRelativeCss(chapter);                     // ancla las coordenadas al body
         syncDocFromFrame(chapter);
@@ -1111,6 +1109,8 @@
       el.moveUpBtn.disabled = !has;
       el.moveDownBtn.disabled = !has;
       el.deleteObjBtn.disabled = !has;
+      document.getElementById('testActionBtn').disabled = !has;
+      document.getElementById('placeBtnBtn').disabled = !has;
     }
 
     function enableInlineTextEdit(target, chapter) {
@@ -1212,7 +1212,9 @@
       el.previewAnimBtn.disabled = true; el.applyAnimBtn.disabled = true;
       el.propColorNone.checked = true; el.propColor.disabled = true;
       el.propBackgroundNone.checked = true; el.propBackground.disabled = true;
-      el.selectedElementLayerInfo.textContent = ''; el.buttonEditorSection.classList.add('hidden');
+      el.selectedElementLayerInfo.textContent = '';
+      [el.buttonLabelInput, el.buttonHrefInput, el.btnPropColor, el.btnPropBg, el.buttonActionSelect,
+       el.buttonActionTarget, el.buttonActionAnim, el.applyButtonEditBtn].forEach(i => { i.disabled = true; });
       setEditorValue(htmlEditorCM, el.htmlEditorArea, ''); updateInsertButtonState(); updateWorkspaceToolbar();
       pageInfo.obj = ''; renderPageInfo();
     }
@@ -1282,7 +1284,8 @@
 
     function updateButtonEditorUI(source) {
       const isBtn = isButtonLike(source);
-      el.buttonEditorSection.classList.toggle('hidden', !isBtn);
+      [el.buttonLabelInput, el.buttonHrefInput, el.btnPropColor, el.btnPropBg, el.buttonActionSelect,
+       el.buttonActionTarget, el.buttonActionAnim, el.applyButtonEditBtn].forEach(i => { i.disabled = !isBtn; });
       if (!isBtn) return;
       const tag = source.tagName.toLowerCase();
       el.buttonLabelInput.value = tag === 'input' ? (source.getAttribute('value') || '') : source.textContent.trim();
@@ -1794,6 +1797,7 @@
       el.insertButtonBtn.addEventListener('click', insertNewButton);
       el.applyButtonEditBtn.addEventListener('click', applyButtonEdit);
       document.getElementById('testActionBtn').addEventListener('click', probarAccionBoton);
+      document.getElementById('reviewBtn').addEventListener('click', openReaderPreview);
       document.getElementById('placeBtnBtn').addEventListener('click', ubicarBotonSeleccionado);
       document.getElementById('edDlgCerrar').addEventListener('click', () => document.getElementById('editorVelo').classList.add('hidden'));
       document.querySelectorAll('.button-catalog-item').forEach(item => {
