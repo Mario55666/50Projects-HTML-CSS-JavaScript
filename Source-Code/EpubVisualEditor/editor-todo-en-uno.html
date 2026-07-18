@@ -353,8 +353,25 @@
           <div class="button-preview-area hidden" id="buttonEditorSection">
             <label class="prop-label">Texto del botón</label>
             <input type="text" id="buttonLabelInput" class="text-input" placeholder="Ej. Haz clic aquí">
-            <label class="prop-label">Enlace (Href)</label>
-            <input type="text" id="buttonHrefInput" class="text-input" placeholder="https://... o #seccion">
+            <label class="prop-label">Hiperenlace (href): capítulo del EPUB (cap2.xhtml), ancla (#seccion) o URL externa</label>
+            <input type="text" id="buttonHrefInput" class="text-input" placeholder="cap2.xhtml · #seccion · https://...">
+            <div class="common-props">
+              <label>Color texto<input type="color" id="btnPropColor" value="#ffffff"></label>
+              <label>Color fondo<input type="color" id="btnPropBg" value="#2563eb"></label>
+              <label>Acción al tocar (en el lector EPUB)
+                <select id="buttonActionSelect">
+                  <option value="">Ninguna (solo hiperenlace)</option>
+                  <option value="animar">Reproducir animación en un objeto</option>
+                  <option value="alternar">Mostrar / ocultar un objeto</option>
+                </select>
+              </label>
+              <label>Objeto objetivo
+                <select id="buttonActionTarget"></select>
+              </label>
+              <label>Animación a reproducir
+                <select id="buttonActionAnim"></select>
+              </label>
+            </div>
             <button id="applyButtonEditBtn" class="action-btn action-btn-accent">Actualizar Botón</button>
           </div>
           <div class="editor-actions" style="margin-top: 1rem;">
@@ -415,6 +432,9 @@
       selectedElementLayerInfo: document.getElementById('selectedElementLayerInfo'), buttonEditorSection: document.getElementById('buttonEditorSection'),
       buttonLabelInput: document.getElementById('buttonLabelInput'), buttonHrefInput: document.getElementById('buttonHrefInput'),
       applyButtonEditBtn: document.getElementById('applyButtonEditBtn'), insertButtonBtn: document.getElementById('insertButtonBtn'),
+      btnPropColor: document.getElementById('btnPropColor'), btnPropBg: document.getElementById('btnPropBg'),
+      buttonActionSelect: document.getElementById('buttonActionSelect'), buttonActionTarget: document.getElementById('buttonActionTarget'),
+      buttonActionAnim: document.getElementById('buttonActionAnim'),
       pageInfoLabel: document.getElementById('pageInfoLabel'),
       moveModeToggle: document.getElementById('moveModeToggle'), moveUpBtn: document.getElementById('moveUpBtn'),
       moveDownBtn: document.getElementById('moveDownBtn'), deleteObjBtn: document.getElementById('deleteObjBtn'),
@@ -1184,6 +1204,61 @@
       el.buttonLabelInput.value = tag === 'input' ? (source.getAttribute('value') || '') : source.textContent.trim();
       el.buttonHrefInput.value = tag === 'a' ? (source.getAttribute('href') || '') : '';
       el.buttonHrefInput.disabled = tag !== 'a';
+
+      // Objetivos posibles de la acción: todos los objetos con id del capítulo
+      const chapter = currentChapter();
+      const ids = chapter ? Array.from(chapter.doc.querySelectorAll('[id]')).map(n => n.id) : [];
+      el.buttonActionTarget.innerHTML = '<option value="">(elige un objeto)</option>'
+        + ids.map(i => '<option value="#' + i + '">#' + i + '</option>').join('');
+      if (!el.buttonActionAnim.options.length) {
+        el.buttonActionAnim.innerHTML = ANIMATION_PRESETS.map(p => '<option value="' + p.id + '">' + p.name + '</option>').join('');
+      }
+      // Estado actual del botón (acción y colores ya aplicados)
+      el.buttonActionSelect.value = source.getAttribute('data-accion') || '';
+      el.buttonActionTarget.value = source.getAttribute('data-objetivo') || '';
+      if (source.getAttribute('data-anim-preset')) el.buttonActionAnim.value = source.getAttribute('data-anim-preset');
+      const frameDoc = el.chapterFrame.contentDocument;
+      const live = frameDoc && findElementByUid(frameDoc, source.getAttribute('data-euid'));
+      if (live) {
+        const cs = frameDoc.defaultView.getComputedStyle(live);
+        el.btnPropColor.value = rgbToHex(cs.color) || '#ffffff';
+        el.btnPropBg.value = rgbToHex(cs.backgroundColor) || '#2563eb';
+      }
+    }
+
+    /* Runtime de acciones para el EPUB exportado: un pequeño script (ES5,
+       click + touchend, sin caracteres < ni ampersands para ser XHTML-safe)
+       que ejecuta la accion declarada en los data-atributos de cada boton.
+       Corre en "Previsualizar" y en lectores EPUB3 con scripts; en el visor
+       de edicion queda inerte (sandbox sin scripts), a proposito. */
+    // OJO: este codigo NO puede contener <, ni ampersands, ni comparadores
+    // mayor/menor: al serializarse dentro del XHTML, XMLSerializer los
+    // escaparia como entidades y el script llegaria roto al lector.
+    const ACTION_RUNTIME = "(function(){var tocado=false;function go(e){var b=e.target.closest('[data-accion]');if(!b){return;}"
+      + "var a=b.getAttribute('data-accion');if(!a){return;}e.preventDefault();"
+      + "var s=b.getAttribute('data-objetivo')||'';var t=s?document.querySelector(s):null;if(!t){return;}"
+      + "if(a==='animar'){var c='epub-act-'+b.getAttribute('data-anim-preset');t.classList.remove(c);void t.offsetWidth;t.classList.add(c);}"
+      + "if(a==='alternar'){t.style.display=(t.style.display==='none'?'':'none');}}"
+      + "document.addEventListener('touchend',function(e){tocado=true;setTimeout(function(){tocado=false;},700);go(e);},false);"
+      + "document.addEventListener('click',function(e){if(tocado){return;}go(e);},false);})();";
+
+    function ensureActionRuntime(chapter) {
+      if (chapter.doc.getElementById('epub-acciones-botones')) return;
+      const s = chapter.doc.createElement('script');
+      s.setAttribute('id', 'epub-acciones-botones');
+      s.textContent = ACTION_RUNTIME;
+      (chapter.doc.body || chapter.doc.documentElement).appendChild(s);
+    }
+
+    function ensureActionAnimCss(chapter, presetId) {
+      const preset = ANIMATION_PRESETS.find(p => p.id === presetId);
+      if (!preset) return;
+      const cls = '.epub-act-' + presetId;
+      if (chapter.customCss.includes(cls + ' ')) return;
+      chapter.customCss += (chapter.customCss.trim() ? '\n\n' : '')
+        + '@keyframes epub-act-kf-' + presetId + ' {\n' + preset.keyframes + '\n}\n'
+        + cls + ' {\n  animation: epub-act-kf-' + presetId + ' ' + preset.defaultDuration + 's ' + preset.defaultEasing + ' 0s ' + preset.defaultIterations + ';\n  ' + (preset.extraCss || '') + '\n}';
+      setEditorValue(cssEditorCM, el.cssEditorArea, chapter.customCss);
     }
 
     function applyButtonEdit() {
@@ -1197,6 +1272,32 @@
         const href = el.buttonHrefInput.value.trim();
         if (href) source.setAttribute('href', href); else source.removeAttribute('href');
       }
+
+      // COLORES: regla por id (gana a la clase del catalogo) que viaja en el EPUB
+      ensureStableId(source, state.selectedUid);
+      const colorRule = '#' + source.id + ' { color: ' + el.btnPropColor.value + '; background: ' + el.btnPropBg.value + '; }';
+      const marker = '/* color-boton ' + source.id + ' */';
+      if (chapter.customCss.includes(marker)) {
+        chapter.customCss = chapter.customCss.replace(new RegExp(marker.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '[^\n]*'), marker + ' ' + colorRule);
+      } else {
+        chapter.customCss += (chapter.customCss.trim() ? '\n\n' : '') + marker + ' ' + colorRule;
+      }
+      setEditorValue(cssEditorCM, el.cssEditorArea, chapter.customCss);
+
+      // ACCION EPUB: data-atributos + runtime + CSS de la animacion elegida
+      const accion = el.buttonActionSelect.value;
+      if (accion) {
+        source.setAttribute('data-accion', accion);
+        source.setAttribute('data-objetivo', el.buttonActionTarget.value);
+        if (accion === 'animar') {
+          source.setAttribute('data-anim-preset', el.buttonActionAnim.value);
+          ensureActionAnimCss(chapter, el.buttonActionAnim.value);
+        } else source.removeAttribute('data-anim-preset');
+        ensureActionRuntime(chapter);
+      } else {
+        source.removeAttribute('data-accion'); source.removeAttribute('data-objetivo'); source.removeAttribute('data-anim-preset');
+      }
+
       renderChapterDoc(chapter).then(() => {
         renderDomTree(); loadElementIntoEditors(state.selectedUid, chapter);
         pushHistory(chapter); updateUndoRedoUI(); setDirty(true); showToast('Botón actualizado.');
