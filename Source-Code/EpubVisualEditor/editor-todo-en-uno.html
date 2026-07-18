@@ -1,0 +1,1904 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Editor Visual de EPUB</title>
+  
+  <!-- Librerías Externas (CodeMirror y JSZip) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/css/css.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+  <style>
+    /* ================================================================== */
+    /* CSS COMPLETO                                                        */
+    /* ================================================================== */
+    * { box-sizing: border-box; }
+    :root {
+      --bg: #0f172a; --panel: #111827; --panel-alt: #0b1220;
+      --accent: #38bdf8; --accent-strong: #0ea5e9;
+      --text: #e2e8f0; --muted: #94a3b8;
+      --border: rgba(148, 163, 184, 0.2);
+      --danger: #f97316; --success: #a3e635;
+    }
+    html[data-theme="light"] {
+      --bg: #f1f5f9; --panel: #ffffff; --panel-alt: #f8fafc;
+      --accent: #0284c7; --accent-strong: #0369a1;
+      --text: #0f172a; --muted: #64748b;
+      --border: rgba(15, 23, 42, 0.12);
+    }
+    html, body { height: 100%; }
+    body {
+      margin: 0; display: flex; flex-direction: column;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background: var(--bg); color: var(--text); min-width: 720px;
+    }
+    .topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 1.5rem; padding: 0.75rem 1.5rem;
+      background: var(--panel); border-bottom: 1px solid var(--border); flex-shrink: 0;
+    }
+    .brand { display: flex; align-items: center; gap: 0.6rem; flex-shrink: 0; }
+    .brand h1 { font-size: 1.05rem; margin: 0; letter-spacing: 0.01em; }
+    .brand-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); animation: pulse 2s ease-in-out infinite; }
+    @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.6); opacity: 0.4; } }
+    .chapter-nav { display: flex; align-items: center; gap: 0.75rem; flex: 1; justify-content: center; min-width: 0; }
+    .chapter-label { font-size: 0.8rem; font-weight: 600; color: var(--muted); max-width: 24rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .controls { display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0; }
+    .icon-btn {
+      width: 2.2rem; height: 2.2rem; border-radius: 8px; border: 1px solid var(--border);
+      background: transparent; color: var(--text); font-size: 1rem; cursor: pointer;
+      transition: background-color 0.15s ease, transform 0.15s ease;
+    }
+    .icon-btn:hover:not(:disabled) { background: rgba(148, 163, 184, 0.15); transform: translateY(-1px); }
+    .icon-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+    .file-btn {
+      cursor: pointer; padding: 0.5rem 1rem; border-radius: 8px;
+      background: transparent; color: var(--text); border: 1px solid var(--border);
+      font-weight: 600; font-size: 0.8rem; transition: background-color 0.15s ease, transform 0.15s ease;
+    }
+    .file-btn:hover:not(:disabled) { background: rgba(148, 163, 184, 0.15); }
+    .file-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+    .file-btn-accent { background: var(--accent); border-color: var(--accent); color: #04121f; }
+    .file-btn-accent:hover:not(:disabled) { background: var(--accent-strong); transform: translateY(-1px); }
+    /* Disposición VERTICAL: el visor arriba y las herramientas debajo,
+       pensada para lectura de pantalla en vertical. */
+    .workspace { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+    .viewer-pane { flex: 1 1 55%; display: flex; flex-direction: column; min-width: 0; min-height: 0; border-bottom: 1px solid var(--border); position: relative; }
+    .drop-hint { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: var(--muted); padding: 2rem; }
+    .drop-hint h2 { font-size: 1.1rem; color: var(--text); margin: 0 0 0.5rem; }
+    .drop-hint p { margin: 0; font-size: 0.85rem; }
+    .viewer-container { flex: 1; padding: 1rem; background: var(--panel-alt); overflow: auto; }
+    .viewer-container-fixed { overflow: hidden; position: relative; }
+    .viewer-container-fixed #chapterFrame { position: absolute; left: 50%; top: 50%; }
+    .viewer-container.hidden, .drop-hint.hidden { display: none; }
+    #chapterFrame { width: 100%; height: 100%; min-height: 100%; border: none; border-radius: 8px; background: #ffffff; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25); }
+    .spinner { position: absolute; top: 50%; left: 50%; margin: -1.5rem 0 0 -1.5rem; width: 3rem; height: 3rem; border-radius: 50%; border: 4px solid rgba(148, 163, 184, 0.2); border-top-color: var(--accent); animation: spin 0.9s linear infinite; z-index: 2; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .hidden { display: none !important; }
+    .viewer-statusbar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0.6rem 1rem; background: var(--panel); border-top: 1px solid var(--border); font-size: 0.78rem; flex-shrink: 0; flex-wrap: wrap; }
+    .workspace-tools { display: flex; align-items: center; gap: 0.5rem; }
+    .ws-label { color: var(--muted); font-weight: 700; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    .ws-btn { width: 1.9rem; height: 1.9rem; font-size: 0.8rem; }
+    .ws-btn-txt { padding: 0.3rem 0.6rem; font-size: 0.72rem; }
+    .ws-danger:hover:not(:disabled) { background: rgba(249, 115, 22, 0.2); border-color: var(--danger); }
+    .page-info { color: var(--muted); font-size: 0.72rem; font-family: "SFMono-Regular", Consolas, monospace; }
+    .ed-velo { position: fixed; inset: 0; background: rgba(2, 8, 20, 0.6); display: flex; align-items: center; justify-content: center; z-index: 60; }
+    .ed-velo.hidden { display: none; }
+    .ed-dialogo { background: var(--panel); border: 2px solid var(--accent); border-radius: 12px; max-width: 28rem; width: 92%; padding: 1.2rem 1.4rem; box-shadow: 0 18px 45px rgba(0,0,0,0.5); animation: toast-in 0.2s ease-out; }
+    .ed-dialogo h2 { margin: 0 0 0.5rem; font-size: 0.95rem; color: var(--accent); }
+    .ed-dialogo p { margin: 0 0 1rem; font-size: 0.82rem; line-height: 1.55; color: var(--text); white-space: pre-line; }
+    .text-mode-toggle { display: flex; align-items: center; gap: 0.4rem; cursor: pointer; color: var(--muted); }
+    .dirty-indicator { color: var(--danger); font-weight: 600; }
+    .tools-pane { flex: 1 1 45%; width: 100%; display: flex; flex-direction: column; background: var(--panel); min-width: 0; min-height: 0; }
+    .tabs { display: flex; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+    .tab-btn { flex: 1; padding: 0.7rem 0.5rem; background: transparent; border: none; border-bottom: 2px solid transparent; color: var(--muted); font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; cursor: pointer; transition: color 0.15s ease, border-color 0.15s ease; }
+    .tab-btn:hover { color: var(--text); }
+    .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .tab-help-btn { flex-shrink: 0; width: 2.2rem; border: none; border-bottom: 2px solid transparent; background: transparent; color: var(--muted); font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: color 0.15s ease; }
+    .tab-help-btn:hover { color: var(--accent); }
+    .help-panel { display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-start; padding: 0.8rem 0.9rem; background: rgba(56, 189, 248, 0.08); border-bottom: 1px solid var(--border); font-size: 0.78rem; line-height: 1.5; color: var(--text); }
+    .help-close-btn { padding: 0.3rem 0.8rem; border-radius: 6px; border: 1px solid var(--border); background: transparent; color: var(--text); font-size: 0.7rem; cursor: pointer; }
+    .help-close-btn:hover { background: rgba(148, 163, 184, 0.15); }
+    .tab-panels { flex: 1; min-height: 0; position: relative; }
+    .tab-panel { display: none; flex-direction: column; height: 100%; padding: 0.9rem; gap: 0.7rem; overflow: auto; }
+    .tab-panel.active { display: flex; }
+    .text-input { width: 100%; padding: 0.5rem 0.7rem; border-radius: 8px; border: 1px solid var(--border); background: var(--panel-alt); color: var(--text); font-size: 0.82rem; }
+    .text-input:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+    .empty-hint { color: var(--muted); font-size: 0.8rem; padding: 0.5rem 0; }
+    .hint-small { color: var(--muted); font-size: 0.72rem; line-height: 1.4; }
+    .anim-css-preview { margin: 0; padding: 0.7rem; border-radius: 8px; background: var(--panel-alt); border: 1px solid var(--border); font-family: "SFMono-Regular", Consolas, monospace; font-size: 0.74rem; line-height: 1.5; color: var(--text); overflow: auto; max-height: 12rem; white-space: pre-wrap; word-break: break-word; }
+    .dom-tree { flex: 1; overflow: auto; font-family: "SFMono-Regular", Consolas, monospace; font-size: 0.78rem; }
+    .dom-node { margin-left: 0.9rem; }
+    .dom-node-row { display: flex; align-items: center; gap: 0.3rem; padding: 0.15rem 0.3rem; border-radius: 5px; cursor: pointer; white-space: nowrap; }
+    .dom-node-row:hover { background: rgba(148, 163, 184, 0.15); }
+    .dom-node-row.selected { background: rgba(56, 189, 248, 0.2); outline: 1px solid var(--accent); }
+    .dom-node-row.filtered-out { display: none; }
+    .dom-toggle { width: 0.9rem; color: var(--muted); flex-shrink: 0; text-align: center; }
+    .dom-tag { color: #f472b6; }
+    .dom-type-badge { flex-shrink: 0; width: 1rem; text-align: center; font-size: 0.7rem; }
+    .dom-type-vector { color: #c084fc; } .dom-type-image { color: #38bdf8; } .dom-type-text { color: var(--muted); } .dom-type-container { color: var(--muted); opacity: 0.6; }
+    .dom-id { color: #38bdf8; } .dom-class { color: var(--success); }
+    .dom-children { margin-left: 0.4rem; border-left: 1px dashed var(--border); padding-left: 0.3rem; }
+    .dom-children.collapsed { display: none; }
+    .editor-toolbar { display: flex; align-items: center; gap: 0.5rem; }
+    .selected-label { font-size: 0.78rem; color: var(--muted); font-family: "SFMono-Regular", Consolas, monospace; }
+    .layer-badge { margin: 0.3rem 0 0; font-size: 0.72rem; color: var(--accent); }
+    .layer-badge:empty { display: none; }
+    .button-editor { display: flex; flex-direction: column; gap: 0.6rem; padding: 0.7rem; border-radius: 8px; background: rgba(163, 230, 53, 0.08); border: 1px solid var(--border); }
+    .CodeMirror { flex: 1; min-height: 12rem; border: 1px solid var(--border); border-radius: 8px; font-size: 0.8rem; }
+    .editor-actions { display: flex; align-items: center; gap: 0.6rem; flex-shrink: 0; }
+    .action-btn { padding: 0.5rem 0.9rem; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--text); font-weight: 600; font-size: 0.78rem; cursor: pointer; transition: background-color 0.15s ease; }
+    .action-btn:hover:not(:disabled) { background: rgba(148, 163, 184, 0.15); }
+    .action-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+    .action-btn-accent { background: var(--accent); border-color: var(--accent); color: #04121f; }
+    .action-btn-accent:hover:not(:disabled) { background: var(--accent-strong); }
+    .common-props { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem 0.8rem; padding: 0.7rem; border-radius: 8px; background: var(--panel-alt); border: 1px solid var(--border); flex-shrink: 0; }
+    .common-props label, .common-props .prop-group { display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.72rem; color: var(--muted); }
+    .prop-label { font-size: 0.72rem; color: var(--muted); }
+    .common-props input, .common-props select { padding: 0.3rem 0.4rem; border-radius: 6px; border: 1px solid var(--border); background: var(--panel); color: var(--text); font-size: 0.78rem; }
+    .common-props input[type="color"] { height: 1.8rem; padding: 0.1rem; cursor: pointer; }
+    .common-props input[type="color"]:disabled { opacity: 0.35; cursor: not-allowed; }
+    .color-field { display: flex; align-items: center; gap: 0.4rem; }
+    .color-field input[type="color"] { flex-shrink: 0; width: 2.2rem; }
+    .none-toggle { display: flex; align-items: center; gap: 0.25rem; flex-direction: row !important; font-size: 0.68rem !important; white-space: nowrap; cursor: pointer; }
+    .none-toggle input[type="checkbox"] { cursor: pointer; }
+    #textBulkEditor { flex: 1; min-height: 10rem; padding: 0.6rem; border-radius: 8px; border: 1px solid var(--border); background: var(--panel-alt); color: var(--text); font-family: inherit; font-size: 0.85rem; resize: vertical; }
+    .toc-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.2rem; }
+    .toc-item { padding: 0.5rem 0.6rem; border-radius: 8px; cursor: pointer; font-size: 0.82rem; border: 1px solid transparent; }
+    .toc-item:hover { background: rgba(148, 163, 184, 0.12); }
+    .toc-item.active { border-color: var(--accent); color: var(--accent); font-weight: 700; background: rgba(56, 189, 248, 0.1); }
+    .site-footer { flex-shrink: 0; padding: 0.5rem 1.5rem; text-align: center; font-size: 0.72rem; color: var(--muted); background: var(--panel); border-top: 1px solid var(--border); }
+    .toast { position: fixed; left: 50%; bottom: 1.5rem; z-index: 50; transform: translateX(-50%); max-width: 90vw; padding: 0.7rem 1.2rem; border-radius: 10px; background: var(--panel); border: 1px solid var(--border); box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35); font-size: 0.8rem; color: var(--text); animation: toast-in 0.2s ease-out; }
+    @keyframes toast-in { from { opacity: 0; transform: translateX(-50%) translateY(10px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+    .button-catalog-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.8rem; padding: 0.5rem; }
+    .button-catalog-item { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; padding: 0.8rem; border-radius: 10px; background: var(--panel-alt); border: 2px solid transparent; cursor: pointer; transition: border-color 0.2s ease, background 0.2s ease; }
+    .button-catalog-item:hover { background: rgba(56, 189, 248, 0.08); }
+    .button-catalog-item.selected { border-color: var(--accent); background: rgba(56, 189, 248, 0.12); }
+    .button-catalog-item .cat-label { font-size: 0.72rem; color: var(--muted); text-align: center; font-weight: 600; }
+    .button-preview-area { margin-top: 0.5rem; padding: 1rem; border-radius: 10px; background: var(--panel-alt); border: 1px solid var(--border); display: flex; flex-direction: column; gap: 0.5rem; }
+    
+    /* Estilos de Botones Pre-diseñados:
+       NO están escritos aquí. La única fuente de verdad es el mapa
+       BUTTON_CATALOG_CSS del script, cuyo CSS se inyecta al arrancar en
+       esta página (para las miniaturas del catálogo) Y en el customCss
+       del capítulo al insertar un botón (para que el estilo viaje dentro
+       del archivo EPUB exportado y se vea en cualquier lector). Así el
+       catálogo del editor y el EPUB nunca pueden quedar desincronizados. */
+  </style>
+</head>
+<body>
+
+  <!-- Top Bar -->
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-dot"></span>
+      <h1>Editor EPUB</h1>
+    </div>
+    <div class="chapter-nav">
+      <button id="prevChapterBtn" class="icon-btn" title="Capítulo anterior" disabled>‹</button>
+      <span id="chapterLabel" class="chapter-label">Sin libro cargado</span>
+      <button id="nextChapterBtn" class="icon-btn" title="Capítulo siguiente" disabled>›</button>
+    </div>
+    <div class="controls">
+      <button id="undoBtn" class="icon-btn" title="Deshacer" disabled>↶</button>
+      <button id="redoBtn" class="icon-btn" title="Rehacer" disabled>↷</button>
+      <button id="themeToggleBtn" class="icon-btn" title="Cambiar tema">🌙</button>
+      <label class="file-btn">
+        Abrir EPUB
+        <input type="file" id="fileInput" accept=".epub" hidden>
+      </label>
+      <button id="readerPreviewBtn" class="file-btn" title="Vista previa como lector" disabled>👁 Previsualizar</button>
+      <button id="exportBtn" class="file-btn file-btn-accent" title="Exportar EPUB" disabled>↥ Exportar</button>
+    </div>
+  </header>
+
+  <!-- Workspace -->
+  <main class="workspace">
+    <section class="viewer-pane">
+      <div id="dropHint" class="drop-hint">
+        <h2>Arrastra tu archivo .epub aquí</h2>
+        <p>o haz clic en "Abrir EPUB" en la barra superior para comenzar a editar.</p>
+      </div>
+      <div id="viewerContainer" class="viewer-container hidden">
+        <!-- sandbox sin allow-scripts: el visor de EDICIÓN nunca ejecuta los
+             scripts del EPUB (el editor tiene acceso same-origin al iframe);
+             la interactividad se prueba en "Previsualizar", que sí los corre. -->
+        <iframe id="chapterFrame" title="Visor de capítulo" sandbox="allow-same-origin"></iframe>
+        <div id="loadingSpinner" class="spinner hidden"></div>
+      </div>
+      <div class="viewer-statusbar">
+        <div class="workspace-tools">
+          <span class="ws-label">Mesa de trabajo:</span>
+          <label class="text-mode-toggle" title="Fuerza a la vista todos los objetos que las animaciones de entrada o los scripts del EPUB mantienen invisibles, para poder seleccionarlos y editarlos">
+            <input type="checkbox" id="showAllToggle" checked> Mostrar ocultos
+          </label>
+          <label class="text-mode-toggle" title="Activa y arrastra cualquier objeto en el visor para reubicarlo">
+            <input type="checkbox" id="moveModeToggle"> Mover
+          </label>
+          <button id="moveUpBtn" class="icon-btn ws-btn" title="Subir objeto (antes de su hermano anterior)" disabled>⬆</button>
+          <button id="moveDownBtn" class="icon-btn ws-btn" title="Bajar objeto (después de su hermano siguiente)" disabled>⬇</button>
+          <button id="deleteObjBtn" class="icon-btn ws-btn ws-danger" title="Eliminar objeto seleccionado (tecla Supr)" disabled>🗑</button>
+          <button id="testActionBtn" class="action-btn ws-btn-txt" title="Ejecuta la acción configurada del botón seleccionado aquí en el visor" disabled>▶ Probar acción</button>
+          <button id="placeBtnBtn" class="action-btn ws-btn-txt" title="Activa el modo mover para arrastrar el objeto a su posición" disabled>📍 Ubicar</button>
+          <button id="reviewBtn" class="action-btn ws-btn-txt" title="Revisión: abre el capítulo como lo verá el lector (con scripts activos)">👁 Revisar</button>
+        </div>
+        <label class="text-mode-toggle">
+          <input type="checkbox" id="textEditModeToggle">
+          Modo edición de texto
+        </label>
+        <span id="pageInfoLabel" class="page-info"></span>
+        <span id="dirtyIndicator" class="dirty-indicator hidden">● Cambios sin guardar</span>
+      </div>
+    </section>
+
+    <aside class="tools-pane">
+      <nav class="tabs">
+        <button class="tab-btn active" data-tab="toc">Índice</button>
+        <button class="tab-btn" data-tab="dom">DOM</button>
+        <button class="tab-btn" data-tab="html">HTML</button>
+        <button class="tab-btn" data-tab="css">CSS</button>
+        <button class="tab-btn" data-tab="text">Texto</button>
+        <button class="tab-btn" data-tab="anim">Animaciones</button>
+        <button class="tab-btn" data-tab="buttons">Botones</button>
+        <button id="helpToggleBtn" class="tab-help-btn" title="Ayuda">?</button>
+      </nav>
+
+      <div id="helpPanel" class="help-panel hidden">
+        <span id="helpPanelText">Selecciona un elemento en el visor o en el árbol DOM para editar sus propiedades.</span>
+        <button id="helpCloseBtn" class="help-close-btn">Entendido</button>
+      </div>
+
+      <div class="tab-panels">
+        <div id="tab-toc" class="tab-panel active">
+          <ul id="tocList" class="toc-list"></ul>
+        </div>
+        <div id="tab-dom" class="tab-panel">
+          <input type="text" id="domSearch" class="text-input" placeholder="Buscar en DOM...">
+          <div id="domTree" class="dom-tree"></div>
+        </div>
+        <div id="tab-html" class="tab-panel">
+          <div class="editor-toolbar">
+            <span class="selected-label" id="selectedElementLabel">Ningún elemento seleccionado</span>
+          </div>
+          <p class="layer-badge" id="selectedElementLayerInfo"></p>
+          <textarea id="htmlEditor"></textarea>
+          <div class="editor-actions">
+            <button id="resetHtmlBtn" class="action-btn" disabled>Restablecer</button>
+            <button id="applyHtmlBtn" class="action-btn action-btn-accent" disabled>Aplicar HTML</button>
+          </div>
+        </div>
+        <div id="tab-css" class="tab-panel">
+          <div class="common-props">
+            <div class="prop-group">
+              <label class="prop-label">Selector objetivo</label>
+              <input type="text" id="cssTargetSelector" class="text-input" placeholder="#id o .clase" disabled>
+            </div>
+            <div class="prop-group">
+              <label class="prop-label">Fuente</label>
+              <select id="propFontFamily" disabled>
+                <option value="">Heredada</option>
+                <option value="Arial, sans-serif">Arial</option>
+                <option value="Georgia, serif">Georgia</option>
+                <option value="'Courier New', monospace">Courier New</option>
+                <option value="'Times New Roman', serif">Times New Roman</option>
+              </select>
+            </div>
+            <label>Color Texto
+              <div class="color-field">
+                <input type="color" id="propColor" disabled>
+                <label class="none-toggle"><input type="checkbox" id="propColorNone" checked> Ninguno</label>
+              </div>
+            </label>
+            <label>Color Fondo
+              <div class="color-field">
+                <input type="color" id="propBackground" disabled>
+                <label class="none-toggle"><input type="checkbox" id="propBackgroundNone" checked> Ninguno</label>
+              </div>
+            </label>
+            <label>Tamaño Fuente (px)<input type="number" id="propFontSize" disabled></label>
+            <label>Margin (px)<input type="number" id="propMargin" disabled></label>
+            <label>Padding (px)<input type="number" id="propPadding" disabled></label>
+          </div>
+          <textarea id="cssEditor"></textarea>
+          <div class="editor-actions">
+            <button id="applyCssBtn" class="action-btn action-btn-accent">Aplicar CSS</button>
+          </div>
+        </div>
+        <div id="tab-text" class="tab-panel">
+          <p class="hint-small">Edita el contenido textual del elemento seleccionado.</p>
+          <textarea id="textBulkEditor" disabled placeholder="Selecciona un elemento de texto..."></textarea>
+          <div class="editor-actions">
+            <button id="applyTextBtn" class="action-btn action-btn-accent" disabled>Actualizar Texto</button>
+          </div>
+        </div>
+        <div id="tab-anim" class="tab-panel">
+          <label class="prop-label">Preset de Animación</label>
+          <select id="animPresetSelect" class="text-input"></select>
+          <p id="animPresetDescription" class="hint-small"></p>
+          <div class="common-props">
+            <label>Duración (s)<input type="number" id="animDuration" step="0.1" value="0.5"></label>
+            <label>Retraso (s)<input type="number" id="animDelay" step="0.1" value="0"></label>
+            <label>Curva de velocidad
+              <select id="animEasing">
+                <option value="ease">ease</option><option value="ease-in">ease-in</option>
+                <option value="ease-out">ease-out</option><option value="ease-in-out">ease-in-out</option>
+                <option value="linear">linear</option>
+              </select>
+            </label>
+            <label>Iteraciones
+              <select id="animIterations">
+                <option value="1">1</option><option value="3">3</option><option value="infinite">Infinitas</option>
+              </select>
+            </label>
+          </div>
+          <pre id="animCssPreview" class="anim-css-preview"></pre>
+          <div class="editor-actions">
+            <button id="previewAnimBtn" class="action-btn" disabled>Vista Previa</button>
+            <button id="applyAnimBtn" class="action-btn action-btn-accent" disabled>Aplicar Animación</button>
+          </div>
+        </div>
+        <div id="tab-buttons" class="tab-panel">
+          <p class="hint-small"><strong>CONFIGURACIÓN DE BOTÓN</strong> (texto · hiperenlace · colores · acción sobre animaciones u objetos): selecciona CUALQUIER objeto del visor o del árbol DOM (botón, imagen o contenedor) y el panel de abajo se habilita para convertirlo en botón interactivo.</p>
+          <p class="hint-small">
+            Haz clic en un estilo para <strong>insertar un botón nuevo</strong> (dentro del objeto
+            seleccionado, o al final de la página). Si tienes seleccionado un botón o enlace,
+            el clic le <strong>cambia el estilo</strong> a ese botón. Su texto y enlace se editan abajo,
+            y con la "Mesa de trabajo" del visor puedes moverlo, reordenarlo o eliminarlo.
+          </p>
+          <div class="button-catalog-grid">
+            <div class="button-catalog-item" data-btn-class="epub-btn-holographic"><button class="epub-btn-holographic">Holográfico</button><span class="cat-label">Holográfico</span></div>
+            <div class="button-catalog-item" data-btn-class="epub-btn-liquid"><button class="epub-btn-liquid">Líquido</button><span class="cat-label">Líquido</span></div>
+            <div class="button-catalog-item" data-btn-class="epub-btn-rainbow"><button class="epub-btn-rainbow">Arcoíris</button><span class="cat-label">Arcoíris</span></div>
+            <div class="button-catalog-item" data-btn-class="epub-btn-press"><button class="epub-btn-press">Presión 3D</button><span class="cat-label">Presión 3D</span></div>
+            <div class="button-catalog-item" data-btn-class="epub-btn-glass"><button class="epub-btn-glass">Glassmorphism</button><span class="cat-label">Glassmorphism</span></div>
+            <div class="button-catalog-item" data-btn-class="epub-btn-underline"><button class="epub-btn-underline">Subrayado</button><span class="cat-label">Subrayado deslizante</span></div>
+            <div class="button-catalog-item" data-btn-class="epub-btn-wave"><button class="epub-btn-wave">Ola</button><span class="cat-label">Relleno líquido (ola)</span></div>
+            <div class="button-catalog-item" data-btn-class="epub-btn-flip"><button class="epub-btn-flip" data-reverso="¡Reverso!">Dos caras</button><span class="cat-label">Tarjeta de dos caras</span></div>
+            <div class="button-catalog-item" data-btn-class="epub-btn-gradient"><button class="epub-btn-gradient">Degradado</button><span class="cat-label">Degradado holográfico</span></div>
+            <div class="button-catalog-item" data-btn-class="epub-btn-lift"><button class="epub-btn-lift">Elevación</button><span class="cat-label">Elevación con sombra</span></div>
+            <div class="button-catalog-item" data-btn-class="epub-btn-draw"><button class="epub-btn-draw">Borde</button><span class="cat-label">Borde dibujado</span></div>
+          </div>
+          <div class="button-preview-area" id="buttonEditorSection">
+            <label class="prop-label">Texto del botón</label>
+            <input type="text" id="buttonLabelInput" class="text-input" placeholder="Ej. Haz clic aquí">
+            <label class="prop-label">Hiperenlace (href): capítulo del EPUB (cap2.xhtml), ancla (#seccion) o URL externa</label>
+            <input type="text" id="buttonHrefInput" class="text-input" placeholder="cap2.xhtml · #seccion · https://...">
+            <div class="common-props">
+              <label>Color texto<input type="color" id="btnPropColor" value="#ffffff"></label>
+              <label>Color fondo<input type="color" id="btnPropBg" value="#2563eb"></label>
+              <label>Acción al tocar (en el lector EPUB)
+                <select id="buttonActionSelect">
+                  <option value="">Ninguna (solo hiperenlace)</option>
+                  <option value="animar">Reproducir animación en un objeto</option>
+                  <option value="alternar">Mostrar / ocultar un objeto</option>
+                </select>
+              </label>
+              <label>Objeto objetivo
+                <select id="buttonActionTarget"></select>
+              </label>
+              <label>Animación a reproducir
+                <select id="buttonActionAnim"></select>
+              </label>
+            </div>
+            <button id="applyButtonEditBtn" class="action-btn action-btn-accent">Actualizar Botón</button>
+          </div>
+          <div class="editor-actions" style="margin-top: 1rem;">
+            <button id="insertButtonBtn" class="action-btn action-btn-accent" disabled>Insertar Nuevo Botón</button>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <footer class="site-footer">Curso de Infografía 2026 · Docente: Mg Mario Quiroz Martinez · Editor Visual de EPUB</footer>
+  <div id="editorVelo" class="ed-velo hidden">
+    <div class="ed-dialogo">
+      <h2 id="edDlgTitulo"></h2>
+      <p id="edDlgMsg"></p>
+      <button id="edDlgCerrar" class="action-btn action-btn-accent">Entendido</button>
+    </div>
+  </div>
+  <div id="toast" class="toast hidden"></div>
+
+  <script>
+    'use strict';
+
+    /* ------------------------------------------------------------------ */
+    /* Estado global                                                       */
+    /* ------------------------------------------------------------------ */
+    const state = {
+      zip: null, opfPath: '', opfDir: '', manifest: new Map(), spine: [], toc: [],
+      chapterIndex: -1, chapterState: new Map(), bookViewport: null,
+      selectedUid: null, textEditMode: false, moveMode: false, showAll: true, theme: 'dark', hasBook: false, exportDirty: false,
+    };
+
+    let euidCounter = 0;
+    let htmlEditorCM = null;
+    let cssEditorCM = null;
+
+    /* ------------------------------------------------------------------ */
+    /* Referencias DOM                                                     */
+    /* ------------------------------------------------------------------ */
+    const el = {
+      fileInput: document.getElementById('fileInput'), dropHint: document.getElementById('dropHint'),
+      viewerContainer: document.getElementById('viewerContainer'), chapterFrame: document.getElementById('chapterFrame'),
+      loadingSpinner: document.getElementById('loadingSpinner'), prevChapterBtn: document.getElementById('prevChapterBtn'),
+      nextChapterBtn: document.getElementById('nextChapterBtn'), chapterLabel: document.getElementById('chapterLabel'),
+      undoBtn: document.getElementById('undoBtn'), redoBtn: document.getElementById('redoBtn'),
+      exportBtn: document.getElementById('exportBtn'), readerPreviewBtn: document.getElementById('readerPreviewBtn'),
+      themeToggleBtn: document.getElementById('themeToggleBtn'), textEditModeToggle: document.getElementById('textEditModeToggle'),
+      dirtyIndicator: document.getElementById('dirtyIndicator'), domSearch: document.getElementById('domSearch'),
+      domTree: document.getElementById('domTree'), selectedElementLabel: document.getElementById('selectedElementLabel'),
+      htmlEditorArea: document.getElementById('htmlEditor'), applyHtmlBtn: document.getElementById('applyHtmlBtn'),
+      resetHtmlBtn: document.getElementById('resetHtmlBtn'), cssTargetSelector: document.getElementById('cssTargetSelector'),
+      cssEditorArea: document.getElementById('cssEditor'), applyCssBtn: document.getElementById('applyCssBtn'),
+      propColor: document.getElementById('propColor'), propColorNone: document.getElementById('propColorNone'),
+      propBackground: document.getElementById('propBackground'), propBackgroundNone: document.getElementById('propBackgroundNone'),
+      propFontFamily: document.getElementById('propFontFamily'), propFontSize: document.getElementById('propFontSize'),
+      propMargin: document.getElementById('propMargin'), propPadding: document.getElementById('propPadding'),
+      textBulkEditor: document.getElementById('textBulkEditor'), applyTextBtn: document.getElementById('applyTextBtn'),
+      tocList: document.getElementById('tocList'), animPresetSelect: document.getElementById('animPresetSelect'),
+      animPresetDescription: document.getElementById('animPresetDescription'), animDuration: document.getElementById('animDuration'),
+      animDelay: document.getElementById('animDelay'), animEasing: document.getElementById('animEasing'),
+      animIterations: document.getElementById('animIterations'), animCssPreview: document.getElementById('animCssPreview'),
+      previewAnimBtn: document.getElementById('previewAnimBtn'), applyAnimBtn: document.getElementById('applyAnimBtn'),
+      helpToggleBtn: document.getElementById('helpToggleBtn'), helpPanel: document.getElementById('helpPanel'),
+      helpPanelText: document.getElementById('helpPanelText'), helpCloseBtn: document.getElementById('helpCloseBtn'),
+      selectedElementLayerInfo: document.getElementById('selectedElementLayerInfo'), buttonEditorSection: document.getElementById('buttonEditorSection'),
+      buttonLabelInput: document.getElementById('buttonLabelInput'), buttonHrefInput: document.getElementById('buttonHrefInput'),
+      applyButtonEditBtn: document.getElementById('applyButtonEditBtn'), insertButtonBtn: document.getElementById('insertButtonBtn'),
+      btnPropColor: document.getElementById('btnPropColor'), btnPropBg: document.getElementById('btnPropBg'),
+      buttonActionSelect: document.getElementById('buttonActionSelect'), buttonActionTarget: document.getElementById('buttonActionTarget'),
+      buttonActionAnim: document.getElementById('buttonActionAnim'),
+      pageInfoLabel: document.getElementById('pageInfoLabel'),
+      moveModeToggle: document.getElementById('moveModeToggle'), moveUpBtn: document.getElementById('moveUpBtn'),
+      moveDownBtn: document.getElementById('moveDownBtn'), deleteObjBtn: document.getElementById('deleteObjBtn'),
+      tabs: Array.from(document.querySelectorAll('.tab-btn')), panels: Array.from(document.querySelectorAll('.tab-panel')),
+      toast: document.getElementById('toast'),
+    };
+
+    /* ------------------------------------------------------------------ */
+    /* Utilidades generales                                                */
+    /* ------------------------------------------------------------------ */
+    let toastTimer = null;
+    function showToast(message, isError) {
+      el.toast.textContent = message;
+      el.toast.classList.toggle('toast-error', Boolean(isError));
+      el.toast.classList.remove('hidden');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => el.toast.classList.add('hidden'), 3200);
+    }
+    function showSpinner(show) { el.loadingSpinner.classList.toggle('hidden', !show); }
+    function resolvePath(baseDir, href) {
+      if (!href) return href;
+      if (/^([a-z]+:)?\/\//i.test(href) || href.startsWith('data:')) return href;
+      const cleanHref = href.split('#')[0];
+      const stack = baseDir ? baseDir.split('/').filter(Boolean) : [];
+      const parts = cleanHref.split('/');
+      for (const part of parts) {
+        if (part === '' || part === '.') continue;
+        if (part === '..') stack.pop();
+        else stack.push(part);
+      }
+      return stack.join('/');
+    }
+    function dirOf(path) { const idx = path.lastIndexOf('/'); return idx === -1 ? '' : path.slice(0, idx); }
+    function setDirty(dirty) { state.exportDirty = dirty; el.dirtyIndicator.classList.toggle('hidden', !dirty); }
+
+    /* ------------------------------------------------------------------ */
+    /* Carga de EPUB                                                       */
+    /* ------------------------------------------------------------------ */
+    async function loadEpubFile(file) {
+      showSpinner(true);
+      try {
+        const zip = await JSZip.loadAsync(file);
+        await parseEpub(zip);
+        state.hasBook = true;
+        el.dropHint.classList.add('hidden');
+        el.viewerContainer.classList.remove('hidden');
+        el.exportBtn.disabled = false;
+        el.readerPreviewBtn.disabled = false;
+        setDirty(false);
+        renderToc();
+        await loadChapter(0);
+        showToast('EPUB cargado: ' + (state.spine.length) + ' capítulo(s).');
+      } catch (err) {
+        console.error(err);
+        showToast('No se pudo leer el archivo .epub: ' + err.message + '. Verifica que sea un .epub válido (ZIP con META-INF/container.xml).', true);
+      } finally {
+        showSpinner(false);
+      }
+    }
+
+    async function parseEpub(zip) {
+      state.zip = zip; state.manifest = new Map(); state.spine = []; state.toc = [];
+      state.chapterIndex = -1; state.chapterState = new Map(); state.selectedUid = null;
+      const containerXml = await zip.file('META-INF/container.xml').async('string');
+      const containerDoc = new DOMParser().parseFromString(containerXml, 'application/xml');
+      const rootfileEl = containerDoc.querySelector('rootfile');
+      state.opfPath = rootfileEl.getAttribute('full-path');
+      state.opfDir = dirOf(state.opfPath);
+      const opfXml = await zip.file(state.opfPath).async('string');
+      const opfDoc = new DOMParser().parseFromString(opfXml, 'application/xml');
+      opfDoc.querySelectorAll('manifest > item').forEach((item) => {
+        state.manifest.set(item.getAttribute('id'), {
+          href: resolvePath(state.opfDir, item.getAttribute('href')),
+          mediaType: item.getAttribute('media-type') || '',
+          properties: item.getAttribute('properties') || '',
+        });
+      });
+      opfDoc.querySelectorAll('spine > itemref').forEach((itemref) => {
+        const idref = itemref.getAttribute('idref');
+        const manifestItem = state.manifest.get(idref);
+        if (manifestItem) state.spine.push({ idref, href: manifestItem.href });
+      });
+      const viewportMeta = opfDoc.querySelector('metadata meta[property="rendition:viewport"]');
+      state.bookViewport = viewportMeta ? parseViewportSize((viewportMeta.textContent || '').trim() || viewportMeta.getAttribute('content')) : null;
+      await loadToc(zip, opfDoc);
+    }
+
+    function parseViewportSize(content) {
+      if (!content) return null;
+      const w = /width\s*=\s*([\d.]+)/i.exec(content);
+      const h = /height\s*=\s*([\d.]+)/i.exec(content);
+      if (!w || !h) return null;
+      const width = parseFloat(w[1]); const height = parseFloat(h[1]);
+      if (!width || !height) return null;
+      return { width, height };
+    }
+
+    async function loadToc(zip, opfDoc) {
+      const navItem = Array.from(state.manifest.values()).find((item) => item.properties.split(/\s+/).includes('nav'));
+      if (navItem && zip.file(navItem.href)) {
+        const navXml = await zip.file(navItem.href).async('string');
+        const navDoc = new DOMParser().parseFromString(navXml, 'application/xhtml+xml');
+        const navEl = navDoc.querySelector('nav[*|type="toc"], nav');
+        if (navEl) { state.toc = extractNavList(navEl, dirOf(navItem.href), 0); return; }
+      }
+      const tocItem = Array.from(state.manifest.values()).find((item) => item.mediaType === 'application/x-dtbncx+xml');
+      if (tocItem && zip.file(tocItem.href)) {
+        const ncxXml = await zip.file(tocItem.href).async('string');
+        const ncxDoc = new DOMParser().parseFromString(ncxXml, 'application/xml');
+        const navMap = ncxDoc.querySelector('navMap');
+        if (navMap) { state.toc = extractNavPoints(navMap, dirOf(tocItem.href), 0); return; }
+      }
+      state.toc = state.spine.map((entry, i) => ({ label: 'Capítulo ' + (i + 1), href: entry.href, depth: 0 }));
+    }
+
+    function extractNavList(navEl, baseDir, depth) {
+      const items = [];
+      const listEl = navEl.querySelector(':scope > ol');
+      if (!listEl) return items;
+      listEl.querySelectorAll(':scope > li').forEach((li) => {
+        const link = li.querySelector(':scope > a, :scope > span');
+        const label = link ? link.textContent.trim() : '';
+        const href = link && link.getAttribute('href') ? resolvePath(baseDir, link.getAttribute('href')) : '';
+        if (label) items.push({ label, href, depth });
+        const subOl = li.querySelector(':scope > ol');
+        if (subOl) items.push(...extractNavList(li, baseDir, depth + 1));
+      });
+      return items;
+    }
+
+    function extractNavPoints(parentEl, baseDir, depth) {
+      const items = [];
+      parentEl.querySelectorAll(':scope > navPoint').forEach((navPoint) => {
+        const label = navPoint.querySelector(':scope > navLabel > text');
+        const content = navPoint.querySelector(':scope > content');
+        const href = content && content.getAttribute('src') ? resolvePath(baseDir, content.getAttribute('src')) : '';
+        if (label) items.push({ label: label.textContent.trim(), href, depth });
+        items.push(...extractNavPoints(navPoint, baseDir, depth + 1));
+      });
+      return items;
+    }
+
+    /* ------------------------------------------------------------------ */
+    /* Índice (TOC) y Carga de Capítulos                                   */
+    /* ------------------------------------------------------------------ */
+    function renderToc() {
+      el.tocList.innerHTML = '';
+      if (!state.toc.length) { el.tocList.innerHTML = '<li class="empty-hint">Este EPUB no declara un índice.</li>'; return; }
+      state.toc.forEach((entry) => {
+        const li = document.createElement('li');
+        li.className = 'toc-item';
+        li.style.paddingLeft = (entry.depth * 1) + 'rem';
+        li.textContent = entry.label;
+        li.dataset.href = entry.href.split('#')[0];
+        li.addEventListener('click', () => {
+          const spineIndex = state.spine.findIndex((s) => s.href === li.dataset.href);
+          if (spineIndex !== -1) loadChapter(spineIndex);
+          else showToast('No se encontró ese capítulo en el spine.', true);
+        });
+        el.tocList.appendChild(li);
+      });
+    }
+
+    function highlightActiveToc() {
+      const currentHref = state.spine[state.chapterIndex] ? state.spine[state.chapterIndex].href : '';
+      el.tocList.querySelectorAll('.toc-item').forEach((li) => li.classList.toggle('active', li.dataset.href === currentHref));
+    }
+
+    async function loadChapter(index) {
+      if (index < 0 || index >= state.spine.length) return;
+      showSpinner(true);
+      try {
+        const entry = state.spine[index];
+        state.chapterIndex = index; state.selectedUid = null; clearSelectionUI();
+        let chapter = state.chapterState.get(entry.href);
+        if (!chapter) { chapter = await buildChapterState(entry.href); state.chapterState.set(entry.href, chapter); }
+        await renderChapterDoc(chapter);
+        updateChapterNavUI(); highlightActiveToc(); renderDomTree(); updateUndoRedoUI();
+        el.insertButtonBtn.disabled = false;
+      } catch (err) {
+        console.error(err); showToast('No se pudo cargar el capítulo: ' + err.message, true);
+      } finally { showSpinner(false); }
+    }
+
+    function zipEntry(href) {
+      let f = state.zip.file(href);
+      if (!f) { try { f = state.zip.file(decodeURIComponent(href)); } catch (e) { /* ruta no decodificable */ } }
+      return f;
+    }
+
+    async function buildChapterState(href) {
+      const entry = zipEntry(href);
+      if (!entry) throw new Error('No existe en el EPUB el archivo "' + href + '"');
+      const rawXml = await entry.async('string');
+      const doc = new DOMParser().parseFromString(rawXml, 'application/xhtml+xml');
+      if (doc.querySelector('parsererror')) {
+        const fallback = new DOMParser().parseFromString(rawXml, 'text/html');
+        return finalizeChapterState(href, fallback);
+      }
+      return finalizeChapterState(href, doc);
+    }
+
+    function finalizeChapterState(href, doc) {
+      if (!doc.body) throw new Error('El capítulo no tiene <body> legible');
+      assignUids(doc);
+      const viewportEl = doc.querySelector('meta[name="viewport"]');
+      const chapter = {
+        href, dir: dirOf(href), doc, customCss: '', history: [], historyIndex: -1,
+        blobUrls: new Map(), pageSize: viewportEl ? parseViewportSize(viewportEl.getAttribute('content')) : null,
+      };
+      pushHistory(chapter);
+      return chapter;
+    }
+
+    function assignUids(doc) {
+      const walker = doc.createTreeWalker ? doc.createTreeWalker(doc.body || doc.documentElement, NodeFilter.SHOW_ELEMENT) : null;
+      if (!walker) return;
+      let node = walker.currentNode;
+      while (node) {
+        if (node.nodeType === 1 && !node.hasAttribute('data-euid')) node.setAttribute('data-euid', 'e' + (euidCounter += 1));
+        node = walker.nextNode();
+      }
+    }
+
+    const EDITOR_INTERNAL_CSS = '.epub-editor-selected { outline: 3px solid #38bdf8 !important; outline-offset: 1px !important; background-color: rgba(56, 189, 248, 0.12) !important; } .epub-editor-editable-text { outline: 2px dashed #f97316 !important; outline-offset: 1px !important; } .epub-editor-textmode { cursor: text; } .epub-editor-movemode * { cursor: move !important; } .epub-editor-fixedpage, .epub-editor-fixedpage body { overflow: hidden !important; } .epub-editor-showall body * { opacity: 1 !important; visibility: visible !important; animation: none !important; transition: none !important; } [style*="display: none"], [style*="display:none"] { display: inline-block !important; opacity: 0.25 !important; outline: 2px dashed #f97316 !important; }';
+    const EDITOR_TRANSIENT_CLASSES = ['epub-editor-selected', 'epub-editor-editable-text', 'epub-editor-textmode', 'epub-editor-movemode', 'epub-editor-fixedpage', 'epub-editor-showall', 'epub-editor-anim-preview'];
+
+    function stripEditorArtifacts(doc) {
+      doc.querySelectorAll('#epub-editor-internal-css, #epub-editor-custom-css, #epub-editor-anim-preview-css').forEach((n) => n.remove());
+      EDITOR_TRANSIENT_CLASSES.forEach((cls) => doc.querySelectorAll('.' + cls).forEach((n) => n.classList.remove(cls)));
+    }
+
+    async function renderChapterDoc(chapter) {
+      stripEditorArtifacts(chapter.doc);
+      await resolveAssets(chapter);
+      const html = serializeLive(chapter.doc);
+      const withInternalCss = injectStyleTag(html, 'epub-editor-internal-css', EDITOR_INTERNAL_CSS);
+      const withCss = injectStyleTag(withInternalCss, 'epub-editor-custom-css', chapter.customCss);
+      await new Promise((resolve) => {
+        const frame = el.chapterFrame;
+        const onLoad = () => { frame.removeEventListener('load', onLoad); wireIframeInteractions(chapter); applyViewerFormat(chapter); setTimeout(() => applyViewerFormat(chapter), 400); resolve(); };
+        frame.addEventListener('load', onLoad); frame.srcdoc = withCss;
+      });
+    }
+
+    // Modo página fija SIN scroll: el iframe se renderiza al tamaño ORIGINAL
+    // declarado por el EPUB (p. ej. 600×800 px reales) y se escala visualmente
+    // con transform para caber COMPLETO en el visor. Así no hay scroll, las
+    // coordenadas dentro del documento son píxeles reales del original, y la
+    // barra de estado informa dimensiones y escala.
+    const pageInfo = { doc: '', obj: '', cursor: '' };
+    function renderPageInfo() {
+      el.pageInfoLabel.textContent = [pageInfo.doc, pageInfo.obj, pageInfo.cursor].filter(Boolean).join('  ·  ');
+    }
+
+    function applyViewerFormat(chapter) {
+      let pageSize = (chapter && chapter.pageSize) || state.bookViewport || null;
+      const container = el.viewerContainer;
+      const frameDoc = el.chapterFrame.contentDocument;
+      let declared = true;
+      if (!pageSize) { pageSize = { width: 600, height: 800 }; declared = false; }
+      container.classList.add('viewer-container-fixed');
+      const style = getComputedStyle(container);
+      const padX = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
+      const padY = parseFloat(style.paddingTop) + parseFloat(style.paddingBottom);
+      const availW = Math.max(container.clientWidth - padX, 50);
+      const availH = Math.max(container.clientHeight - padY, 50);
+      // Si el contenido real desborda el tamaño declarado (muy común: el EPUB
+      // declara 600×800 pero el capítulo es más largo), se usa el tamaño REAL
+      // del contenido para que el documento se vea COMPLETO, nunca recortado.
+      el.chapterFrame.style.width = pageSize.width + 'px';
+      el.chapterFrame.style.height = pageSize.height + 'px';
+      let effW = pageSize.width, effH = pageSize.height;
+      if (frameDoc && frameDoc.documentElement) {
+        effW = Math.max(effW, frameDoc.documentElement.scrollWidth, frameDoc.body ? frameDoc.body.scrollWidth : 0);
+        effH = Math.max(effH, frameDoc.documentElement.scrollHeight, frameDoc.body ? frameDoc.body.scrollHeight : 0);
+      }
+      el.chapterFrame.style.width = effW + 'px';
+      el.chapterFrame.style.height = effH + 'px';
+      const scale = Math.min(availW / effW, availH / effH);
+      el.chapterFrame.style.transform = 'translate(-50%, -50%) scale(' + scale + ')';
+      if (frameDoc) frameDoc.documentElement.classList.add('epub-editor-fixedpage');
+      pageInfo.doc = (declared ? 'Documento original: ' : 'Formato de salida (por defecto): ') + pageSize.width + ' × ' + pageSize.height + ' px'
+        + ((effH !== pageSize.height || effW !== pageSize.width) ? ' · contenido real: ' + effW + ' × ' + effH + ' px' : '')
+        + ' (escala ' + Math.round(scale * 100) + '%)';
+      renderPageInfo();
+    }
+
+    function injectStyleTag(html, id, css) {
+      if (!css || !css.trim()) return html;
+      const styleTag = '<style id="' + id + '">' + css + '</style>';
+      if (html.includes('</head>')) return html.replace('</head>', styleTag + '</head>');
+      return styleTag + html;
+    }
+
+    async function resolveAssets(chapter) {
+      const doc = chapter.doc; const refs = [];
+      doc.querySelectorAll('img[src], image').forEach((node) => {
+        const attr = node.tagName.toLowerCase() === 'image' ? 'href' : 'src';
+        const raw = node.getAttribute(attr) || node.getAttributeNS('http://www.w3.org/1999/xlink', 'href');
+        if (raw && !raw.startsWith('blob:') && !raw.startsWith('data:')) refs.push({ node, attr, raw });
+      });
+      doc.querySelectorAll('link[rel="stylesheet"][href]').forEach((node) => {
+        const raw = node.getAttribute('href');
+        if (raw && !raw.startsWith('blob:')) refs.push({ node, attr: 'href', raw });
+      });
+      // Scripts empaquetados en el EPUB: sin esto, el JS del libro nunca
+      // carga en la ventana "Previsualizar" y los botones interactivos
+      // del libro parecen muertos allí.
+      doc.querySelectorAll('script[src]').forEach((node) => {
+        const raw = node.getAttribute('src');
+        if (raw && !raw.startsWith('blob:') && !raw.startsWith('data:') && !/^([a-z]+:)?\/\//i.test(raw)) {
+          refs.push({ node, attr: 'src', raw });
+        }
+      });
+      for (const ref of refs) {
+        const fullPath = resolvePath(chapter.dir, ref.raw);
+        let blobUrl = chapter.blobUrls.get(fullPath);
+        if (!blobUrl) {
+          const zipFile = zipEntry(fullPath);
+          if (!zipFile) continue;
+          const mediaType = guessMediaType(fullPath);
+          const blob = await zipFile.async('blob');
+          const typedBlob = mediaType ? blob.slice(0, blob.size, mediaType) : blob;
+          blobUrl = URL.createObjectURL(typedBlob);
+          chapter.blobUrls.set(fullPath, blobUrl);
+        }
+        if (!ref.node.hasAttribute('data-original-' + ref.attr)) ref.node.setAttribute('data-original-' + ref.attr, ref.raw);
+        ref.node.setAttribute(ref.attr, blobUrl);
+      }
+    }
+
+    function guessMediaType(path) {
+      const ext = path.split('.').pop().toLowerCase();
+      const map = { png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', gif: 'image/gif', svg: 'image/svg+xml', webp: 'image/webp', css: 'text/css', js: 'text/javascript', mjs: 'text/javascript' };
+      return map[ext] || '';
+    }
+
+    function serializeLive(doc) {
+      const serializer = new XMLSerializer();
+      let html = serializer.serializeToString(doc);
+      if (!html.startsWith('<?xml')) html = '<?xml version="1.0" encoding="UTF-8"?>\n' + html;
+      return html;
+    }
+
+    function serializeCleanDoc(doc, customCss, revertBlobUrls) {
+      const clone = doc.cloneNode(true);
+      clone.querySelectorAll('[data-euid]').forEach((n) => n.removeAttribute('data-euid'));
+      clone.querySelectorAll('[contenteditable]').forEach((n) => n.removeAttribute('contenteditable'));
+      stripEditorArtifacts(clone);
+      clone.querySelectorAll('[class=""]').forEach((n) => n.removeAttribute('class'));
+      ['src', 'href'].forEach((attr) => {
+        clone.querySelectorAll('[data-original-' + attr + ']').forEach((n) => {
+          if (revertBlobUrls) n.setAttribute(attr, n.getAttribute('data-original-' + attr));
+          n.removeAttribute('data-original-' + attr);
+        });
+      });
+      if (customCss && customCss.trim()) {
+        const styleEl = clone.createElement('style');
+        styleEl.textContent = customCss;
+        const head = clone.querySelector('head');
+        if (head) head.appendChild(styleEl);
+        else clone.documentElement.insertBefore(styleEl, clone.documentElement.firstChild);
+      }
+      return serializeLive(clone);
+    }
+
+    function serializeForExport(doc, customCss) { return serializeCleanDoc(doc, customCss, true); }
+    function serializeForReaderPreview(chapter) { return serializeCleanDoc(chapter.doc, chapter.customCss, false); }
+
+    function openReaderPreview() {
+      const chapter = currentChapter();
+      if (!chapter) return;
+      const pageSize = chapter.pageSize || state.bookViewport;
+      const popupW = pageSize ? Math.min(Math.round(pageSize.width) + 40, screen.availWidth - 60) : 820;
+      const popupH = pageSize ? Math.min(Math.round(pageSize.height) + 80, screen.availHeight - 60) : 1000;
+      const html = serializeForReaderPreview(chapter).replace(/^<\?xml[^>]*\?>\s*/, '');
+      const popup = window.open('', '_blank', 'width=' + popupW + ',height=' + popupH);
+      if (!popup) { showToast('El navegador bloqueó la ventana emergente.', true); return; }
+      popup.opener = null; popup.document.open(); popup.document.write(html); popup.document.close();
+    }
+
+    /* ------------------------------------------------------------------ */
+    /* Historial (undo/redo) y Navegación                                  */
+    /* ------------------------------------------------------------------ */
+    const HISTORY_LIMIT = 60;
+    function currentChapter() {
+      const entry = state.spine[state.chapterIndex];
+      if (!entry) return null;
+      return state.chapterState.get(entry.href) || null;
+    }
+    function pushHistory(chapter) {
+      const snapshot = { html: serializeLive(chapter.doc), customCss: chapter.customCss };
+      chapter.history = chapter.history.slice(0, chapter.historyIndex + 1);
+      chapter.history.push(snapshot);
+      if (chapter.history.length > HISTORY_LIMIT) chapter.history.shift();
+      chapter.historyIndex = chapter.history.length - 1;
+    }
+    async function restoreSnapshot(chapter, snapshot) {
+      const doc = new DOMParser().parseFromString(snapshot.html, 'application/xhtml+xml');
+      chapter.doc = doc; chapter.customCss = snapshot.customCss;
+      await renderChapterDoc(chapter); renderDomTree(); clearSelectionUI();
+    }
+    async function undo() { const c = currentChapter(); if (!c || c.historyIndex <= 0) return; c.historyIndex -= 1; await restoreSnapshot(c, c.history[c.historyIndex]); updateUndoRedoUI(); setDirty(true); }
+    async function redo() { const c = currentChapter(); if (!c || c.historyIndex >= c.history.length - 1) return; c.historyIndex += 1; await restoreSnapshot(c, c.history[c.historyIndex]); updateUndoRedoUI(); setDirty(true); }
+    function updateUndoRedoUI() { const c = currentChapter(); el.undoBtn.disabled = !c || c.historyIndex <= 0; el.redoBtn.disabled = !c || c.historyIndex >= c.history.length - 1; }
+    function updateChapterNavUI() { const t = state.spine.length; el.chapterLabel.textContent = t ? 'Capítulo ' + (state.chapterIndex + 1) + ' de ' + t : 'Sin libro cargado'; el.prevChapterBtn.disabled = state.chapterIndex <= 0; el.nextChapterBtn.disabled = state.chapterIndex >= t - 1; }
+
+    /* ------------------------------------------------------------------ */
+    /* Interacción Iframe, DOM, Selección                                  */
+    /* ------------------------------------------------------------------ */
+    function wireIframeInteractions(chapter) {
+      const frameDoc = el.chapterFrame.contentDocument;
+      if (!frameDoc) return;
+      frameDoc.body.addEventListener('click', (e) => {
+        const target = e.target.closest('[data-euid]');
+        if (!target) return;
+        if (state.textEditMode) { enableInlineTextEdit(target, chapter); return; }
+        e.preventDefault(); selectElementByUid(target.getAttribute('data-euid'), chapter);
+      }, true);
+      wireMoveMode(chapter, frameDoc);
+      frameDoc.addEventListener('keydown', (e) => {
+        if (e.key === 'Delete' && state.selectedUid && !state.textEditMode) deleteSelectedObject();
+      });
+      // Coordenadas del cursor en píxeles REALES del documento original
+      // (el iframe se renderiza al tamaño declarado, así que clientX/Y ya
+      // son coordenadas del documento, no de la pantalla escalada).
+      frameDoc.addEventListener('mousemove', (e) => {
+        pageInfo.cursor = 'Cursor: ' + Math.round(e.clientX) + ', ' + Math.round(e.clientY) + ' px';
+        renderPageInfo();
+      });
+      frameDoc.addEventListener('mouseleave', () => { pageInfo.cursor = ''; renderPageInfo(); });
+      applyTextEditModeToFrame();
+      applyMoveModeToFrame();
+      applyShowAllToFrame();
+      if (state.selectedUid) highlightInFrame(state.selectedUid);
+    }
+
+    /* ------------------------------------------------------------------
+       MESA DE TRABAJO: mover (arrastrar), reordenar y eliminar objetos.
+       ------------------------------------------------------------------ */
+
+    // Con "Mover" activo, cualquier objeto del visor se arrastra con el
+    // ratón y, al soltarlo, queda fijado con position:absolute en las
+    // coordenadas de destino (relativas al body de la página). El cambio
+    // se guarda en el documento del capítulo, pasa por el historial de
+    // deshacer y viaja en el EPUB exportado.
+    function wireMoveMode(chapter, frameDoc) {
+      let dragEl = null, startX = 0, startY = 0, moved = false;
+
+      frameDoc.addEventListener('mousedown', (e) => {
+        if (!state.moveMode) return;
+        const target = e.target.closest('[data-euid]');
+        if (!target || target === frameDoc.body) return;
+        dragEl = target; startX = e.clientX; startY = e.clientY; moved = false;
+        e.preventDefault();
+      });
+
+      // En modo mover, bloquea el drag nativo HTML5 de enlaces e imágenes:
+      // sin esto, al arrastrar un <a> o <img> el navegador inicia su propio
+      // arrastre (fantasma semitransparente) y nuestro mouseup nunca llega,
+      // dejando el objeto sin reubicar.
+      frameDoc.addEventListener('dragstart', (e) => {
+        if (state.moveMode) e.preventDefault();
+      });
+
+      // Si el puntero sale de la página a mitad de arrastre, se cancela la
+      // operación y el objeto vuelve a su lugar (evita objetos "colgados").
+      frameDoc.documentElement.addEventListener('mouseleave', () => {
+        if (dragEl) { dragEl.style.transform = ''; dragEl = null; }
+      });
+
+      frameDoc.addEventListener('mousemove', (e) => {
+        if (!dragEl) return;
+        e.preventDefault();
+        const dx = e.clientX - startX, dy = e.clientY - startY;
+        if (Math.abs(dx) + Math.abs(dy) > 3) moved = true;
+        dragEl.style.transform = 'translate(' + dx + 'px,' + dy + 'px)';
+      });
+
+      frameDoc.addEventListener('mouseup', (e) => {
+        if (!dragEl) return;
+        const target = dragEl; dragEl = null;
+        target.style.transform = '';
+        if (!moved) return;
+        const dx = e.clientX - startX, dy = e.clientY - startY;
+        const rect = target.getBoundingClientRect();       // posición original (sin transform)
+        const bodyRect = frameDoc.body.getBoundingClientRect();
+        target.style.position = 'absolute';
+        const de = frameDoc.documentElement;
+        const maxL = Math.max(0, de.scrollWidth - Math.round(rect.width));
+        const maxT = Math.max(0, de.scrollHeight - Math.round(rect.height));
+        target.style.left = Math.min(maxL, Math.max(0, Math.round(rect.left + dx - bodyRect.left))) + 'px';
+        target.style.top = Math.min(maxT, Math.max(0, Math.round(rect.top + dy - bodyRect.top))) + 'px';
+        target.style.margin = '0';
+        ensureBodyRelativeCss(chapter);                     // ancla las coordenadas al body
+        syncDocFromFrame(chapter);
+        pushHistory(chapter); updateUndoRedoUI(); setDirty(true);
+        selectElementByUid(target.getAttribute('data-euid'), chapter);
+        showToast('Objeto reubicado (posición fijada dentro de la página).');
+      });
+    }
+
+    // Las coordenadas absolutas necesitan que el body sea el contenedor de
+    // referencia; esta regla viaja con el EPUB para que la posición se
+    // respete igual en cualquier lector.
+    function ensureBodyRelativeCss(chapter) {
+      if (chapter.customCss.includes('/* mesa-de-trabajo */')) return;
+      chapter.customCss += (chapter.customCss.trim() ? '\n\n' : '') + '/* mesa-de-trabajo */\nbody { position: relative; }';
+      setEditorValue(cssEditorCM, el.cssEditorArea, chapter.customCss);
+      previewCssInFrame();
+    }
+
+    function applyMoveModeToFrame() {
+      const frameDoc = el.chapterFrame.contentDocument;
+      if (!frameDoc) return;
+      frameDoc.body.classList.toggle('epub-editor-movemode', state.moveMode);
+    }
+
+    // Modo "Mostrar ocultos": los EPUB animados (p. ej. de InDesign) dejan sus
+    // objetos con opacity:0 hasta que un script dispara la animación de
+    // entrada; ese script no corre en el visor de edición (sandbox), así que
+    // sin este modo la página se ve vacía y nada puede seleccionarse.
+    function applyShowAllToFrame() {
+      const frameDoc = el.chapterFrame.contentDocument;
+      if (!frameDoc) return;
+      frameDoc.documentElement.classList.toggle('epub-editor-showall', state.showAll);
+    }
+
+    function deleteSelectedObject() {
+      const chapter = currentChapter(); if (!chapter || !state.selectedUid) return;
+      const target = findElementByUid(chapter.doc, state.selectedUid);
+      if (!target || target === chapter.doc.body) return;
+      const desc = describeElement(target);
+      target.remove();
+      state.selectedUid = null;
+      renderChapterDoc(chapter).then(() => {
+        renderDomTree(); clearSelectionUI(); pushHistory(chapter); updateUndoRedoUI(); setDirty(true);
+        showToast('Objeto ' + desc + ' eliminado. Usa Deshacer si te arrepientes.');
+      });
+    }
+
+    function moveSelectedObject(direction) {
+      const chapter = currentChapter(); if (!chapter || !state.selectedUid) return;
+      const target = findElementByUid(chapter.doc, state.selectedUid);
+      if (!target) return;
+      if (direction < 0 && target.previousElementSibling) {
+        target.parentNode.insertBefore(target, target.previousElementSibling);
+      } else if (direction > 0 && target.nextElementSibling) {
+        target.parentNode.insertBefore(target.nextElementSibling, target);
+      } else {
+        showToast('El objeto ya está en el extremo de su contenedor.', true);
+        return;
+      }
+      const uid = state.selectedUid;
+      renderChapterDoc(chapter).then(() => {
+        renderDomTree(); selectElementByUid(uid, chapter);
+        pushHistory(chapter); updateUndoRedoUI(); setDirty(true);
+        showToast(direction < 0 ? 'Objeto movido hacia arriba.' : 'Objeto movido hacia abajo.');
+      });
+    }
+
+    /* ------------------------------------------------------------------
+       AYUDA CONTEXTUAL POR PANTALLA
+       Cada pestaña tiene su propio texto de ayuda, que explica qué hace la
+       herramienta Y cómo afecta al archivo EPUB. Se muestra automáticamente
+       la primera vez que se abre cada pantalla (tutorial paso a paso) y en
+       cualquier momento con el botón "?".
+       ------------------------------------------------------------------ */
+    const HELP_TEXTS = {
+      toc: 'ÍNDICE — Muestra la tabla de contenidos que declara el propio EPUB. Haz clic en un '
+        + 'capítulo para abrirlo en el visor de arriba. No modifica el archivo. En el visor: la '
+        + '"Mesa de trabajo" permite mover (arrastrando), reordenar (⬆⬇) y eliminar (🗑 o tecla '
+        + 'Supr) cualquier objeto seleccionado.',
+      dom: 'DOM — Árbol de los elementos HTML reales del capítulo (párrafos, imágenes, botones...). '
+        + 'El icono de cada fila indica su tipo: imagen, vectorial, texto o contenedor. Haz clic en '
+        + 'un elemento para SELECCIONARLO: se resalta en el visor y queda listo para editarse en '
+        + 'las demás pestañas. Seleccionar no modifica el archivo.',
+      html: 'HTML — Edita el código del elemento seleccionado. "Aplicar HTML" reemplaza ese '
+        + 'fragmento dentro del archivo .xhtml del capítulo (el mismo que leen los lectores EPUB); '
+        + 'un error de sintaxis puede impedir que el capítulo se abra en otros lectores. '
+        + '"Restablecer" descarta lo escrito sin tocar el archivo.',
+      css: 'CSS — Escribe reglas de estilo libres o usa el panel de propiedades (los colores tienen '
+        + 'casilla "Ninguno" para no forzarlos). Al pulsar "Aplicar CSS", las reglas se guardan como '
+        + 'hoja de estilos dentro del capítulo y viajan en el EPUB exportado, conviviendo con los '
+        + 'estilos originales del libro.',
+      text: 'TEXTO — Cambia el texto visible del elemento seleccionado desde este campo, o activa '
+        + '"Modo edición de texto" en el visor y haz clic directamente sobre el contenido para '
+        + 'editarlo en el lugar. Solo cambia el texto: el marcado HTML alrededor se conserva.',
+      anim: 'ANIMACIONES — Aplica animaciones CSS (@keyframes) al elemento seleccionado: elige un '
+        + 'preset, ajusta duración/retraso/curva/iteraciones, mira el código generado y pulsa '
+        + '"Aplicar Animación". El código queda en la hoja de estilos del capítulo y se reproduce '
+        + 'en cualquier lector EPUB compatible con animaciones CSS.',
+      buttons: 'BOTONES — Catálogo de 11 botones con efectos hover. Clic en un estilo: si tienes un '
+        + 'botón/enlace seleccionado, le CAMBIA el estilo; si no, INSERTA un botón nuevo (dentro del '
+        + 'objeto seleccionado o al final de la página). Su CSS completo se copia al capítulo para '
+        + 'que el botón se vea igual en el EPUB exportado. CONFIGURAR FUNCIONES: 1) selecciona CUALQUIER objeto '
+        + '(no hace falta que sea un botón), 2) escribe su texto y su hiperenlace, 3) elige colores, 4) en "Acción al tocar" elige '
+        + 'animar u ocultar/mostrar un objeto y su objetivo, 5) pulsa "Actualizar Botón", 6) verifica con '
+        + '"▶ Probar acción" y ubícalo con "📍 Ubicar botón". Los objetos ocultos se ven semitransparentes '
+        + 'con borde naranja solo en el editor.',
+    };
+    let activeTabName = 'toc';
+    const visitedTabs = new Set();
+
+    function showHelpForActiveTab() {
+      el.helpPanelText.textContent = HELP_TEXTS[activeTabName] || '';
+      el.helpPanel.classList.remove('hidden');
+    }
+
+    function onTabChanged(name) {
+      activeTabName = name;
+      const firstVisit = !visitedTabs.has(name);
+      visitedTabs.add(name);
+      if (!el.helpPanel.classList.contains('hidden')) { showHelpForActiveTab(); return; }
+      // Mini-tutorial: la primera visita a cada pantalla muestra su ayuda
+      if (firstVisit) showHelpForActiveTab();
+    }
+
+    function showEditorDialog(titulo, msg) {
+      document.getElementById('edDlgTitulo').textContent = titulo;
+      document.getElementById('edDlgMsg').textContent = msg;
+      document.getElementById('editorVelo').classList.remove('hidden');
+    }
+
+    // Ejecuta la acción configurada del botón DIRECTAMENTE en el visor de
+    // edición (el sandbox bloquea los scripts del EPUB, así que el editor la
+    // reproduce él mismo): así se ve el resultado sin salir a "Previsualizar".
+    function probarAccionBoton() {
+      const chapter = currentChapter(); if (!chapter || !state.selectedUid) return;
+      const src = findElementByUid(chapter.doc, state.selectedUid); if (!src) return;
+      const accion = src.getAttribute('data-accion');
+      if (!accion) { showEditorDialog('Sin acción configurada', 'Este botón no tiene acción todavía.\n1. Elige una "Acción al tocar".\n2. Elige el objeto objetivo.\n3. Pulsa "Actualizar Botón".\n4. Vuelve a pulsar "▶ Probar acción".'); return; }
+      const fd = el.chapterFrame.contentDocument;
+      const target = fd && fd.querySelector(src.getAttribute('data-objetivo') || '');
+      if (!target) { showEditorDialog('Objetivo no encontrado', 'El objeto objetivo ' + (src.getAttribute('data-objetivo') || '(vacío)') + ' no existe en este capítulo.'); return; }
+      if (accion === 'animar') {
+        const preset = src.getAttribute('data-anim-preset');
+        ensureActionAnimCss(chapter, preset);
+        previewCssInFrame();
+        const cls = 'epub-act-' + preset;
+        target.classList.remove(cls); void target.offsetWidth; target.classList.add(cls);
+        showEditorDialog('Acción ejecutada', 'La animación "' + preset + '" se está reproduciendo sobre ' + src.getAttribute('data-objetivo') + ' en el visor. En el lector EPUB ocurrirá al tocar el botón.');
+      } else if (accion === 'alternar') {
+        target.style.display = (target.style.display === 'none' ? '' : 'none');
+        showEditorDialog('Acción ejecutada', 'El objeto ' + src.getAttribute('data-objetivo') + ' ahora está ' + (target.style.display === 'none' ? 'OCULTO (en el editor lo verás semitransparente con borde naranja; en el lector quedará invisible)' : 'VISIBLE') + '. En el lector EPUB esto ocurrirá al tocar el botón.');
+      }
+    }
+
+    function ubicarBotonSeleccionado() {
+      if (!state.selectedUid) return;
+      state.moveMode = true;
+      el.moveModeToggle.checked = true;
+      applyMoveModeToFrame();
+      highlightInFrame(state.selectedUid);
+      showEditorDialog('Ubicar el botón en la página',
+        '1. El modo "Mover" quedó ACTIVADO en la mesa de trabajo.\n'
+        + '2. Arrastra el botón (o cualquier objeto) en el visor hasta la posición deseada.\n'
+        + '3. Al soltarlo, la posición se fija en píxeles reales del documento y viajará en el EPUB exportado.\n'
+        + '4. También puedes reordenarlo con ⬆⬇ o eliminarlo con 🗑.\n'
+        + '5. Desactiva "Mover" para volver a seleccionar con clic normal.');
+    }
+
+    function updateWorkspaceToolbar() {
+      const has = Boolean(state.selectedUid);
+      el.moveUpBtn.disabled = !has;
+      el.moveDownBtn.disabled = !has;
+      el.deleteObjBtn.disabled = !has;
+      document.getElementById('testActionBtn').disabled = !has;
+      document.getElementById('placeBtnBtn').disabled = !has;
+    }
+
+    function enableInlineTextEdit(target, chapter) {
+      target.setAttribute('contenteditable', 'true');
+      target.classList.add('epub-editor-editable-text');
+      target.focus();
+      const commit = () => {
+        target.removeEventListener('blur', commit);
+        target.removeAttribute('contenteditable');
+        target.classList.remove('epub-editor-editable-text');
+        syncDocFromFrame(chapter); pushHistory(chapter); updateUndoRedoUI(); setDirty(true); showToast('Texto actualizado.');
+      };
+      target.addEventListener('blur', commit, { once: true });
+    }
+
+    function syncDocFromFrame(chapter) {
+      const frameDoc = el.chapterFrame.contentDocument;
+      frameDoc.body.classList.remove('epub-editor-textmode');
+      const serializer = new XMLSerializer();
+      const html = serializer.serializeToString(frameDoc.documentElement);
+      const cleanHtml = html.includes('<?xml') ? html : '<?xml version="1.0" encoding="UTF-8"?>\n' + html;
+      chapter.doc = new DOMParser().parseFromString(cleanHtml, 'application/xhtml+xml');
+      stripEditorArtifacts(chapter.doc);
+      frameDoc.body.classList.toggle('epub-editor-textmode', state.textEditMode);
+    }
+
+    function applyTextEditModeToFrame() {
+      const frameDoc = el.chapterFrame.contentDocument;
+      if (!frameDoc) return;
+      frameDoc.body.classList.toggle('epub-editor-textmode', state.textEditMode);
+    }
+
+    function renderDomTree() {
+      const chapter = currentChapter();
+      el.domTree.innerHTML = '';
+      if (!chapter || !chapter.doc.body) { el.domTree.innerHTML = '<p class="empty-hint">Este capítulo no tiene contenido.</p>'; return; }
+      el.domTree.appendChild(buildDomNodeUI(chapter.doc.body, 0));
+      applyDomSearchFilter();
+    }
+
+    function buildDomNodeUI(element, depth) {
+      const wrapper = document.createElement('div'); wrapper.className = 'dom-node';
+      const row = document.createElement('div'); row.className = 'dom-node-row';
+      row.style.paddingLeft = depth + 'rem'; row.dataset.uid = element.getAttribute('data-euid') || '';
+      const children = Array.from(element.children);
+      const toggle = document.createElement('span'); toggle.className = 'dom-toggle'; toggle.textContent = children.length ? '▾' : '';
+      const type = identifyLayerType(element);
+      const typeSpan = document.createElement('span'); typeSpan.className = 'dom-type-badge dom-type-' + type.kind; typeSpan.textContent = type.icon; typeSpan.title = type.label;
+      const tagSpan = document.createElement('span'); tagSpan.className = 'dom-tag'; tagSpan.textContent = '<' + element.tagName.toLowerCase() + '>';
+      row.appendChild(toggle); row.appendChild(typeSpan); row.appendChild(tagSpan);
+      if (element.id) { const idSpan = document.createElement('span'); idSpan.className = 'dom-id'; idSpan.textContent = '#' + element.id; row.appendChild(idSpan); }
+      if (element.className && typeof element.className === 'string') {
+        const classSpan = document.createElement('span'); classSpan.className = 'dom-class';
+        classSpan.textContent = element.className.split(/\s+/).filter(Boolean).map((c) => '.' + c).join('');
+        row.appendChild(classSpan);
+      }
+      row.addEventListener('click', (e) => { e.stopPropagation(); selectElementByUid(row.dataset.uid, currentChapter()); });
+      wrapper.appendChild(row);
+      if (children.length) {
+        const childrenWrap = document.createElement('div'); childrenWrap.className = 'dom-children';
+        children.forEach((child) => childrenWrap.appendChild(buildDomNodeUI(child, depth + 1)));
+        wrapper.appendChild(childrenWrap);
+        toggle.addEventListener('click', (e) => {
+          e.stopPropagation(); childrenWrap.classList.toggle('collapsed');
+          toggle.textContent = childrenWrap.classList.contains('collapsed') ? '▸' : '▾';
+        });
+      }
+      return wrapper;
+    }
+
+    function applyDomSearchFilter() {
+      const query = el.domSearch.value.trim().toLowerCase();
+      const rows = el.domTree.querySelectorAll('.dom-node-row');
+      if (!query) { rows.forEach((row) => row.closest('.dom-node').classList.remove('filtered-out')); return; }
+      rows.forEach((row) => {
+        const text = row.textContent.toLowerCase();
+        row.closest('.dom-node').classList.toggle('filtered-out', !text.includes(query));
+      });
+    }
+
+    function selectElementByUid(uid, chapter) {
+      if (!uid || !chapter) return;
+      state.selectedUid = uid;
+      loadElementIntoEditors(uid, chapter); highlightInFrame(uid); highlightInDomTree(uid);
+    }
+    function findElementByUid(doc, uid) { return doc.querySelector('[data-euid="' + uid + '"]'); }
+    function highlightInFrame(uid) {
+      const frameDoc = el.chapterFrame.contentDocument; if (!frameDoc) return;
+      frameDoc.querySelectorAll('.epub-editor-selected').forEach((n) => n.classList.remove('epub-editor-selected'));
+      const target = findElementByUid(frameDoc, uid);
+      if (target) { target.classList.add('epub-editor-selected'); target.scrollIntoView({ block: 'center', behavior: 'smooth' }); }
+    }
+    function highlightInDomTree(uid) { el.domTree.querySelectorAll('.dom-node-row').forEach((row) => row.classList.toggle('selected', row.dataset.uid === uid)); }
+
+    function clearSelectionUI() {
+      state.selectedUid = null; el.selectedElementLabel.textContent = 'Ningún elemento seleccionado';
+      el.applyHtmlBtn.disabled = true; el.resetHtmlBtn.disabled = true; el.textBulkEditor.disabled = true;
+      el.textBulkEditor.value = ''; el.applyTextBtn.disabled = true; el.cssTargetSelector.value = '';
+      el.previewAnimBtn.disabled = true; el.applyAnimBtn.disabled = true;
+      el.propColorNone.checked = true; el.propColor.disabled = true;
+      el.propBackgroundNone.checked = true; el.propBackground.disabled = true;
+      el.selectedElementLayerInfo.textContent = '';
+      [el.buttonLabelInput, el.buttonHrefInput, el.btnPropColor, el.btnPropBg, el.buttonActionSelect,
+       el.buttonActionTarget, el.buttonActionAnim, el.applyButtonEditBtn].forEach(i => { i.disabled = true; });
+      setEditorValue(htmlEditorCM, el.htmlEditorArea, ''); updateInsertButtonState(); updateWorkspaceToolbar();
+      pageInfo.obj = ''; renderPageInfo();
+    }
+
+    function ensureStableId(node, uid) { if (!node.id) node.id = 'edobj-' + uid; return node.id; }
+
+    function loadElementIntoEditors(uid, chapter) {
+      const source = findElementByUid(chapter.doc, uid);
+      if (!source) return;
+      ensureStableId(source, uid);
+      const frameDoc = el.chapterFrame.contentDocument;
+      const liveEl = frameDoc && findElementByUid(frameDoc, uid);
+      if (liveEl && !liveEl.id) liveEl.id = source.id;
+      el.selectedElementLabel.textContent = describeElement(source);
+      const html = new XMLSerializer().serializeToString(source);
+      setEditorValue(htmlEditorCM, el.htmlEditorArea, html);
+      el.applyHtmlBtn.disabled = false; el.resetHtmlBtn.disabled = false;
+      el.textBulkEditor.disabled = false; el.textBulkEditor.value = source.textContent; el.applyTextBtn.disabled = false;
+      el.cssTargetSelector.value = '#' + source.id;
+      loadComputedPropsIntoPanel(uid);
+      el.previewAnimBtn.disabled = false; el.applyAnimBtn.disabled = false;
+      updateAnimCssPreviewText(); updateLayerInfo(source, liveEl); updateButtonEditorUI(source); updateInsertButtonState(); updateWorkspaceToolbar();
+    }
+
+    function identifyLayerType(node) {
+      const tag = node.tagName.toLowerCase();
+      const ref = (node.getAttribute && (node.getAttribute('data-original-src') || node.getAttribute('data-original-href') || node.getAttribute('src') || node.getAttribute('href') || (node.getAttributeNS ? node.getAttributeNS('http://www.w3.org/1999/xlink', 'href') : ''))) || '';
+      if (tag === 'svg' || /\.svg(\?|#|$)/i.test(ref)) return { kind: 'vector', icon: '◆', label: 'Vectorial (SVG)' };
+      if (tag === 'img' || tag === 'image') return { kind: 'image', icon: '▧', label: 'Imagen' };
+      const textTags = ['p', 'span', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'a', 'li', 'td', 'th', 'em', 'strong', 'b', 'i', 'button'];
+      if (textTags.includes(tag) && node.children.length === 0) return { kind: 'text', icon: 'T', label: 'Texto' };
+      return { kind: 'container', icon: '▢', label: 'Contenedor' };
+    }
+
+    function describeTransparency(computed) {
+      const opacity = parseFloat(computed.opacity);
+      const bgMatch = /rgba?\(\s*[\d.]+\s*,\s*[\d.]+\s*,\s*[\d.]+\s*(?:,\s*([\d.]+)\s*)?\)/.exec(computed.backgroundColor || '');
+      const bgAlpha = bgMatch ? (bgMatch[1] === undefined ? 1 : parseFloat(bgMatch[1])) : null;
+      const parts = [];
+      if (!Number.isNaN(opacity) && opacity < 1) parts.push('opacidad ' + Math.round(opacity * 100) + '%');
+      if (bgAlpha !== null && bgAlpha < 1) parts.push(bgAlpha === 0 ? 'fondo transparente' : 'fondo ' + Math.round(bgAlpha * 100) + '% opaco');
+      return parts.length ? parts.join(', ') : 'totalmente opaco';
+    }
+
+    function updateLayerInfo(source, liveEl) {
+      const type = identifyLayerType(source); let text = 'Tipo: ' + type.label;
+      if (liveEl && el.chapterFrame.contentDocument && el.chapterFrame.contentDocument.defaultView) {
+        const computed = el.chapterFrame.contentDocument.defaultView.getComputedStyle(liveEl);
+        text += ' · ' + describeTransparency(computed);
+        // Coordenadas y tamaño del objeto en píxeles reales del documento
+        const r = liveEl.getBoundingClientRect();
+        const win = el.chapterFrame.contentDocument.defaultView;
+        const ox = Math.round(r.left + win.scrollX), oy = Math.round(r.top + win.scrollY);
+        text += ' · Posición: ' + ox + ', ' + oy + ' px · Tamaño: ' + Math.round(r.width) + ' × ' + Math.round(r.height) + ' px';
+        pageInfo.obj = 'Objeto: ' + ox + ', ' + oy + ' · ' + Math.round(r.width) + ' × ' + Math.round(r.height) + ' px';
+        renderPageInfo();
+      }
+      el.selectedElementLayerInfo.textContent = text;
+    }
+
+    function isButtonLike(node) {
+      const tag = node.tagName.toLowerCase();
+      if (tag === 'button' || tag === 'a') return true;
+      if (tag === 'input') { const type = (node.getAttribute('type') || '').toLowerCase(); return type === 'button' || type === 'submit' || type === 'reset'; }
+      return false;
+    }
+
+    function updateButtonEditorUI(source) {
+      const isBtn = isButtonLike(source);
+      const tag = source.tagName.toLowerCase();
+      // Cualquier objeto (botón, enlace, imagen o contenedor de InDesign) puede
+      // configurarse como botón interactivo: colores, acción e hiperenlace.
+      [el.btnPropColor, el.btnPropBg, el.buttonActionSelect,
+       el.buttonActionTarget, el.buttonActionAnim, el.applyButtonEditBtn].forEach(i => { i.disabled = false; });
+      // El texto directo solo se edita si el objeto no tiene hijos (para no
+      // destruir el contenido de un contenedor); usa la pestaña Texto en ese caso.
+      el.buttonLabelInput.disabled = (source.children.length > 0 && !isBtn);
+      el.buttonLabelInput.value = tag === 'input' ? (source.getAttribute('value') || '')
+        : (el.buttonLabelInput.disabled ? '(contenedor: edita su texto en la pestaña Texto)' : source.textContent.trim());
+      el.buttonHrefInput.value = source.getAttribute('href') || source.getAttribute('data-enlace') || '';
+      el.buttonHrefInput.disabled = (tag === 'input');
+
+      // Objetivos posibles de la acción: todos los objetos con id del capítulo
+      const chapter = currentChapter();
+      const ids = chapter ? Array.from(chapter.doc.querySelectorAll('[id]')).map(n => n.id) : [];
+      el.buttonActionTarget.innerHTML = '<option value="">(elige un objeto)</option>'
+        + ids.map(i => '<option value="#' + i + '">#' + i + '</option>').join('');
+      if (!el.buttonActionAnim.options.length) {
+        el.buttonActionAnim.innerHTML = ANIMATION_PRESETS.map(p => '<option value="' + p.id + '">' + p.name + '</option>').join('');
+      }
+      // Estado actual del botón (acción y colores ya aplicados)
+      el.buttonActionSelect.value = source.getAttribute('data-accion') || '';
+      el.buttonActionTarget.value = source.getAttribute('data-objetivo') || '';
+      if (source.getAttribute('data-anim-preset')) el.buttonActionAnim.value = source.getAttribute('data-anim-preset');
+      const frameDoc = el.chapterFrame.contentDocument;
+      const live = frameDoc && findElementByUid(frameDoc, source.getAttribute('data-euid'));
+      if (live) {
+        const cs = frameDoc.defaultView.getComputedStyle(live);
+        el.btnPropColor.value = rgbToHex(cs.color) || '#ffffff';
+        el.btnPropBg.value = rgbToHex(cs.backgroundColor) || '#2563eb';
+      }
+    }
+
+    /* Runtime de acciones para el EPUB exportado: un pequeño script (ES5,
+       click + touchend, sin caracteres < ni ampersands para ser XHTML-safe)
+       que ejecuta la accion declarada en los data-atributos de cada boton.
+       Corre en "Previsualizar" y en lectores EPUB3 con scripts; en el visor
+       de edicion queda inerte (sandbox sin scripts), a proposito. */
+    // OJO: este codigo NO puede contener <, ni ampersands, ni comparadores
+    // mayor/menor: al serializarse dentro del XHTML, XMLSerializer los
+    // escaparia como entidades y el script llegaria roto al lector.
+    const ACTION_RUNTIME = "(function(){var tocado=false;function go(e){var n=e.target.closest('[data-enlace]');if(n){e.preventDefault();window.location.href=n.getAttribute('data-enlace');return;}var b=e.target.closest('[data-accion]');if(!b){return;}"
+      + "var a=b.getAttribute('data-accion');if(!a){return;}e.preventDefault();"
+      + "var s=b.getAttribute('data-objetivo')||'';var t=s?document.querySelector(s):null;if(!t){return;}"
+      + "if(a==='animar'){var c='epub-act-'+b.getAttribute('data-anim-preset');t.classList.remove(c);void t.offsetWidth;t.classList.add(c);}"
+      + "if(a==='alternar'){t.style.display=(t.style.display==='none'?'':'none');}}"
+      + "document.addEventListener('touchend',function(e){tocado=true;setTimeout(function(){tocado=false;},700);go(e);},false);"
+      + "document.addEventListener('click',function(e){if(tocado){return;}go(e);},false);})();";
+
+    function ensureActionRuntime(chapter) {
+      if (chapter.doc.getElementById('epub-acciones-botones')) return;
+      const s = chapter.doc.createElement('script');
+      s.setAttribute('id', 'epub-acciones-botones');
+      s.textContent = ACTION_RUNTIME;
+      (chapter.doc.body || chapter.doc.documentElement).appendChild(s);
+    }
+
+    function ensureActionAnimCss(chapter, presetId) {
+      const preset = ANIMATION_PRESETS.find(p => p.id === presetId);
+      if (!preset) return;
+      const cls = '.epub-act-' + presetId;
+      if (chapter.customCss.includes(cls + ' ')) return;
+      chapter.customCss += (chapter.customCss.trim() ? '\n\n' : '')
+        + '@keyframes epub-act-kf-' + presetId + ' {\n' + preset.keyframes + '\n}\n'
+        + cls + ' {\n  animation: epub-act-kf-' + presetId + ' ' + preset.defaultDuration + 's ' + preset.defaultEasing + ' 0s ' + preset.defaultIterations + ';\n  ' + (preset.extraCss || '') + '\n}';
+      setEditorValue(cssEditorCM, el.cssEditorArea, chapter.customCss);
+    }
+
+    function applyButtonEdit() {
+      const chapter = currentChapter(); if (!chapter || !state.selectedUid) return;
+      const source = findElementByUid(chapter.doc, state.selectedUid);
+      if (!source) return;
+      const tag = source.tagName.toLowerCase();
+      if (!el.buttonLabelInput.disabled) {
+        if (tag === 'input') source.setAttribute('value', el.buttonLabelInput.value);
+        else source.textContent = el.buttonLabelInput.value;
+      }
+      // Hiperenlace: en un <a> va en href; en cualquier otro objeto se guarda
+      // como data-enlace y el runtime navega al tocarlo.
+      const href = el.buttonHrefInput.value.trim();
+      if (tag === 'a') {
+        if (href) source.setAttribute('href', href); else source.removeAttribute('href');
+      } else if (href) { source.setAttribute('data-enlace', href); ensureActionRuntime(chapter); }
+      else source.removeAttribute('data-enlace');
+
+      // COLORES: regla por id (gana a la clase del catalogo) que viaja en el EPUB
+      ensureStableId(source, state.selectedUid);
+      const colorRule = '#' + source.id + ' { color: ' + el.btnPropColor.value + '; background: ' + el.btnPropBg.value + '; }';
+      const marker = '/* color-boton ' + source.id + ' */';
+      if (chapter.customCss.includes(marker)) {
+        chapter.customCss = chapter.customCss.replace(new RegExp(marker.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '[^\n]*'), marker + ' ' + colorRule);
+      } else {
+        chapter.customCss += (chapter.customCss.trim() ? '\n\n' : '') + marker + ' ' + colorRule;
+      }
+      setEditorValue(cssEditorCM, el.cssEditorArea, chapter.customCss);
+
+      // ACCION EPUB: data-atributos + runtime + CSS de la animacion elegida
+      const accion = el.buttonActionSelect.value;
+      if (accion) {
+        source.setAttribute('data-accion', accion);
+        source.setAttribute('data-objetivo', el.buttonActionTarget.value);
+        if (accion === 'animar') {
+          source.setAttribute('data-anim-preset', el.buttonActionAnim.value);
+          ensureActionAnimCss(chapter, el.buttonActionAnim.value);
+        } else source.removeAttribute('data-anim-preset');
+        ensureActionRuntime(chapter);
+      } else {
+        source.removeAttribute('data-accion'); source.removeAttribute('data-objetivo'); source.removeAttribute('data-anim-preset');
+      }
+
+      renderChapterDoc(chapter).then(() => {
+        renderDomTree(); loadElementIntoEditors(state.selectedUid, chapter);
+        pushHistory(chapter); updateUndoRedoUI(); setDirty(true);
+        const acc = source.getAttribute('data-accion');
+        showEditorDialog('Botón actualizado', 'Configuración guardada:\n· Texto: ' + el.buttonLabelInput.value
+          + '\n· Enlace: ' + (el.buttonHrefInput.value || '(ninguno)')
+          + '\n· Acción: ' + (acc ? (acc === 'animar' ? 'animar ' + source.getAttribute('data-objetivo') + ' (' + source.getAttribute('data-anim-preset') + ')' : 'mostrar/ocultar ' + source.getAttribute('data-objetivo')) : '(ninguna)')
+          + '\n\nUsa "▶ Probar acción" para verla en el visor, "📍 Ubicar botón" para arrastrarlo a su posición, y "Previsualizar" para probarla como lector.');
+      });
+    }
+
+    const DEFAULT_BUTTON_CSS = '.epub-btn {\n  display: inline-block;\n  padding: 0.5em 1.2em;\n  border-radius: 6px;\n  background: #2563eb;\n  color: #ffffff;\n  text-decoration: none;\n  font-weight: 600;\n  cursor: pointer;\n}';
+
+    /* ------------------------------------------------------------------
+       CATÁLOGO DE BOTONES: única fuente de verdad del CSS.
+       Cada entrada es AUTOCONTENIDA (incluye todas sus propiedades base,
+       pseudo-elementos y @keyframes) para que, al insertarla en el
+       customCss del capítulo, el botón se vea idéntico dentro del EPUB
+       exportado en cualquier lector, sin depender de esta página.
+       Los 6 últimos vienen del "Catálogo de Botones Interactivos"
+       (efectos hover inspirados en prismic.io/blog/css-hover-effects).
+       ------------------------------------------------------------------ */
+    const BUTTON_CATALOG_CSS = {
+      'epub-btn-holographic':
+        '.epub-btn-holographic { position: relative; display: inline-block; padding: 0.7rem 1.6rem; border: none; border-radius: 10px; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #e2e8f0; font-size: 0.85rem; font-weight: 700; cursor: pointer; overflow: hidden; transition: transform 0.35s ease, box-shadow 0.35s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.3); text-decoration: none; }\n'
+        + '.epub-btn-holographic::before { content: ""; position: absolute; inset: -50%; background: conic-gradient(from 0deg, transparent 0%, rgba(56,189,248,0.4) 25%, transparent 50%, rgba(236,72,153,0.4) 75%, transparent 100%); opacity: 0; transition: opacity 0.4s ease; animation: epub-holo-spin 3s linear infinite; pointer-events: none; }\n'
+        + '@keyframes epub-holo-spin { to { transform: rotate(360deg); } }\n'
+        + '.epub-btn-holographic:hover { transform: scale(1.08); box-shadow: 0 0 25px rgba(56,189,248,0.5), 0 0 50px rgba(236,72,153,0.3); }\n'
+        + '.epub-btn-holographic:hover::before { opacity: 1; }',
+
+      'epub-btn-liquid':
+        '.epub-btn-liquid { position: relative; display: inline-block; padding: 0.7rem 1.8rem; border: none; border-radius: 50px; background: #0f172a; color: #ffffff; font-size: 0.85rem; font-weight: 700; cursor: pointer; overflow: hidden; transition: border-radius 0.5s ease, transform 0.4s ease; z-index: 1; text-decoration: none; }\n'
+        + '.epub-btn-liquid::before { content: ""; position: absolute; inset: 0; border-radius: inherit; background: conic-gradient(from 180deg, #06b6d4, #3b82f6, #8b5cf6, #06b6d4); z-index: -1; opacity: 0; transition: opacity 0.4s ease; filter: blur(8px); }\n'
+        + '.epub-btn-liquid:hover { border-radius: 10px; transform: rotate(5deg) scale(1.05); }\n'
+        + '.epub-btn-liquid:hover::before { opacity: 0.8; }',
+
+      'epub-btn-rainbow':
+        '.epub-btn-rainbow { position: relative; display: inline-block; padding: 0.7rem 2rem; border: none; border-radius: 8px; background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3, #ff0000); background-size: 400% 100%; color: #ffffff; font-size: 0.85rem; font-weight: 700; cursor: pointer; overflow: hidden; transition: transform 0.3s ease; text-decoration: none; }\n'
+        + '.epub-btn-rainbow:hover { animation: epub-rainbow-slide 2s linear infinite; transform: scale(1.06); box-shadow: 0 8px 25px rgba(0,0,0,0.25); }\n'
+        + '@keyframes epub-rainbow-slide { 0% { background-position: 0% 50%; } 100% { background-position: 400% 50%; } }',
+
+      'epub-btn-press':
+        '.epub-btn-press { position: relative; display: inline-block; padding: 0.7rem 1.6rem; border: none; border-radius: 10px; background: #2563eb; color: #ffffff; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: transform 0.15s ease, box-shadow 0.15s ease; box-shadow: 0 6px 0 #1e40af, 0 8px 15px rgba(0,0,0,0.2); text-decoration: none; }\n'
+        + '.epub-btn-press:hover { transform: translateY(2px); box-shadow: 0 4px 0 #1e40af, 0 5px 10px rgba(0,0,0,0.2); }\n'
+        + '.epub-btn-press:active { transform: translateY(6px); box-shadow: 0 0 0 #1e40af, 0 2px 5px rgba(0,0,0,0.2); }',
+
+      'epub-btn-glass':
+        '.epub-btn-glass { position: relative; display: inline-block; padding: 0.7rem 1.6rem; border: 1px solid rgba(255,255,255,0.2); border-radius: 14px; background: rgba(30,41,59,0.65); backdrop-filter: blur(10px); color: #e2e8f0; font-size: 0.85rem; font-weight: 700; cursor: pointer; overflow: hidden; transition: transform 0.4s ease, box-shadow 0.4s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-decoration: none; }\n'
+        + '.epub-btn-glass::before { content: ""; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent); transform: rotate(45deg); transition: transform 0.6s ease; pointer-events: none; }\n'
+        + '.epub-btn-glass:hover { transform: scale(1.05); box-shadow: 0 0 30px rgba(56,189,248,0.4), 0 0 60px rgba(139,92,246,0.2); border-color: rgba(56,189,248,0.5); }\n'
+        + '.epub-btn-glass:hover::before { transform: rotate(45deg) translate(50%, 50%); }',
+
+      /* --- Efectos del Catálogo de Botones Interactivos (Prismic) --- */
+
+      'epub-btn-underline':
+        '.epub-btn-underline { position: relative; display: inline-block; padding: 0.7rem 0.4rem; border: none; background: transparent; color: #2d5d8f; font-size: 0.9rem; font-weight: 700; cursor: pointer; text-decoration: none; }\n'
+        + '.epub-btn-underline::after { content: ""; position: absolute; left: 0; bottom: 0.35em; width: 100%; height: 3px; background: #e8a13c; transform: scaleX(0); transform-origin: left center; transition: transform 0.35s ease-out; }\n'
+        + '.epub-btn-underline:hover::after, .epub-btn-underline:focus::after { transform: scaleX(1); }',
+
+      'epub-btn-wave':
+        '.epub-btn-wave { position: relative; display: inline-block; padding: 0.75rem 1.6rem; border: none; border-radius: 8px; background: #14655e; color: #ffffff; font-size: 0.9rem; font-weight: 700; cursor: pointer; overflow: hidden; z-index: 1; text-decoration: none; }\n'
+        + '.epub-btn-wave::before { content: ""; position: absolute; left: -25%; bottom: -120%; width: 150%; height: 130%; background: #6cc5a1; border-radius: 45% 47% 42% 46%; transition: transform 0.55s ease-in-out; z-index: -1; }\n'
+        + '.epub-btn-wave:hover::before, .epub-btn-wave:focus::before { transform: translateY(-105%) rotate(8deg); }',
+
+      'epub-btn-flip':
+        '.epub-btn-flip { position: relative; display: inline-block; padding: 0.75rem 1.6rem; border: none; border-radius: 8px; background: #7c3aa5; color: #ffffff; font-size: 0.9rem; font-weight: 700; cursor: pointer; overflow: hidden; perspective: 500px; text-decoration: none; }\n'
+        + '.epub-btn-flip::after { content: attr(data-reverso); position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; border-radius: 8px; background: #e8a13c; color: #3d3427; transform: rotateY(90deg); transition: transform 0.3s ease; }\n'
+        + '.epub-btn-flip:hover::after, .epub-btn-flip:focus::after { transform: rotateY(0deg); transition-delay: 0.1s; }',
+
+      'epub-btn-gradient':
+        '.epub-btn-gradient { position: relative; display: inline-block; padding: 0.75rem 1.6rem; border: none; border-radius: 8px; background: linear-gradient(115deg, #3ec9e0, #7c3aa5, #e84c8b, #e8a13c); background-size: 300% 300%; background-position: 0% 50%; color: #ffffff; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: background-position 0.7s ease, box-shadow 0.4s ease; text-decoration: none; }\n'
+        + '.epub-btn-gradient:hover, .epub-btn-gradient:focus { background-position: 100% 50%; box-shadow: 0 0 18px rgba(124,58,165,0.55), 0 0 36px rgba(62,201,224,0.35); }',
+
+      'epub-btn-lift':
+        '.epub-btn-lift { position: relative; display: inline-block; padding: 0.75rem 1.6rem; border: none; border-radius: 8px; background: #b5432e; color: #ffffff; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: transform 0.25s ease-out, box-shadow 0.25s ease-out; text-decoration: none; }\n'
+        + '.epub-btn-lift:hover, .epub-btn-lift:focus { transform: translateY(-6px) scale(1.04); box-shadow: 0 14px 22px rgba(120,40,20,0.35); }',
+
+      'epub-btn-draw':
+        '.epub-btn-draw { position: relative; display: inline-block; padding: 0.75rem 1.6rem; border: none; background: transparent; color: #3d3427; font-size: 0.9rem; font-weight: 700; cursor: pointer; text-decoration: none; }\n'
+        + '.epub-btn-draw::before, .epub-btn-draw::after { content: ""; position: absolute; width: 14px; height: 14px; transition: width 0.3s ease, height 0.3s ease; }\n'
+        + '.epub-btn-draw::before { top: 0; left: 0; border-top: 3px solid #14655e; border-left: 3px solid #14655e; }\n'
+        + '.epub-btn-draw::after { bottom: 0; right: 0; border-bottom: 3px solid #14655e; border-right: 3px solid #14655e; }\n'
+        + '.epub-btn-draw:hover::before, .epub-btn-draw:focus::before, .epub-btn-draw:hover::after, .epub-btn-draw:focus::after { width: 100%; height: 100%; }',
+    };
+
+    // Habilita/deshabilita el botón genérico "Insertar Nuevo Botón" según
+    // haya o no un capítulo cargado. (Esta función se invocaba desde
+    // clearSelectionUI/loadElementIntoEditors pero no existía: cada carga
+    // de capítulo terminaba en un ReferenceError silencioso.)
+    function updateInsertButtonState() {
+      el.insertButtonBtn.disabled = !currentChapter();
+    }
+
+    function insertNewButton() {
+      const chapter = currentChapter();
+      if (!chapter) { showToast('Carga un EPUB primero.', true); return; }
+      const parent = (state.selectedUid && findElementByUid(chapter.doc, state.selectedUid)) || chapter.doc.body;
+      if (!parent) return;
+      const newBtn = chapter.doc.createElement('a');
+      newBtn.setAttribute('href', '#'); newBtn.setAttribute('class', 'epub-btn'); newBtn.textContent = 'Nuevo botón';
+      parent.appendChild(newBtn); assignUids(chapter.doc);
+      if (!chapter.customCss.includes('.epub-btn')) {
+        chapter.customCss += (chapter.customCss.trim() ? '\n\n' : '') + DEFAULT_BUTTON_CSS;
+        setEditorValue(cssEditorCM, el.cssEditorArea, chapter.customCss);
+      }
+      renderChapterDoc(chapter).then(() => {
+        renderDomTree(); pushHistory(chapter); updateUndoRedoUI(); setDirty(true);
+        showToast('Botón insertado. Selecciónalo en el panel DOM para editar.');
+      });
+    }
+
+    function describeElement(node) {
+      let desc = '<' + node.tagName.toLowerCase() + '>';
+      if (node.id) desc += ' #' + node.id;
+      if (node.className && typeof node.className === 'string' && node.className.trim()) desc += ' .' + node.className.trim().split(/\s+/).join('.');
+      return desc;
+    }
+
+    function loadComputedPropsIntoPanel(uid) {
+      const frameDoc = el.chapterFrame.contentDocument;
+      const liveEl = frameDoc && findElementByUid(frameDoc, uid);
+      if (!liveEl || !frameDoc.defaultView) return;
+      const computed = frameDoc.defaultView.getComputedStyle(liveEl);
+      el.propColor.value = rgbToHex(computed.color) || '#000000'; el.propColorNone.checked = true; el.propColor.disabled = true;
+      el.propBackground.value = rgbToHex(computed.backgroundColor) || '#ffffff'; el.propBackgroundNone.checked = true; el.propBackground.disabled = true;
+      el.propFontSize.value = parseInt(computed.fontSize, 10) || '';
+      el.propMargin.value = parseInt(computed.marginTop, 10) || '';
+      el.propPadding.value = parseInt(computed.paddingTop, 10) || '';
+      el.propFontFamily.value = '';
+    }
+
+    function wireNoneToggle(checkbox, input) { checkbox.addEventListener('change', () => { input.disabled = checkbox.checked; }); }
+    function rgbToHex(rgb) { const match = rgb.match(/\d+/g); if (!match) return ''; const [r, g, b] = match; return '#' + [r, g, b].map((v) => Number(v).toString(16).padStart(2, '0')).join(''); }
+
+    /* ------------------------------------------------------------------ */
+    /* Editores HTML y CSS                                                 */
+    /* ------------------------------------------------------------------ */
+    function setEditorValue(cmInstance, textarea, value) { if (cmInstance) cmInstance.setValue(value || ''); else textarea.value = value || ''; }
+    function getEditorValue(cmInstance, textarea) { return cmInstance ? cmInstance.getValue() : textarea.value; }
+
+    async function applyHtmlChanges() {
+      const chapter = currentChapter(); if (!chapter || !state.selectedUid) return;
+      const newHtml = getEditorValue(htmlEditorCM, el.htmlEditorArea);
+      try {
+        const wrapperDoc = new DOMParser().parseFromString('<root xmlns="http://www.w3.org/1999/xhtml">' + newHtml + '</root>', 'application/xml');
+        if (wrapperDoc.querySelector('parsererror')) throw new Error('HTML/XML inválido.');
+        const newNode = wrapperDoc.documentElement.firstElementChild;
+        const oldNode = findElementByUid(chapter.doc, state.selectedUid);
+        if (!oldNode || !newNode) throw new Error('No se pudo ubicar el elemento a reemplazar.');
+        const imported = chapter.doc.importNode(newNode, true);
+        if (!imported.hasAttribute('data-euid')) imported.setAttribute('data-euid', oldNode.getAttribute('data-euid'));
+        assignUids(chapter.doc); oldNode.replaceWith(imported);
+        await renderChapterDoc(chapter); renderDomTree(); pushHistory(chapter); updateUndoRedoUI(); setDirty(true); showToast('HTML aplicado.');
+      } catch (err) { console.error(err); showToast('Error al aplicar el HTML: ' + err.message, true); }
+    }
+
+    function resetHtmlEditor() { const chapter = currentChapter(); if (!chapter || !state.selectedUid) return; loadElementIntoEditors(state.selectedUid, chapter); }
+
+    let cssPreviewTimer = null;
+    function schedulePreviewCss() { clearTimeout(cssPreviewTimer); cssPreviewTimer = setTimeout(previewCssInFrame, 250); }
+    function previewCssInFrame() {
+      const frameDoc = el.chapterFrame.contentDocument; if (!frameDoc) return;
+      let styleTag = frameDoc.getElementById('epub-editor-custom-css');
+      if (!styleTag) { styleTag = frameDoc.createElement('style'); styleTag.id = 'epub-editor-custom-css'; frameDoc.head.appendChild(styleTag); }
+      styleTag.textContent = getEditorValue(cssEditorCM, el.cssEditorArea);
+    }
+    function applyCssChanges() {
+      const chapter = currentChapter(); if (!chapter) return;
+      chapter.customCss = getEditorValue(cssEditorCM, el.cssEditorArea);
+      previewCssInFrame(); pushHistory(chapter); updateUndoRedoUI(); setDirty(true); showToast('CSS aplicado.');
+    }
+    function buildCssRuleFromProps() {
+      const selector = el.cssTargetSelector.value.trim() || '*';
+      const declarations = [];
+      if (!el.propColorNone.checked) declarations.push('color: ' + el.propColor.value + ';');
+      if (!el.propBackgroundNone.checked) declarations.push('background-color: ' + el.propBackground.value + ';');
+      if (el.propFontFamily.value) declarations.push('font-family: ' + el.propFontFamily.value + ';');
+      if (el.propFontSize.value) declarations.push('font-size: ' + el.propFontSize.value + 'px;');
+      if (el.propMargin.value) declarations.push('margin: ' + el.propMargin.value + 'px;');
+      if (el.propPadding.value) declarations.push('padding: ' + el.propPadding.value + 'px;');
+      if (!declarations.length) return;
+      const existing = getEditorValue(cssEditorCM, el.cssEditorArea);
+      const rule = selector + ' {\n  ' + declarations.join('\n  ') + '\n}\n';
+      setEditorValue(cssEditorCM, el.cssEditorArea, existing + (existing.trim() ? '\n' : '') + rule);
+      schedulePreviewCss();
+    }
+
+    /* ------------------------------------------------------------------ */
+    /* Animaciones                                                         */
+    /* ------------------------------------------------------------------ */
+    const ANIMATION_PRESETS = [
+      { id: 'fadeIn', name: 'Aparecer (Fade In)', description: 'Aparece gradualmente desde transparente hasta opaco.', keyframes: '  0% { opacity: 0; }\n  100% { opacity: 1; }', defaultDuration: 0.8, defaultEasing: 'ease-out', defaultIterations: '1' },
+      { id: 'fadeOut', name: 'Desaparecer (Fade Out)', description: 'Desaparece gradualmente desde opaco hasta transparente.', keyframes: '  0% { opacity: 1; }\n  100% { opacity: 0; }', defaultDuration: 0.8, defaultEasing: 'ease-in', defaultIterations: '1' },
+      { id: 'slideInLeft', name: 'Entrada desde la izquierda', description: 'Entra deslizándose desde la izquierda.', keyframes: '  0% { transform: translateX(-60px); opacity: 0; }\n  100% { transform: translateX(0); opacity: 1; }', defaultDuration: 0.7, defaultEasing: 'ease-out', defaultIterations: '1' },
+      { id: 'slideInRight', name: 'Entrada desde la derecha', description: 'Entra deslizándose desde la derecha.', keyframes: '  0% { transform: translateX(60px); opacity: 0; }\n  100% { transform: translateX(0); opacity: 1; }', defaultDuration: 0.7, defaultEasing: 'ease-out', defaultIterations: '1' },
+      { id: 'slideInUp', name: 'Entrada desde abajo', description: 'Entra deslizándose desde abajo hacia arriba.', keyframes: '  0% { transform: translateY(40px); opacity: 0; }\n  100% { transform: translateY(0); opacity: 1; }', defaultDuration: 0.7, defaultEasing: 'ease-out', defaultIterations: '1' },
+      { id: 'slideInDown', name: 'Entrada desde arriba', description: 'Entra deslizándose desde arriba hacia abajo.', keyframes: '  0% { transform: translateY(-40px); opacity: 0; }\n  100% { transform: translateY(0); opacity: 1; }', defaultDuration: 0.7, defaultEasing: 'ease-out', defaultIterations: '1' },
+      { id: 'zoomIn', name: 'Acercamiento (Zoom In)', description: 'Aparece agrandándose desde el centro.', keyframes: '  0% { transform: scale(0.4); opacity: 0; }\n  100% { transform: scale(1); opacity: 1; }', defaultDuration: 0.6, defaultEasing: 'cubic-bezier(0.68, -0.55, 0.27, 1.55)', defaultIterations: '1' },
+      { id: 'zoomOut', name: 'Alejamiento (Zoom Out)', description: 'Desaparece encogiéndose hacia el centro.', keyframes: '  0% { transform: scale(1); opacity: 1; }\n  100% { transform: scale(0.4); opacity: 0; }', defaultDuration: 0.6, defaultEasing: 'ease-in', defaultIterations: '1' },
+      { id: 'rotateIn', name: 'Rotación de entrada', description: 'Entra girando sobre sí mismo.', keyframes: '  0% { transform: rotate(-200deg); opacity: 0; }\n  100% { transform: rotate(0deg); opacity: 1; }', defaultDuration: 0.8, defaultEasing: 'ease-out', defaultIterations: '1' },
+      { id: 'bounce', name: 'Rebote (Bounce)', description: 'Rebota verticalmente, como una pelota.', keyframes: '  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }\n  40% { transform: translateY(-20px); }\n  60% { transform: translateY(-10px); }', defaultDuration: 1, defaultEasing: 'ease', defaultIterations: 'infinite' },
+      { id: 'pulse', name: 'Pulso (Pulse)', description: 'Late suavemente cambiando de tamaño.', keyframes: '  0%, 100% { transform: scale(1); }\n  50% { transform: scale(1.08); }', defaultDuration: 1.2, defaultEasing: 'ease-in-out', defaultIterations: 'infinite' },
+      { id: 'shake', name: 'Sacudida (Shake)', description: 'Se sacude horizontalmente (efecto de alerta).', keyframes: '  0%, 100% { transform: translateX(0); }\n  20% { transform: translateX(-8px); }\n  40% { transform: translateX(8px); }\n  60% { transform: translateX(-6px); }\n  80% { transform: translateX(6px); }', defaultDuration: 0.6, defaultEasing: 'ease-in-out', defaultIterations: '1' },
+      { id: 'swing', name: 'Balanceo (Swing)', description: 'Se balancea como un péndulo colgado desde arriba.', keyframes: '  20% { transform: rotate(12deg); }\n  40% { transform: rotate(-8deg); }\n  60% { transform: rotate(4deg); }\n  80% { transform: rotate(-2deg); }\n  100% { transform: rotate(0deg); }', defaultDuration: 1, defaultEasing: 'ease-in-out', defaultIterations: '3', extraCss: 'transform-origin: top center;' },
+      { id: 'flipX', name: 'Voltear (Flip)', description: 'Se voltea sobre su eje horizontal (efecto tarjeta).', keyframes: '  0% { transform: rotateY(0deg); }\n  50% { transform: rotateY(90deg); }\n  100% { transform: rotateY(0deg); }', defaultDuration: 0.9, defaultEasing: 'ease-in-out', defaultIterations: '1', extraCss: 'perspective: 800px; backface-visibility: hidden;' }
+    ];
+
+    function updateAnimCssPreviewText() {
+      const preset = ANIMATION_PRESETS.find(p => p.id === el.animPresetSelect.value);
+      if (!preset) return;
+      const selector = el.cssTargetSelector.value || '.selected';
+      const css = `@keyframes ${preset.id} {\n${preset.keyframes}\n}\n${selector} {\n  animation: ${preset.id} ${el.animDuration.value}s ${el.animEasing.value} ${el.animDelay.value}s ${el.animIterations.value};\n  ${preset.extraCss || ''}\n}`;
+      el.animCssPreview.textContent = css;
+    }
+
+    function previewAnimation() {
+      const chapter = currentChapter(); if (!chapter || !state.selectedUid) return;
+      const frameDoc = el.chapterFrame.contentDocument;
+      const target = findElementByUid(frameDoc, state.selectedUid);
+      if (!target) return;
+      const preset = ANIMATION_PRESETS.find(p => p.id === el.animPresetSelect.value);
+      if (!preset) return;
+      const animName = 'epub-anim-preview';
+      let styleTag = frameDoc.getElementById('epub-editor-anim-preview-css');
+      if (!styleTag) { styleTag = frameDoc.createElement('style'); styleTag.id = 'epub-editor-anim-preview-css'; frameDoc.head.appendChild(styleTag); }
+      styleTag.textContent = `@keyframes ${animName} {\n${preset.keyframes}\n}`;
+      target.style.animation = 'none';
+      void target.offsetWidth; // trigger reflow
+      target.style.animation = `${animName} ${el.animDuration.value}s ${el.animEasing.value} ${el.animDelay.value}s ${el.animIterations.value}`;
+      if (preset.extraCss) target.style.cssText += preset.extraCss;
+    }
+
+    function applyAnimation() {
+      const chapter = currentChapter(); if (!chapter || !state.selectedUid) return;
+      const preset = ANIMATION_PRESETS.find(p => p.id === el.animPresetSelect.value);
+      if (!preset) return;
+      const selector = el.cssTargetSelector.value.trim(); if (!selector) return;
+      const keyframes = `@keyframes ${preset.id} {\n${preset.keyframes}\n}\n`;
+      const rule = `${selector} {\n  animation: ${preset.id} ${el.animDuration.value}s ${el.animEasing.value} ${el.animDelay.value}s ${el.animIterations.value};\n  ${preset.extraCss || ''}\n}\n`;
+      chapter.customCss += '\n' + keyframes + rule;
+      setEditorValue(cssEditorCM, el.cssEditorArea, chapter.customCss);
+      applyCssChanges(); showToast('Animación aplicada.');
+    }
+
+    /* ------------------------------------------------------------------ */
+    /* Exportar EPUB                                                       */
+    /* ------------------------------------------------------------------ */
+    async function exportEpub() {
+      if (!state.zip) return;
+      showSpinner(true);
+      try {
+        state.chapterState.forEach((chapter, href) => {
+          const cleanHtml = serializeForExport(chapter.doc, chapter.customCss);
+          state.zip.file(href, cleanHtml);
+        });
+        const blob = await state.zip.generateAsync({ type: 'blob', mimeType: 'application/epub+zip' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = 'epub-editado.epub';
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        setDirty(false); showToast('EPUB exportado correctamente.');
+      } catch (err) {
+        console.error(err); showToast('Error al exportar: ' + err.message, true);
+      } finally { showSpinner(false); }
+    }
+
+    /* ------------------------------------------------------------------ */
+    /* Inicialización y Event Listeners                                    */
+    /* ------------------------------------------------------------------ */
+    document.addEventListener('DOMContentLoaded', () => {
+      // Inyecta el CSS del catálogo de botones en ESTA página, para que las
+      // miniaturas del panel "Botones" muestren los efectos hover reales.
+      // Es el mismo CSS exacto que se insertará en el EPUB (una sola fuente).
+      const catalogStyle = document.createElement('style');
+      catalogStyle.textContent = Object.values(BUTTON_CATALOG_CSS).join('\n\n');
+      document.head.appendChild(catalogStyle);
+
+      // Inicializar CodeMirror
+      if (typeof CodeMirror !== 'undefined') {
+        htmlEditorCM = CodeMirror.fromTextArea(el.htmlEditorArea, { mode: 'xml', lineNumbers: true });
+        cssEditorCM = CodeMirror.fromTextArea(el.cssEditorArea, { mode: 'css', lineNumbers: true });
+      }
+
+      // Llenar select de animaciones
+      ANIMATION_PRESETS.forEach(p => {
+        const opt = document.createElement('option'); opt.value = p.id; opt.textContent = p.name;
+        el.animPresetSelect.appendChild(opt);
+      });
+
+      // Tabs
+      el.tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          el.tabs.forEach(t => t.classList.remove('active'));
+          el.panels.forEach(p => p.classList.remove('active'));
+          tab.classList.add('active');
+          document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+          if (htmlEditorCM) htmlEditorCM.refresh();
+          if (cssEditorCM) cssEditorCM.refresh();
+          onTabChanged(tab.dataset.tab);
+        });
+      });
+
+      // Archivos
+      el.fileInput.addEventListener('change', e => { if (e.target.files[0]) loadEpubFile(e.target.files[0]); });
+      
+      // Navegación
+      el.prevChapterBtn.addEventListener('click', () => loadChapter(state.chapterIndex - 1));
+      el.nextChapterBtn.addEventListener('click', () => loadChapter(state.chapterIndex + 1));
+      
+      // Deshacer/Rehacer
+      el.undoBtn.addEventListener('click', undo);
+      el.redoBtn.addEventListener('click', redo);
+      
+      // Tema
+      el.themeToggleBtn.addEventListener('click', () => {
+        const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+        document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
+        el.themeToggleBtn.textContent = isDark ? '☀️' : '🌙';
+      });
+
+      // Modo Edición Texto
+      el.textEditModeToggle.addEventListener('change', e => {
+        state.textEditMode = e.target.checked;
+        applyTextEditModeToFrame();
+      });
+
+      // Mesa de trabajo: mover / reordenar / eliminar objetos
+      el.moveModeToggle.addEventListener('change', e => {
+        state.moveMode = e.target.checked;
+        applyMoveModeToFrame();
+        if (state.moveMode) showToast('Modo mover: arrastra cualquier objeto del visor para reubicarlo.');
+      });
+      document.getElementById('showAllToggle').addEventListener('change', e => {
+        state.showAll = e.target.checked;
+        applyShowAllToFrame();
+        if (state.showAll) showToast('Objetos ocultos visibles: ya puedes seleccionarlos y editarlos.');
+      });
+      el.moveUpBtn.addEventListener('click', () => moveSelectedObject(-1));
+      el.moveDownBtn.addEventListener('click', () => moveSelectedObject(1));
+      el.deleteObjBtn.addEventListener('click', deleteSelectedObject);
+      // Tecla Supr elimina el objeto seleccionado (salvo que el foco esté
+      // en un campo de texto o en un editor de código)
+      document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Delete') return;
+        const a = document.activeElement;
+        if (a && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA' || a.closest('.CodeMirror'))) return;
+        if (state.selectedUid && !state.textEditMode) deleteSelectedObject();
+      });
+
+      // Ayuda contextual POR PANTALLA (no genérica): el botón "?" muestra la
+      // explicación de la pestaña activa, y cada pestaña muestra su tutorial
+      // automáticamente la primera vez que se abre.
+      el.helpToggleBtn.addEventListener('click', () => {
+        if (el.helpPanel.classList.contains('hidden')) showHelpForActiveTab();
+        else el.helpPanel.classList.add('hidden');
+      });
+      el.helpCloseBtn.addEventListener('click', () => el.helpPanel.classList.add('hidden'));
+      // Tutorial inicial: al abrir el aplicativo se explica la primera pantalla
+      visitedTabs.add(activeTabName);
+      showHelpForActiveTab();
+
+      // DOM
+      el.domSearch.addEventListener('input', applyDomSearchFilter);
+
+      // Editores HTML
+      el.applyHtmlBtn.addEventListener('click', applyHtmlChanges);
+      el.resetHtmlBtn.addEventListener('click', resetHtmlEditor);
+
+      // Editores CSS
+      el.applyCssBtn.addEventListener('click', applyCssChanges);
+      wireNoneToggle(el.propColorNone, el.propColor);
+      wireNoneToggle(el.propBackgroundNone, el.propBackground);
+      el.propColor.addEventListener('input', buildCssRuleFromProps);
+      el.propBackground.addEventListener('input', buildCssRuleFromProps);
+      el.propFontFamily.addEventListener('change', buildCssRuleFromProps);
+      el.propFontSize.addEventListener('input', buildCssRuleFromProps);
+      el.propMargin.addEventListener('input', buildCssRuleFromProps);
+      el.propPadding.addEventListener('input', buildCssRuleFromProps);
+
+      // Editor de Texto
+      el.applyTextBtn.addEventListener('click', () => {
+        const chapter = currentChapter(); if (!chapter || !state.selectedUid) return;
+        const source = findElementByUid(chapter.doc, state.selectedUid);
+        if (source) {
+          source.textContent = el.textBulkEditor.value;
+          renderChapterDoc(chapter).then(() => {
+            renderDomTree(); loadElementIntoEditors(state.selectedUid, chapter);
+            pushHistory(chapter); setDirty(true); showToast('Texto actualizado.');
+          });
+        }
+      });
+
+      // Animaciones
+      el.animPresetSelect.addEventListener('change', () => {
+        const preset = ANIMATION_PRESETS.find(p => p.id === el.animPresetSelect.value);
+        if (preset) {
+          el.animPresetDescription.textContent = preset.description;
+          el.animDuration.value = preset.defaultDuration;
+          el.animEasing.value = preset.defaultEasing;
+          el.animIterations.value = preset.defaultIterations;
+          updateAnimCssPreviewText();
+        }
+      });
+      ['input', 'change'].forEach(evt => {
+        el.animDuration.addEventListener(evt, updateAnimCssPreviewText);
+        el.animDelay.addEventListener(evt, updateAnimCssPreviewText);
+        el.animEasing.addEventListener(evt, updateAnimCssPreviewText);
+        el.animIterations.addEventListener(evt, updateAnimCssPreviewText);
+      });
+      el.previewAnimBtn.addEventListener('click', previewAnimation);
+      el.applyAnimBtn.addEventListener('click', applyAnimation);
+
+      // Botones
+      el.insertButtonBtn.addEventListener('click', insertNewButton);
+      el.applyButtonEditBtn.addEventListener('click', applyButtonEdit);
+      document.getElementById('testActionBtn').addEventListener('click', probarAccionBoton);
+      document.getElementById('reviewBtn').addEventListener('click', openReaderPreview);
+      document.getElementById('placeBtnBtn').addEventListener('click', ubicarBotonSeleccionado);
+      document.getElementById('edDlgCerrar').addEventListener('click', () => document.getElementById('editorVelo').classList.add('hidden'));
+      document.querySelectorAll('.button-catalog-item').forEach(item => {
+        item.addEventListener('click', () => {
+          const chapter = currentChapter();
+          if (!chapter) { showToast('Carga un EPUB primero.', true); return; }
+          const cls = item.dataset.btnClass;
+          const label = item.querySelector('.cat-label').textContent;
+
+          // Inyecta el CSS COMPLETO del botón (clase + pseudo-elementos +
+          // @keyframes) en el customCss del capítulo, para que el estilo
+          // viaje dentro del archivo EPUB al exportar y el botón se vea
+          // idéntico en cualquier lector.
+          const ensureButtonCss = () => {
+            if (!chapter.customCss.includes('.' + cls + ' ')) {
+              chapter.customCss += (chapter.customCss.trim() ? '\n\n' : '') + BUTTON_CATALOG_CSS[cls];
+              setEditorValue(cssEditorCM, el.cssEditorArea, chapter.customCss);
+            }
+          };
+
+          const selected = state.selectedUid ? findElementByUid(chapter.doc, state.selectedUid) : null;
+
+          // MODO EDICIÓN: si hay un botón/enlace seleccionado, el clic en el
+          // catálogo le CAMBIA el estilo (reemplaza su clase epub-btn-*) en
+          // vez de insertar un botón nuevo.
+          if (selected && isButtonLike(selected)) {
+            const otherClasses = (selected.getAttribute('class') || '')
+              .split(/\s+/).filter(c => c && !c.startsWith('epub-btn'));
+            otherClasses.push(cls);
+            selected.setAttribute('class', otherClasses.join(' '));
+            if (cls === 'epub-btn-flip' && !selected.getAttribute('data-reverso')) {
+              selected.setAttribute('data-reverso', '¡Reverso!');
+            }
+            ensureButtonCss();
+            const uid = state.selectedUid;
+            renderChapterDoc(chapter).then(() => {
+              renderDomTree(); selectElementByUid(uid, chapter);
+              pushHistory(chapter); updateUndoRedoUI(); setDirty(true);
+              showToast('Estilo "' + label + '" aplicado al botón seleccionado.');
+            });
+            return;
+          }
+
+          // MODO INSERCIÓN: sin botón seleccionado, se crea uno nuevo dentro
+          // del objeto seleccionado (o al final de la página).
+          const parent = selected || chapter.doc.body;
+          const newBtn = chapter.doc.createElement('a');
+          newBtn.setAttribute('href', '#');
+          newBtn.setAttribute('class', cls);
+          // El efecto "dos caras" muestra su reverso desde este atributo (content: attr(data-reverso))
+          if (cls === 'epub-btn-flip') newBtn.setAttribute('data-reverso', '¡Reverso!');
+          newBtn.textContent = label;
+          parent.appendChild(newBtn);
+          assignUids(chapter.doc);
+          ensureButtonCss();
+
+          renderChapterDoc(chapter).then(() => {
+            renderDomTree(); pushHistory(chapter); updateUndoRedoUI(); setDirty(true);
+            showToast('Botón "' + label + '" insertado con su CSS incluido para el EPUB.');
+          });
+        });
+      });
+
+      // Exportar
+      el.exportBtn.addEventListener('click', exportEpub);
+      el.readerPreviewBtn.addEventListener('click', openReaderPreview);
+
+      // Inicializar texto de animación
+      if (ANIMATION_PRESETS.length > 0) {
+        el.animPresetSelect.dispatchEvent(new Event('change'));
+      }
+    });
+  </script>
+</body>
+</html>

@@ -169,7 +169,7 @@ In order to run this project you need:
 <li>
 <details>
 <summary>Choice Picker</summary>
-<p>A cutting-edge web application leveraging HTML, CSS, and JavaScript technologies to facilitate user selection from a customizable range of options. The application features an intuitive interface with a text input field, where users can enter their preferred choices. Upon submission, the system randomly cycles through the entered options and lands on a selected choice, which is prominently highlighted with a distinct color scheme, distinguishing it from the other options.</p>
+<p>A cutting-edge web application leveraging HTML, CSS, and JavaScript technologies to facilitate user selection from a customizable range of options. The application features an intuitive interface with a text input field, where users can enter their preferred choices. Upon submission, the system randomly cycles through the entered options and lands on a selected choice, which is prominently highlighted with a distinct color scheme, distinguishing it from the other options.</p>
 <ul>
 <li><a href="https://tajulafreen.github.io/50Projects-HTML-CSS-JavaScript/Source-Code/ChoicePicker/">Live Demo</a></li>
 <li><a href="https://github.com/tajulafreen/50Projects-HTML-CSS-JavaScript/tree/main/Source-Code/ChoicePicker">Source</a></li>
@@ -591,6 +591,36 @@ In order to run this project you need:
 <ul>
 <li><a href="https://tajulafreen.github.io/50Projects-HTML-CSS-JavaScript/Source-Code/AdsBlockerExtension/">Live Demo</a></li>
 <li><a href="https://github.com/tajulafreen/50Projects-HTML-CSS-JavaScript/tree/main/Source-Code/AdsBlockerExtension">Source</a></li>
+</ul> 
+</details>
+</li>
+
+<li>
+<details>
+<summary>EPUB Reader (Fixed Layout)</summary>
+<p>A vanilla HTML, CSS and JavaScript EPUB reader built on epub.js. It detects EPUB3 fixed-layout ("diseño fijo") books — comics and illustrated books with CSS keyframe animations and embedded JavaScript — and renders them page by page at their intended size instead of reflowing the text, re-triggering each page's animations and scripts as you navigate. Drag and drop (or open) any .epub file to try it.</p>
+<ul>
+<li><a href="https://github.com/Mario55666/50Projects-HTML-CSS-JavaScript/tree/main/Source-Code/EpubReader">Source</a></li>
+</ul> 
+</details>
+</li>
+
+<li>
+<details>
+<summary>EPUB Visual Editor</summary>
+<p>A vanilla HTML, CSS and JavaScript web app to read and visually edit an EPUB's HTML, CSS and text. Load a .epub, browse its DOM tree per chapter, click any element to highlight and select it, edit its HTML or CSS (CodeMirror editors with syntax highlighting, CSS property autocomplete and a common-properties panel with color/font/size pickers), edit text inline or in bulk, undo/redo your changes, and export the result as a new .epub file.</p>
+<ul>
+<li><a href="https://github.com/Mario55666/50Projects-HTML-CSS-JavaScript/tree/main/Source-Code/EpubVisualEditor">Source</a></li>
+</ul> 
+</details>
+</li>
+
+<li>
+<details>
+<summary>EPUB Interactive Button Catalog</summary>
+<p>A self-contained interactive button catalog designed to be embedded as a chapter of a scripted EPUB3. Six CSS hover effects (sliding underline, liquid fill, double-sided 3D flip, holographic gradient, lift with shadow, border draw — inspired by Prismic's CSS hover effects article) paired with Anime.js click animations using camelCase CSS properties. Includes a book-format 600x800 container, a button navigation list, three modal dialogs (welcome, confirmation, test), an event diagnostic tool, and robust click+touchend handling that solves the classic "buttons don't respond" problem in EPUB readers. Ships both as a single HTML file and as a ready-to-read .epub with Anime.js bundled inside.</p>
+<ul>
+<li><a href="https://github.com/Mario55666/50Projects-HTML-CSS-JavaScript/tree/main/Source-Code/EpubButtonCatalog">Source</a></li>
 </ul> 
 </details>
 </li>

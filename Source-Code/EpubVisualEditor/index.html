@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Editor Visual de EPUB</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/lib/codemirror.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/theme/dracula.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/addon/hint/show-hint.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-dot"></span>
+      <h1>Editor Visual de EPUB</h1>
+    </div>
+
+    <div class="chapter-nav">
+      <button id="prevChapterBtn" class="icon-btn" title="Capítulo anterior" disabled>&#10094;</button>
+      <span id="chapterLabel" class="chapter-label">Sin libro cargado</span>
+      <button id="nextChapterBtn" class="icon-btn" title="Capítulo siguiente" disabled>&#10095;</button>
+    </div>
+
+    <div class="controls">
+      <button id="undoBtn" class="icon-btn" title="Deshacer (Ctrl+Z)" disabled>&#8630;</button>
+      <button id="redoBtn" class="icon-btn" title="Rehacer (Ctrl+Y)" disabled>&#8631;</button>
+      <label class="file-btn">
+        Abrir .epub
+        <input type="file" id="fileInput" accept=".epub,application/epub+zip" hidden>
+      </label>
+      <button id="readerPreviewBtn" class="file-btn" title="Abre el capítulo actual en una ventana emergente, tal como lo vería un lector" disabled>Probar como lector &#8599;</button>
+      <button id="exportBtn" class="file-btn file-btn-accent" disabled>Exportar EPUB</button>
+      <button id="themeToggleBtn" class="icon-btn" title="Cambiar tema claro/oscuro">&#9788;</button>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <section class="viewer-pane">
+      <div id="dropHint" class="drop-hint">
+        <h2>Arrastra un archivo .epub aquí</h2>
+        <p>O usa el botón "Abrir .epub" para empezar a editar.</p>
+      </div>
+
+      <div id="viewerContainer" class="viewer-container hidden">
+        <iframe id="chapterFrame" title="Contenido del capítulo" sandbox="allow-same-origin"></iframe>
+      </div>
+
+      <div id="loadingSpinner" class="spinner hidden" aria-hidden="true"></div>
+
+      <div class="viewer-statusbar">
+        <label class="text-mode-toggle">
+          <input type="checkbox" id="textEditModeToggle">
+          Modo edición de texto (clic en el contenido)
+        </label>
+        <span id="dirtyIndicator" class="dirty-indicator hidden">● cambios sin exportar</span>
+      </div>
+    </section>
+
+    <aside class="tools-pane">
+      <div class="tabs" role="tablist">
+        <button class="tab-btn active" data-tab="dom" role="tab">DOM</button>
+        <button class="tab-btn" data-tab="html" role="tab">HTML</button>
+        <button class="tab-btn" data-tab="css" role="tab">CSS</button>
+        <button class="tab-btn" data-tab="text" role="tab">Texto</button>
+        <button class="tab-btn" data-tab="toc" role="tab">Índice</button>
+        <button class="tab-btn" data-tab="anim" role="tab">Animación</button>
+        <button id="helpToggleBtn" class="tab-help-btn" type="button" title="Ayuda sobre esta herramienta">?</button>
+      </div>
+
+      <div id="helpPanel" class="help-panel hidden">
+        <p id="helpPanelText"></p>
+        <button id="helpCloseBtn" class="help-close-btn" type="button">Cerrar</button>
+      </div>
+
+      <div class="tab-panels">
+        <!-- DOM Explorer -->
+        <div class="tab-panel active" id="panel-dom">
+          <input type="search" id="domSearch" class="text-input" placeholder="Buscar por tag, .clase o #id...">
+          <div id="domTree" class="dom-tree">
+            <p class="empty-hint">Carga un EPUB para explorar su DOM.</p>
+          </div>
+        </div>
+
+        <!-- HTML editor -->
+        <div class="tab-panel" id="panel-html">
+          <div class="editor-toolbar">
+            <span id="selectedElementLabel" class="selected-label">Ningún elemento seleccionado</span>
+          </div>
+          <p id="selectedElementLayerInfo" class="layer-badge"></p>
+
+          <div id="buttonEditorSection" class="button-editor hidden">
+            <p class="hint-small">Este objeto es un botón/enlace. Puedes editar su texto y destino sin tocar el HTML a mano.</p>
+            <div class="common-props">
+              <label>Texto del botón
+                <input type="text" id="buttonLabelInput" class="text-input" placeholder="Texto visible">
+              </label>
+              <label>Destino (href)
+                <input type="text" id="buttonHrefInput" class="text-input" placeholder="capitulo2.xhtml, #, https://...">
+              </label>
+            </div>
+            <div class="editor-actions">
+              <button id="applyButtonEditBtn" class="action-btn action-btn-accent" type="button">Aplicar botón</button>
+            </div>
+          </div>
+
+          <textarea id="htmlEditor"></textarea>
+          <div class="editor-actions">
+            <button id="applyHtmlBtn" class="action-btn action-btn-accent" disabled>Aplicar cambios</button>
+            <button id="resetHtmlBtn" class="action-btn" disabled>Reiniciar</button>
+            <button id="insertButtonBtn" class="action-btn" disabled>Insertar botón nuevo</button>
+          </div>
+        </div>
+
+        <!-- CSS editor -->
+        <div class="tab-panel" id="panel-css">
+          <div class="editor-toolbar">
+            <input type="text" id="cssTargetSelector" class="text-input" placeholder="Selector CSS (ej: .clase, #id, p)">
+          </div>
+
+          <div class="common-props">
+            <div class="prop-group">
+              <span class="prop-label">Color texto</span>
+              <div class="color-field">
+                <input type="color" id="propColor" value="#000000" disabled>
+                <label class="none-toggle" for="propColorNone"><input type="checkbox" id="propColorNone" checked>Ninguno</label>
+              </div>
+            </div>
+            <div class="prop-group">
+              <span class="prop-label">Fondo</span>
+              <div class="color-field">
+                <input type="color" id="propBackground" value="#ffffff" disabled>
+                <label class="none-toggle" for="propBackgroundNone"><input type="checkbox" id="propBackgroundNone" checked>Ninguno</label>
+              </div>
+            </div>
+            <label>Fuente
+              <select id="propFontFamily">
+                <option value="">(heredada)</option>
+                <option value="Georgia, serif">Georgia (serif)</option>
+                <option value="'Times New Roman', serif">Times New Roman</option>
+                <option value="Arial, sans-serif">Arial (sans)</option>
+                <option value="'Courier New', monospace">Courier (mono)</option>
+              </select>
+            </label>
+            <label>Tamaño texto
+              <input type="number" id="propFontSize" min="8" max="120" step="1" placeholder="px">
+            </label>
+            <label>Margen
+              <input type="number" id="propMargin" min="0" max="200" step="1" placeholder="px">
+            </label>
+            <label>Padding
+              <input type="number" id="propPadding" min="0" max="200" step="1" placeholder="px">
+            </label>
+          </div>
+
+          <textarea id="cssEditor"></textarea>
+          <div class="editor-actions">
+            <button id="applyCssBtn" class="action-btn action-btn-accent">Aplicar CSS</button>
+            <span class="hint-small">La vista previa se actualiza mientras escribes.</span>
+          </div>
+        </div>
+
+        <!-- Text editor -->
+        <div class="tab-panel" id="panel-text">
+          <p class="hint-small">
+            Activa "Modo edición de texto" en el visor para editar directamente el texto,
+            o selecciona un elemento y edítalo aquí en bloque.
+          </p>
+          <textarea id="textBulkEditor" placeholder="Selecciona un elemento en el DOM o en el visor para editar su texto..." disabled></textarea>
+          <div class="editor-actions">
+            <button id="applyTextBtn" class="action-btn action-btn-accent" disabled>Aplicar texto</button>
+          </div>
+        </div>
+
+        <!-- Table of contents -->
+        <div class="tab-panel" id="panel-toc">
+          <ol id="tocList" class="toc-list">
+            <li class="empty-hint">Carga un EPUB para ver su índice.</li>
+          </ol>
+        </div>
+
+        <!-- Animation catalog -->
+        <div class="tab-panel" id="panel-anim">
+          <p class="hint-small">
+            Catálogo de animaciones CSS listas para usar (propiedades inspiradas en la documentación de
+            <a href="https://animejs.com/v3/documentation/#cssProperties" target="_blank" rel="noopener">anime.js</a>:
+            transformaciones, filtros, opacidad y color). Selecciona un objeto en el visor o en el panel DOM,
+            elige una animación del catálogo y aplícala.
+          </p>
+
+          <div class="editor-toolbar">
+            <select id="animPresetSelect" class="text-input"></select>
+          </div>
+          <p id="animPresetDescription" class="hint-small"></p>
+
+          <div class="common-props">
+            <label>Duración (s)
+              <input type="number" id="animDuration" min="0.1" max="10" step="0.1" value="0.8">
+            </label>
+            <label>Retraso (s)
+              <input type="number" id="animDelay" min="0" max="10" step="0.1" value="0">
+            </label>
+            <label>Easing
+              <select id="animEasing">
+                <option value="ease">ease</option>
+                <option value="ease-in">ease-in</option>
+                <option value="ease-out" selected>ease-out</option>
+                <option value="ease-in-out">ease-in-out</option>
+                <option value="linear">linear</option>
+                <option value="cubic-bezier(0.68, -0.55, 0.27, 1.55)">back (cubic-bezier)</option>
+              </select>
+            </label>
+            <label>Repetición
+              <select id="animIterations">
+                <option value="1">1 vez</option>
+                <option value="2">2 veces</option>
+                <option value="3">3 veces</option>
+                <option value="infinite">infinito</option>
+              </select>
+            </label>
+          </div>
+
+          <pre class="anim-css-preview"><code id="animCssPreview">/* Selecciona un objeto y una animación del catálogo... */</code></pre>
+
+          <div class="editor-actions">
+            <button id="previewAnimBtn" class="action-btn" disabled>Reproducir vista previa</button>
+            <button id="applyAnimBtn" class="action-btn action-btn-accent" disabled>Aplicar animación</button>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <footer class="site-footer">
+    Curso de Infografía 2026 · Docente: Mg Mario Quiroz Martinez
+  </footer>
+
+  <div id="toast" class="toast hidden" role="status"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/lib/codemirror.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/mode/xml/xml.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/mode/css/css.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/addon/hint/show-hint.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/addon/hint/css-hint.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
