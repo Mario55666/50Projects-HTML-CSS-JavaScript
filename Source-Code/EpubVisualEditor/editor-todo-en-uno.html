@@ -86,6 +86,11 @@
     .ws-btn { width: 1.9rem; height: 1.9rem; font-size: 0.8rem; }
     .ws-danger:hover:not(:disabled) { background: rgba(249, 115, 22, 0.2); border-color: var(--danger); }
     .page-info { color: var(--muted); font-size: 0.72rem; font-family: "SFMono-Regular", Consolas, monospace; }
+    .ed-velo { position: fixed; inset: 0; background: rgba(2, 8, 20, 0.6); display: flex; align-items: center; justify-content: center; z-index: 60; }
+    .ed-velo.hidden { display: none; }
+    .ed-dialogo { background: var(--panel); border: 2px solid var(--accent); border-radius: 12px; max-width: 28rem; width: 92%; padding: 1.2rem 1.4rem; box-shadow: 0 18px 45px rgba(0,0,0,0.5); animation: toast-in 0.2s ease-out; }
+    .ed-dialogo h2 { margin: 0 0 0.5rem; font-size: 0.95rem; color: var(--accent); }
+    .ed-dialogo p { margin: 0 0 1rem; font-size: 0.82rem; line-height: 1.55; color: var(--text); white-space: pre-line; }
     .text-mode-toggle { display: flex; align-items: center; gap: 0.4rem; cursor: pointer; color: var(--muted); }
     .dirty-indicator { color: var(--danger); font-weight: 600; }
     .tools-pane { flex: 1 1 45%; width: 100%; display: flex; flex-direction: column; background: var(--panel); min-width: 0; min-height: 0; }
@@ -372,7 +377,11 @@
                 <select id="buttonActionAnim"></select>
               </label>
             </div>
-            <button id="applyButtonEditBtn" class="action-btn action-btn-accent">Actualizar Botón</button>
+            <div class="editor-actions">
+              <button id="applyButtonEditBtn" class="action-btn action-btn-accent">Actualizar Botón</button>
+              <button id="testActionBtn" class="action-btn">▶ Probar acción</button>
+              <button id="placeBtnBtn" class="action-btn">📍 Ubicar botón</button>
+            </div>
           </div>
           <div class="editor-actions" style="margin-top: 1rem;">
             <button id="insertButtonBtn" class="action-btn action-btn-accent" disabled>Insertar Nuevo Botón</button>
@@ -383,6 +392,13 @@
   </main>
 
   <footer class="site-footer">Curso de Infografía 2026 · Docente: Mg Mario Quiroz Martinez · Editor Visual de EPUB</footer>
+  <div id="editorVelo" class="ed-velo hidden">
+    <div class="ed-dialogo">
+      <h2 id="edDlgTitulo"></h2>
+      <p id="edDlgMsg"></p>
+      <button id="edDlgCerrar" class="action-btn action-btn-accent">Entendido</button>
+    </div>
+  </div>
   <div id="toast" class="toast hidden"></div>
 
   <script>
@@ -659,7 +675,7 @@
       }
     }
 
-    const EDITOR_INTERNAL_CSS = '.epub-editor-selected { outline: 3px solid #38bdf8 !important; outline-offset: 1px !important; background-color: rgba(56, 189, 248, 0.12) !important; } .epub-editor-editable-text { outline: 2px dashed #f97316 !important; outline-offset: 1px !important; } .epub-editor-textmode { cursor: text; } .epub-editor-movemode * { cursor: move !important; } .epub-editor-fixedpage, .epub-editor-fixedpage body { overflow: hidden !important; }';
+    const EDITOR_INTERNAL_CSS = '.epub-editor-selected { outline: 3px solid #38bdf8 !important; outline-offset: 1px !important; background-color: rgba(56, 189, 248, 0.12) !important; } .epub-editor-editable-text { outline: 2px dashed #f97316 !important; outline-offset: 1px !important; } .epub-editor-textmode { cursor: text; } .epub-editor-movemode * { cursor: move !important; } .epub-editor-fixedpage, .epub-editor-fixedpage body { overflow: hidden !important; } [style*="display: none"], [style*="display:none"] { display: inline-block !important; opacity: 0.25 !important; outline: 2px dashed #f97316 !important; }';
     const EDITOR_TRANSIENT_CLASSES = ['epub-editor-selected', 'epub-editor-editable-text', 'epub-editor-textmode', 'epub-editor-movemode', 'epub-editor-fixedpage', 'epub-editor-anim-preview'];
 
     function stripEditorArtifacts(doc) {
@@ -1023,8 +1039,11 @@
       buttons: 'BOTONES — Catálogo de 11 botones con efectos hover. Clic en un estilo: si tienes un '
         + 'botón/enlace seleccionado, le CAMBIA el estilo; si no, INSERTA un botón nuevo (dentro del '
         + 'objeto seleccionado o al final de la página). Su CSS completo se copia al capítulo para '
-        + 'que el botón se vea igual en el EPUB exportado. Abajo editas su texto y su enlace; con la '
-        + 'Mesa de trabajo del visor lo mueves, reordenas o eliminas.',
+        + 'que el botón se vea igual en el EPUB exportado. CONFIGURAR FUNCIONES: 1) selecciona el '
+        + 'botón, 2) escribe su texto y su hiperenlace, 3) elige colores, 4) en "Acción al tocar" elige '
+        + 'animar u ocultar/mostrar un objeto y su objetivo, 5) pulsa "Actualizar Botón", 6) verifica con '
+        + '"▶ Probar acción" y ubícalo con "📍 Ubicar botón". Los objetos ocultos se ven semitransparentes '
+        + 'con borde naranja solo en el editor.',
     };
     let activeTabName = 'toc';
     const visitedTabs = new Set();
@@ -1041,6 +1060,50 @@
       if (!el.helpPanel.classList.contains('hidden')) { showHelpForActiveTab(); return; }
       // Mini-tutorial: la primera visita a cada pantalla muestra su ayuda
       if (firstVisit) showHelpForActiveTab();
+    }
+
+    function showEditorDialog(titulo, msg) {
+      document.getElementById('edDlgTitulo').textContent = titulo;
+      document.getElementById('edDlgMsg').textContent = msg;
+      document.getElementById('editorVelo').classList.remove('hidden');
+    }
+
+    // Ejecuta la acción configurada del botón DIRECTAMENTE en el visor de
+    // edición (el sandbox bloquea los scripts del EPUB, así que el editor la
+    // reproduce él mismo): así se ve el resultado sin salir a "Previsualizar".
+    function probarAccionBoton() {
+      const chapter = currentChapter(); if (!chapter || !state.selectedUid) return;
+      const src = findElementByUid(chapter.doc, state.selectedUid); if (!src) return;
+      const accion = src.getAttribute('data-accion');
+      if (!accion) { showEditorDialog('Sin acción configurada', 'Este botón no tiene acción todavía.\n1. Elige una "Acción al tocar".\n2. Elige el objeto objetivo.\n3. Pulsa "Actualizar Botón".\n4. Vuelve a pulsar "▶ Probar acción".'); return; }
+      const fd = el.chapterFrame.contentDocument;
+      const target = fd && fd.querySelector(src.getAttribute('data-objetivo') || '');
+      if (!target) { showEditorDialog('Objetivo no encontrado', 'El objeto objetivo ' + (src.getAttribute('data-objetivo') || '(vacío)') + ' no existe en este capítulo.'); return; }
+      if (accion === 'animar') {
+        const preset = src.getAttribute('data-anim-preset');
+        ensureActionAnimCss(chapter, preset);
+        previewCssInFrame();
+        const cls = 'epub-act-' + preset;
+        target.classList.remove(cls); void target.offsetWidth; target.classList.add(cls);
+        showEditorDialog('Acción ejecutada', 'La animación "' + preset + '" se está reproduciendo sobre ' + src.getAttribute('data-objetivo') + ' en el visor. En el lector EPUB ocurrirá al tocar el botón.');
+      } else if (accion === 'alternar') {
+        target.style.display = (target.style.display === 'none' ? '' : 'none');
+        showEditorDialog('Acción ejecutada', 'El objeto ' + src.getAttribute('data-objetivo') + ' ahora está ' + (target.style.display === 'none' ? 'OCULTO (en el editor lo verás semitransparente con borde naranja; en el lector quedará invisible)' : 'VISIBLE') + '. En el lector EPUB esto ocurrirá al tocar el botón.');
+      }
+    }
+
+    function ubicarBotonSeleccionado() {
+      if (!state.selectedUid) return;
+      state.moveMode = true;
+      el.moveModeToggle.checked = true;
+      applyMoveModeToFrame();
+      highlightInFrame(state.selectedUid);
+      showEditorDialog('Ubicar el botón en la página',
+        '1. El modo "Mover" quedó ACTIVADO en la mesa de trabajo.\n'
+        + '2. Arrastra el botón (o cualquier objeto) en el visor hasta la posición deseada.\n'
+        + '3. Al soltarlo, la posición se fija en píxeles reales del documento y viajará en el EPUB exportado.\n'
+        + '4. También puedes reordenarlo con ⬆⬇ o eliminarlo con 🗑.\n'
+        + '5. Desactiva "Mover" para volver a seleccionar con clic normal.');
     }
 
     function updateWorkspaceToolbar() {
@@ -1321,7 +1384,12 @@
 
       renderChapterDoc(chapter).then(() => {
         renderDomTree(); loadElementIntoEditors(state.selectedUid, chapter);
-        pushHistory(chapter); updateUndoRedoUI(); setDirty(true); showToast('Botón actualizado.');
+        pushHistory(chapter); updateUndoRedoUI(); setDirty(true);
+        const acc = source.getAttribute('data-accion');
+        showEditorDialog('Botón actualizado', 'Configuración guardada:\n· Texto: ' + el.buttonLabelInput.value
+          + '\n· Enlace: ' + (el.buttonHrefInput.value || '(ninguno)')
+          + '\n· Acción: ' + (acc ? (acc === 'animar' ? 'animar ' + source.getAttribute('data-objetivo') + ' (' + source.getAttribute('data-anim-preset') + ')' : 'mostrar/ocultar ' + source.getAttribute('data-objetivo')) : '(ninguna)')
+          + '\n\nUsa "▶ Probar acción" para verla en el visor, "📍 Ubicar botón" para arrastrarlo a su posición, y "Previsualizar" para probarla como lector.');
       });
     }
 
@@ -1725,6 +1793,9 @@
       // Botones
       el.insertButtonBtn.addEventListener('click', insertNewButton);
       el.applyButtonEditBtn.addEventListener('click', applyButtonEdit);
+      document.getElementById('testActionBtn').addEventListener('click', probarAccionBoton);
+      document.getElementById('placeBtnBtn').addEventListener('click', ubicarBotonSeleccionado);
+      document.getElementById('edDlgCerrar').addEventListener('click', () => document.getElementById('editorVelo').classList.add('hidden'));
       document.querySelectorAll('.button-catalog-item').forEach(item => {
         item.addEventListener('click', () => {
           const chapter = currentChapter();
