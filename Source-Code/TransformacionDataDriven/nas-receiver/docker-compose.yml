@@ -18,8 +18,10 @@ services:
     environment:
       - PORT=8080
       - DATA_DIR=/data
+      - WEB_DIR=/web
       # Token opcional (el PWA debe enviarlo como ?token=... o cabecera X-Token):
       # - INGEST_TOKEN=retailmax2025
     volumes:
       - ./server.js:/app/server.js:ro   # el código (solo lectura)
       - ./data:/data                    # carpeta persistente de envíos
+      - ./web:/web:ro                   # PWA: pon aquí index.html, manifest.json, sw.js, icon.svg

@@ -22,10 +22,31 @@ const crypto = require('crypto');
 
 const PORT = parseInt(process.env.PORT || '8080', 10);
 const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, 'data');
+const WEB_DIR = process.env.WEB_DIR || path.join(__dirname, 'web'); // archivos del PWA
 const TOKEN = process.env.INGEST_TOKEN || '';
 const MAX_BODY = 5 * 1024 * 1024; // 5 MB
 
 fs.mkdirSync(DATA_DIR, { recursive: true });
+
+/* ---------- servido estático del PWA (mismo origen: sin CORS/mixed-content) ---------- */
+const MIME = { '.html': 'text/html', '.js': 'application/javascript', '.json': 'application/json',
+  '.svg': 'image/svg+xml', '.css': 'text/css', '.png': 'image/png', '.ico': 'image/x-icon',
+  '.webmanifest': 'application/manifest+json', '.woff2': 'font/woff2' };
+function serveStatic(res, pathname) {
+  let name = pathname.replace(/^\/app\/?/, '') || 'index.html';
+  name = decodeURIComponent(name.split('?')[0]);
+  const file = path.normalize(path.join(WEB_DIR, name));
+  if (!file.startsWith(path.normalize(WEB_DIR))) return sendJson(res, 400, { error: 'ruta inválida' });
+  fs.readFile(file, (err, data) => {
+    if (err) return sendText(res, 404, 'No encontrado: ' + name + '. Copia index.html, manifest.json, sw.js e icon.svg a la carpeta WEB_DIR.', 'text/plain');
+    const ext = path.extname(file).toLowerCase();
+    const type = MIME[ext] || 'application/octet-stream';
+    cors(res);
+    res.writeHead(200, { 'Content-Type': type + (type.startsWith('text/') ? '; charset=utf-8' : ''),
+      'Service-Worker-Allowed': '/app/' });
+    res.end(data);
+  });
+}
 
 /* ---------- utilidades ---------- */
 function cors(res) {
@@ -190,6 +211,7 @@ function dashboardHtml() {
   <h1>🛰️ Tablero docente · UTP Data-Driven · RetailMax</h1>
   <div>
     <span class="muted" id="live"><span class="dot"></span>en vivo</span>
+    <a class="btn blue" href="/app/" target="_blank">🎓 Abrir actividad (alumnos)</a>
     <a class="btn" href="/export.csv">⬇ CSV</a>
     <a class="btn blue" href="/api/raw" target="_blank">⬇ JSON</a>
     <button class="btn" onclick="load()">🔄 Refrescar</button>
@@ -248,10 +270,13 @@ const server = http.createServer((req, res) => {
 
   if (method === 'GET') {
     if (u.pathname === '/' ) return sendText(res, 200, dashboardHtml(), 'text/html');
-    if (u.pathname === '/health') return sendJson(res, 200, { ok: true, dataDir: DATA_DIR });
+    if (u.pathname === '/health') return sendJson(res, 200, { ok: true, dataDir: DATA_DIR, webDir: WEB_DIR });
     if (u.pathname === '/api/submissions') return sendJson(res, 200, aggregate());
     if (u.pathname === '/api/raw') return sendJson(res, 200, listRecords());
     if (u.pathname === '/export.csv') return sendText(res, 200, toCsv(), 'text/csv');
+    // PWA del alumno servido en el mismo origen -> sin CORS ni contenido mixto
+    if (u.pathname === '/app') { cors(res); res.writeHead(301, { Location: '/app/' }); return res.end(); }
+    if (u.pathname === '/app/' || u.pathname.startsWith('/app/')) return serveStatic(res, u.pathname);
     return sendJson(res, 404, { error: 'not found' });
   }
 

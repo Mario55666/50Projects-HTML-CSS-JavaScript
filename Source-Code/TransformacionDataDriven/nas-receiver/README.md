@@ -16,6 +16,7 @@ Docente ──abre http://IP_DEL_NAS:8080──►  Tablero consolidado (auto-re
 | Ruta | Método | Uso |
 |------|--------|-----|
 | `/` | GET | Tablero del docente (HTML, auto-refresco) |
+| **`/app/`** | GET | **El PWA del alumno** (index.html, manifest.json, sw.js, icon.svg) servido desde el NAS |
 | `/ingest` (o cualquier ruta) | POST | Recibe un envío del PWA (modo *Webhook · POST*) |
 | `/<archivo>.json` | PUT | Recibe un envío (modo *WebDAV · PUT*) |
 | `/` | HEAD | Prueba de conexión (botón "Probar conexión" del PWA) |
@@ -23,6 +24,37 @@ Docente ──abre http://IP_DEL_NAS:8080──►  Tablero consolidado (auto-re
 | `/api/raw` | GET | Todos los envíos crudos (JSON) |
 | `/export.csv` | GET | Exporta el consolidado a CSV |
 | `/health` | GET | Healthcheck |
+
+## ¿Dónde se cargan index.html, manifest.json y sw.js?
+
+Son el **front-end del PWA** y deben servirse **juntos por HTTP** (no por `file://`, o el service
+worker y el manifest no funcionan). `index.html` es la entrada: carga `manifest.json` y registra
+`sw.js` **por ruta relativa**, así que los 4 archivos (`index.html`, `manifest.json`, `sw.js`,
+`icon.svg`) van en **la misma carpeta**.
+
+Este receptor los puede **hospedar en el mismo NAS y puerto** (recomendado): copia esos 4 archivos
+a la carpeta **`web/`** (montada como `WEB_DIR=/web`). Quedan en:
+
+- **Alumnos:** `http://IP_DEL_NAS:8080/app/`
+- **Docente:** `http://IP_DEL_NAS:8080/`
+
+Ventaja: al estar en el **mismo origen** que el receptor, **desaparecen el CORS y el contenido
+mixto**, y en el PWA basta poner el endpoint relativo **`/ingest`** al sincronizar.
+
+### Estructura de carpetas en el NAS
+```
+/volume1/docker/retailmax/
+├── docker-compose.yml
+├── server.js
+├── web/            ← PWA (crea esta carpeta)
+│   ├── index.html
+│   ├── manifest.json
+│   ├── sw.js
+│   └── icon.svg
+└── data/           ← se crea solo (envíos guardados)
+```
+> Si prefieres hospedar el PWA en otro sitio (Web Station del NAS, otro servidor, etc.), también
+> vale: sólo recuerda mantener los 4 archivos juntos y servirlos por `http(s)://`.
 
 Cada envío se guarda como un archivo `.json` en `DATA_DIR`. El tablero muestra el **último envío por
 equipo** y cuenta cuántas veces sincronizó cada uno. Persiste aunque se reinicie el contenedor
@@ -74,7 +106,9 @@ DATA_DIR=./data PORT=8080 node server.js
 
 1. En el PWA abre **🛰️ Monitor** (botón flotante).
 2. En **Endpoint del NASync DX2800** escribe:
-   - Modo **Webhook · POST**: `http://IP_DEL_NAS:8080/ingest`
+   - **Si abres el PWA desde el propio NAS** (`/app/`): basta el endpoint relativo **`/ingest`**
+     (mismo origen, sin CORS).
+   - Modo **Webhook · POST** (otro origen): `http://IP_DEL_NAS:8080/ingest`
    - Modo **WebDAV · PUT**:   `http://IP_DEL_NAS:8080/` (el PWA añade el nombre de archivo)
 3. Pulsa **Probar conexión** y luego **Sincronizar con NAS**. En el tablero del docente
    aparecerá el equipo en segundos.
