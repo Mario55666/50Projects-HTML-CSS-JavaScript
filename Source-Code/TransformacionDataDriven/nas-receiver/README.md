@@ -115,6 +115,13 @@ DATA_DIR=./data PORT=8080 node server.js
 
 > Cada equipo sincroniza desde su propio dispositivo; el tablero del docente los **consolida a todos**.
 
+## Acceso remoto (Internet) con Cloudflare Tunnel
+
+¿Los alumnos están en otra red o no quieres lidiar con la IP local? Publica el receptor en una
+**URL HTTPS pública** con **Cloudflare Tunnel** (sin abrir puertos). Guía y compose en
+[`cloudflared/`](cloudflared/). *(Nota: `cloudflare/cloudflare-docs` de GitHub es solo la
+documentación de Cloudflare; la herramienta que se usa es `cloudflared`.)*
+
 ## Seguridad (opcional, para el aula)
 
 - Por defecto acepta cualquier origen de la LAN (CORS abierto) para facilitar la clase.

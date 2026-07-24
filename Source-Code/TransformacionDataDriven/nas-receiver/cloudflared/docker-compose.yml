@@ -1,0 +1,29 @@
+# Cloudflare Tunnel · publica el receptor (:8080) en una URL HTTPS pública.
+# NO requiere abrir puertos en el router ni tocar el firewall: el contenedor
+# sale HACIA Cloudflare. Resuelve además el "contenido mixto" (da HTTPS).
+#
+# --- OPCIÓN 1: Quick Tunnel (rápido, sin cuenta, URL temporal) ---
+# Levanta este archivo y mira los logs para obtener la URL:
+#   docker compose up -d
+#   docker logs cf-tunnel        # busca  https://XXXX.trycloudflare.com
+# La URL cambia cada vez que reinicias el contenedor (sirve para pruebas/clase).
+#
+# --- OPCIÓN 2: Named Tunnel (URL fija con tu dominio) ---
+# Requiere cuenta Cloudflare + dominio. Crea el túnel en el panel Zero Trust,
+# copia el TOKEN y usa el bloque comentado de abajo en vez del "command" quick.
+
+services:
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: cf-tunnel
+    restart: unless-stopped
+    # host: para que 'localhost:8080' alcance al receptor ya publicado en el NAS
+    network_mode: host
+
+    # OPCIÓN 1 · Quick Tunnel (URL temporal trycloudflare.com):
+    command: tunnel --no-autoupdate --url http://localhost:8080
+
+    # OPCIÓN 2 · Named Tunnel (descomenta y comenta la línea de arriba):
+    # command: tunnel --no-autoupdate run
+    # environment:
+    #   - TUNNEL_TOKEN=PEGA_AQUI_TU_TOKEN_DEL_PANEL_CLOUDFLARE
