@@ -1,0 +1,1446 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TRANSFORMACIÓN DATA-DRIVEN · Caso RetailMax</title>
+<meta name="description" content="PWA educativa gamificada DUA-Experiencial: rescate data-driven del caso RetailMax con las 15 métricas de Jeffery, CLTV, segmentación y ROMI." />
+<meta name="theme-color" content="#f3a100" />
+<link rel="manifest" id="manifest-link" />
+<link rel="apple-touch-icon" id="apple-icon" />
+<!-- Bootstrap 5 (mejora progresiva; la app funciona offline sin él gracias al CSS propio) -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
+<!-- Fuentes (fallback a system-ui / monospace si el CDN falla) -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+<style>
+  /* ============================================================
+     ARCHIVO BLACK · Estilo brutalista utilitario
+     Bordes duros 4px · color de sistema a plena saturación ·
+     Space Mono · cero sombras suaves (sólo sombras-bloque duras).
+     Contraste AAA: provocar no es ilegible. Paleta IDC.
+     ============================================================ */
+  :root{
+    --idc-yellow:#f3a100;
+    --idc-blue:#0072b9;
+    --idc-gray1:#555553;
+    --idc-gray2:#545452;
+    --ink:#0d0d0d;
+    --paper:#f7f4ec;
+    --alert:#e5002b;
+    --ok:#009e4f;
+    --brd:4px solid var(--ink);
+    --shadow:8px 8px 0 var(--ink);
+    --shadow-sm:5px 5px 0 var(--ink);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Space Mono','Courier New',ui-monospace,monospace;
+    background:var(--paper);
+    color:var(--ink);
+    line-height:1.45;
+    overflow-x:hidden;
+  }
+  h1,h2,h3,.blk{font-family:'Archivo Black','Arial Black',system-ui,sans-serif;letter-spacing:-.02em;text-transform:uppercase;line-height:.92;}
+  a{color:var(--idc-blue);text-underline-offset:3px;}
+  ::selection{background:var(--idc-yellow);color:var(--ink);}
+
+  /* ---- HUD superior fijo ---- */
+  .hud{
+    position:sticky;top:0;z-index:50;
+    background:var(--ink);color:#fff;
+    border-bottom:var(--brd);
+    display:flex;flex-wrap:wrap;align-items:center;gap:.6rem;
+    padding:.55rem .8rem;
+  }
+  .hud .logo-idc{flex:0 0 auto;}
+  .hud .hud-title{font-family:'Archivo Black',sans-serif;font-size:.95rem;letter-spacing:0;color:var(--idc-yellow);}
+  .hud .progress-wrap{flex:1 1 180px;min-width:150px;}
+  .prog-track{height:18px;border:3px solid #fff;background:#222;position:relative;}
+  .prog-fill{height:100%;background:var(--idc-yellow);width:0;transition:width .5s steps(6);}
+  .prog-label{font-size:.7rem;color:#fff;}
+  .badges{display:flex;gap:.35rem;flex-wrap:wrap;}
+  .badge-pill{font-size:.62rem;font-weight:700;border:3px solid #fff;padding:.15rem .4rem;color:#666;background:#1a1a1a;text-transform:uppercase;}
+  .badge-pill.on{background:var(--idc-yellow);color:var(--ink);border-color:var(--idc-yellow);}
+
+  /* ---- Layout ---- */
+  .wrap{max-width:1120px;margin:0 auto;padding:1.1rem;}
+  .screen{display:none;animation:pop .25s ease;}
+  .screen.active{display:block;}
+  @keyframes pop{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+
+  /* ---- Bloques brutalistas ---- */
+  .card-b{background:#fff;border:var(--brd);box-shadow:var(--shadow-sm);padding:1rem;margin-bottom:1rem;}
+  .card-b.yellow{background:var(--idc-yellow);}
+  .card-b.blue{background:var(--idc-blue);color:#fff;}
+  .card-b.ink{background:var(--ink);color:#fff;}
+  .tag{display:inline-block;background:var(--ink);color:#fff;font-size:.7rem;font-weight:700;padding:.15rem .5rem;text-transform:uppercase;margin-bottom:.4rem;}
+  .tag.yellow{background:var(--idc-yellow);color:var(--ink);}
+  .tag.blue{background:var(--idc-blue);color:#fff;}
+  .tag.alert{background:var(--alert);color:#fff;}
+
+  .mega{font-size:clamp(2.6rem,11vw,7rem);color:var(--ink);margin:.1em 0;word-break:break-word;}
+  .mega .hl{background:var(--idc-yellow);padding:0 .08em;}
+  .mega .hl2{color:var(--idc-blue);}
+  .lead-mono{font-size:1.02rem;}
+
+  .btn-b{
+    font-family:'Space Mono',monospace;font-weight:700;text-transform:uppercase;
+    background:var(--idc-yellow);color:var(--ink);border:var(--brd);
+    box-shadow:var(--shadow-sm);padding:.65rem 1.1rem;cursor:pointer;font-size:.9rem;
+    transition:transform .08s,box-shadow .08s;display:inline-flex;align-items:center;gap:.4rem;
+  }
+  .btn-b:hover{transform:translate(-2px,-2px);box-shadow:8px 8px 0 var(--ink);}
+  .btn-b:active{transform:translate(3px,3px);box-shadow:2px 2px 0 var(--ink);}
+  .btn-b.blue{background:var(--idc-blue);color:#fff;}
+  .btn-b.ghost{background:#fff;}
+  .btn-b.alert{background:var(--alert);color:#fff;}
+  .btn-b:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:var(--shadow-sm);}
+  .btn-row{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:.8rem;}
+
+  label.fld{display:block;font-weight:700;font-size:.8rem;text-transform:uppercase;margin:.6rem 0 .2rem;}
+  input.inp,select.inp,textarea.inp{
+    width:100%;font-family:'Space Mono',monospace;font-size:.95rem;
+    border:var(--brd);padding:.55rem;background:#fff;color:var(--ink);
+  }
+  input.inp:focus,select.inp,textarea.inp:focus{outline:none;background:#fffdf3;}
+  input.inp:invalid{border-color:var(--alert);background:#fff2f4;}
+  input.inp:valid{border-color:var(--ok);}
+  .hint{font-size:.72rem;color:var(--idc-gray1);}
+
+  /* ---- Scorecard métricas ---- */
+  .metric-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:.6rem;}
+  .metric{border:var(--brd);padding:.55rem;background:#fff;}
+  .metric h4{font-size:.82rem;margin:.1rem 0 .3rem;font-family:'Space Mono';font-weight:700;text-transform:none;}
+  .metric .mnum{font-family:'Archivo Black';font-size:1.1rem;color:var(--idc-blue);}
+  .toggle{display:flex;border:3px solid var(--ink);margin-top:.3rem;}
+  .toggle button{flex:1;border:none;background:#fff;font-family:'Space Mono';font-weight:700;padding:.3rem;cursor:pointer;font-size:.75rem;}
+  .toggle button.si.sel{background:var(--ok);color:#fff;}
+  .toggle button.no.sel{background:var(--alert);color:#fff;}
+
+  .gauge{font-family:'Archivo Black';font-size:clamp(3rem,14vw,6rem);line-height:1;}
+
+  /* ---- Arquitectura drag/tap ---- */
+  .arch-pool,.arch-slots{display:flex;flex-wrap:wrap;gap:.5rem;margin:.6rem 0;}
+  .node{border:var(--brd);background:#fff;padding:.5rem .7rem;font-weight:700;cursor:grab;box-shadow:var(--shadow-sm);user-select:none;font-size:.85rem;}
+  .node.picked{outline:4px dashed var(--idc-blue);}
+  .slot{min-width:120px;min-height:52px;border:4px dashed var(--idc-gray1);display:flex;align-items:center;justify-content:center;padding:.4rem;text-align:center;font-size:.8rem;background:#fbfaf5;}
+  .slot.filled{border-style:solid;background:var(--idc-yellow);}
+  .slot .idx{font-family:'Archivo Black';color:var(--idc-blue);margin-right:.3rem;}
+  .arrow{align-self:center;font-family:'Archivo Black';font-size:1.3rem;}
+
+  /* ---- Flip / definiciones ---- */
+  .flip-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:.7rem;}
+  .flip{perspective:900px;height:150px;cursor:pointer;}
+  .flip-in{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d;}
+  .flip.on .flip-in{transform:rotateY(180deg);}
+  .flip-face{position:absolute;inset:0;backface-visibility:hidden;border:var(--brd);padding:.6rem;display:flex;flex-direction:column;justify-content:center;box-shadow:var(--shadow-sm);}
+  .flip-front{background:var(--idc-blue);color:#fff;}
+  .flip-back{background:#fff;transform:rotateY(180deg);font-size:.8rem;}
+  .flip-front .k{font-family:'Archivo Black';font-size:1.1rem;}
+
+  /* ---- Feedback error productivo ---- */
+  .feedback{border:var(--brd);padding:.8rem;margin-top:.7rem;display:none;}
+  .feedback.show{display:block;animation:pop .25s;}
+  .feedback.err{background:#fff2f4;border-color:var(--alert);}
+  .feedback.ok{background:#eafff2;border-color:var(--ok);}
+  .feedback h5{font-family:'Archivo Black';font-size:.95rem;margin:0 0 .3rem;}
+  .feedback ul{margin:.3rem 0 0 1rem;padding:0;font-size:.85rem;}
+  .feedback li{margin-bottom:.2rem;}
+
+  /* ---- Dashboard 6 viz ---- */
+  .dash{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:.8rem;}
+  .viz{border:var(--brd);background:#fff;box-shadow:var(--shadow-sm);padding:.7rem;}
+  .viz h4{font-size:.8rem;font-family:'Space Mono';font-weight:700;text-transform:uppercase;margin:.1rem 0 .5rem;border-bottom:3px solid var(--ink);padding-bottom:.3rem;}
+  .viz svg{width:100%;height:auto;display:block;}
+  .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:.6rem;margin:.6rem 0;}
+  .kpi{border:var(--brd);padding:.5rem;background:#fff;}
+  .kpi .v{font-family:'Archivo Black';font-size:1.5rem;color:var(--idc-blue);line-height:1;}
+  .kpi .l{font-size:.68rem;text-transform:uppercase;color:var(--idc-gray1);}
+  .kpi.pos .v{color:var(--ok);}
+  .kpi.neg .v{color:var(--alert);}
+
+  /* ---- Anagrama ---- */
+  .scram{font-family:'Archivo Black';font-size:clamp(1.8rem,8vw,3.2rem);letter-spacing:.15em;background:var(--ink);color:var(--idc-yellow);padding:.4rem .6rem;text-align:center;border:var(--brd);}
+
+  /* ---- Tabla Jeffery ---- */
+  table.jeff{width:100%;border-collapse:collapse;font-size:.85rem;}
+  table.jeff th,table.jeff td{border:3px solid var(--ink);padding:.5rem;text-align:left;vertical-align:top;}
+  table.jeff thead th{background:var(--ink);color:#fff;text-transform:uppercase;font-family:'Space Mono';}
+  table.jeff tbody tr:nth-child(odd){background:#fff;}
+  table.jeff tbody tr:nth-child(even){background:#f0ede3;}
+  .tbl-scroll{overflow-x:auto;border:none;}
+
+  /* ---- listas herramientas ---- */
+  ul.tools{list-style:none;padding:0;margin:0;}
+  ul.tools li{border-left:8px solid var(--idc-yellow);background:#fff;border:var(--brd);border-left-width:10px;padding:.5rem .7rem;margin-bottom:.5rem;font-size:.88rem;}
+  ul.tools li b{font-family:'Archivo Black';font-weight:400;}
+
+  /* ---- estrellas autoeval ---- */
+  .stars{display:flex;gap:.2rem;}
+  .stars button{border:3px solid var(--ink);background:#fff;font-size:1rem;width:34px;height:34px;cursor:pointer;line-height:1;}
+  .stars button.on{background:var(--idc-yellow);}
+
+  .section-num{font-family:'Archivo Black';font-size:.9rem;background:var(--idc-blue);color:#fff;padding:.15rem .5rem;display:inline-block;}
+  hr.hard{border:none;border-top:var(--brd);margin:1.4rem 0;}
+
+  footer.idc{background:var(--ink);color:#fff;padding:1.2rem;border-top:var(--brd);margin-top:2rem;text-align:center;font-size:.8rem;}
+  footer.idc b{color:var(--idc-yellow);font-family:'Archivo Black';font-weight:400;}
+
+  .toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:var(--ink);color:#fff;border:4px solid var(--idc-yellow);padding:.7rem 1rem;z-index:100;font-weight:700;box-shadow:var(--shadow);display:none;max-width:92vw;text-align:center;}
+  .toast.show{display:block;animation:pop .25s;}
+
+  .install-bar{display:none;position:fixed;right:14px;bottom:14px;z-index:60;}
+
+  .overlap{position:relative;z-index:2;margin-top:-1.6rem;margin-left:1rem;}
+
+  /* ---- Impresión de reporte ---- */
+  #print-report{display:none;}
+  @media print{
+    .hud,.toast,.install-bar,.no-print,footer.idc{display:none !important;}
+    .screen{display:none !important;}
+    #print-report{display:block !important;}
+    body{background:#fff;}
+    table.jeff th,table.jeff td{border:1px solid #000;}
+  }
+  @media (max-width:560px){
+    .hud .hud-title{display:none;}
+    .arrow{display:none;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= HUD ================= -->
+<div class="hud">
+  <span class="logo-idc" id="logo-hud"></span>
+  <span class="hud-title">DATA-DRIVEN · RETAILMAX</span>
+  <div class="progress-wrap">
+    <div class="prog-track"><div class="prog-fill" id="progFill"></div></div>
+    <span class="prog-label" id="progLabel">Nivel 0 / 4</span>
+  </div>
+  <div class="badges" id="badges">
+    <span class="badge-pill" data-b="diag">🔍 Diagnóstico</span>
+    <span class="badge-pill" data-b="arch">🏗️ Arquitecto</span>
+    <span class="badge-pill" data-b="seg">💎 Segmentador</span>
+    <span class="badge-pill" data-b="lex">🔤 Léxico</span>
+    <span class="badge-pill" data-b="fin">💰 Financiero</span>
+  </div>
+</div>
+
+<div class="wrap">
+
+<!-- ============================================================
+     PORTADA (Estación 0)
+     ============================================================ -->
+<section class="screen active" id="screen-portada">
+  <span class="tag alert">MISIÓN DE CONSULTORÍA · 90 MIN</span>
+  <h1 class="mega">RESCATE<br><span class="hl">DATA-</span><span class="hl2">DRIVEN</span></h1>
+  <div class="card-b ink overlap" style="max-width:640px;">
+    <span class="tag yellow">EL CASO</span>
+    <p class="lead-mono" style="margin-bottom:.3rem;">RetailMax: 150 tiendas · e-commerce · <b>$180M</b> de ingresos.
+    Márgenes en caída libre del <b>22% → 12%</b> en 3 años. Hace “marketing a ciegas”:
+    mismo catálogo a 500 000 clientes, <b>$2.5M/año</b>, take rate <b>1.2%</b>.</p>
+    <p style="margin:0;color:var(--idc-yellow);">Ustedes son los consultores de BI contratados de emergencia.</p>
+  </div>
+
+  <div class="card-b yellow">
+    <span class="tag">🎯 OBJETIVO DE APRENDIZAJE</span>
+    <p style="margin:0;font-weight:700;">Al finalizar los 90 minutos serán capaces de <u>diseñar una estrategia de marketing
+    data-driven</u> para revertir una crisis de rentabilidad: integrar silos de información,
+    calcular el valor del ciclo de vida del cliente (CLTV) con lenguaje aritmético normal
+    y sustentar financieramente las decisiones con un simulador gamificado.</p>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-lg-7">
+      <div class="card-b">
+        <span class="tag blue">👥 REGISTRO DEL EQUIPO</span>
+        <form id="teamForm">
+          <label class="fld">Modalidad</label>
+          <select class="inp" id="mode">
+            <option value="equipo">Equipo de consultoría (3–4 personas)</option>
+            <option value="individual">Trabajo individual</option>
+          </select>
+          <label class="fld">Nombre del equipo / consultor</label>
+          <input class="inp" id="teamName" required minlength="2" placeholder="Ej. BI Rescue Squad" />
+          <div id="membersBox">
+            <label class="fld">Integrantes (uno por línea)</label>
+            <textarea class="inp" id="members" rows="4" placeholder="1. Nombre Apellido&#10;2. Nombre Apellido&#10;3. Nombre Apellido&#10;4. Nombre Apellido"></textarea>
+            <span class="hint">Registra a todos los miembros: aparecerán en los reportes PDF/CSV/Excel.</span>
+          </div>
+          <label class="fld">Curso / grupo</label>
+          <input class="inp" id="course" placeholder="Investigación e Innovación Tecnológica" value="Investigación e Innovación Tecnológica" />
+          <div class="btn-row">
+            <button type="submit" class="btn-b">▶ Iniciar misión (Nivel 1)</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div class="col-lg-5">
+      <div class="card-b blue">
+        <span class="tag yellow">🗺️ RUTA DE 4 NIVELES</span>
+        <ol style="padding-left:1.1rem;margin:0;font-size:.9rem;">
+          <li><b>N1 · Diagnóstico</b> — Scorecard 15 métricas de Jeffery (15 min)</li>
+          <li><b>N2 · Silos → Arquitectura</b> — Fuentes→ETL→EDW→BI→Usuarios (20 min)</li>
+          <li><b>N3 · CLTV & Segmentación</b> — Simulador + dashboard (30 min)</li>
+          <li><b>N4 · Sustento financiero</b> — ROMI/NPV/IRR/Payback + entregables (25 min)</li>
+        </ol>
+        <p class="hint" style="color:#dfefff;margin-top:.5rem;">Anagrama conceptual desbloqueable entre N3 y N4. Insignias en el HUD superior.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     NIVEL 1 · DIAGNÓSTICO (Estación 1: Activación inmersiva)
+     ============================================================ -->
+<section class="screen" id="screen-fase1">
+  <span class="section-num">NIVEL 1</span>
+  <h2 class="mega" style="font-size:clamp(2rem,7vw,3.6rem);">DIAGNÓSTICO<br>DE LA CRISIS</h2>
+  <div class="card-b">
+    <span class="tag alert">PROVOCAR → EXPLORAR</span>
+    <p style="margin:0;">RetailMax solo mira <b>ingresos totales</b>. Antes de proponer nada, auditemos su madurez.
+    Para cada una de las <b>15 métricas esenciales de Mark Jeffery</b>, decidan según las pistas del caso:
+    ¿RetailMax la mide <b>hoy</b>? No hay respuesta que “pierda”: esto es una auditoría, se equivocan aprendiendo.</p>
+  </div>
+
+  <div class="metric-grid" id="metricGrid"></div>
+
+  <div class="btn-row no-print">
+    <button class="btn-b" id="btnDiag">📊 Revelar madurez BI</button>
+    <button class="btn-b ghost" id="btnDiagReset">↺ Reiniciar</button>
+  </div>
+
+  <div class="feedback" id="diagFb"></div>
+
+  <div class="card-b ink" id="diagResult" style="display:none;">
+    <div class="row align-items-center">
+      <div class="col-sm-4 text-center">
+        <div class="gauge" id="maturityPct" style="color:var(--idc-yellow);">--%</div>
+        <div style="font-size:.8rem;">Índice de madurez BI</div>
+      </div>
+      <div class="col-sm-8">
+        <span class="tag alert" id="dividedTag">MARKETING DIVIDE</span>
+        <p id="dividedMsg" style="margin:.3rem 0 0;"></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="btn-row no-print" id="fase1Next" style="display:none;">
+    <button class="btn-b blue" onclick="go('screen-fase2')">▶ Nivel 2: romper los silos</button>
+  </div>
+</section>
+
+<!-- ============================================================
+     NIVEL 2 · SILOS → ARQUITECTURA (Estación 2: Definición contextualizada)
+     ============================================================ -->
+<section class="screen" id="screen-fase2">
+  <span class="section-num">NIVEL 2</span>
+  <h2 class="mega" style="font-size:clamp(2rem,7vw,3.6rem);">ROMPER<br>LOS SILOS</h2>
+  <div class="card-b yellow">
+    <span class="tag">EXPERIENCIA CONCRETA</span>
+    <p style="margin:0;">POS, e-commerce, CRM y call center hablan idiomas distintos y no se comunican.
+    Ninguna estrategia predictiva funciona sin infraestructura integrada.
+    <b>Ordena el flujo de datos</b> arrastrando (o tocando) cada bloque hasta su posición correcta.</p>
+  </div>
+
+  <div class="card-b">
+    <span class="tag blue">FLUJO DE DATOS · arrástralos o tócalos en orden</span>
+    <div class="arch-pool" id="archPool"></div>
+    <div class="arch-slots" id="archSlots"></div>
+    <div class="btn-row no-print">
+      <button class="btn-b" id="btnArch">✔ Validar flujo</button>
+      <button class="btn-b ghost" id="btnArchReset">↺ Reiniciar</button>
+    </div>
+    <div class="feedback" id="archFb"></div>
+  </div>
+
+  <div class="card-b" id="archDefs" style="display:none;">
+    <span class="tag">DEFINICIÓN VIVA · toca cada tarjeta para revelar</span>
+    <div class="flip-grid" id="flipGrid"></div>
+    <hr class="hard" />
+    <span class="tag alert">DECISIÓN DE DEFINICIÓN</span>
+    <p style="margin:.2rem 0;"><b>¿Cuál describe mejor un <u>Data Mart</u>?</b></p>
+    <div id="defQuiz"></div>
+    <div class="feedback" id="defFb"></div>
+  </div>
+
+  <div class="card-b blue">
+    <span class="tag yellow">🏛️ ARQUITECTURA DE DATOS · RetailMax</span>
+    <div class="tbl-scroll">
+      <div style="display:flex;gap:.4rem;flex-wrap:nowrap;min-width:640px;align-items:stretch;">
+        <div class="card-b" style="flex:1;margin:0;">🧾 <b>FUENTES</b><br><span class="hint">POS · e-commerce · CRM · call center</span></div>
+        <div class="arrow" style="color:#fff;align-self:center;">➜</div>
+        <div class="card-b" style="flex:1;margin:0;">🧪 <b>ETL</b><br><span class="hint">Extraer · limpiar · transformar</span></div>
+        <div class="arrow" style="color:#fff;align-self:center;">➜</div>
+        <div class="card-b" style="flex:1;margin:0;">🏦 <b>EDW</b><br><span class="hint">Almacén central único</span></div>
+        <div class="arrow" style="color:#fff;align-self:center;">➜</div>
+        <div class="card-b" style="flex:1;margin:0;">📊 <b>BI</b><br><span class="hint">Data Marts · dashboards</span></div>
+        <div class="arrow" style="color:#fff;align-self:center;">➜</div>
+        <div class="card-b" style="flex:1;margin:0;">👥 <b>USUARIOS</b><br><span class="hint">Marketing · gerencia</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="btn-row no-print" id="fase2Next" style="display:none;">
+    <button class="btn-b blue" onclick="go('screen-fase3')">▶ Nivel 3: ¿quién es tu mejor cliente?</button>
+  </div>
+</section>
+
+<!-- ============================================================
+     NIVEL 3 · CLTV & SEGMENTACIÓN (Estación 3: Simulador)
+     ============================================================ -->
+<section class="screen" id="screen-fase3">
+  <span class="section-num">NIVEL 3</span>
+  <h2 class="mega" style="font-size:clamp(2rem,7vw,3.6rem);">VALOR DEL<br>CLIENTE</h2>
+  <div class="card-b">
+    <span class="tag blue">EN LENGUAJE NORMAL</span>
+    <p style="margin:0;">Para saber cuánto vale un cliente a lo largo del tiempo tomamos el
+    <b>margen anual</b> que nos deja, lo multiplicamos por <b>cuántos años se queda</b>
+    (su probabilidad de retención) y le <b>restamos lo que costó conseguirlo</b> (CAC).
+    Ajusta las palancas y observa cómo cambia todo en tiempo real.</p>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-lg-5">
+      <div class="card-b">
+        <span class="tag">🎛️ SIMULADOR CLTV</span>
+        <label class="fld">Margen anual por cliente ($)</label>
+        <input class="inp cltv-in" id="in_margin" type="number" min="1" value="220" />
+        <label class="fld">Retención anual (%) — probabilidad de que se quede</label>
+        <input class="inp cltv-in" id="in_ret" type="number" min="1" max="99" value="70" />
+        <label class="fld">Tasa de descuento anual (%)</label>
+        <input class="inp cltv-in" id="in_disc" type="number" min="1" max="60" value="12" />
+        <label class="fld">Costo de adquisición · CAC ($)</label>
+        <input class="inp cltv-in" id="in_cac" type="number" min="0" value="180" />
+        <label class="fld">Clientes activos (base)</label>
+        <input class="inp cltv-in" id="in_base" type="number" min="100" value="500000" />
+        <div class="btn-row"><button class="btn-b" id="btnCltv">⚡ Recalcular dashboard</button></div>
+      </div>
+    </div>
+    <div class="col-lg-7">
+      <div class="kpi-row">
+        <div class="kpi"><div class="v" id="kpiCltv">$0</div><div class="l">CLTV promedio</div></div>
+        <div class="kpi"><div class="v" id="kpiTop">$0</div><div class="l">CLTV top (diamante)</div></div>
+        <div class="kpi"><div class="v" id="kpiPareto">0%</div><div class="l">Valor del top 20%</div></div>
+      </div>
+      <div class="card-b ink" style="margin-bottom:0;">
+        <span class="tag yellow">HALLAZGO PARETO</span>
+        <p style="margin:.2rem 0 0;font-size:.9rem;" id="paretoMsg">Recalcula para descubrir a tus clientes más valiosos.</p>
+      </div>
+    </div>
+  </div>
+
+  <hr class="hard" />
+  <span class="tag yellow">📊 DASHBOARD BI · 6 VISUALIZACIONES</span>
+  <div class="dash" id="dash">
+    <div class="viz"><h4>1 · Espectro CLTV</h4><div id="viz1"></div></div>
+    <div class="viz"><h4>2 · Matriz estratégica (actual vs. potencial)</h4><div id="viz2"></div></div>
+    <div class="viz"><h4>3 · Pirámide de valor</h4><div id="viz3"></div></div>
+    <div class="viz"><h4>4 · Churn vs. CSAT</h4><div id="viz4"></div></div>
+    <div class="viz"><h4>5 · Canales de adquisición</h4><div id="viz5"></div></div>
+    <div class="viz"><h4>6 · Proyección ROMI (preview)</h4><div id="viz6"></div></div>
+  </div>
+
+  <div class="btn-row no-print">
+    <button class="btn-b blue" id="btnToAnag" disabled>▶ Desbloquear anagrama conceptual</button>
+  </div>
+  <span class="hint no-print">Recalcula el dashboard al menos una vez para desbloquear.</span>
+</section>
+
+<!-- ============================================================
+     ANAGRAMA CONCEPTUAL (Estación 4 · OBLIGATORIA)
+     ============================================================ -->
+<section class="screen" id="screen-anagrama">
+  <span class="section-num">REFUERZO</span>
+  <h2 class="mega" style="font-size:clamp(2rem,7vw,3.6rem);">ANAGRAMA<br>CONCEPTUAL</h2>
+  <div class="card-b yellow">
+    <span class="tag">REFORZAR EL VOCABULARIO</span>
+    <p style="margin:0;">Descifra los <b>5 términos clave</b> del rescate data-driven. Lee la pista,
+    reordena las letras y escribe el concepto. Cada acierto suma a tu insignia <b>🔤 Léxico</b>.</p>
+  </div>
+
+  <div class="card-b">
+    <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;">
+      <span class="tag blue">Ronda <span id="anagRound">1</span> / 5</span>
+      <span class="tag" id="anagScore">Aciertos: 0</span>
+    </div>
+    <p style="font-weight:700;margin:.6rem 0 .3rem;" id="anagHint">Pista</p>
+    <div class="scram" id="anagScram">------</div>
+    <label class="fld">Tu respuesta</label>
+    <input class="inp" id="anagInput" autocomplete="off" placeholder="Escribe el concepto…" />
+    <div class="btn-row no-print">
+      <button class="btn-b" id="btnAnag">✔ Comprobar</button>
+      <button class="btn-b ghost" id="btnAnagSkip">↷ Pista extra</button>
+    </div>
+    <div class="feedback" id="anagFb"></div>
+  </div>
+
+  <div class="btn-row no-print" id="anagNext" style="display:none;">
+    <button class="btn-b blue" onclick="go('screen-fase4')">▶ Nivel 4: el sustento financiero</button>
+  </div>
+</section>
+
+<!-- ============================================================
+     NIVEL 4 · FINANCIERO + CIERRE (Estación 3b + Estación 5)
+     ============================================================ -->
+<section class="screen" id="screen-fase4">
+  <span class="section-num">NIVEL 4</span>
+  <h2 class="mega" style="font-size:clamp(2rem,7vw,3.6rem);">SUSTENTO<br>FINANCIERO</h2>
+  <div class="card-b">
+    <span class="tag alert">HABLAR EL IDIOMA DE LA GERENCIA</span>
+    <p style="margin:0;">Propongan una <b>campaña quick-win de 30 días</b> dirigida SOLO a su mejor segmento.
+    El simulador proyecta si conviene: calcula la ganancia neta (NPV), la rentabilidad (IRR)
+    y en cuánto tiempo se recupera la inversión (Payback).</p>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-lg-5">
+      <div class="card-b">
+        <span class="tag">💰 SIMULADOR FINANCIERO · ROMI</span>
+        <label class="fld">Inversión de la campaña ($)</label>
+        <input class="inp romi-in" id="r_inv" type="number" min="1" value="120000" />
+        <label class="fld">Clientes del segmento objetivo</label>
+        <input class="inp romi-in" id="r_targets" type="number" min="1" value="40000" />
+        <label class="fld">Take rate esperado (%) — campaña dirigida al mejor segmento</label>
+        <input class="inp romi-in" id="r_take" type="number" min="0.1" step="0.1" value="10" />
+        <label class="fld">Ticket promedio ($)</label>
+        <input class="inp romi-in" id="r_ticket" type="number" min="1" value="95" />
+        <label class="fld">Margen (%)</label>
+        <input class="inp romi-in" id="r_margin" type="number" min="1" max="100" value="38" />
+        <label class="fld">Horizonte (meses)</label>
+        <input class="inp romi-in" id="r_months" type="number" min="1" max="36" value="12" />
+        <label class="fld">Tasa de descuento mensual (%)</label>
+        <input class="inp romi-in" id="r_disc" type="number" min="0.1" step="0.1" value="1" />
+        <div class="btn-row"><button class="btn-b" id="btnRomi">📈 Proyectar retorno</button></div>
+      </div>
+    </div>
+    <div class="col-lg-7">
+      <div class="kpi-row">
+        <div class="kpi"><div class="v" id="kpiRomi">--%</div><div class="l">ROMI</div></div>
+        <div class="kpi"><div class="v" id="kpiNpv">$--</div><div class="l">NPV</div></div>
+        <div class="kpi"><div class="v" id="kpiIrr">--%</div><div class="l">IRR mensual</div></div>
+        <div class="kpi"><div class="v" id="kpiPay">--</div><div class="l">Payback (meses)</div></div>
+      </div>
+      <div class="viz"><h4>Proyección de flujo acumulado</h4><div id="vizRomi"></div></div>
+      <div class="feedback" id="romiFb"></div>
+    </div>
+  </div>
+
+  <!-- Análisis de sensibilidad (Fig 5.11) -->
+  <div class="card-b" id="sensBox" style="display:none;">
+    <span class="tag blue">ANÁLISIS DE SENSIBILIDAD · take rate vs. NPV</span>
+    <div class="tbl-scroll"><table class="jeff" id="sensTable"></table></div>
+    <span class="hint">Tabla de datos para escenarios (Jeffery, Fig. 5.11): cómo cambia el NPV si el take rate sube o baja.</span>
+  </div>
+
+  <hr class="hard" />
+
+  <!-- Estación 5: Transferencia y reflexión -->
+  <div class="card-b yellow">
+    <span class="tag">🧭 TICKET DE SALIDA · transferencia y reflexión</span>
+    <label class="fld">Dos hallazgos y una duda de tu equipo</label>
+    <textarea class="inp" id="reflex" rows="3" placeholder="Hallazgo 1… / Hallazgo 2… / Duda…"></textarea>
+    <label class="fld" style="margin-top:.6rem;">¿Dónde más aplicarías el CLTV fuera de RetailMax?</label>
+    <input class="inp" id="transfer" placeholder="Ej. una app de suscripción, una clínica, una universidad…" />
+  </div>
+
+  <!-- Rúbrica de autoevaluación 5 dimensiones -->
+  <div class="card-b">
+    <span class="tag blue">📈 AUTOEVALUACIÓN · rúbrica de 5 dimensiones (1–5)</span>
+    <div id="rubric"></div>
+  </div>
+
+  <!-- Paneles informativos: herramientas + tabla Jeffery -->
+  <div class="row g-3">
+    <div class="col-lg-6">
+      <div class="card-b">
+        <span class="tag">🛠️ HERRAMIENTAS EXCEL · RetailMax</span>
+        <ul class="tools">
+          <li><b>Dataset de 500 clientes</b> — 19 variables operativas</li>
+          <li><b>Plantilla CLTV</b> — fórmula completa (Cap. 6, Fig. 6.1)</li>
+          <li><b>Plantilla ROMI</b> — NPV / IRR / Payback (Cap. 5, Fig. 5.4)</li>
+          <li><b>Scorecard de madurez BI</b> — 15 métricas</li>
+          <li><b>Matriz de segmentación</b> — actual vs. futuro (Fig. 6.6)</li>
+        </ul>
+        <span class="hint">Tus datos alimentan el dataset exportable (CSV/Excel) más abajo.</span>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="card-b">
+        <span class="tag blue">🔑 ELEMENTOS CLAVE · Libro de Jeffery</span>
+        <div class="tbl-scroll">
+          <table class="jeff">
+            <thead><tr><th>Concepto del libro</th><th>Aplicación en RetailMax</th></tr></thead>
+            <tbody>
+              <tr><td>Marketing Divide (Cap. 1)</td><td>Empresa “rezagada” (&lt;20% métricas)</td></tr>
+              <tr><td>15 Métricas (Caps. 3–7)</td><td>Scorecard obligatorio</td></tr>
+              <tr><td>CLTV (Cap. 6, Fig. 6.1)</td><td>Calculadora con fórmula completa</td></tr>
+              <tr><td>Matriz actual vs. futuro (Fig. 6.6)</td><td>Dashboard de segmentación</td></tr>
+              <tr><td>Árbol de decisión (Cap. 9, Fig. 9.3)</td><td>Marketing event-driven</td></tr>
+              <tr><td>ROMI (Cap. 5, Fig. 5.4)</td><td>Business case NPV/IRR/Payback</td></tr>
+              <tr><td>Sensibilidad (Fig. 5.11)</td><td>Tabla de escenarios</td></tr>
+              <tr><td>Agile Marketing (Cap. 8)</td><td>Quick win de 30 días</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ENTREGABLES -->
+  <div class="card-b ink no-print">
+    <span class="tag yellow">📦 ENTREGABLES · exporta tu plan y reporte financiero</span>
+    <p style="margin:.2rem 0 .6rem;font-size:.9rem;">Genera el plan de implementación y el reporte financiero de tu equipo:</p>
+    <div class="btn-row">
+      <button class="btn-b" id="btnCsv">⬇ CSV (dataset)</button>
+      <button class="btn-b ghost" id="btnXls">⬇ Excel (.xls)</button>
+      <button class="btn-b blue" id="btnPdf">⬇ PDF (imprimir/guardar)</button>
+      <button class="btn-b" id="btnFinish">🏁 Certificar consultoría</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     JUSTIFICACIÓN DOCENTE
+     ============================================================ -->
+<div class="card-b blue no-print" style="margin-top:1.4rem;">
+  <details>
+    <summary style="cursor:pointer;font-family:'Archivo Black';text-transform:uppercase;">🎓 Justificación pedagógica (para el docente)</summary>
+    <p style="margin-top:.6rem;font-size:.9rem;">Esta actividad adopta el enfoque <b>DUA-Experiencial</b>: ofrece múltiples formas de
+    <b>implicación</b> (narrativa de crisis, retos, insignias), <b>representación</b> (texto,
+    tablas, 6 visualizaciones, diagrama de flujo, definiciones flip) y <b>acción/expresión</b>
+    (auditoría, arrastre/tap, simuladores, anagrama, escritura reflexiva y autoevaluación).
+    Recorre el ciclo experiencial <i>Provocar → Explorar → Nombrar → Aplicar → Reforzar → Reflexionar</i>:
+    las definiciones (EDW, ETL, Data Mart, CLTV, ROMI) aparecen <u>después</u> de la experiencia,
+    nunca como párrafo inicial. El error es <b>productivo</b> (pausa → pista → dato → contexto → reintento),
+    sin “game over” conceptual, sosteniendo la seguridad psicológica y la motivación intrínseca.
+    Alinea la sesión de 90 min con las 4 fases y las 5 estaciones DUA.</p>
+  </details>
+</div>
+
+</div><!-- /wrap -->
+
+<footer class="idc">
+  <span id="logo-foot"></span>
+  <p style="margin:.6rem 0 0;"><b>Mg. Mario Quiroz Martínez</b> — Unidad didáctica Investigación e Innovación Tecnológica</p>
+  <p style="margin:.2rem 0 0;font-size:.72rem;color:#bbb;">Instituto de Diseño y Comunicación · PWA educativa DUA-Experiencial · Caso RetailMax (metodología M. Jeffery)</p>
+</footer>
+
+<div class="install-bar no-print" id="installBar"><button class="btn-b" id="btnInstall">⬇ Instalar app</button></div>
+<div class="toast" id="toast"></div>
+
+<!-- ============================================================
+     REPORTE IMPRIMIBLE (PDF)
+     ============================================================ -->
+<div id="print-report" class="wrap"></div>
+
+<script>
+"use strict";
+/* ============================================================
+   TRANSFORMACIÓN DATA-DRIVEN · lógica de la PWA
+   Estado 100% en memoria (sin localStorage/sessionStorage).
+   ============================================================ */
+
+/* ---------- Logo IDC (SVG inline, embebido) ---------- */
+const IDC_LOGO = '<svg width="52" height="30" viewBox="0 0 52 30" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="IDC">'
+  + '<rect x="0" y="0" width="52" height="30" fill="#0d0d0d"/>'
+  + '<rect x="3" y="4" width="7" height="22" fill="#f3a100"/>'
+  + '<text x="14" y="21" font-family="Arial Black,Arial,sans-serif" font-size="15" font-weight="900" fill="#ffffff">IDC</text>'
+  + '</svg>';
+document.getElementById('logo-hud').innerHTML = IDC_LOGO;
+document.getElementById('logo-foot').innerHTML = IDC_LOGO;
+
+/* ---------- Estado global ---------- */
+const state = {
+  team:{mode:'equipo', name:'', members:[], course:''},
+  level:0,
+  badges:{diag:false, arch:false, seg:false, lex:false, fin:false},
+  scorecard:{},        // idMétrica -> 'si'/'no'
+  maturity:0,
+  cltv:null,
+  romi:null,
+  anag:{round:0, score:0, extra:false},
+  reflex:'', transfer:'',
+  rubric:[0,0,0,0,0]
+};
+
+/* ---------- Utilidades ---------- */
+const $ = (id)=>document.getElementById(id);
+const money = (n)=> '$' + Math.round(n).toLocaleString('es-MX');
+const pct = (n)=> (n*100).toFixed(1) + '%';
+function toast(msg){ const t=$('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2600); }
+
+// PRNG determinista (mulberry32) para un dataset reproducible
+function mulberry32(a){ return function(){ a|=0;a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return((t^t>>>14)>>>0)/4294967296; }; }
+
+/* ---------- Navegación entre pantallas ---------- */
+function go(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  $(id).classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+window.go = go;
+
+function setLevel(n){
+  state.level = Math.max(state.level, n);
+  const p = Math.min(state.level,4)/4*100;
+  $('progFill').style.width = p + '%';
+  $('progLabel').textContent = 'Nivel ' + Math.min(state.level,4) + ' / 4';
+}
+function awardBadge(key,label){
+  if(state.badges[key]) return;
+  state.badges[key]=true;
+  document.querySelectorAll('.badge-pill').forEach(b=>{ if(b.dataset.b===key) b.classList.add('on'); });
+  toast('🏅 Insignia desbloqueada: ' + label);
+}
+
+/* ============================================================
+   PORTADA · registro de equipo
+   ============================================================ */
+$('mode').addEventListener('change', e=>{
+  $('membersBox').style.display = e.target.value==='individual' ? 'none' : 'block';
+});
+$('teamForm').addEventListener('submit', e=>{
+  e.preventDefault();
+  state.team.mode = $('mode').value;
+  state.team.name = $('teamName').value.trim();
+  state.team.course = $('course').value.trim();
+  state.team.members = $('members').value.split('\n').map(s=>s.trim()).filter(Boolean);
+  if(!state.team.name){ toast('Registra el nombre del equipo o consultor.'); return; }
+  setLevel(1);
+  go('screen-fase1');
+  toast('¡Bienvenidos, ' + state.team.name + '! Misión iniciada.');
+});
+
+/* ============================================================
+   NIVEL 1 · Scorecard 15 métricas de Jeffery
+   ============================================================ */
+// implemented=true => RetailMax SÍ la mide hoy (según el caso). Casi ninguna: empresa rezagada.
+const METRICS = [
+  {n:1, k:'Brand Awareness (conciencia de marca)', impl:false},
+  {n:2, k:'Test-Drive (prueba de producto)', impl:false},
+  {n:3, k:'Churn (tasa de abandono)', impl:false},
+  {n:4, k:'CSAT (satisfacción del cliente)', impl:false},
+  {n:5, k:'Take Rate (tasa de aceptación)', impl:true},
+  {n:6, k:'Profit / Utilidad', impl:true},
+  {n:7, k:'NPV (valor presente neto)', impl:false},
+  {n:8, k:'IRR (tasa interna de retorno)', impl:false},
+  {n:9, k:'Payback (recuperación)', impl:false},
+  {n:10,k:'CLTV (valor de vida del cliente)', impl:false},
+  {n:11,k:'CPC (costo por clic)', impl:false},
+  {n:12,k:'TCR (tasa de conversión)', impl:false},
+  {n:13,k:'ROA (retorno por $ en publicidad)', impl:false},
+  {n:14,k:'Bounce Rate (tasa de rebote)', impl:false},
+  {n:15,k:'WOM (boca a boca)', impl:false}
+];
+function buildMetrics(){
+  const g=$('metricGrid'); g.innerHTML='';
+  METRICS.forEach(m=>{
+    state.scorecard[m.n] = state.scorecard[m.n] || null;
+    const el=document.createElement('div'); el.className='metric';
+    el.innerHTML = '<span class="mnum">'+String(m.n).padStart(2,'0')+'</span>'
+      + '<h4>'+m.k+'</h4>'
+      + '<div class="toggle" data-n="'+m.n+'">'
+      + '<button type="button" class="si">SÍ la mide</button>'
+      + '<button type="button" class="no">NO</button></div>';
+    g.appendChild(el);
+  });
+  g.querySelectorAll('.toggle').forEach(t=>{
+    const n=+t.dataset.n;
+    t.querySelector('.si').addEventListener('click',()=>{ state.scorecard[n]='si'; t.querySelector('.si').classList.add('sel'); t.querySelector('.no').classList.remove('sel'); });
+    t.querySelector('.no').addEventListener('click',()=>{ state.scorecard[n]='no'; t.querySelector('.no').classList.add('sel'); t.querySelector('.si').classList.remove('sel'); });
+  });
+}
+buildMetrics();
+
+$('btnDiagReset').addEventListener('click',()=>{ state.scorecard={}; buildMetrics(); $('diagResult').style.display='none'; $('diagFb').classList.remove('show'); $('fase1Next').style.display='none'; });
+
+$('btnDiag').addEventListener('click',()=>{
+  const answered = Object.values(state.scorecard).filter(Boolean).length;
+  if(answered < 15){
+    const fb=$('diagFb'); fb.className='feedback err show';
+    fb.innerHTML = '<h5>✗ Aún no — falta auditar</h5><ul>'
+      + '<li><b>Pista:</b> revisa las '+ (15-answered) +' métricas sin marcar.</li>'
+      + '<li><b>Dato clave:</b> una auditoría de madurez exige clasificar las 15.</li>'
+      + '<li><b>Contexto:</b> en BI no se decide sobre datos incompletos.</li>'
+      + '<li><b>Reintento:</b> marca SÍ/NO en cada tarjeta y vuelve a revelar.</li></ul>';
+    return;
+  }
+  // madurez del equipo según sus respuestas
+  const teamImpl = METRICS.filter(m=>state.scorecard[m.n]==='si').length;
+  // madurez real del caso
+  const realImpl = METRICS.filter(m=>m.impl).length; // 2
+  state.maturity = realImpl/15;
+  const teamPct = Math.round(teamImpl/15*100);
+  const realPct = Math.round(realImpl/15*100);
+  // aciertos vs. referencia del caso
+  const matches = METRICS.filter(m=> (state.scorecard[m.n]==='si')===m.impl ).length;
+
+  $('diagResult').style.display='block';
+  $('maturityPct').textContent = realPct + '%';
+  const rezagada = realPct < 20;
+  $('dividedTag').textContent = rezagada ? 'RETAILMAX = REZAGADA' : 'RETAILMAX = LÍDER';
+  $('dividedMsg').innerHTML = 'Según el caso, RetailMax solo mide de forma real <b>'+realImpl+' de 15</b> métricas ('+realPct+'%): '
+    + '<b>Take Rate</b> y <b>Utilidad</b>. Por debajo del 20% cae del lado <b>rezagado</b> del '
+    + '<i>Marketing Divide</i> (Cap. 1). Tu equipo estimó <b>'+teamPct+'%</b> y coincidió con la '
+    + 'referencia en <b>'+matches+'/15</b> métricas.';
+
+  const fb=$('diagFb'); fb.className='feedback ok show';
+  fb.innerHTML = '<h5>✔ Diagnóstico completado</h5><ul>'
+    + '<li>Identificaste la <b>brecha</b> entre marketing masivo y data-driven.</li>'
+    + '<li>La urgencia del cambio queda justificada: sin métricas no hay gestión.</li></ul>';
+  awardBadge('diag','🔍 Diagnóstico');
+  setLevel(1);
+  $('fase1Next').style.display='flex';
+});
+
+/* ============================================================
+   NIVEL 2 · Arquitectura (ordenar flujo) + definiciones
+   ============================================================ */
+const ARCH = [
+  {id:'fuentes', t:'🧾 Fuentes (POS/CRM/e-com)'},
+  {id:'etl', t:'🧪 ETL (extraer y limpiar)'},
+  {id:'edw', t:'🏦 EDW (almacén central)'},
+  {id:'bi', t:'📊 BI (data marts/dashboards)'},
+  {id:'users', t:'👥 Usuarios (marketing)'}
+];
+const ARCH_ORDER = ['fuentes','etl','edw','bi','users'];
+let archPlaced = []; // ids en slots por índice
+let pickedNode = null;
+
+function shuffle(arr){ const a=arr.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+function buildArch(){
+  archPlaced = [null,null,null,null,null];
+  pickedNode = null;
+  const pool=$('archPool'); pool.innerHTML='';
+  shuffle(ARCH).forEach(node=>{
+    const el=document.createElement('div');
+    el.className='node'; el.draggable=true; el.dataset.id=node.id; el.textContent=node.t;
+    el.addEventListener('dragstart', ev=>ev.dataTransfer.setData('text/plain', node.id));
+    // Fallback táctil: tocar nodo -> tocar slot
+    el.addEventListener('click', ()=>{
+      pool.querySelectorAll('.node').forEach(n=>n.classList.remove('picked'));
+      pickedNode = node.id; el.classList.add('picked');
+    });
+    pool.appendChild(el);
+  });
+  const slots=$('archSlots'); slots.innerHTML='';
+  for(let i=0;i<5;i++){
+    const s=document.createElement('div'); s.className='slot'; s.dataset.slot=i;
+    s.innerHTML='<span class="idx">'+(i+1)+'</span> suelta o toca aquí';
+    s.addEventListener('dragover', ev=>ev.preventDefault());
+    s.addEventListener('drop', ev=>{ ev.preventDefault(); placeNode(i, ev.dataTransfer.getData('text/plain')); });
+    s.addEventListener('click', ()=>{ if(pickedNode){ placeNode(i, pickedNode); pickedNode=null; pool.querySelectorAll('.node').forEach(n=>n.classList.remove('picked')); } });
+    if(i<4){ slots.appendChild(s); const ar=document.createElement('span'); ar.className='arrow'; ar.textContent='➜'; slots.appendChild(ar); }
+    else slots.appendChild(s);
+  }
+}
+function placeNode(slotIdx, id){
+  if(!id) return;
+  // quitar id de cualquier slot previo
+  archPlaced = archPlaced.map(x=> x===id ? null : x);
+  archPlaced[slotIdx] = id;
+  const node = ARCH.find(a=>a.id===id);
+  const slotEl = document.querySelector('.slot[data-slot="'+slotIdx+'"]');
+  slotEl.classList.add('filled');
+  slotEl.innerHTML='<span class="idx">'+(slotIdx+1)+'</span> '+node.t;
+  // reflejar disponibilidad en el pool
+  document.querySelectorAll('#archPool .node').forEach(n=>{
+    n.style.opacity = archPlaced.includes(n.dataset.id) ? .35 : 1;
+  });
+}
+buildArch();
+$('btnArchReset').addEventListener('click',()=>{ buildArch(); $('archFb').classList.remove('show'); });
+
+$('btnArch').addEventListener('click',()=>{
+  if(archPlaced.includes(null)){
+    const fb=$('archFb'); fb.className='feedback err show';
+    fb.innerHTML='<h5>✗ Aún no — flujo incompleto</h5><ul>'
+      +'<li><b>Pista:</b> las 5 posiciones deben quedar llenas.</li>'
+      +'<li><b>Dato clave:</b> el dato viaja en una sola dirección, de origen a usuario.</li>'
+      +'<li><b>Contexto:</b> un pipeline con huecos no entrega información utilizable.</li>'
+      +'<li><b>Reintento:</b> completa los slots vacíos.</li></ul>';
+    return;
+  }
+  const correct = archPlaced.every((id,i)=> id===ARCH_ORDER[i]);
+  const fb=$('archFb');
+  if(correct){
+    fb.className='feedback ok show';
+    fb.innerHTML='<h5>✔ ¡Flujo integrado!</h5><ul>'
+      +'<li>Comprendiste que <b>ninguna estrategia predictiva funciona sin datos integrados</b>.</li>'
+      +'<li>Los silos quedaron rotos: Fuentes → ETL → EDW → BI → Usuarios.</li></ul>';
+    $('archDefs').style.display='block';
+    awardBadge('arch','🏗️ Arquitecto');
+    setLevel(2);
+    $('fase2Next').style.display='flex';
+  }else{
+    fb.className='feedback err show';
+    fb.innerHTML='<h5>✗ Aún no — el orden no fluye</h5><ul>'
+      +'<li><b>Pista:</b> los datos primero se <i>capturan</i>, luego se <i>limpian</i>, después se <i>guardan</i>.</li>'
+      +'<li><b>Dato clave:</b> el ETL va SIEMPRE entre las fuentes y el almacén (EDW).</li>'
+      +'<li><b>Contexto:</b> los dashboards de BI leen del EDW, no de las cajas directamente.</li>'
+      +'<li><b>Reintento:</b> reordena: fuente → transformar → almacenar → analizar → usar.</li></ul>';
+  }
+});
+
+// Definiciones flip
+const DEFS = [
+  {k:'ETL', d:'Extract-Transform-Load: extrae datos de cada fuente, los limpia/normaliza y los carga al almacén.'},
+  {k:'EDW', d:'Enterprise Data Warehouse: almacén central único e integrado, la "fuente de la verdad" de la empresa.'},
+  {k:'DATA MART', d:'Subconjunto temático del EDW, optimizado para un área (p. ej. Marketing) y sus dashboards.'},
+  {k:'BI', d:'Business Intelligence: capa de análisis y visualización que convierte datos en decisiones.'}
+];
+function buildFlips(){
+  const g=$('flipGrid'); g.innerHTML='';
+  DEFS.forEach(d=>{
+    const el=document.createElement('div'); el.className='flip';
+    el.innerHTML='<div class="flip-in"><div class="flip-face flip-front"><span class="k">'+d.k+'</span><span class="hint" style="color:#dfefff;">toca para definir</span></div>'
+      +'<div class="flip-face flip-back">'+d.d+'</div></div>';
+    el.addEventListener('click',()=>el.classList.toggle('on'));
+    g.appendChild(el);
+  });
+}
+buildFlips();
+
+// Quiz de definición (Data Mart)
+const DEF_OPTS = [
+  {t:'Un subconjunto temático del EDW optimizado para un área y sus dashboards.', ok:true},
+  {t:'Un servidor físico donde viven las cajas registradoras (POS).', ok:false},
+  {t:'Un archivo Excel individual que cada analista guarda en su laptop.', ok:false}
+];
+function buildDefQuiz(){
+  const box=$('defQuiz'); box.innerHTML='';
+  DEF_OPTS.forEach((o,i)=>{
+    const b=document.createElement('button');
+    b.className='btn-b ghost'; b.style.display='block'; b.style.width='100%'; b.style.textAlign='left'; b.style.marginBottom='.4rem';
+    b.textContent=String.fromCharCode(65+i)+') '+o.t;
+    b.addEventListener('click',()=>{
+      const fb=$('defFb');
+      if(o.ok){ fb.className='feedback ok show'; fb.innerHTML='<h5>✔ Exacto</h5><ul><li>Distinguiste el concepto porque reconociste su <b>función</b>: servir a un área concreta desde el EDW.</li></ul>'; }
+      else { fb.className='feedback err show'; fb.innerHTML='<h5>✗ Aún no</h5><ul><li><b>Pista:</b> un Data Mart no es hardware ni un archivo suelto.</li><li><b>Dato clave:</b> se <i>deriva</i> del EDW para un dominio.</li><li><b>Contexto:</b> Marketing usa su propio data mart para segmentar.</li><li><b>Reintento:</b> busca la opción que hable de "subconjunto temático del EDW".</li></ul>'; }
+    });
+    box.appendChild(b);
+  });
+}
+buildDefQuiz();
+
+/* ============================================================
+   NIVEL 3 · CLTV, dataset y dashboard
+   ============================================================ */
+// Dataset determinista de 500 clientes (19 variables)
+let DATASET = [];
+function buildDataset(base){
+  const rnd = mulberry32(20260724);
+  const channels=['Tienda','E-commerce','App','Call center','Referido'];
+  const regions=['Norte','Centro','Sur','Bajío','Costa'];
+  DATASET=[];
+  for(let i=0;i<500;i++){
+    const freq = Math.max(1, Math.round(rnd()*24));
+    const ticket = 30 + rnd()*260;
+    const marginRate = 0.18 + rnd()*0.30;
+    const retention = 0.35 + rnd()*0.6;
+    const churn = 1-retention;
+    const csat = Math.round((3 + rnd()*2)*10)/10;
+    const recency = Math.round(rnd()*360);
+    const cac = 40 + rnd()*260;
+    const tenure = Math.round(1+rnd()*10);
+    const anualMargin = freq*ticket*marginRate;
+    DATASET.push({
+      id:'C'+String(i+1).padStart(4,'0'),
+      region:regions[Math.floor(rnd()*regions.length)],
+      channel:channels[Math.floor(rnd()*channels.length)],
+      freq, ticket:+ticket.toFixed(2), marginRate:+marginRate.toFixed(3),
+      retention:+retention.toFixed(3), churn:+churn.toFixed(3), csat,
+      recency, cac:+cac.toFixed(2), tenure, anualMargin:+anualMargin.toFixed(2),
+      email: rnd()>0.15?1:0, app: rnd()>0.5?1:0, coupon: rnd()>0.6?1:0,
+      complaints: Math.round(rnd()*4), returns: Math.round(rnd()*3),
+      nps: Math.round(-10+rnd()*100), promo_sensitive: rnd()>0.5?1:0
+    });
+  }
+}
+
+// Fórmula CLTV (Gupta/Jeffery): CLTV = margen * ( r / (1+d-r) ) - CAC
+function cltvOf(margin, r, d, cac){
+  const denom = (1 + d - r);
+  const mult = denom>0 ? (r/denom) : 0;
+  return margin*mult - cac;
+}
+
+function recalcCltv(){
+  const margin=+$('in_margin').value, ret=+$('in_ret').value/100, disc=+$('in_disc').value/100, cac=+$('in_cac').value, base=+$('in_base').value;
+  if(!(margin>0 && ret>0 && ret<1 && disc>0 && base>0)){ toast('Revisa los valores del simulador (retención < 100%).'); return; }
+  buildDataset(base);
+  // CLTV por cliente del dataset (escalado a las palancas del equipo)
+  const scaleM = margin / (avg(DATASET.map(c=>c.anualMargin))||1);
+  DATASET.forEach(c=>{
+    const m = c.anualMargin*scaleM;
+    const r = Math.min(0.98, c.retention*(ret/avg(DATASET.map(x=>x.retention))));
+    c.cltv = cltvOf(m, Math.min(0.98,r), disc, c.cac*(cac/avg(DATASET.map(x=>x.cac))||1));
+  });
+  const cltvs = DATASET.map(c=>c.cltv).sort((a,b)=>b-a);
+  const avgC = avg(cltvs);
+  const topC = cltvs[Math.floor(cltvs.length*0.02)];
+  const total = cltvs.reduce((a,b)=>a+Math.max(0,b),0);
+  const top20 = cltvs.slice(0, Math.floor(cltvs.length*0.2)).reduce((a,b)=>a+Math.max(0,b),0);
+  const paretoShare = total>0 ? top20/total : 0;
+
+  state.cltv = {margin, ret, disc, cac, base, avg:avgC, top:topC, paretoShare, avgFleetValue: avgC*base};
+
+  $('kpiCltv').textContent = money(avgC);
+  $('kpiTop').textContent = money(topC);
+  $('kpiPareto').textContent = Math.round(paretoShare*100)+'%';
+  $('paretoMsg').innerHTML = 'El <b>top 20%</b> de clientes concentra el <b>'+Math.round(paretoShare*100)+'%</b> del valor. '
+    + 'Tratar a los 500 000 por igual desperdicia presupuesto: <b>segmenta y prioriza</b> a los "diamante".';
+
+  renderDashboard();
+  awardBadge('seg','💎 Segmentador');
+  setLevel(3);
+  $('btnToAnag').disabled=false;
+}
+function avg(a){ return a.reduce((x,y)=>x+y,0)/(a.length||1); }
+
+$('btnCltv').addEventListener('click', recalcCltv);
+$('btnToAnag').addEventListener('click',()=>{ startAnag(); go('screen-anagrama'); });
+
+/* ---------- Render de las 6 visualizaciones (SVG puro) ---------- */
+function svgEl(w,h){ return '<svg viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="xMidYMid meet">'; }
+function renderDashboard(){
+  renderViz1(); renderViz2(); renderViz3(); renderViz4(); renderViz5(); renderViz6preview();
+}
+// 1 · Espectro CLTV (histograma)
+function renderViz1(){
+  const vals=DATASET.map(c=>c.cltv);
+  const min=Math.min(...vals), max=Math.max(...vals), bins=12, w=300,h=150,pad=20;
+  const counts=new Array(bins).fill(0);
+  vals.forEach(v=>{ let idx=Math.floor((v-min)/((max-min)||1)*bins); idx=Math.max(0,Math.min(bins-1,idx)); counts[idx]++; });
+  const maxc=Math.max(...counts), bw=(w-2*pad)/bins;
+  let s=svgEl(w,h);
+  counts.forEach((c,i)=>{
+    const bh=(c/maxc)*(h-2*pad);
+    const x=pad+i*bw, y=h-pad-bh;
+    const col = i<bins*0.33?'#e5002b':(i<bins*0.66?'#f3a100':'#009e4f');
+    s+='<rect x="'+(x+1)+'" y="'+y+'" width="'+(bw-2)+'" height="'+bh+'" fill="'+col+'" stroke="#0d0d0d" stroke-width="2"/>';
+  });
+  s+='<line x1="'+pad+'" y1="'+(h-pad)+'" x2="'+(w-pad)+'" y2="'+(h-pad)+'" stroke="#0d0d0d" stroke-width="2"/>';
+  s+='<text x="'+pad+'" y="'+(h-5)+'" font-size="9" fill="#555">bajo valor</text>';
+  s+='<text x="'+(w-pad-56)+'" y="'+(h-5)+'" font-size="9" fill="#555">alto valor</text></svg>';
+  $('viz1').innerHTML=s;
+}
+// 2 · Matriz estratégica (scatter 2x2)
+function renderViz2(){
+  const w=300,h=180,pad=24;
+  let s=svgEl(w,h);
+  s+='<line x1="'+(w/2)+'" y1="'+pad+'" x2="'+(w/2)+'" y2="'+(h-pad)+'" stroke="#0d0d0d" stroke-width="2"/>';
+  s+='<line x1="'+pad+'" y1="'+(h/2)+'" x2="'+(w-pad)+'" y2="'+(h/2)+'" stroke="#0d0d0d" stroke-width="2"/>';
+  const sample=DATASET.filter((_,i)=>i%6===0);
+  sample.forEach(c=>{
+    const x=pad+(c.retention)*(w-2*pad);
+    const val=Math.max(0,c.cltv);
+    const maxv=Math.max(...DATASET.map(d=>Math.max(0,d.cltv)))||1;
+    const y=(h-pad)-(val/maxv)*(h-2*pad);
+    const col = (c.retention>0.6 && val>maxv*0.4)?'#009e4f':(c.retention<0.5?'#e5002b':'#0072b9');
+    s+='<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="3.2" fill="'+col+'" opacity="0.85"/>';
+  });
+  s+='<text x="'+(w/2+4)+'" y="14" font-size="9" fill="#009e4f">★ Fidelizar (alto valor)</text>';
+  s+='<text x="6" y="'+(h-6)+'" font-size="9" fill="#e5002b">✗ Bajo valor</text>';
+  s+='<text x="'+(w-70)+'" y="'+(h-6)+'" font-size="9" fill="#555">retención →</text></svg>';
+  $('viz2').innerHTML=s;
+}
+// 3 · Pirámide de valor
+function renderViz3(){
+  const w=300,h=170;
+  const sorted=DATASET.map(c=>Math.max(0,c.cltv)).sort((a,b)=>b-a);
+  const tiers=[{n:'💎 Diamante',p:0.05,c:'#0072b9'},{n:'🥇 Oro',p:0.15,c:'#f3a100'},{n:'🥈 Plata',p:0.30,c:'#9aa0a6'},{n:'🥉 Bronce',p:0.50,c:'#8d6e4b'}];
+  const total=sorted.reduce((a,b)=>a+b,0)||1;
+  let start=0, s=svgEl(w,h), y=14; const rowH=(h-20)/4;
+  tiers.forEach((t,i)=>{
+    const cnt=Math.round(500*t.p);
+    const share=sorted.slice(start,start+cnt).reduce((a,b)=>a+b,0)/total;
+    start+=cnt;
+    const bw=(0.28+i*0.22)*w; const x=(w-bw)/2;
+    s+='<rect x="'+x.toFixed(1)+'" y="'+y+'" width="'+bw.toFixed(1)+'" height="'+(rowH-6)+'" fill="'+t.c+'" stroke="#0d0d0d" stroke-width="2"/>';
+    s+='<text x="'+(w/2)+'" y="'+(y+rowH/2-2)+'" font-size="10" text-anchor="middle" fill="#fff" font-weight="bold">'+t.n+' · '+Math.round(share*100)+'% valor</text>';
+    y+=rowH;
+  });
+  s+='</svg>'; $('viz3').innerHTML=s;
+}
+// 4 · Churn vs CSAT
+function renderViz4(){
+  const w=300,h=160,pad=26; let s=svgEl(w,h);
+  s+='<line x1="'+pad+'" y1="'+(h-pad)+'" x2="'+(w-pad)+'" y2="'+(h-pad)+'" stroke="#0d0d0d" stroke-width="2"/>';
+  s+='<line x1="'+pad+'" y1="'+pad+'" x2="'+pad+'" y2="'+(h-pad)+'" stroke="#0d0d0d" stroke-width="2"/>';
+  DATASET.filter((_,i)=>i%5===0).forEach(c=>{
+    const x=pad+((c.csat-3)/2)*(w-2*pad);
+    const y=(h-pad)-(c.churn)*(h-2*pad);
+    const col=c.churn>0.5?'#e5002b':'#009e4f';
+    s+='<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="3" fill="'+col+'" opacity="0.8"/>';
+  });
+  s+='<text x="'+pad+'" y="14" font-size="9" fill="#555">↑ churn</text>';
+  s+='<text x="'+(w-70)+'" y="'+(h-6)+'" font-size="9" fill="#555">CSAT →</text></svg>';
+  $('viz4').innerHTML=s;
+}
+// 5 · Canales
+function renderViz5(){
+  const w=300,h=160,pad=24; const chs={};
+  DATASET.forEach(c=>{ chs[c.channel]=(chs[c.channel]||0)+Math.max(0,c.cltv); });
+  const keys=Object.keys(chs); const maxv=Math.max(...keys.map(k=>chs[k]))||1;
+  const bw=(w-2*pad)/keys.length; let s=svgEl(w,h);
+  const cols=['#0072b9','#f3a100','#009e4f','#e5002b','#555553'];
+  keys.forEach((k,i)=>{
+    const bh=(chs[k]/maxv)*(h-2*pad-14); const x=pad+i*bw, y=h-pad-bh;
+    s+='<rect x="'+(x+3)+'" y="'+y.toFixed(1)+'" width="'+(bw-6)+'" height="'+bh.toFixed(1)+'" fill="'+cols[i%cols.length]+'" stroke="#0d0d0d" stroke-width="2"/>';
+    s+='<text x="'+(x+bw/2)+'" y="'+(h-pad+11)+'" font-size="8" text-anchor="middle" fill="#333">'+k.slice(0,7)+'</text>';
+  });
+  s+='</svg>'; $('viz5').innerHTML=s;
+}
+// 6 · Proyección ROMI (preview con datos por defecto)
+function renderViz6preview(){
+  drawRomiCurve('viz6', romiSeriesFromInputs(true));
+}
+
+/* ============================================================
+   ANAGRAMA CONCEPTUAL (obligatorio)
+   ============================================================ */
+const ANAGRAMS = [
+  {w:'CLTV', hint:'Sigla del valor total que un cliente aporta durante toda su relación con la empresa.', def:'Customer Lifetime Value: margen × retención − CAC.'},
+  {w:'CHURN', hint:'Palabra en inglés para la tasa de clientes que abandonan o dejan de comprar.', def:'Fuga de clientes; su opuesto es la retención.'},
+  {w:'SEGMENTACION', hint:'Proceso de agrupar clientes por valor o comportamiento para dejar de tratarlos igual.', def:'Base de todo marketing dirigido y del CLTV por tiers.'},
+  {w:'ROMI', hint:'Sigla del retorno de la inversión específicamente en marketing.', def:'Return On Marketing Investment: (ganancia − costo)/costo.'},
+  {w:'ETL', hint:'Las 3 letras del proceso que extrae, transforma y carga datos hacia el almacén.', def:'Extract-Transform-Load: el puente entre fuentes y EDW.'}
+];
+function scramble(w){
+  let a=w.split(''); let out;
+  do{ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } out=a.join(''); }
+  while(out===w && w.length>1);
+  return out;
+}
+function startAnag(){
+  state.anag.round=0; state.anag.score=0;
+  loadAnagRound();
+}
+function loadAnagRound(){
+  const idx=state.anag.round;
+  if(idx>=ANAGRAMS.length){ finishAnag(); return; }
+  state.anag.extra=false;
+  const a=ANAGRAMS[idx];
+  $('anagRound').textContent=idx+1;
+  $('anagScore').textContent='Aciertos: '+state.anag.score;
+  $('anagHint').textContent='Pista: '+a.hint;
+  $('anagScram').textContent=scramble(a.w);
+  $('anagInput').value=''; $('anagInput').focus();
+  $('anagFb').classList.remove('show');
+  $('anagNext').style.display='none';
+}
+$('btnAnagSkip').addEventListener('click',()=>{
+  const a=ANAGRAMS[state.anag.round];
+  const fb=$('anagFb'); fb.className='feedback show'; fb.style.background='#eef4ff'; fb.style.borderColor='#0072b9';
+  fb.innerHTML='<h5>💡 Pista extra</h5><ul><li>Tiene <b>'+a.w.length+'</b> letras y empieza por <b>'+a.w[0]+'</b>.</li><li>'+a.def+'</li></ul>';
+});
+function normalize(s){ return s.trim().toUpperCase().replace(/[ÁÀ]/g,'A').replace(/[ÉÈ]/g,'E').replace(/[ÍÌ]/g,'I').replace(/[ÓÒ]/g,'O').replace(/[ÚÙ]/g,'U').replace(/[^A-Z]/g,''); }
+$('btnAnag').addEventListener('click',()=>{
+  const a=ANAGRAMS[state.anag.round];
+  const val=normalize($('anagInput').value);
+  const fb=$('anagFb');
+  if(val===a.w){
+    state.anag.score++;
+    fb.className='feedback ok show';
+    fb.innerHTML='<h5>✔ Correcto: '+a.w+'</h5><ul><li>'+a.def+'</li><li>No solo recordaste el término: reconociste su función.</li></ul>';
+    state.anag.round++;
+    setTimeout(()=>{ if(state.anag.round>=ANAGRAMS.length){ finishAnag(); } else { loadAnagRound(); } }, 1300);
+  }else{
+    fb.className='feedback err show';
+    fb.innerHTML='<h5>✗ Aún no</h5><ul>'
+      +'<li><b>Pista:</b> reordena las letras pensando en el concepto, no al azar.</li>'
+      +'<li><b>Dato clave:</b> '+a.hint+'</li>'
+      +'<li><b>Contexto:</b> este término apareció en tu rescate data-driven.</li>'
+      +'<li><b>Reintento:</b> usa "Pista extra" si lo necesitas y vuelve a intentar.</li></ul>';
+  }
+});
+function finishAnag(){
+  const fb=$('anagFb'); fb.className='feedback ok show';
+  fb.innerHTML='<h5>🔤 Refuerzo léxico completado — '+state.anag.score+'/5 aciertos</h5><ul><li>Fijaste el vocabulario técnico del caso.</li></ul>';
+  $('anagScram').textContent='★★★★★';
+  awardBadge('lex','🔤 Léxico');
+  $('anagNext').style.display='flex';
+}
+
+/* ============================================================
+   NIVEL 4 · ROMI / NPV / IRR / Payback
+   ============================================================ */
+function romiInputs(useDefault){
+  const g=(id,def)=> useDefault ? def : (+$(id).value);
+  return {
+    inv:g('r_inv',120000), targets:g('r_targets',40000), take:g('r_take',10)/100,
+    ticket:g('r_ticket',95), margin:g('r_margin',38)/100, months:Math.round(g('r_months',12)), disc:g('r_disc',1)/100
+  };
+}
+function romiSeriesFromInputs(useDefault){
+  const p=romiInputs(useDefault);
+  const buyers=p.targets*p.take;
+  const monthlyProfit=(buyers*p.ticket*p.margin)/p.months;
+  const cf=[-p.inv];
+  for(let m=1;m<=p.months;m++) cf.push(monthlyProfit);
+  return {cf, p, monthlyProfit, buyers};
+}
+function npv(cf, r){ return cf.reduce((acc,c,t)=>acc + c/Math.pow(1+r,t), 0); }
+function irr(cf){
+  let lo=-0.9, hi=1.0, mid=0;
+  for(let i=0;i<80;i++){ mid=(lo+hi)/2; const v=npv(cf,mid); if(Math.abs(v)<1) break; if(v>0) lo=mid; else hi=mid; }
+  return mid;
+}
+function payback(cf){ let cum=0; for(let t=0;t<cf.length;t++){ cum+=cf[t]; if(cum>=0) return t; } return null; }
+
+function drawRomiCurve(elId, series){
+  const cf=series.cf; const w=300,h=170,pad=28;
+  let cum=0; const pts=cf.map((c)=>{ cum+=c; return cum; });
+  const min=Math.min(...pts,0), max=Math.max(...pts,0);
+  const xw=(w-2*pad)/(pts.length-1);
+  const y=(v)=> (h-pad)-((v-min)/((max-min)||1))*(h-2*pad);
+  let s=svgEl(w,h);
+  const zeroY=y(0);
+  s+='<line x1="'+pad+'" y1="'+zeroY+'" x2="'+(w-pad)+'" y2="'+zeroY+'" stroke="#555" stroke-width="1.5" stroke-dasharray="4 3"/>';
+  let d='';
+  pts.forEach((v,i)=>{ const x=pad+i*xw; d+=(i?'L':'M')+x.toFixed(1)+' '+y(v).toFixed(1)+' '; });
+  s+='<path d="'+d+'" fill="none" stroke="#0072b9" stroke-width="3"/>';
+  pts.forEach((v,i)=>{ const x=pad+i*xw; s+='<circle cx="'+x.toFixed(1)+'" cy="'+y(v).toFixed(1)+'" r="2.6" fill="'+(v>=0?'#009e4f':'#e5002b')+'"/>'; });
+  s+='<text x="'+pad+'" y="14" font-size="9" fill="#555">flujo acumulado ($)</text>';
+  s+='<text x="'+(w-58)+'" y="'+(h-8)+'" font-size="9" fill="#555">meses →</text></svg>';
+  $(elId).innerHTML=s;
+}
+
+$('btnRomi').addEventListener('click',()=>{
+  const series=romiSeriesFromInputs(false);
+  const p=series.cf;
+  if(series.p.inv<=0 || series.buyers<=0){ toast('Revisa inversión y take rate (> 0).'); return; }
+  const _npv=npv(p, series.p.disc);
+  const _irr=irr(p);
+  const _pay=payback(p);
+  const revenue=series.buyers*series.p.ticket;
+  const profit=revenue*series.p.margin;
+  const romi=(profit-series.p.inv)/series.p.inv;
+  state.romi={inv:series.p.inv, buyers:series.buyers, revenue, profit, npv:_npv, irr:_irr, payback:_pay, romi, months:series.p.months, take:series.p.take};
+
+  $('kpiRomi').textContent=(romi*100).toFixed(0)+'%';
+  $('kpiRomi').parentElement.className='kpi '+(romi>=0?'pos':'neg');
+  $('kpiNpv').textContent=money(_npv);
+  $('kpiNpv').parentElement.className='kpi '+(_npv>=0?'pos':'neg');
+  $('kpiIrr').textContent=(_irr*100).toFixed(1)+'%';
+  $('kpiPay').textContent=_pay===null?'>horizonte':(_pay+' m');
+  drawRomiCurve('vizRomi', series);
+  renderViz6preview2(series);
+
+  const fb=$('romiFb');
+  if(_npv>=0){
+    fb.className='feedback ok show';
+    fb.innerHTML='<h5>✔ Campaña rentable</h5><ul>'
+      +'<li>NPV positivo ('+money(_npv)+'): crea valor por encima del costo de capital.</li>'
+      +'<li>ROMI '+(romi*100).toFixed(0)+'% y payback en '+(_pay===null?'>'+series.p.months:_pay)+' meses.</li>'
+      +'<li>Tu <b>quick win de 30 días</b> (Agile Marketing, Cap. 8) tiene sustento financiero.</li></ul>';
+    awardBadge('fin','💰 Financiero'); setLevel(4);
+  }else{
+    fb.className='feedback err show';
+    fb.innerHTML='<h5>✗ Aún no conviene</h5><ul>'
+      +'<li><b>Pista:</b> el NPV es negativo ('+money(_npv)+').</li>'
+      +'<li><b>Dato clave:</b> sube el take rate segmentando mejor, o baja la inversión.</li>'
+      +'<li><b>Contexto:</b> dirigir la campaña SOLO al top 20% eleva el take rate real.</li>'
+      +'<li><b>Reintento:</b> ajusta las palancas y vuelve a proyectar.</li></ul>';
+  }
+  buildSensitivity(series);
+});
+
+function renderViz6preview2(series){ if($('viz6')) drawRomiCurve('viz6', series); }
+
+// Análisis de sensibilidad (Fig 5.11): take rate vs NPV
+function buildSensitivity(series){
+  $('sensBox').style.display='block';
+  const base=series.p; const takes=[base.take*0.5, base.take*0.75, base.take, base.take*1.25, base.take*1.5];
+  let rows='<thead><tr><th>Take rate</th><th>Compradores</th><th>Ganancia</th><th>NPV</th><th>Veredicto</th></tr></thead><tbody>';
+  takes.forEach(tk=>{
+    const buyers=base.targets*tk;
+    const monthlyProfit=(buyers*base.ticket*base.margin)/base.months;
+    const cf=[-base.inv]; for(let m=1;m<=base.months;m++) cf.push(monthlyProfit);
+    const _npv=npv(cf, base.disc);
+    const profit=buyers*base.ticket*base.margin;
+    rows+='<tr><td>'+(tk*100).toFixed(1)+'%</td><td>'+Math.round(buyers).toLocaleString('es-MX')+'</td><td>'+money(profit)+'</td><td>'+money(_npv)+'</td><td>'+(_npv>=0?'✅ Rentable':'⛔ No')+'</td></tr>';
+  });
+  rows+='</tbody>'; $('sensTable').innerHTML=rows;
+}
+
+/* ---------- Rúbrica de autoevaluación ---------- */
+const RUBRIC=[
+  'Diagnóstico con las 15 métricas',
+  'Arquitectura de datos integrada',
+  'Segmentación por valor (CLTV)',
+  'Sustento financiero (NPV/IRR/ROMI)',
+  'Comunicación de la estrategia'
+];
+function buildRubric(){
+  const box=$('rubric'); box.innerHTML='';
+  RUBRIC.forEach((r,ri)=>{
+    const row=document.createElement('div'); row.style.margin='.4rem 0';
+    row.innerHTML='<div style="font-size:.85rem;font-weight:700;">'+(ri+1)+'. '+r+'</div>';
+    const stars=document.createElement('div'); stars.className='stars';
+    for(let i=1;i<=5;i++){
+      const b=document.createElement('button'); b.type='button'; b.textContent='★';
+      b.addEventListener('click',()=>{ state.rubric[ri]=i; stars.querySelectorAll('button').forEach((x,xi)=>x.classList.toggle('on', xi<i)); });
+      stars.appendChild(b);
+    }
+    row.appendChild(stars); box.appendChild(row);
+  });
+}
+buildRubric();
+
+/* ============================================================
+   ENTREGABLES · CSV / Excel / PDF
+   ============================================================ */
+function collectReport(){
+  state.reflex=$('reflex').value.trim();
+  state.transfer=$('transfer').value.trim();
+  return state;
+}
+function download(filename, content, mime){
+  const blob=new Blob([content], {type:mime});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download=filename; document.body.appendChild(a); a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 500);
+}
+
+$('btnCsv').addEventListener('click',()=>{
+  collectReport();
+  if(!DATASET.length) buildDataset(500000);
+  const headers=Object.keys(DATASET[0]);
+  let csv='﻿'+headers.join(',')+'\n';
+  DATASET.forEach(row=>{ csv+=headers.map(h=>row[h]).join(',')+'\n'; });
+  download('RetailMax_dataset_'+safeName()+'.csv', csv, 'text/csv;charset=utf-8;');
+  toast('CSV del dataset (500 clientes) descargado.');
+});
+
+$('btnXls').addEventListener('click',()=>{
+  const st=collectReport();
+  const rows=[
+    ['TRANSFORMACIÓN DATA-DRIVEN · Reporte de consultoría'],
+    ['Equipo/Consultor', st.team.name],
+    ['Modalidad', st.team.mode],
+    ['Integrantes', st.team.members.join(' | ')],
+    ['Curso', st.team.course],
+    [''],
+    ['DIAGNÓSTICO'],
+    ['Madurez BI real (caso)', Math.round(st.maturity*100)+'%'],
+    ['Veredicto', st.maturity<0.2?'REZAGADA (Marketing Divide)':'Líder'],
+    [''],
+    ['CLTV'],
+    ['CLTV promedio', st.cltv?money(st.cltv.avg):'n/d'],
+    ['CLTV top (diamante)', st.cltv?money(st.cltv.top):'n/d'],
+    ['Valor concentrado top 20%', st.cltv?Math.round(st.cltv.paretoShare*100)+'%':'n/d'],
+    [''],
+    ['BUSINESS CASE (ROMI)'],
+    ['Inversión campaña', st.romi?money(st.romi.inv):'n/d'],
+    ['Compradores esperados', st.romi?Math.round(st.romi.buyers):'n/d'],
+    ['ROMI', st.romi?(st.romi.romi*100).toFixed(0)+'%':'n/d'],
+    ['NPV', st.romi?money(st.romi.npv):'n/d'],
+    ['IRR mensual', st.romi?(st.romi.irr*100).toFixed(1)+'%':'n/d'],
+    ['Payback (meses)', st.romi?(st.romi.payback===null?'>horizonte':st.romi.payback):'n/d'],
+    [''],
+    ['Ticket de salida', st.reflex||'—'],
+    ['Transferencia CLTV', st.transfer||'—'],
+    ['Autoevaluación (1-5)', st.rubric.join(' / ')]
+  ];
+  let html='<html xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="UTF-8"></head><body><table border="1">';
+  rows.forEach(r=>{ html+='<tr>'+r.map(c=>'<td>'+String(c).replace(/&/g,'&amp;').replace(/</g,'&lt;')+'</td>').join('')+'</tr>'; });
+  html+='</table></body></html>';
+  download('RetailMax_reporte_'+safeName()+'.xls', html, 'application/vnd.ms-excel');
+  toast('Reporte Excel (.xls) descargado.');
+});
+
+$('btnPdf').addEventListener('click',()=>{
+  const st=collectReport();
+  buildPrintReport(st);
+  toast('Se abrirá el diálogo de impresión: elige "Guardar como PDF".');
+  setTimeout(()=>window.print(), 400);
+});
+
+$('btnFinish').addEventListener('click',()=>{
+  const done=Object.values(state.badges).filter(Boolean).length;
+  if(done<5){ toast('Completa las 5 insignias antes de certificar ('+done+'/5).'); return; }
+  toast('🏆 ¡Consultoría certificada! RetailMax tiene un plan data-driven.');
+});
+
+function safeName(){ return (state.team.name||'equipo').replace(/[^a-z0-9]/gi,'_').slice(0,24); }
+
+function buildPrintReport(st){
+  const d=new Date().toLocaleDateString('es-MX');
+  let h='';
+  h+='<div style="border:4px solid #000;padding:16px;margin-bottom:14px;">';
+  h+='<h1 style="font-family:Arial Black,sans-serif;margin:0;">TRANSFORMACIÓN DATA-DRIVEN</h1>';
+  h+='<p style="margin:.2rem 0;">Plan de implementación · Caso RetailMax · '+d+'</p>';
+  h+='<p style="margin:.2rem 0;"><b>Equipo/Consultor:</b> '+esc(st.team.name)+' &nbsp; | &nbsp; <b>Modalidad:</b> '+st.team.mode+'</p>';
+  if(st.team.members.length) h+='<p style="margin:.2rem 0;"><b>Integrantes:</b> '+esc(st.team.members.join(', '))+'</p>';
+  h+='<p style="margin:.2rem 0;"><b>Curso:</b> '+esc(st.team.course)+'</p></div>';
+
+  h+='<h2>1 · Diagnóstico</h2><p>Madurez BI real del caso: <b>'+Math.round(st.maturity*100)+'%</b> — '
+    +(st.maturity<0.2?'empresa <b>REZAGADA</b> (Marketing Divide, Cap. 1).':'empresa líder.')+'</p>';
+
+  h+='<h2>2 · Arquitectura de datos</h2><p>Fuentes → ETL → EDW → BI → Usuarios. Silos integrados en un almacén central.</p>';
+
+  h+='<h2>3 · CLTV y segmentación</h2>';
+  if(st.cltv){ h+='<table class="jeff"><tr><th>CLTV promedio</th><th>CLTV diamante</th><th>Valor top 20%</th></tr>'
+    +'<tr><td>'+money(st.cltv.avg)+'</td><td>'+money(st.cltv.top)+'</td><td>'+Math.round(st.cltv.paretoShare*100)+'%</td></tr></table>'; }
+  else h+='<p>No calculado.</p>';
+
+  h+='<h2>4 · Business case (ROMI)</h2>';
+  if(st.romi){ h+='<table class="jeff"><tr><th>ROMI</th><th>NPV</th><th>IRR mensual</th><th>Payback</th></tr>'
+    +'<tr><td>'+(st.romi.romi*100).toFixed(0)+'%</td><td>'+money(st.romi.npv)+'</td><td>'+(st.romi.irr*100).toFixed(1)+'%</td><td>'+(st.romi.payback===null?'>horizonte':st.romi.payback+' m')+'</td></tr></table>'
+    +'<p><b>Quick win de 30 días</b> dirigido al mejor segmento (Agile Marketing, Cap. 8).</p>'; }
+  else h+='<p>No calculado.</p>';
+
+  h+='<h2>5 · Cierre</h2>';
+  h+='<p><b>Ticket de salida:</b> '+esc(st.reflex||'—')+'</p>';
+  h+='<p><b>Transferencia CLTV:</b> '+esc(st.transfer||'—')+'</p>';
+  h+='<p><b>Autoevaluación (1-5):</b> '+st.rubric.join(' / ')+'</p>';
+  h+='<hr><p style="font-size:12px;">Mg. Mario Quiroz Martínez — Unidad didáctica Investigación e Innovación Tecnológica · Instituto de Diseño y Comunicación</p>';
+  $('print-report').innerHTML=h;
+}
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+/* ============================================================
+   PWA · manifest (blob) + service worker + install
+   ============================================================ */
+(function setupPWA(){
+  const icon = 'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512"><rect width="512" height="512" fill="#0d0d0d"/><rect x="70" y="120" width="70" height="280" fill="#f3a100"/><text x="170" y="330" font-family="Arial Black,Arial" font-size="150" font-weight="900" fill="#fff">IDC</text><text x="70" y="450" font-family="Arial" font-size="46" fill="#0072b9">DATA-DRIVEN</text></svg>');
+  const manifest = {
+    name:'Transformación Data-Driven · RetailMax',
+    short_name:'Data-Driven',
+    description:'PWA educativa gamificada DUA-Experiencial: caso RetailMax.',
+    start_url:'.', scope:'.', display:'standalone',
+    background_color:'#f7f4ec', theme_color:'#f3a100', orientation:'portrait-primary',
+    icons:[
+      {src:icon, sizes:'192x192', type:'image/svg+xml', purpose:'any'},
+      {src:icon, sizes:'512x512', type:'image/svg+xml', purpose:'any maskable'}
+    ]
+  };
+  try{
+    const mBlob=new Blob([JSON.stringify(manifest)], {type:'application/manifest+json'});
+    $('manifest-link').setAttribute('href', URL.createObjectURL(mBlob));
+    $('apple-icon').setAttribute('href', icon);
+  }catch(e){ /* offline-safe */ }
+
+  // Service worker: registra ./sw.js si la app está servida (no en file://)
+  if('serviceWorker' in navigator && location.protocol.startsWith('http')){
+    window.addEventListener('load', ()=>{ navigator.serviceWorker.register('sw.js').catch(()=>{}); });
+  }
+
+  // Install prompt
+  let deferred=null;
+  window.addEventListener('beforeinstallprompt', e=>{ e.preventDefault(); deferred=e; $('installBar').style.display='block'; });
+  $('btnInstall').addEventListener('click', async ()=>{
+    if(!deferred) return; deferred.prompt(); await deferred.userChoice; deferred=null; $('installBar').style.display='none';
+  });
+  window.addEventListener('appinstalled', ()=>{ $('installBar').style.display='none'; toast('App instalada ✔'); });
+})();
+</script>
+</body>
+</html>
