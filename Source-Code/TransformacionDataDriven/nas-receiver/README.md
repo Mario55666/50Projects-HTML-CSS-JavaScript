@@ -28,27 +28,45 @@ Cada envío se guarda como un archivo `.json` en `DATA_DIR`. El tablero muestra 
 equipo** y cuenta cuántas veces sincronizó cada uno. Persiste aunque se reinicie el contenedor
 (si `DATA_DIR` está en un volumen del NAS).
 
-## Opción A — Docker en el NASync DX2800 (recomendada)
+## Opción A — Docker Compose SIN build (recomendada para el NAS)
 
-1. **Copia esta carpeta** `nas-receiver/` a una carpeta compartida del NAS (p. ej. `/volume1/docker/retailmax/`).
-2. Abre **UGOS Pro → Docker → Proyecto (Compose)** y crea un proyecto apuntando a `docker-compose.yml`
-   (o usa Portainer si lo tienes instalado). Alternativamente por SSH:
+El `docker-compose.yml` incluido **no construye imagen** (no necesita `buildx`): usa la imagen
+oficial `node:20-alpine` y monta `server.js`. Así se evitan los dos errores típicos del NAS:
+`buildx plugin ... not installed` y `lstat /volume1/docker/Dockerfile: no such file or directory`.
+
+1. Sube **`docker-compose.yml` y `server.js` a la MISMA carpeta** del NAS
+   (p. ej. `/volume1/docker/retailmax/`). No hace falta el `Dockerfile`.
+2. En **UGOS Pro → Docker → Proyecto (Compose)** crea el proyecto apuntando a **esa carpeta**
+   (la que contiene `docker-compose.yml`). O por SSH:
    ```bash
-   cd /volume1/docker/retailmax/nas-receiver
-   docker compose up -d --build
+   cd /volume1/docker/retailmax
+   docker compose up -d
    ```
-3. El servicio queda en **`http://IP_DEL_NAS:8080`**. Los envíos se guardan en `./data`
-   (mapeado como volumen; cámbialo a la carpeta compartida que prefieras en `docker-compose.yml`).
-4. Abre `http://IP_DEL_NAS:8080` en el navegador del docente para ver el tablero.
+3. Queda en **`http://IP_DEL_NAS:8080`**. Los envíos se guardan en `./data` (junto al compose).
+4. Abre `http://IP_DEL_NAS:8080` en el navegador del docente.
 
-> Si tu NAS ya usa el puerto 8080, cambia el mapeo en `docker-compose.yml` (p. ej. `- "8085:8080"`)
-> y usa ese puerto en el PWA.
+> Si el puerto 8080 está ocupado, cambia el mapeo a `- "8085:8080"` y usa `:8085` en el PWA.
 
-## Opción B — sin Docker (Node directo)
+## Opción B — `docker run` (a prueba de todo, sin compose)
+
+Si el gestor de proyectos da problemas, por SSH en el NAS (ajusta la ruta a donde subiste `server.js`):
+```bash
+docker run -d --name retailmax-receiver --restart unless-stopped \
+  -p 8080:8080 -e PORT=8080 -e DATA_DIR=/data -w /app \
+  -v /volume1/docker/retailmax/server.js:/app/server.js:ro \
+  -v /volume1/docker/retailmax/data:/data \
+  node:20-alpine node server.js
+```
+
+## Opción C — con build (solo si tu NAS SÍ tiene buildx)
+
+El `Dockerfile` sigue incluido. Si tienes `buildx`, puedes construir una imagen propia:
+`docker compose up -d --build` (con un compose que use `build: .` en la carpeta de la app).
+
+## Opción D — sin Docker (Node directo)
 
 En cualquier PC/servidor de la misma red del aula:
 ```bash
-cd nas-receiver
 DATA_DIR=./data PORT=8080 node server.js
 ```
 
@@ -79,3 +97,12 @@ DATA_DIR=./data PORT=8080 node server.js
   **HTTP**. En ese caso sirve el PWA por HTTP en la LAN, o configura HTTPS en el NAS.
 - Límite de payload: 5 MB por envío.
 - Verificado de extremo a extremo: el PWA sincroniza (HTTP 201) y el tablero consolida los equipos.
+
+## Solución de problemas
+
+| Mensaje | Causa | Solución |
+|---------|-------|----------|
+| `Docker Compose requires buildx plugin to be installed` | El compose intentaba **construir** una imagen y el NAS no tiene `buildx`. | Usa el `docker-compose.yml` **sin build** de este repo (Opción A) o el `docker run` (Opción B). Ya no se construye nada. |
+| `unable to evaluate symlinks in Dockerfile path: lstat /volume1/docker/Dockerfile: no such file or directory` | El proyecto usaba `build: .` y buscaba el `Dockerfile` en la carpeta raíz del proyecto (`/volume1/docker`), donde no estaba. | Con la Opción A no hay `build` ni `Dockerfile`. Solo asegúrate de que **`docker-compose.yml` y `server.js` estén juntos** en la carpeta del proyecto. |
+| El contenedor arranca y se detiene | `server.js` no está montado (ruta incorrecta del volumen). | Verifica que `./server.js` (compose) o la ruta absoluta (`docker run`) apunte al archivo real. Revisa logs: `docker logs retailmax-receiver`. |
+| El PWA dice "Conexión bloqueada (CORS/red)" | El PWA se sirve por HTTPS y el NAS por HTTP (contenido mixto), o IP/puerto errados. | Sirve el PWA por HTTP en la LAN o pon HTTPS en el NAS; confirma `http://IP_DEL_NAS:8080/health` desde el navegador. |
