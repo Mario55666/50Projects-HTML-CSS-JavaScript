@@ -1,27 +1,17 @@
 {
-  "name": "Transformación Data-Driven · RetailMax",
+  "name": "UTP · Data-Driven · RetailMax",
   "short_name": "Data-Driven",
-  "description": "PWA educativa gamificada DUA-Experiencial: rescate data-driven del caso RetailMax con las 15 métricas de Jeffery, CLTV, segmentación y ROMI.",
+  "description": "PWA educativa DUA-Experiencial (UTP · Curso DATA+IA, Semana 1): rescate data-driven del caso RetailMax con las 15 métricas de Jeffery, CLTV, segmentación, ROMI, dashboard desde Excel, generador de prompts y glosario técnico.",
   "start_url": ".",
   "scope": ".",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "background_color": "#f7f4ec",
-  "theme_color": "#f3a100",
+  "background_color": "#f4f7fb",
+  "theme_color": "#dcebf8",
   "lang": "es",
   "categories": ["education", "business", "productivity"],
   "icons": [
-    {
-      "src": "icon.svg",
-      "sizes": "192x192 512x512",
-      "type": "image/svg+xml",
-      "purpose": "any"
-    },
-    {
-      "src": "icon.svg",
-      "sizes": "512x512",
-      "type": "image/svg+xml",
-      "purpose": "maskable"
-    }
+    { "src": "icon.svg", "sizes": "192x192 512x512", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "icon.svg", "sizes": "512x512", "type": "image/svg+xml", "purpose": "maskable" }
   ]
 }

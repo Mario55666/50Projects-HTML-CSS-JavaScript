@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>TRANSFORMACIÓN DATA-DRIVEN · Caso RetailMax</title>
-<meta name="description" content="PWA educativa gamificada DUA-Experiencial: rescate data-driven del caso RetailMax con las 15 métricas de Jeffery, CLTV, segmentación y ROMI." />
-<meta name="theme-color" content="#f3a100" />
+<title>UTP · DATA-DRIVEN · RETAILMAX</title>
+<meta name="description" content="PWA educativa DUA-Experiencial (UTP · Curso DATA+IA): rescate data-driven del caso RetailMax con las 15 métricas de Jeffery, CLTV, segmentación, ROMI, dashboard desde Excel y generador de prompts." />
+<meta name="theme-color" content="#dcebf8" />
 <link rel="manifest" id="manifest-link" />
 <link rel="apple-touch-icon" id="apple-icon" />
 <!-- Bootstrap 5 (mejora progresiva; la app funciona offline sin él gracias al CSS propio) -->
@@ -208,6 +208,174 @@
     .hud .hud-title{display:none;}
     .arrow{display:none;}
   }
+
+  /* ============================================================
+     TEMA PASTEL · UTP — combinación relajante (la información es
+     dura; los colores suaves bajan la carga cognitiva).
+     Se redefine la paleta por variables: recolorea toda la app.
+     ============================================================ */
+  :root{
+    --idc-yellow:#ffd9a8;    /* CTA ámbar pastel */
+    --idc-blue:#7fb2dd;      /* azul pastel */
+    --idc-gray1:#6b7280;
+    --idc-gray2:#8a90a0;
+    --ink:#3b4363;           /* texto y trazos: slate suave (buen contraste) */
+    --paper:#f4f7fb;         /* fondo casi blanco azulado */
+    --alert:#e79aa0;         /* rosa pastel */
+    --ok:#9bd3a7;            /* verde pastel */
+    --brd:2px solid #cdd6e6;
+    --shadow:0 8px 22px rgba(59,67,99,.10);
+    --shadow-sm:0 4px 12px rgba(59,67,99,.10);
+    /* familia pastel (del mapa de arquitectura) */
+    --pblue:#dcebf8;   --pblue-ink:#2f6fa8;
+    --ppeach:#fce9d6;  --ppeach-ink:#b9772f;
+    --ppink:#fbe3ec;   --ppink-ink:#c05a86;
+    --pgreen:#e6f4e9;  --pgreen-ink:#4a9b63;
+    --ppurple:#efe4f7; --ppurple-ink:#8a5cb0;
+    --pyellow:#fdf0d5; --pyellow-ink:#b78628;
+  }
+  body{color:var(--ink);}
+  ::selection{background:var(--pblue);color:var(--ink);}
+  a{color:var(--pblue-ink);}
+  /* Cabecera pastel */
+  .hud{background:var(--pblue);color:var(--ink);border-bottom:2px solid #c3d6ea;}
+  .hud .hud-title{color:var(--pblue-ink);}
+  .prog-track{border:2px solid #b9cee2;background:#eef4fb;}
+  .prog-fill{background:var(--ppeach-ink);}
+  .prog-label{color:var(--ink);}
+  .badge-pill{border:2px solid #b9cee2;background:#eef4fb;color:#9aa3b8;}
+  .badge-pill.on{background:var(--ppeach);color:var(--ppeach-ink);border-color:var(--ppeach-ink);}
+  /* Tarjetas y títulos suaves */
+  .card-b{border:var(--brd);box-shadow:var(--shadow-sm);border-radius:12px;}
+  .card-b.yellow{background:var(--pyellow);}
+  .card-b.blue{background:var(--pblue);color:var(--pblue-ink);}
+  .card-b.ink{background:#eaf0fb;color:var(--ink);border-color:#c3d0e6;}
+  .card-b.ink .tag.yellow{background:var(--ppeach);color:var(--ppeach-ink);}
+  .card-b.ink p{color:var(--ink);}
+  .mega{color:var(--ink);}
+  .mega .hl{background:var(--pyellow);color:var(--ppeach-ink);}
+  .mega .hl2{color:var(--pblue-ink);}
+  .tag{background:var(--ink);color:#fff;border-radius:6px;}
+  .tag.yellow{background:var(--ppeach);color:var(--ppeach-ink);}
+  .tag.blue{background:var(--pblue);color:var(--pblue-ink);}
+  .tag.alert{background:var(--ppink);color:var(--ppink-ink);}
+  .section-num{background:var(--pblue);color:var(--pblue-ink);border-radius:6px;}
+  /* Botones suaves */
+  .btn-b{border:var(--brd);box-shadow:var(--shadow-sm);border-radius:10px;background:var(--pyellow);color:var(--ppeach-ink);}
+  .btn-b:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(59,67,99,.16);}
+  .btn-b:active{transform:translateY(1px);box-shadow:var(--shadow-sm);}
+  .btn-b.blue{background:var(--pblue);color:var(--pblue-ink);}
+  .btn-b.ghost{background:#fff;color:var(--ink);}
+  .btn-b.alert{background:var(--ppink);color:var(--ppink-ink);}
+  /* Inputs */
+  input.inp,select.inp,textarea.inp{border:var(--brd);border-radius:10px;}
+  input.inp:valid{border-color:#bfe0c6;}
+  input.inp:invalid{border-color:#f0c3c6;background:#fdf1f2;}
+  /* Métricas / toggles */
+  .metric{border:var(--brd);border-radius:10px;}
+  .metric .mnum{color:var(--pblue-ink);}
+  .toggle{border:2px solid #cdd6e6;border-radius:8px;overflow:hidden;}
+  .toggle button.si.sel{background:var(--ok);color:#255c33;}
+  .toggle button.no.sel{background:var(--alert);color:#7a2b31;}
+  /* Arquitectura nodos */
+  .node{border:var(--brd);border-radius:10px;box-shadow:var(--shadow-sm);}
+  .slot{border:2px dashed #b9cee2;border-radius:10px;background:#eef4fb;}
+  .slot.filled{border-style:solid;background:var(--ppeach);}
+  .slot .idx,.arrow{color:var(--pblue-ink);}
+  /* Flip */
+  .flip-face{border:var(--brd);border-radius:10px;box-shadow:var(--shadow-sm);}
+  .flip-front{background:var(--pblue);color:var(--pblue-ink);}
+  /* Feedback */
+  .feedback{border:var(--brd);border-radius:10px;}
+  .feedback.err{background:#fdeef0;border-color:#f0c3c6;}
+  .feedback.ok{background:#eef8f0;border-color:#bfe0c6;}
+  /* Viz / KPIs */
+  .viz{border:var(--brd);border-radius:12px;box-shadow:var(--shadow-sm);}
+  .viz h4{border-bottom:2px solid #d7deec;}
+  .kpi{border:var(--brd);border-radius:10px;}
+  .kpi .v{color:var(--pblue-ink);}
+  .kpi.pos .v{color:var(--pgreen-ink);}
+  .kpi.neg .v{color:var(--ppink-ink);}
+  .gauge{color:var(--ppeach-ink)!important;}
+  /* Anagrama scramble */
+  .scram{background:#eaf0fb;color:var(--pblue-ink);border:var(--brd);border-radius:10px;}
+  /* Tabla */
+  table.jeff th,table.jeff td{border:2px solid #d7deec;}
+  table.jeff thead th{background:var(--pblue);color:var(--pblue-ink);}
+  table.jeff tbody tr:nth-child(even){background:#eef3fa;}
+  ul.tools li{border:var(--brd);border-left:10px solid var(--ppeach);border-radius:10px;}
+  .stars button{border:2px solid #cdd6e6;border-radius:8px;}
+  .stars button.on{background:var(--pyellow);}
+  hr.hard{border-top:var(--brd);}
+  /* Footer UTP */
+  footer.idc{background:#eaf0fb;color:var(--ink);border-top:2px solid #c3d0e6;}
+  footer.idc b{color:var(--pblue-ink);}
+  .toast{background:#3b4363;color:#fff;border:2px solid var(--ppeach);border-radius:12px;}
+
+  /* ============================================================
+     GLOSARIO flotante (presente en TODOS los procesos)
+     ============================================================ */
+  .fab-stack{position:fixed;right:14px;bottom:14px;z-index:70;display:flex;flex-direction:column;gap:.5rem;align-items:flex-end;}
+  .fab{border:var(--brd);border-radius:50px;padding:.6rem .9rem;font-family:'Space Mono',monospace;font-weight:700;cursor:pointer;box-shadow:var(--shadow);font-size:.82rem;}
+  .fab.glos{background:var(--ppurple);color:var(--ppurple-ink);}
+  .fab.mon{background:var(--pgreen);color:var(--pgreen-ink);}
+  .modal-back{display:none;position:fixed;inset:0;background:rgba(59,67,99,.35);z-index:80;padding:2vh 3vw;overflow:auto;}
+  .modal-back.show{display:block;}
+  .modal-box{max-width:760px;margin:0 auto;background:#fff;border:var(--brd);border-radius:16px;box-shadow:0 20px 50px rgba(59,67,99,.25);padding:1.1rem;}
+  .modal-box h3{font-family:'Archivo Black',sans-serif;color:var(--ppurple-ink);margin:.1rem 0 .6rem;}
+  .modal-close{float:right;border:var(--brd);background:var(--ppink);color:var(--ppink-ink);border-radius:8px;cursor:pointer;font-weight:700;padding:.2rem .55rem;}
+  .glos-term{border:var(--brd);border-radius:10px;padding:.55rem .7rem;margin-bottom:.5rem;background:#fbfcfe;}
+  .glos-term b{color:var(--ppurple-ink);font-family:'Space Mono';}
+  .glos-cat{display:inline-block;font-size:.64rem;font-weight:700;text-transform:uppercase;background:var(--ppurple);color:var(--ppurple-ink);padding:.1rem .4rem;border-radius:5px;margin-left:.3rem;}
+
+  /* ============================================================
+     MAPA MENTAL · Arquitectura de datos (recreación del diagrama)
+     ============================================================ */
+  .mind{background:#fff;border:var(--brd);border-radius:14px;padding:1rem;box-shadow:var(--shadow-sm);}
+  .mind h3{text-align:center;font-family:'Archivo Black',sans-serif;color:var(--pblue-ink);margin:.2rem 0;}
+  .mind .sub{text-align:center;color:var(--idc-gray1);margin-bottom:.8rem;font-size:.85rem;}
+  .mind-band{font-weight:700;text-align:center;margin:.6rem 0 .3rem;padding:.25rem;border-radius:8px;}
+  .band-src{background:var(--pblue);color:var(--pblue-ink);}
+  .band-etl{background:var(--ppeach);color:var(--ppeach-ink);}
+  .band-edw{background:var(--ppink);color:var(--ppink-ink);}
+  .band-bi{background:var(--pgreen);color:var(--pgreen-ink);}
+  .band-usr{background:var(--ppurple);color:var(--ppurple-ink);}
+  .mind-row{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;}
+  .mind-node{flex:1 1 140px;min-width:120px;border:2px solid #cdd6e6;border-radius:10px;padding:.5rem;text-align:center;font-size:.78rem;background:#fbfcfe;}
+  .mind-node.src{background:var(--pblue);}
+  .mind-node.etl{background:var(--ppeach);}
+  .mind-node.edw{background:var(--ppink);}
+  .mind-node.bi{background:var(--pgreen);}
+  .mind-node.usr{background:var(--ppurple);}
+  .mind-node b{display:block;font-size:.82rem;margin-bottom:.15rem;}
+  .mind-flow{text-align:center;font-size:1.4rem;color:#9aa3b8;line-height:1;margin:.15rem 0;}
+  .mind-tech{font-size:.72rem;color:var(--idc-gray1);text-align:center;margin-top:.7rem;border-top:2px dashed #d7deec;padding-top:.5rem;}
+
+  /* ============================================================
+     CARGA DE EXCEL · dashboard desde archivo real
+     ============================================================ */
+  .drop{border:2px dashed #b9cee2;border-radius:14px;background:#eef4fb;padding:1.4rem;text-align:center;cursor:pointer;transition:background .2s;}
+  .drop:hover,.drop.drag{background:#e2edf9;border-color:var(--pblue-ink);}
+  .drop .big{font-family:'Archivo Black',sans-serif;color:var(--pblue-ink);font-size:1rem;}
+  .filechip{display:inline-block;background:var(--pgreen);color:var(--pgreen-ink);border:2px solid #bfe0c6;border-radius:8px;padding:.2rem .6rem;font-weight:700;font-size:.8rem;margin-top:.5rem;}
+
+  /* ============================================================
+     GENERADOR DE PROMPTS · estrategia de comunicación
+     ============================================================ */
+  .prompt-out{background:#2f2f3f;color:#e9ecf5;border-radius:12px;padding:.9rem;font-size:.82rem;white-space:pre-wrap;line-height:1.5;border:var(--brd);border-color:#2f2f3f;}
+  .chipset{display:flex;flex-wrap:wrap;gap:.4rem;margin:.3rem 0;}
+  .chip{border:2px solid #cdd6e6;border-radius:50px;padding:.25rem .7rem;font-size:.78rem;cursor:pointer;background:#fff;user-select:none;}
+  .chip.on{background:var(--ppurple);color:var(--ppurple-ink);border-color:var(--ppurple-ink);}
+
+  /* ============================================================
+     MONITOREO / CONTROL DE RESPUESTAS (NASync DX2800)
+     ============================================================ */
+  .mon-table{width:100%;border-collapse:collapse;font-size:.8rem;}
+  .mon-table th,.mon-table td{border:2px solid #d7deec;padding:.4rem;text-align:left;vertical-align:top;}
+  .mon-table th{background:var(--pgreen);color:var(--pgreen-ink);}
+  .nas-dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:#c9d0de;margin-right:.35rem;}
+  .nas-dot.ok{background:#7fc98e;}
+  .nas-dot.err{background:#e79aa0;}
 </style>
 </head>
 <body>
@@ -215,7 +383,7 @@
 <!-- ================= HUD ================= -->
 <div class="hud">
   <span class="logo-idc" id="logo-hud"></span>
-  <span class="hud-title">DATA-DRIVEN · RETAILMAX</span>
+  <span class="hud-title">UTP · DATA-DRIVEN · RETAILMAX</span>
   <div class="progress-wrap">
     <div class="prog-track"><div class="prog-fill" id="progFill"></div></div>
     <span class="prog-label" id="progLabel">Nivel 0 / 4</span>
@@ -242,7 +410,7 @@
     <p class="lead-mono" style="margin-bottom:.3rem;">RetailMax: 150 tiendas · e-commerce · <b>$180M</b> de ingresos.
     Márgenes en caída libre del <b>22% → 12%</b> en 3 años. Hace “marketing a ciegas”:
     mismo catálogo a 500 000 clientes, <b>$2.5M/año</b>, take rate <b>1.2%</b>.</p>
-    <p style="margin:0;color:var(--idc-yellow);">Ustedes son los consultores de BI contratados de emergencia.</p>
+    <p style="margin:0;color:var(--ppeach-ink);font-weight:700;">Ustedes son los consultores de BI contratados de emergencia.</p>
   </div>
 
   <div class="card-b yellow">
@@ -287,7 +455,7 @@
           <li><b>N3 · CLTV & Segmentación</b> — Simulador + dashboard (30 min)</li>
           <li><b>N4 · Sustento financiero</b> — ROMI/NPV/IRR/Payback + entregables (25 min)</li>
         </ol>
-        <p class="hint" style="color:#dfefff;margin-top:.5rem;">Anagrama conceptual desbloqueable entre N3 y N4. Insignias en el HUD superior.</p>
+        <p class="hint" style="color:var(--pblue-ink);margin-top:.5rem;">Anagrama conceptual desbloqueable entre N3 y N4. Insignias en el HUD superior.</p>
       </div>
     </div>
   </div>
@@ -369,20 +537,58 @@
     <div class="feedback" id="defFb"></div>
   </div>
 
-  <div class="card-b blue">
-    <span class="tag yellow">🏛️ ARQUITECTURA DE DATOS · RetailMax</span>
-    <div class="tbl-scroll">
-      <div style="display:flex;gap:.4rem;flex-wrap:nowrap;min-width:640px;align-items:stretch;">
-        <div class="card-b" style="flex:1;margin:0;">🧾 <b>FUENTES</b><br><span class="hint">POS · e-commerce · CRM · call center</span></div>
-        <div class="arrow" style="color:#fff;align-self:center;">➜</div>
-        <div class="card-b" style="flex:1;margin:0;">🧪 <b>ETL</b><br><span class="hint">Extraer · limpiar · transformar</span></div>
-        <div class="arrow" style="color:#fff;align-self:center;">➜</div>
-        <div class="card-b" style="flex:1;margin:0;">🏦 <b>EDW</b><br><span class="hint">Almacén central único</span></div>
-        <div class="arrow" style="color:#fff;align-self:center;">➜</div>
-        <div class="card-b" style="flex:1;margin:0;">📊 <b>BI</b><br><span class="hint">Data Marts · dashboards</span></div>
-        <div class="arrow" style="color:#fff;align-self:center;">➜</div>
-        <div class="card-b" style="flex:1;margin:0;">👥 <b>USUARIOS</b><br><span class="hint">Marketing · gerencia</span></div>
-      </div>
+  <span class="tag blue">🧠 MAPA MENTAL · arquitectura completa (referencia de clase)</span>
+  <div class="mind" id="mindmap">
+    <h3>ARQUITECTURA DE DATOS RETAILMAX</h3>
+    <div class="sub">Enterprise Data Warehouse para Business Intelligence</div>
+
+    <div class="mind-band band-src">FUENTES DE DATOS (Operacionales)</div>
+    <div class="mind-row">
+      <div class="mind-node src"><b>🏬 POS Tiendas</b><span class="hint">Ventas físicas</span></div>
+      <div class="mind-node src"><b>🛒 E-Commerce</b><span class="hint">Web / Móvil</span></div>
+      <div class="mind-node src"><b>👥 CRM</b><span class="hint">Salesforce</span></div>
+      <div class="mind-node src"><b>📞 Call Center</b><span class="hint">Atención</span></div>
+      <div class="mind-node src"><b>📱 Redes Sociales</b><span class="hint">Engagement</span></div>
+      <div class="mind-node src"><b>🧾 ERP</b><span class="hint">SAP</span></div>
+    </div>
+    <div class="mind-flow">▼</div>
+
+    <div class="mind-band band-etl">CAPA ETL · Extract, Transform, Load</div>
+    <div class="mind-row">
+      <div class="mind-node etl" style="flex:1 1 100%;"><b>Apache Airflow · dbt · Azure Data Factory</b><span class="hint">Limpieza · Normalización · Enriquecimiento</span></div>
+    </div>
+    <div class="mind-flow">▼</div>
+
+    <div class="mind-band band-edw">ENTERPRISE DATA WAREHOUSE</div>
+    <div class="mind-row">
+      <div class="mind-node edw"><b>Staging Area</b><span class="hint">Raw Data</span></div>
+      <div class="mind-node edw"><b>Data Warehouse</b><span class="hint">3NF / Kimball</span></div>
+      <div class="mind-node edw"><b>Data Marts</b><span class="hint">Segmentos</span></div>
+    </div>
+    <div class="mind-flow">▼</div>
+
+    <div class="mind-band band-bi">CAPA DE BUSINESS INTELLIGENCE &amp; ANALYTICS</div>
+    <div class="mind-row">
+      <div class="mind-node bi"><b>Power BI</b><span class="hint">Dashboards</span></div>
+      <div class="mind-node bi"><b>Tableau</b><span class="hint">Visualización</span></div>
+      <div class="mind-node bi"><b>Python / R</b><span class="hint">ML Models</span></div>
+      <div class="mind-node bi"><b>SAS</b><span class="hint">Enterprise Miner</span></div>
+      <div class="mind-node bi"><b>Excel</b><span class="hint">Scorecards</span></div>
+    </div>
+    <div class="mind-flow">▼</div>
+
+    <div class="mind-band band-usr">USUARIOS DE NEGOCIO</div>
+    <div class="mind-row">
+      <div class="mind-node usr"><b>Ejecutivos</b><span class="hint">C-Level</span></div>
+      <div class="mind-node usr"><b>Marketing</b><span class="hint">Analytics</span></div>
+      <div class="mind-node usr"><b>Ventas</b><span class="hint">CRM</span></div>
+      <div class="mind-node usr"><b>Operaciones</b><span class="hint">Supply Chain</span></div>
+      <div class="mind-node usr"><b>Finanzas</b><span class="hint">FP&amp;A</span></div>
+    </div>
+
+    <div class="mind-tech">
+      <b>TECNOLOGÍAS 2025</b> · Cloud: Azure | AWS | GCP · DWH: Snowflake | Synapse | Databricks ·
+      ETL: Airflow | dbt | Fivetran · BI: Power BI | Tableau | Looker | Qlik
     </div>
   </div>
 
@@ -446,6 +652,33 @@
     <div class="viz"><h4>4 · Churn vs. CSAT</h4><div id="viz4"></div></div>
     <div class="viz"><h4>5 · Canales de adquisición</h4><div id="viz5"></div></div>
     <div class="viz"><h4>6 · Proyección ROMI (preview)</h4><div id="viz6"></div></div>
+  </div>
+
+  <hr class="hard" />
+  <span class="tag blue">📥 EJERCICIO · genera el dashboard desde el Excel real de RetailMax</span>
+  <div class="card-b">
+    <p style="margin:.2rem 0 .6rem;">Sube el archivo <b>retailmax_herramientas_bi.xlsx</b> (hoja <b>Dataset_Clientes</b>, 500 clientes ×
+    19 variables). La app lo lee <b>en tu propio navegador</b> (sin subirlo a ningún servidor) y reconstruye el
+    dashboard con los datos reales.</p>
+    <div class="drop no-print" id="xlsDrop">
+      <div class="big">⬆ Arrastra aquí el Excel o toca para elegir</div>
+      <div class="hint">.xlsx (Dataset_Clientes) · también acepta .csv</div>
+      <input type="file" id="xlsInput" accept=".xlsx,.csv" style="display:none;" />
+    </div>
+    <div id="xlsStatus"></div>
+    <div class="kpi-row" id="xlsKpis" style="display:none;">
+      <div class="kpi"><div class="v" id="xk1">0</div><div class="l">Clientes leídos</div></div>
+      <div class="kpi"><div class="v" id="xk2">$0</div><div class="l">CLTV 5 años prom.</div></div>
+      <div class="kpi"><div class="v" id="xk3">0</div><div class="l">Segmentos</div></div>
+      <div class="kpi"><div class="v" id="xk4">0%</div><div class="l">Churn promedio</div></div>
+    </div>
+    <div class="dash" id="xlsDash" style="display:none;">
+      <div class="viz"><h4>CLTV 5 años · por segmento</h4><div id="xv1"></div></div>
+      <div class="viz"><h4>Clientes por canal preferido</h4><div id="xv2"></div></div>
+      <div class="viz"><h4>Satisfacción vs. churn</h4><div id="xv3"></div></div>
+      <div class="viz"><h4>Ganancia neta por región</h4><div id="xv4"></div></div>
+    </div>
+    <div class="feedback" id="xlsFb"></div>
   </div>
 
   <div id="fbAnag3"></div>
@@ -546,6 +779,48 @@
 
   <hr class="hard" />
 
+  <hr class="hard" />
+
+  <!-- Generador de prompts para la estrategia de comunicación -->
+  <div class="card-b">
+    <span class="tag blue">🤖 GENERADOR DE PROMPTS · estrategia de comunicación data-driven</span>
+    <p style="margin:.2rem 0 .5rem;">Arma un prompt para que una IA te ayude a redactar la campaña dirigida a tu mejor segmento.
+    Elige las opciones y complétalo; luego responde en tus propias palabras en los campos de abajo.</p>
+
+    <label class="fld">Segmento objetivo</label>
+    <div class="chipset" data-group="seg">
+      <span class="chip on">Platinum</span><span class="chip">Gold</span><span class="chip">Silver</span><span class="chip">En riesgo (churn alto)</span>
+    </div>
+    <label class="fld">Canal principal</label>
+    <div class="chipset" data-group="canal">
+      <span class="chip on">Email + App</span><span class="chip">Personal + Digital</span><span class="chip">Call center</span><span class="chip">Redes sociales</span>
+    </div>
+    <label class="fld">Objetivo de la campaña</label>
+    <div class="chipset" data-group="obj">
+      <span class="chip on">Retención / anti-churn</span><span class="chip">Up-sell / Cross-sell</span><span class="chip">Reactivación</span><span class="chip">Bienvenida</span>
+    </div>
+    <label class="fld">Tono del mensaje</label>
+    <div class="chipset" data-group="tono">
+      <span class="chip on">Cercano y empático</span><span class="chip">Profesional</span><span class="chip">Exclusivo / premium</span><span class="chip">Urgente</span>
+    </div>
+    <label class="fld">Presupuesto por cliente ($)</label>
+    <input class="inp" id="pg_budget" type="number" min="1" value="200" style="max-width:220px;" />
+
+    <div class="btn-row no-print">
+      <button class="btn-b" id="btnGenPrompt">✨ Generar prompt</button>
+      <button class="btn-b ghost" id="btnCopyPrompt">📋 Copiar</button>
+    </div>
+    <div class="prompt-out" id="promptOut">El prompt aparecerá aquí…</div>
+
+    <label class="fld" style="margin-top:.8rem;">✍️ Tu respuesta: mensaje/asunto de la campaña</label>
+    <textarea class="inp" id="commMsg" rows="3" placeholder="Redacta el asunto y el mensaje principal para tu segmento…"></textarea>
+    <label class="fld">✍️ Tu respuesta: 3 acciones concretas del plan de 30 días (quick win)</label>
+    <textarea class="inp" id="commPlan" rows="3" placeholder="1. …&#10;2. …&#10;3. …"></textarea>
+    <label class="fld">✍️ Tu respuesta: KPI con el que medirás el éxito</label>
+    <input class="inp" id="commKpi" placeholder="Ej. reducir churn de 22% a 15% en 30 días" />
+    <div class="feedback" id="commFb"></div>
+  </div>
+
   <!-- Estación 5: Transferencia y reflexión -->
   <div class="card-b yellow">
     <span class="tag">🧭 TICKET DE SALIDA · transferencia y reflexión</span>
@@ -633,11 +908,59 @@
 
 <footer class="idc">
   <span id="logo-foot"></span>
-  <p style="margin:.6rem 0 0;"><b>Mg. Mario Quiroz Martínez</b> — Unidad didáctica Investigación e Innovación Tecnológica</p>
-  <p style="margin:.2rem 0 0;font-size:.72rem;color:#bbb;">Instituto de Diseño y Comunicación · PWA educativa DUA-Experiencial · Caso RetailMax (metodología M. Jeffery)</p>
+  <p style="margin:.6rem 0 0;font-family:'Archivo Black',sans-serif;font-size:1.05rem;color:var(--pblue-ink);">UTP</p>
+  <p style="margin:.2rem 0 0;"><b>Mg. Mario Quiroz Martínez</b> — Semana 1 · Curso de DATA+IA</p>
+  <p style="margin:.2rem 0 0;font-size:.72rem;color:var(--idc-gray1);">Universidad Tecnológica del Perú · PWA educativa DUA-Experiencial · Caso RetailMax (metodología M. Jeffery)</p>
 </footer>
 
-<div class="install-bar no-print" id="installBar"><button class="btn-b" id="btnInstall">⬇ Instalar app</button></div>
+<!-- ================= FABs globales (glosario + monitor) presentes en TODA la app ================= -->
+<div class="fab-stack no-print">
+  <button class="fab glos" id="fabGlos" title="Glosario técnico">📖 Glosario</button>
+  <button class="fab mon" id="fabMon" title="Monitoreo de respuestas (NAS)">🛰️ Monitor</button>
+  <button class="btn-b" id="btnInstall" style="display:none;">⬇ Instalar app</button>
+</div>
+
+<!-- ================= MODAL · GLOSARIO TÉCNICO ================= -->
+<div class="modal-back" id="glosModal">
+  <div class="modal-box">
+    <button class="modal-close" data-close="glosModal">✕ Cerrar</button>
+    <h3>📖 Glosario técnico</h3>
+    <p class="hint" style="margin:.1rem 0 .6rem;">Consúltalo en cualquier momento y en cualquier pantalla. Busca el término o procedimiento que no reconozcas.</p>
+    <input class="inp" id="glosSearch" placeholder="🔎 Buscar término… (CLTV, ETL, ROMI, churn, EDW…)" />
+    <div id="glosList" style="margin-top:.7rem;"></div>
+  </div>
+</div>
+
+<!-- ================= MODAL · MONITOR / CONTROL DE RESPUESTAS (NASync DX2800) ================= -->
+<div class="modal-back" id="monModal">
+  <div class="modal-box">
+    <button class="modal-close" data-close="monModal">✕ Cerrar</button>
+    <h3>🛰️ Monitoreo de respuestas · NASync DX2800</h3>
+    <p class="hint" style="margin:.1rem 0 .6rem;">Sistema de control de respuestas del equipo. Registra cada avance en memoria y permite
+    sincronizarlo con el NAS <b>UGREEN NASync DX2800</b> del aula (o descargarlo para subirlo a su carpeta compartida).</p>
+
+    <div class="card-b" style="margin-bottom:.7rem;">
+      <span class="tag blue">CONEXIÓN NAS</span>
+      <label class="fld">Endpoint del NASync DX2800 (WebDAV/HTTP)</label>
+      <input class="inp" id="nasUrl" placeholder="http://192.168.1.50:5005/webdav/retailmax/" />
+      <label class="fld">Método</label>
+      <select class="inp" id="nasMethod">
+        <option value="PUT">WebDAV · PUT (archivo por equipo)</option>
+        <option value="POST">Webhook · POST (colección de eventos)</option>
+      </select>
+      <div class="btn-row no-print">
+        <button class="btn-b" id="btnNasSync">🔄 Sincronizar con NAS</button>
+        <button class="btn-b ghost" id="btnNasJson">⬇ Descargar JSON</button>
+        <button class="btn-b ghost" id="btnNasPing">📶 Probar conexión</button>
+      </div>
+      <p class="hint" id="nasState"><span class="nas-dot" id="nasDot"></span>Sin conectar. La sincronización es iniciada por el docente.</p>
+    </div>
+
+    <span class="tag">REGISTRO EN VIVO (esta sesión)</span>
+    <div class="tbl-scroll"><table class="mon-table" id="monTable"><tbody></tbody></table></div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <!-- ============================================================
@@ -652,11 +975,11 @@
    Estado 100% en memoria (sin localStorage/sessionStorage).
    ============================================================ */
 
-/* ---------- Logo IDC (SVG inline, embebido) ---------- */
-const IDC_LOGO = '<svg width="52" height="30" viewBox="0 0 52 30" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="IDC">'
-  + '<rect x="0" y="0" width="52" height="30" fill="#0d0d0d"/>'
-  + '<rect x="3" y="4" width="7" height="22" fill="#f3a100"/>'
-  + '<text x="14" y="21" font-family="Arial Black,Arial,sans-serif" font-size="15" font-weight="900" fill="#ffffff">IDC</text>'
+/* ---------- Logo UTP (SVG inline, embebido, tono pastel) ---------- */
+const IDC_LOGO = '<svg width="54" height="30" viewBox="0 0 54 30" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="UTP">'
+  + '<rect x="0" y="0" width="54" height="30" rx="6" fill="#dcebf8"/>'
+  + '<rect x="3" y="5" width="6" height="20" rx="2" fill="#b9772f"/>'
+  + '<text x="13" y="21" font-family="Arial Black,Arial,sans-serif" font-size="15" font-weight="900" fill="#2f6fa8">UTP</text>'
   + '</svg>';
 document.getElementById('logo-hud').innerHTML = IDC_LOGO;
 document.getElementById('logo-foot').innerHTML = IDC_LOGO;
@@ -918,7 +1241,7 @@ function buildFlips(){
   const g=$('flipGrid'); g.innerHTML='';
   DEFS.forEach(d=>{
     const el=document.createElement('div'); el.className='flip';
-    el.innerHTML='<div class="flip-in"><div class="flip-face flip-front"><span class="k">'+d.k+'</span><span class="hint" style="color:#dfefff;">toca para definir</span></div>'
+    el.innerHTML='<div class="flip-in"><div class="flip-face flip-front"><span class="k">'+d.k+'</span><span class="hint" style="color:var(--pblue-ink);opacity:.75;">toca para definir</span></div>'
       +'<div class="flip-face flip-back">'+d.d+'</div></div>';
     el.addEventListener('click',()=>el.classList.toggle('on'));
     g.appendChild(el);
@@ -1380,6 +1703,12 @@ buildRubric();
 function collectReport(){
   state.reflex=$('reflex').value.trim();
   state.transfer=$('transfer').value.trim();
+  state.comm={
+    prompt: ($('promptOut')?$('promptOut').textContent:'').trim(),
+    msg: ($('commMsg')?$('commMsg').value.trim():''),
+    plan: ($('commPlan')?$('commPlan').value.trim():''),
+    kpi: ($('commKpi')?$('commKpi').value.trim():'')
+  };
   return state;
 }
 function download(filename, content, mime){
@@ -1455,7 +1784,7 @@ function buildPrintReport(st){
   const d=new Date().toLocaleDateString('es-MX');
   let h='';
   h+='<div style="border:4px solid #000;padding:16px;margin-bottom:14px;">';
-  h+='<h1 style="font-family:Arial Black,sans-serif;margin:0;">TRANSFORMACIÓN DATA-DRIVEN</h1>';
+  h+='<h1 style="font-family:Arial Black,sans-serif;margin:0;">UTP · TRANSFORMACIÓN DATA-DRIVEN</h1>';
   h+='<p style="margin:.2rem 0;">Plan de implementación · Caso RetailMax · '+d+'</p>';
   h+='<p style="margin:.2rem 0;"><b>Equipo/Consultor:</b> '+esc(st.team.name)+' &nbsp; | &nbsp; <b>Modalidad:</b> '+st.team.mode+'</p>';
   if(st.team.members.length) h+='<p style="margin:.2rem 0;"><b>Integrantes:</b> '+esc(st.team.members.join(', '))+'</p>';
@@ -1477,26 +1806,345 @@ function buildPrintReport(st){
     +'<p><b>Quick win de 30 días</b> dirigido al mejor segmento (Agile Marketing, Cap. 8).</p>'; }
   else h+='<p>No calculado.</p>';
 
-  h+='<h2>5 · Cierre</h2>';
+  if(st.xls){ h+='<h2>4b · Dashboard desde Excel real</h2>'
+    +'<table class="jeff"><tr><th>Clientes leídos</th><th>CLTV 5a prom.</th><th>Segmentos</th><th>Churn prom.</th></tr>'
+    +'<tr><td>'+st.xls.n+'</td><td>'+money(st.xls.cltvAvg)+'</td><td>'+st.xls.segs+'</td><td>'+(st.xls.churn*100).toFixed(1)+'%</td></tr></table>'; }
+
+  h+='<h2>5 · Estrategia de comunicación</h2>';
+  const cm=st.comm||{};
+  h+='<p><b>Prompt generado:</b><br><span style="font-size:12px;white-space:pre-wrap;">'+esc(cm.prompt||'—')+'</span></p>';
+  h+='<p><b>Mensaje/asunto:</b> '+esc(cm.msg||'—')+'</p>';
+  h+='<p><b>Plan 30 días (quick win):</b><br><span style="white-space:pre-wrap;">'+esc(cm.plan||'—')+'</span></p>';
+  h+='<p><b>KPI de éxito:</b> '+esc(cm.kpi||'—')+'</p>';
+
+  h+='<h2>6 · Cierre</h2>';
   h+='<p><b>Ticket de salida:</b> '+esc(st.reflex||'—')+'</p>';
   h+='<p><b>Transferencia CLTV:</b> '+esc(st.transfer||'—')+'</p>';
   h+='<p><b>Autoevaluación (1-5):</b> '+st.rubric.join(' / ')+'</p>';
-  h+='<hr><p style="font-size:12px;">Mg. Mario Quiroz Martínez — Unidad didáctica Investigación e Innovación Tecnológica · Instituto de Diseño y Comunicación</p>';
+  h+='<hr><p style="font-size:12px;">UTP · Mg. Mario Quiroz Martínez — Semana 1 · Curso de DATA+IA · Universidad Tecnológica del Perú</p>';
   $('print-report').innerHTML=h;
 }
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 /* ============================================================
+   GLOSARIO TÉCNICO · disponible en TODAS las pantallas
+   ============================================================ */
+const GLOSARIO = [
+  {t:'Data-driven', c:'Concepto', d:'Toma de decisiones basada en datos y métricas, no en intuición.'},
+  {t:'Marketing Divide', c:'Jeffery Cap.1', d:'Brecha entre empresas líderes (miden y actúan con datos) y rezagadas (<20% de métricas implementadas). RetailMax es rezagada.'},
+  {t:'CLTV', c:'Métrica', d:'Customer Lifetime Value: valor total que aporta un cliente durante su relación. Aquí: margen × retención − CAC.'},
+  {t:'CAC', c:'Métrica', d:'Costo de Adquisición de Cliente: cuánto cuesta conseguir un cliente nuevo.'},
+  {t:'Churn', c:'Métrica', d:'Tasa de abandono: porcentaje de clientes que dejan de comprar. Su opuesto es la retención.'},
+  {t:'CSAT', c:'Métrica', d:'Customer Satisfaction: nivel de satisfacción del cliente, normalmente en escala 1–5 o 1–10.'},
+  {t:'NPS', c:'Métrica', d:'Net Promoter Score: disposición del cliente a recomendar la marca (−100 a 100).'},
+  {t:'Take rate', c:'Métrica', d:'Tasa de aceptación: % de destinatarios que responden/compran ante una campaña.'},
+  {t:'ROMI', c:'Métrica', d:'Return On Marketing Investment: (ganancia − costo) / costo. Rentabilidad del gasto de marketing.'},
+  {t:'NPV / VPN', c:'Finanzas', d:'Valor Presente Neto: suma de flujos futuros descontados menos la inversión. Positivo = crea valor.'},
+  {t:'IRR / TIR', c:'Finanzas', d:'Tasa Interna de Retorno: tasa de descuento que hace el NPV = 0. Mayor = más rentable.'},
+  {t:'Payback', c:'Finanzas', d:'Periodo de recuperación: tiempo que tarda una inversión en recuperarse.'},
+  {t:'ETL', c:'Arquitectura', d:'Extract-Transform-Load: extrae datos de las fuentes, los limpia/normaliza y los carga al almacén.'},
+  {t:'EDW', c:'Arquitectura', d:'Enterprise Data Warehouse: almacén central único e integrado; la "fuente única de la verdad".'},
+  {t:'Data Mart', c:'Arquitectura', d:'Subconjunto temático del EDW optimizado para un área (p. ej. Marketing) y sus dashboards.'},
+  {t:'Staging Area', c:'Arquitectura', d:'Zona intermedia donde llegan los datos crudos (raw) antes de transformarse.'},
+  {t:'3NF / Kimball', c:'Arquitectura', d:'Modelos de datos: Tercera Forma Normal (normalizado) y el enfoque dimensional de Kimball (estrella).'},
+  {t:'BI', c:'Arquitectura', d:'Business Intelligence: capa de análisis y visualización que convierte datos en decisiones.'},
+  {t:'POS', c:'Fuente', d:'Point of Sale: sistema de caja de las tiendas físicas.'},
+  {t:'CRM', c:'Fuente', d:'Customer Relationship Management: sistema de gestión de clientes (p. ej. Salesforce).'},
+  {t:'ERP', c:'Fuente', d:'Enterprise Resource Planning: sistema central de la operación (p. ej. SAP).'},
+  {t:'Segmentación', c:'Estrategia', d:'Agrupar clientes por valor o comportamiento para dejar de tratarlos a todos igual.'},
+  {t:'Pareto (20/80)', c:'Estrategia', d:'Principio por el que ~20% de los clientes concentra ~80% del valor. Justifica priorizar.'},
+  {t:'KPI', c:'Gestión', d:'Key Performance Indicator: indicador clave con el que se mide el éxito de una acción.'},
+  {t:'Scorecard', c:'Instrumento', d:'Tablero de métricas para evaluar la madurez o el desempeño (aquí, las 15 métricas de Jeffery).'},
+  {t:'Quick win', c:'Agile', d:'Victoria rápida: acción de alto impacto y corto plazo (aquí, campaña de 30 días).'},
+  {t:'Análisis de sensibilidad', c:'Finanzas', d:'Tabla que muestra cómo cambia un resultado (NPV) al variar un supuesto (take rate).'},
+  {t:'Dashboard', c:'BI', d:'Panel visual que reúne indicadores y gráficos para monitorear el negocio.'},
+  {t:'NASync DX2800', c:'Infraestructura', d:'Servidor de almacenamiento en red (NAS) UGREEN usado aquí para centralizar y monitorear las respuestas del aula.'}
+];
+function renderGlosario(filter){
+  const q=(filter||'').trim().toLowerCase();
+  const list=GLOSARIO.filter(g=> !q || g.t.toLowerCase().includes(q) || g.d.toLowerCase().includes(q) || g.c.toLowerCase().includes(q));
+  const box=$('glosList');
+  box.innerHTML = list.length ? list.map(g=>'<div class="glos-term"><b>'+g.t+'</b><span class="glos-cat">'+g.c+'</span><div style="margin-top:.25rem;font-size:.85rem;">'+g.d+'</div></div>').join('')
+    : '<p class="hint">Sin resultados. Prueba con otro término.</p>';
+}
+function openModal(id){ $(id).classList.add('show'); }
+function closeModal(id){ $(id).classList.remove('show'); }
+$('fabGlos').addEventListener('click',()=>{ renderGlosario(''); $('glosSearch').value=''; openModal('glosModal'); });
+$('glosSearch').addEventListener('input', e=>renderGlosario(e.target.value));
+document.querySelectorAll('.modal-close').forEach(b=>b.addEventListener('click',()=>closeModal(b.dataset.close)));
+document.querySelectorAll('.modal-back').forEach(m=>m.addEventListener('click',e=>{ if(e.target===m) closeModal(m.id); }));
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closeModal('glosModal'); closeModal('monModal'); } });
+
+/* ============================================================
+   MONITOREO / CONTROL DE RESPUESTAS · NASync DX2800
+   ============================================================ */
+if(!state.monitor) state.monitor=[];
+function nowT(){ return new Date().toLocaleTimeString('es-MX'); }
+function logEvent(type, detail){ state.monitor.push({t:nowT(), type, detail:detail||''}); if($('monModal').classList.contains('show')) renderMonitor(); }
+function buildResponsePayload(){
+  const st=collectReport();
+  return {
+    app:'UTP-DataDriven-RetailMax', curso:'DATA+IA · Semana 1', ts:new Date().toISOString(),
+    equipo:st.team, madurez_bi:st.maturity, insignias:st.badges,
+    cltv:st.cltv, romi:st.romi,
+    dashboard_excel: st.xls?{clientes:st.xls.n, cltv5a_prom:st.xls.cltvAvg, segmentos:st.xls.segs, churn_prom:st.xls.churn}:null,
+    estrategia_comunicacion:st.comm, ticket_salida:st.reflex, transferencia:st.transfer,
+    autoevaluacion:st.rubric, eventos:state.monitor
+  };
+}
+function renderMonitor(){
+  const st=state;
+  const snap=[
+    ['Equipo/Consultor', esc(st.team.name||'—')],
+    ['Modalidad', st.team.mode],
+    ['Insignias', Object.keys(st.badges).filter(k=>st.badges[k]).join(', ')||'—'],
+    ['Madurez BI', st.maturity?Math.round(st.maturity*100)+'%':'—'],
+    ['CLTV promedio', st.cltv?money(st.cltv.avg):'—'],
+    ['ROMI / NPV', st.romi?((st.romi.romi*100).toFixed(0)+'% / '+money(st.romi.npv)):'—'],
+    ['Excel cargado', st.xls?(st.xls.n+' clientes'):'—'],
+    ['Estrategia com.', ($('commMsg')&&$('commMsg').value.trim())?'sí':'—']
+  ];
+  let h='<tr><th colspan="2">Estado del equipo</th></tr>';
+  h+=snap.map(r=>'<tr><td><b>'+r[0]+'</b></td><td>'+r[1]+'</td></tr>').join('');
+  h+='<tr><th colspan="2">Bitácora de eventos ('+state.monitor.length+')</th></tr>';
+  h+= state.monitor.length ? state.monitor.slice().reverse().map(e=>'<tr><td>'+e.t+'</td><td>'+esc(e.type)+(e.detail?' · '+esc(e.detail):'')+'</td></tr>').join('')
+    : '<tr><td colspan="2" class="hint">Aún sin eventos. Completa los niveles para registrar respuestas.</td></tr>';
+  $('monTable').querySelector('tbody').innerHTML=h;
+}
+function setNas(cls,msg){ const dot=$('nasDot'); dot.className='nas-dot '+(cls||''); $('nasState').innerHTML='<span class="nas-dot '+(cls||'')+'" id="nasDot"></span>'+msg; }
+$('fabMon').addEventListener('click',()=>{ renderMonitor(); openModal('monModal'); });
+$('btnNasJson').addEventListener('click',()=>{ download('respuestas_'+safeName()+'.json', JSON.stringify(buildResponsePayload(),null,2), 'application/json'); toast('Respuestas exportadas (JSON) para el NAS.'); });
+$('btnNasPing').addEventListener('click', async ()=>{
+  const url=$('nasUrl').value.trim(); if(!url){ setNas('err','Configura el endpoint del NAS.'); return; }
+  setNas('', 'Probando conexión…');
+  try{ await fetch(url,{method:'HEAD',mode:'no-cors'}); setNas('ok','Endpoint alcanzable (respuesta opaca por CORS es normal en LAN).'); }
+  catch(e){ setNas('err','No se pudo alcanzar el NAS desde este origen. Usa "Descargar JSON".'); }
+});
+$('btnNasSync').addEventListener('click', async ()=>{
+  const url=$('nasUrl').value.trim(); const method=$('nasMethod').value;
+  if(!url){ setNas('err','Configura el endpoint del NASync DX2800.'); return; }
+  const payload=JSON.stringify(buildResponsePayload(),null,2);
+  const fname='retailmax_'+safeName()+'_'+Date.now()+'.json';
+  setNas('', 'Sincronizando…');
+  try{
+    const target = method==='PUT' ? (url.endsWith('/')?url+fname:url+'/'+fname) : url;
+    const res=await fetch(target,{method, headers:{'Content-Type':'application/json'}, body:payload});
+    if(res.ok||res.status===201||res.status===204){ setNas('ok','Sincronizado con el NAS ('+res.status+'). Guardado como '+fname+'.'); logEvent('nas-sync','OK '+res.status); }
+    else { setNas('err','El NAS respondió '+res.status+'. Revisa permisos/WebDAV o usa "Descargar JSON".'); }
+  }catch(e){ setNas('err','Conexión bloqueada (CORS/red). Usa "Descargar JSON" y súbelo a la carpeta compartida del NAS.'); }
+});
+
+/* ============================================================
+   CARGA DE EXCEL (.xlsx/.csv) EN EL NAVEGADOR → dashboard real
+   Parser mínimo de ZIP+XLSX usando DecompressionStream (offline).
+   ============================================================ */
+function decodeEnt(s){ return String(s).replace(/&#(\d+);/g,(m,n)=>String.fromCharCode(+n)).replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&apos;/g,"'").replace(/&amp;/g,'&'); }
+async function inflateRaw(bytes){
+  if(typeof DecompressionStream==='undefined') throw new Error('Este navegador no soporta descompresión; usa el archivo .csv.');
+  const ds=new DecompressionStream('deflate-raw');
+  const res=new Response(new Blob([bytes]).stream().pipeThrough(ds));
+  return new Uint8Array(await res.arrayBuffer());
+}
+async function readZip(buf){
+  const dv=new DataView(buf); const bytes=new Uint8Array(buf);
+  let eo=-1; for(let i=bytes.length-22;i>=0;i--){ if(dv.getUint32(i,true)===0x06054b50){ eo=i; break; } }
+  if(eo<0) throw new Error('ZIP inválido (no es un .xlsx).');
+  const cdCount=dv.getUint16(eo+10,true); const cdOff=dv.getUint32(eo+16,true);
+  const files={}; let p=cdOff;
+  for(let i=0;i<cdCount;i++){
+    if(dv.getUint32(p,true)!==0x02014b50) break;
+    const method=dv.getUint16(p+10,true), compSize=dv.getUint32(p+20,true);
+    const nameLen=dv.getUint16(p+28,true), extraLen=dv.getUint16(p+30,true), commLen=dv.getUint16(p+32,true);
+    const lho=dv.getUint32(p+42,true);
+    const name=new TextDecoder().decode(bytes.subarray(p+46,p+46+nameLen));
+    files[name]={method,compSize,lho}; p+=46+nameLen+extraLen+commLen;
+  }
+  async function read(name){
+    const f=files[name]; if(!f) return null;
+    const lnameLen=dv.getUint16(f.lho+26,true), lextraLen=dv.getUint16(f.lho+28,true);
+    const start=f.lho+30+lnameLen+lextraLen; const comp=bytes.subarray(start, start+f.compSize);
+    return f.method===0 ? comp : await inflateRaw(comp);
+  }
+  return {files, read};
+}
+function parseSheetXml(xml, shared){
+  const rows=[]; const rowRe=/<row[^>]*>([\s\S]*?)<\/row>/g; let rm;
+  while((rm=rowRe.exec(xml))){
+    const cells={}; const cellRe=/<c\s+r="([A-Z]+)\d+"([^>]*?)(?:\/>|>([\s\S]*?)<\/c>)/g; let cm;
+    while((cm=cellRe.exec(rm[1]))){
+      const col=cm[1], attrs=cm[2]||'', inner=cm[3]||'';
+      const type=(/t="([^"]+)"/.exec(attrs)||[])[1]||'';
+      let val='';
+      if(type==='inlineStr'){ const im=/<t[^>]*>([\s\S]*?)<\/t>/.exec(inner); val=im?decodeEnt(im[1]):''; }
+      else if(type==='s'){ const vm=/<v>([\s\S]*?)<\/v>/.exec(inner); val=(vm&&shared)?(shared[+vm[1]]||''):''; }
+      else { const vm=/<v>([\s\S]*?)<\/v>/.exec(inner); val=vm?decodeEnt(vm[1]):''; }
+      cells[col]=val;
+    }
+    rows.push(cells);
+  }
+  return rows;
+}
+function rowsToObjects(rows){
+  if(!rows.length) return [];
+  const header=rows[0]; const cols=Object.keys(header);
+  return rows.slice(1).map(r=>{ const o={}; cols.forEach(c=>o[header[c]]=r[c]!==undefined?r[c]:''); return o; })
+    .filter(o=>Object.values(o).some(v=>String(v).trim()!==''));
+}
+async function parseXlsx(buf){
+  const zip=await readZip(buf);
+  const wb=new TextDecoder().decode(await zip.read('xl/workbook.xml'));
+  const relsRaw=zip.files['xl/_rels/workbook.xml.rels'] ? new TextDecoder().decode(await zip.read('xl/_rels/workbook.xml.rels')) : '';
+  const rel={}; for(const m of relsRaw.matchAll(/<Relationship[^>]*Id="([^"]+)"[^>]*Target="([^"]+)"/g)) rel[m[1]]=m[2];
+  const sheets=[...wb.matchAll(/<sheet\b[^>]*\/?>/g)].map(m=>({name:(/name="([^"]+)"/.exec(m[0])||[])[1], rid:(/r:id="([^"]+)"/.exec(m[0])||[])[1]}));
+  let sh=sheets.find(s=>/dataset/i.test(s.name||'')) || sheets[0];
+  let target=(rel[sh.rid]||'worksheets/sheet1.xml').replace(/^\/?xl\//,'').replace(/^\//,'');
+  let shared=null;
+  if(zip.files['xl/sharedStrings.xml']){ const ss=new TextDecoder().decode(await zip.read('xl/sharedStrings.xml'));
+    shared=[...ss.matchAll(/<si>([\s\S]*?)<\/si>/g)].map(m=>[...m[1].matchAll(/<t[^>]*>([\s\S]*?)<\/t>/g)].map(x=>decodeEnt(x[1])).join('')); }
+  const xml=new TextDecoder().decode(await zip.read('xl/'+target));
+  return rowsToObjects(parseSheetXml(xml, shared));
+}
+function parseCsv(text){
+  const lines=text.replace(/\r/g,'').split('\n').filter(l=>l.trim()!=='');
+  if(!lines.length) return [];
+  const split=l=>{ const out=[]; let cur='',q=false; for(const ch of l){ if(ch==='"'){q=!q;} else if(ch===','&&!q){out.push(cur);cur='';} else cur+=ch; } out.push(cur); return out.map(s=>s.trim()); };
+  const head=split(lines[0]);
+  return lines.slice(1).map(l=>{ const c=split(l); const o={}; head.forEach((h,i)=>o[h]=c[i]!==undefined?c[i]:''); return o; });
+}
+function num(v){ const n=parseFloat(String(v).replace(/[^0-9.\-]/g,'')); return isNaN(n)?0:n; }
+function groupMean(data, key, val){ const m={}; data.forEach(r=>{ const k=r[key]||'(s/d)'; (m[k]=m[k]||[]).push(num(r[val])); }); const o={}; Object.keys(m).forEach(k=>o[k]=m[k].reduce((a,b)=>a+b,0)/m[k].length); return o; }
+function groupCount(data, key){ const m={}; data.forEach(r=>{ const k=r[key]||'(s/d)'; m[k]=(m[k]||0)+1; }); return m; }
+
+function barSvg(map, colorFn, fmt){
+  const w=300,h=170,pad=26; const keys=Object.keys(map); const vals=keys.map(k=>map[k]);
+  const maxv=Math.max(...vals.map(Math.abs),1); const bw=(w-2*pad)/keys.length; let s=svgEl(w,h);
+  const zeroY = (h-pad) - (0-(-maxv))/(2*maxv)*(h-2*pad); // baseline when negatives exist
+  const hasNeg = vals.some(v=>v<0);
+  const base = hasNeg ? (h/2) : (h-pad);
+  s+='<line x1="'+pad+'" y1="'+base+'" x2="'+(w-pad)+'" y2="'+base+'" stroke="#c9d0de" stroke-width="1.5"/>';
+  keys.forEach((k,i)=>{ const v=map[k]; const bh=Math.abs(v)/maxv*(hasNeg?(h/2-pad):(h-2*pad));
+    const x=pad+i*bw; const y=v>=0?base-bh:base;
+    s+='<rect x="'+(x+3)+'" y="'+y.toFixed(1)+'" width="'+(bw-6)+'" height="'+bh.toFixed(1)+'" fill="'+colorFn(i)+'" stroke="#b9c2d6" stroke-width="1.5" rx="3"/>';
+    s+='<text x="'+(x+bw/2)+'" y="'+(h-8)+'" font-size="8" text-anchor="middle" fill="#5b6072">'+esc(String(k).slice(0,8))+'</text>'; });
+  s+='</svg>'; return s;
+}
+const PASTELS=['#9cc4e8','#f4c98f','#f2a9c4','#a7dab5','#c4a9e0','#8fd0d6'];
+function buildXlsDashboard(data){
+  const n=data.length;
+  const cltvKey = ('cltv_5anios' in (data[0]||{}))?'cltv_5anios':(Object.keys(data[0]||{}).find(k=>/cltv/i.test(k))||'cltv_5anios');
+  const cltvAvg = data.reduce((a,r)=>a+num(r[cltvKey]),0)/(n||1);
+  const segMap = groupCount(data,'segmento');
+  const churn = data.reduce((a,r)=>a+num(r['churn_anual']),0)/(n||1);
+  state.xls={n, cltvAvg, segs:Object.keys(segMap).length, churn, cltvKey};
+  $('xk1').textContent=n; $('xk2').textContent=money(cltvAvg); $('xk3').textContent=Object.keys(segMap).length; $('xk4').textContent=(churn*100).toFixed(1)+'%';
+  $('xlsKpis').style.display='grid'; $('xlsDash').style.display='grid';
+  // xv1 CLTV por segmento
+  $('xv1').innerHTML=barSvg(groupMean(data,'segmento',cltvKey),(i)=>PASTELS[i%PASTELS.length]);
+  // xv2 clientes por canal
+  $('xv2').innerHTML=barSvg(groupCount(data,'canal_preferido'),(i)=>PASTELS[(i+1)%PASTELS.length]);
+  // xv3 satisfaccion vs churn (scatter)
+  (function(){ const w=300,h=170,pad=26; let s=svgEl(w,h);
+    s+='<line x1="'+pad+'" y1="'+(h-pad)+'" x2="'+(w-pad)+'" y2="'+(h-pad)+'" stroke="#c9d0de" stroke-width="1.5"/>';
+    s+='<line x1="'+pad+'" y1="'+pad+'" x2="'+pad+'" y2="'+(h-pad)+'" stroke="#c9d0de" stroke-width="1.5"/>';
+    data.filter((_,i)=>i%3===0).forEach(r=>{ const sat=num(r['satisfaccion']); const ch=num(r['churn_anual']);
+      const x=pad+(Math.min(10,sat)/10)*(w-2*pad); const y=(h-pad)-Math.min(1,ch)*(h-2*pad);
+      s+='<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="2.6" fill="'+(ch>0.4?'#f2a9c4':'#a7dab5')+'" opacity="0.8"/>'; });
+    s+='<text x="'+pad+'" y="14" font-size="9" fill="#5b6072">↑ churn</text><text x="'+(w-70)+'" y="'+(h-8)+'" font-size="9" fill="#5b6072">satisfacción →</text></svg>';
+    $('xv3').innerHTML=s; })();
+  // xv4 ganancia neta por region
+  $('xv4').innerHTML=barSvg(groupMean(data,'region','ganancia_neta'),(i)=>PASTELS[(i+2)%PASTELS.length]);
+
+  const fb=$('xlsFb'); fb.className='feedback ok show';
+  fb.innerHTML='<h5>✔ Dashboard generado desde el Excel real</h5><ul>'
+    +'<li>Leíste <b>'+n+'</b> clientes y <b>'+Object.keys(segMap).length+'</b> segmentos directamente del archivo, en tu navegador.</li>'
+    +'<li>Compara este dashboard con el del simulador: los datos reales confirman la concentración de valor.</li></ul>';
+  logEvent('excel-cargado', n+' clientes · '+Object.keys(segMap).length+' segmentos');
+  toast('Dashboard generado desde el Excel ('+n+' clientes).');
+}
+async function handleFile(file){
+  const st=$('xlsStatus'); st.innerHTML='<span class="filechip">⏳ Leyendo '+esc(file.name)+'…</span>';
+  try{
+    let data;
+    if(/\.csv$/i.test(file.name)){ data=parseCsv(await file.text()); }
+    else { data=await parseXlsx(await file.arrayBuffer()); }
+    if(!data.length) throw new Error('No se encontraron filas de datos.');
+    st.innerHTML='<span class="filechip">✓ '+esc(file.name)+' · '+data.length+' filas</span>';
+    buildXlsDashboard(data);
+  }catch(e){
+    st.innerHTML=''; const fb=$('xlsFb'); fb.className='feedback err show';
+    fb.innerHTML='<h5>✗ No se pudo leer el archivo</h5><ul>'
+      +'<li><b>Pista:</b> usa la hoja <b>Dataset_Clientes</b> del .xlsx original.</li>'
+      +'<li><b>Dato clave:</b> '+esc(e.message)+'</li>'
+      +'<li><b>Contexto:</b> el archivo se procesa localmente; no se sube a ningún servidor.</li>'
+      +'<li><b>Reintento:</b> si tu navegador es antiguo, exporta la hoja a .csv y súbela.</li></ul>';
+  }
+}
+(function wireDrop(){
+  const drop=$('xlsDrop'), inp=$('xlsInput');
+  drop.addEventListener('click',()=>inp.click());
+  inp.addEventListener('change',e=>{ if(e.target.files[0]) handleFile(e.target.files[0]); });
+  ['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev,e=>{ e.preventDefault(); drop.classList.add('drag'); }));
+  ['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{ e.preventDefault(); drop.classList.remove('drag'); }));
+  drop.addEventListener('drop',e=>{ const f=e.dataTransfer.files[0]; if(f) handleFile(f); });
+})();
+
+/* ============================================================
+   GENERADOR DE PROMPTS · estrategia de comunicación
+   ============================================================ */
+(function wireChips(){
+  document.querySelectorAll('.chipset').forEach(set=>{
+    set.querySelectorAll('.chip').forEach(chip=>chip.addEventListener('click',()=>{
+      set.querySelectorAll('.chip').forEach(c=>c.classList.remove('on')); chip.classList.add('on');
+    }));
+  });
+})();
+function chipVal(group){ const set=document.querySelector('.chipset[data-group="'+group+'"]'); const on=set.querySelector('.chip.on'); return on?on.textContent.trim():''; }
+$('btnGenPrompt').addEventListener('click',()=>{
+  const seg=chipVal('seg'), canal=chipVal('canal'), obj=chipVal('obj'), tono=chipVal('tono'), budget=$('pg_budget').value||'200';
+  const nombre=state.team.name||'nuestro equipo';
+  const cltv=state.cltv?money(state.cltv.avg):'(calcula el CLTV en el Nivel 3)';
+  const p=
+'Actúa como estratega de marketing data-driven para RetailMax (retail, 150 tiendas + e-commerce, márgenes en caída del 22% al 12%).\n\n'
++'CONTEXTO: Somos '+nombre+', consultores de BI. Ya segmentamos la base por CLTV (CLTV promedio ≈ '+cltv+').\n\n'
++'TAREA: Diseña una campaña de comunicación de 30 días (quick win) con estos parámetros:\n'
++'• Segmento objetivo: '+seg+'\n'
++'• Canal principal: '+canal+'\n'
++'• Objetivo: '+obj+'\n'
++'• Tono del mensaje: '+tono+'\n'
++'• Presupuesto por cliente: $'+budget+'\n\n'
++'ENTREGA:\n'
++'1) Un asunto y un mensaje principal persuasivo para ese segmento.\n'
++'2) Tres acciones concretas del plan de 30 días.\n'
++'3) El KPI con el que mediremos el éxito (relacionado con churn, take rate o CLTV).\n'
++'4) Una métrica de negocio para justificar el gasto (ROMI esperado).\n\n'
++'Responde en español, claro y accionable, coherente con una estrategia basada en datos.';
+  $('promptOut').textContent=p;
+  logEvent('prompt-generado', seg+' · '+obj);
+  toast('Prompt generado. Ahora responde en tus palabras 👇');
+});
+$('btnCopyPrompt').addEventListener('click', async ()=>{
+  const txt=$('promptOut').textContent;
+  try{ await navigator.clipboard.writeText(txt); toast('Prompt copiado al portapapeles.'); }
+  catch(e){ const r=document.createRange(); r.selectNode($('promptOut')); const sel=getSelection(); sel.removeAllRanges(); sel.addRange(r); toast('Selecciona y copia (Ctrl/Cmd+C).'); }
+});
+
+/* Registrar hitos en la bitácora de monitoreo al ganar insignias */
+(function hookBadges(){
+  const orig=awardBadge;
+  awardBadge=function(key,label){ const had=state.badges[key]; orig(key,label); if(!had && state.badges[key]) logEvent('insignia', label); };
+})();
+
+/* ============================================================
    PWA · manifest (blob) + service worker + install
    ============================================================ */
 (function setupPWA(){
-  const icon = 'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512"><rect width="512" height="512" fill="#0d0d0d"/><rect x="70" y="120" width="70" height="280" fill="#f3a100"/><text x="170" y="330" font-family="Arial Black,Arial" font-size="150" font-weight="900" fill="#fff">IDC</text><text x="70" y="450" font-family="Arial" font-size="46" fill="#0072b9">DATA-DRIVEN</text></svg>');
+  const icon = 'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512"><rect width="512" height="512" rx="72" fill="#dcebf8"/><rect x="70" y="120" width="60" height="280" rx="16" fill="#b9772f"/><text x="150" y="330" font-family="Arial Black,Arial" font-size="150" font-weight="900" fill="#2f6fa8">UTP</text><text x="70" y="450" font-family="Arial" font-size="44" fill="#4a9b63">DATA-DRIVEN</text></svg>');
   const manifest = {
-    name:'Transformación Data-Driven · RetailMax',
+    name:'UTP · Data-Driven · RetailMax',
     short_name:'Data-Driven',
-    description:'PWA educativa gamificada DUA-Experiencial: caso RetailMax.',
+    description:'PWA educativa DUA-Experiencial (UTP · DATA+IA): caso RetailMax.',
     start_url:'.', scope:'.', display:'standalone',
-    background_color:'#f7f4ec', theme_color:'#f3a100', orientation:'portrait-primary',
+    background_color:'#f4f7fb', theme_color:'#dcebf8', orientation:'portrait-primary',
     icons:[
       {src:icon, sizes:'192x192', type:'image/svg+xml', purpose:'any'},
       {src:icon, sizes:'512x512', type:'image/svg+xml', purpose:'any maskable'}
@@ -1513,13 +2161,13 @@ function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').rep
     window.addEventListener('load', ()=>{ navigator.serviceWorker.register('sw.js').catch(()=>{}); });
   }
 
-  // Install prompt
+  // Install prompt (botón en el stack de FABs)
   let deferred=null;
-  window.addEventListener('beforeinstallprompt', e=>{ e.preventDefault(); deferred=e; $('installBar').style.display='block'; });
+  window.addEventListener('beforeinstallprompt', e=>{ e.preventDefault(); deferred=e; $('btnInstall').style.display='inline-flex'; });
   $('btnInstall').addEventListener('click', async ()=>{
-    if(!deferred) return; deferred.prompt(); await deferred.userChoice; deferred=null; $('installBar').style.display='none';
+    if(!deferred) return; deferred.prompt(); await deferred.userChoice; deferred=null; $('btnInstall').style.display='none';
   });
-  window.addEventListener('appinstalled', ()=>{ $('installBar').style.display='none'; toast('App instalada ✔'); });
+  window.addEventListener('appinstalled', ()=>{ $('btnInstall').style.display='none'; toast('App instalada ✔'); });
 })();
 </script>
 </body>

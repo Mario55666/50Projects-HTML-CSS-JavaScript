@@ -1,6 +1,7 @@
-# Transformación Data-Driven · Caso RetailMax
+# UTP · Data-Driven · Caso RetailMax
 
-PWA educativa **gamificada** con enfoque **DUA-Experiencial** (Instituto de Diseño y Comunicación) para el objetivo de aprendizaje:
+PWA educativa **gamificada** con enfoque **DUA-Experiencial** — **Universidad Tecnológica del Perú (UTP)**,
+Curso **DATA+IA · Semana 1** — para el objetivo de aprendizaje:
 
 > Al finalizar la sesión de 90 min, los estudiantes serán capaces de diseñar una estrategia de marketing data-driven para revertir una crisis de rentabilidad: integrar silos de información, calcular el CLTV en lenguaje aritmético normal y sustentar financieramente sus decisiones con un simulador web gamificado.
 
@@ -31,6 +32,16 @@ concepto clave antes de avanzar (widget reutilizable con el mismo feedback de er
 | 4 · Financiero | `PAYBACK` (recuperación) | refuerzo de cierre |
 
 Cada uno permite reintentos ilimitados y "pista extra" (sin bloqueo punitivo).
+
+## Módulos añadidos (Semana 1 · UTP)
+
+- **🧠 Mapa mental de arquitectura** (Nivel 2): recreación pastel del diagrama `Fuentes → ETL → EDW → BI → Usuarios de negocio` con el stack tecnológico 2025.
+- **📥 Dashboard desde Excel real** (Nivel 3): sube `retailmax_herramientas_bi.xlsx` (hoja `Dataset_Clientes`, 500×19) o un `.csv`. Se lee **en el navegador** con un parser propio de ZIP+XLSX (`DecompressionStream`), sin subirlo a ningún servidor, y genera 4 visualizaciones (CLTV por segmento, canales, satisfacción vs. churn, ganancia por región).
+- **🤖 Generador de prompts** (Nivel 4): arma un prompt de estrategia de comunicación a partir de opciones (segmento, canal, objetivo, tono, presupuesto) + campos de texto para que el estudiante responda (mensaje, plan de 30 días, KPI).
+- **📖 Glosario técnico global**: botón flotante presente en **todas** las pantallas, con búsqueda de ~29 términos/procedimientos (CLTV, ETL, EDW, ROMI, Pareto, NASync…).
+- **🛰️ Monitoreo / control de respuestas · NASync DX2800**: registra en memoria una bitácora de eventos y un snapshot del equipo; permite **sincronizar con el NAS** (WebDAV PUT / webhook POST) o **descargar JSON** para subirlo a su carpeta compartida.
+- **🖨️ Informe PDF completo** (botón de impresión): incorpora diagnóstico, arquitectura, CLTV, ROMI, dashboard de Excel, estrategia de comunicación y cierre, con cabecera y pie UTP.
+- **🎨 Rediseño pastel**: paleta suave (tomada del diagrama de arquitectura) para reducir la carga cognitiva ante información densa, manteniendo buen contraste. Cabecera: `UTP · DATA-DRIVEN · RETAILMAX`. Pie: `UTP · Mg. Mario Quiroz Martínez — Semana 1 · Curso de DATA+IA · Universidad Tecnológica del Perú`.
 
 ## Características técnicas
 

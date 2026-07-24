@@ -1,6 +1,6 @@
 /* Service Worker · Transformación Data-Driven (RetailMax)
    Cachea el shell de la app para funcionamiento offline e instalación PWA. */
-const CACHE = 'data-driven-retailmax-v1';
+const CACHE = 'utp-data-driven-retailmax-v2';
 const ASSETS = [
   '.',
   'index.html',
