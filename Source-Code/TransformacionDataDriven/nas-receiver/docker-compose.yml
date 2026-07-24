@@ -1,0 +1,18 @@
+services:
+  retailmax-receiver:
+    build: .
+    # Alternativa sin build (si prefieres construir en tu PC y subir la imagen):
+    # image: retailmax-receiver:latest
+    container_name: retailmax-receiver
+    restart: unless-stopped
+    ports:
+      - "8080:8080"          # http://IP_DEL_NAS:8080
+    environment:
+      - PORT=8080
+      - DATA_DIR=/data
+      # Descomenta para exigir token compartido al PWA (?token=... o cabecera X-Token):
+      # - INGEST_TOKEN=retailmax2025
+    volumes:
+      # Carpeta compartida del NASync DX2800 donde se guardan los envíos.
+      # Cambia la ruta izquierda por tu carpeta real del NAS.
+      - ./data:/data
