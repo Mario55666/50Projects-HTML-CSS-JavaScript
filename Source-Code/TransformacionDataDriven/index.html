@@ -328,6 +328,8 @@
     </div>
   </div>
 
+  <div id="fbAnag1"></div>
+
   <div class="btn-row no-print" id="fase1Next" style="display:none;">
     <button class="btn-b blue" onclick="go('screen-fase2')">▶ Nivel 2: romper los silos</button>
   </div>
@@ -383,6 +385,8 @@
       </div>
     </div>
   </div>
+
+  <div id="fbAnag2"></div>
 
   <div class="btn-row no-print" id="fase2Next" style="display:none;">
     <button class="btn-b blue" onclick="go('screen-fase3')">▶ Nivel 3: ¿quién es tu mejor cliente?</button>
@@ -444,10 +448,12 @@
     <div class="viz"><h4>6 · Proyección ROMI (preview)</h4><div id="viz6"></div></div>
   </div>
 
+  <div id="fbAnag3"></div>
+
   <div class="btn-row no-print">
     <button class="btn-b blue" id="btnToAnag" disabled>▶ Desbloquear anagrama conceptual</button>
   </div>
-  <span class="hint no-print">Recalcula el dashboard al menos una vez para desbloquear.</span>
+  <span class="hint no-print">Resuelve el anagrama de refuerzo de este nivel para desbloquear la estación de anagramas conceptuales.</span>
 </section>
 
 <!-- ============================================================
@@ -535,6 +541,8 @@
     <div class="tbl-scroll"><table class="jeff" id="sensTable"></table></div>
     <span class="hint">Tabla de datos para escenarios (Jeffery, Fig. 5.11): cómo cambia el NPV si el take rate sube o baja.</span>
   </div>
+
+  <div id="fbAnag4"></div>
 
   <hr class="hard" />
 
@@ -756,7 +764,7 @@ function buildMetrics(){
 }
 buildMetrics();
 
-$('btnDiagReset').addEventListener('click',()=>{ state.scorecard={}; buildMetrics(); $('diagResult').style.display='none'; $('diagFb').classList.remove('show'); $('fase1Next').style.display='none'; });
+$('btnDiagReset').addEventListener('click',()=>{ state.scorecard={}; buildMetrics(); $('diagResult').style.display='none'; $('diagFb').classList.remove('show'); $('fase1Next').style.display='none'; resetAnag('fbAnag1'); });
 
 $('btnDiag').addEventListener('click',()=>{
   const answered = Object.values(state.scorecard).filter(Boolean).length;
@@ -794,7 +802,13 @@ $('btnDiag').addEventListener('click',()=>{
     + '<li>La urgencia del cambio queda justificada: sin métricas no hay gestión.</li></ul>';
   awardBadge('diag','🔍 Diagnóstico');
   setLevel(1);
-  $('fase1Next').style.display='flex';
+  mountAnagram('fbAnag1',{
+    word:'REZAGADA',
+    prompt:'Retroalimentación del Nivel 1: nombra la condición actual de RetailMax.',
+    hint:'Empresa que implementa menos del 20% de las métricas y cae del lado perdedor del Marketing Divide.',
+    def:'RetailMax hoy es “rezagada”; la meta del rescate es cruzar al lado líder del divide.',
+    onSolve:()=>{ $('fase1Next').style.display='flex'; toast('🔁 Refuerzo del Nivel 1 consolidado.'); }
+  });
 });
 
 /* ============================================================
@@ -854,7 +868,7 @@ function placeNode(slotIdx, id){
   });
 }
 buildArch();
-$('btnArchReset').addEventListener('click',()=>{ buildArch(); $('archFb').classList.remove('show'); });
+$('btnArchReset').addEventListener('click',()=>{ buildArch(); $('archFb').classList.remove('show'); $('archDefs').style.display='none'; $('fase2Next').style.display='none'; resetAnag('fbAnag2'); });
 
 $('btnArch').addEventListener('click',()=>{
   if(archPlaced.includes(null)){
@@ -876,7 +890,13 @@ $('btnArch').addEventListener('click',()=>{
     $('archDefs').style.display='block';
     awardBadge('arch','🏗️ Arquitecto');
     setLevel(2);
-    $('fase2Next').style.display='flex';
+    mountAnagram('fbAnag2',{
+      word:'SILOS',
+      prompt:'Retroalimentación del Nivel 2: nombra lo que acabas de romper.',
+      hint:'Bases de datos separadas que no se comunican entre sí (el problema raíz de RetailMax).',
+      def:'Romper los silos = integrar POS, e-commerce, CRM y call center en un EDW único.',
+      onSolve:()=>{ $('fase2Next').style.display='flex'; toast('🔁 Refuerzo del Nivel 2 consolidado.'); }
+    });
   }else{
     fb.className='feedback err show';
     fb.innerHTML='<h5>✗ Aún no — el orden no fluye</h5><ul>'
@@ -999,7 +1019,13 @@ function recalcCltv(){
   renderDashboard();
   awardBadge('seg','💎 Segmentador');
   setLevel(3);
-  $('btnToAnag').disabled=false;
+  mountAnagram('fbAnag3',{
+    word:'PARETO',
+    prompt:'Retroalimentación del Nivel 3: nombra el principio que justifica segmentar.',
+    hint:'Principio que afirma que ~20% de los clientes concentra ~80% del valor.',
+    def:'El principio de Pareto justifica priorizar a los clientes “diamante” y dejar el marketing masivo.',
+    onSolve:()=>{ $('btnToAnag').disabled=false; toast('🔁 Refuerzo del Nivel 3 consolidado.'); }
+  });
 }
 function avg(a){ return a.reduce((x,y)=>x+y,0)/(a.length||1); }
 
@@ -1168,6 +1194,53 @@ function finishAnag(){
   $('anagNext').style.display='flex';
 }
 
+/* ---------- Anagramas de RETROALIMENTACIÓN por nivel (widget reutilizable) ----------
+   Un anagrama-relámpago consolida el concepto clave al cierre de cada nivel.
+   Reutiliza scramble()/normalize() y el feedback de error productivo de 5 componentes. */
+function resetAnag(mountId){ const m=$(mountId); if(m){ m.innerHTML=''; m.dataset.mounted=''; } }
+function mountAnagram(mountId, cfg){
+  const mount=$(mountId);
+  if(!mount || mount.dataset.mounted==='1') return; // idempotente: no re-montar
+  mount.dataset.mounted='1';
+  mount.innerHTML =
+    '<div class="card-b" style="border-color:var(--idc-blue);box-shadow:5px 5px 0 var(--idc-blue);">'
+    + '<span class="tag blue">🔁 RETROALIMENTACIÓN · anagrama de refuerzo</span>'
+    + '<p style="margin:.2rem 0 .3rem;">'+(cfg.prompt||'Consolida el concepto clave de este nivel: reordena las letras y escríbelo.')+'</p>'
+    + '<p style="font-weight:700;margin:.2rem 0;">Pista: '+cfg.hint+'</p>'
+    + '<div class="scram">'+scramble(cfg.word)+'</div>'
+    + '<label class="fld">Tu respuesta</label>'
+    + '<input class="inp fbi" autocomplete="off" placeholder="Escribe el concepto…" />'
+    + '<div class="btn-row no-print">'
+    + '<button type="button" class="btn-b chk">✔ Comprobar</button>'
+    + '<button type="button" class="btn-b ghost ext">↷ Pista extra</button></div>'
+    + '<div class="feedback msg"></div></div>';
+  const input=mount.querySelector('.fbi');
+  const msg=mount.querySelector('.msg');
+  const chk=mount.querySelector('.chk');
+  const ext=mount.querySelector('.ext');
+  ext.addEventListener('click',()=>{
+    msg.className='feedback msg show'; msg.style.background='#eef4ff'; msg.style.borderColor='#0072b9';
+    msg.innerHTML='<h5>💡 Pista extra</h5><ul><li>Tiene <b>'+cfg.word.length+'</b> letras y empieza por <b>'+cfg.word[0]+'</b>.</li><li>'+cfg.def+'</li></ul>';
+  });
+  chk.addEventListener('click',()=>{
+    if(normalize(input.value)===cfg.word){
+      msg.className='feedback msg ok show'; msg.style.background=''; msg.style.borderColor='';
+      msg.innerHTML='<h5>✔ Correcto: '+cfg.word+'</h5><ul><li>'+cfg.def+'</li><li>Reconociste el concepto por su función, no solo por memoria.</li></ul>';
+      chk.disabled=true; ext.disabled=true; input.disabled=true;
+      mount.querySelector('.scram').textContent='✔ '+cfg.word;
+      if(cfg.onSolve) cfg.onSolve();
+    }else{
+      msg.className='feedback msg err show'; msg.style.background=''; msg.style.borderColor='';
+      msg.innerHTML='<h5>✗ Aún no</h5><ul>'
+        +'<li><b>Pista:</b> piensa en el concepto central de este nivel, no reordenes al azar.</li>'
+        +'<li><b>Dato clave:</b> '+cfg.hint+'</li>'
+        +'<li><b>Contexto:</b> '+cfg.def+'</li>'
+        +'<li><b>Reintento:</b> usa “Pista extra” si lo necesitas y vuelve a intentar.</li></ul>';
+    }
+  });
+  input.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); chk.click(); } });
+}
+
 /* ============================================================
    NIVEL 4 · ROMI / NPV / IRR / Payback
    ============================================================ */
@@ -1241,6 +1314,13 @@ $('btnRomi').addEventListener('click',()=>{
       +'<li>ROMI '+(romi*100).toFixed(0)+'% y payback en '+(_pay===null?'>'+series.p.months:_pay)+' meses.</li>'
       +'<li>Tu <b>quick win de 30 días</b> (Agile Marketing, Cap. 8) tiene sustento financiero.</li></ul>';
     awardBadge('fin','💰 Financiero'); setLevel(4);
+    mountAnagram('fbAnag4',{
+      word:'PAYBACK',
+      prompt:'Retroalimentación del Nivel 4: nombra la métrica de recuperación que convence a la gerencia.',
+      hint:'Tiempo que tarda la campaña en recuperar la inversión inicial.',
+      def:'Junto con el NPV y la IRR, el payback sustenta el business case ante la gerencia.',
+      onSolve:()=>{ toast('🔁 Refuerzo del Nivel 4 consolidado.'); }
+    });
   }else{
     fb.className='feedback err show';
     fb.innerHTML='<h5>✗ Aún no conviene</h5><ul>'

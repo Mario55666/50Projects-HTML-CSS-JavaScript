@@ -18,6 +18,20 @@ Los estudiantes son consultores de BI que deben salvar a RetailMax (márgenes 22
 | — Refuerzo | Anagrama conceptual (obligatorio) | **Anagrama** de 5 términos clave (CLTV, CHURN, SEGMENTACIÓN, ROMI, ETL) con pistas | 🔤 Léxico |
 | 4 · Sustento financiero (25 min) | Simulador + Transferencia y reflexión | **ROMI / NPV / IRR / Payback** + análisis de sensibilidad + ticket de salida + autoevaluación | 💰 Financiero |
 
+### Retroalimentación por niveles (anagramas de refuerzo)
+
+Al **cierre de cada nivel** aparece un anagrama-relámpago de retroalimentación que consolida el
+concepto clave antes de avanzar (widget reutilizable con el mismo feedback de error productivo):
+
+| Nivel | Concepto consolidado | Anagrama | Gatilla |
+|-------|----------------------|----------|---------|
+| 1 · Diagnóstico | `REZAGADA` (Marketing Divide) | libera el paso al Nivel 2 |
+| 2 · Silos | `SILOS` (integración de datos) | libera el paso al Nivel 3 |
+| 3 · CLTV | `PARETO` (20/80 del valor) | desbloquea la estación de anagramas conceptuales |
+| 4 · Financiero | `PAYBACK` (recuperación) | refuerzo de cierre |
+
+Cada uno permite reintentos ilimitados y "pista extra" (sin bloqueo punitivo).
+
 ## Características técnicas
 
 - **Un solo `index.html` autónomo**: funciona offline sin dependencias críticas (Bootstrap 5 y fuentes se cargan como mejora progresiva con *fallback* a `system-ui`/monospace).
