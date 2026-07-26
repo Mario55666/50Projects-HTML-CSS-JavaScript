@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#ff2038">
 <meta name="description" content="Activa el radar de datos — Sesión 1: Fundamentos de Business Intelligence. Circuito gamificado IUTPC · IA + DATA 2026 · Unidad 1.">
-<title>Activa el radar de datos · Sesión 1 · Fundamentos de BI · IA + DATA 2026</title>
+<title>Activa el radar de datos · Sesión 1 · Fundamentos de BI · UTP · IA + DATA 2026</title>
 <style>
 /* ============================================================
    ACTIVA EL RADAR DE DATOS — Sesión 1 · Fundamentos de BI
@@ -272,7 +272,7 @@ textarea.inp{min-height:80px;resize:vertical} select.inp{cursor:pointer}
         <circle cx="70" cy="32" r="5" fill="#ff2038"/>
       </svg>
       <span class="mission-name">Activa el radar de datos
-        <small>IA + DATA · Sesión 1</small>
+        <small>UTP · IA + DATA · Sesión 1</small>
       </span>
     </div>
     <div class="stats" aria-live="polite">
@@ -288,7 +288,7 @@ textarea.inp{min-height:80px;resize:vertical} select.inp{cursor:pointer}
 
   <!-- ================= HERO ================= -->
   <section class="hero" aria-labelledby="mainTitle">
-    <div class="eyebrow">IA + DATA 2026 · Unidad 1 · Fundamentos de Business Intelligence</div>
+    <div class="eyebrow">Universidad Tecnológica del Perú (UTP) · IA + DATA 2026 · Unidad 1 · Fundamentos de Business Intelligence</div>
     <h1 id="mainTitle"><span class="op">Activa</span> el radar de <span class="op2">datos</span></h1>
     <div class="radar" aria-hidden="true"><div class="sweep"></div><div class="blip"></div></div>
     <p class="lede"><strong>Sesión 1</strong> — Fundamentos, conceptos básicos y herramientas actuales del BI, y su aplicabilidad en las organizaciones.</p>
@@ -319,7 +319,8 @@ textarea.inp{min-height:80px;resize:vertical} select.inp{cursor:pointer}
     <h2 id="datosTitle" style="margin-top:.6rem">Ficha técnica</h2>
     <div class="tbl-wrap">
       <table class="data"><tbody>
-        <tr><th style="width:30%">Curso</th><td>IA + DATA</td></tr>
+        <tr><th style="width:30%">Institución</th><td>Universidad Tecnológica del Perú (UTP)</td></tr>
+        <tr><th>Curso</th><td>IA + DATA</td></tr>
         <tr><th>Unidad 1</th><td>Fundamentos de Business Intelligence: introducción a la gestión y almacenamiento de datos, y fundamentos del Big Data.</td></tr>
         <tr><th>Sesión 1</th><td>Fundamentos, conceptos básicos y definiciones del BI. Herramientas actuales y aplicabilidad en las organizaciones.</td></tr>
         <tr><th>Logro de la unidad</th><td>El estudiante aplica los principios y fundamentos de la inteligencia de negocios, el almacenamiento y procesamiento de datos, y el Big Data para su implementación en las organizaciones.</td></tr>
@@ -890,6 +891,7 @@ textarea.inp{min-height:80px;resize:vertical} select.inp{cursor:pointer}
 
 <!-- ================= FOOTER ================= -->
 <footer class="foot" role="contentinfo">
+  <p><strong class="brandf">Universidad Tecnológica del Perú (UTP)</strong></p>
   <p><strong class="brandf">Mg. Mario Quiroz Martínez · IA + DATA 2026</strong></p>
   <p>Unidad 1: Fundamentos de Business Intelligence</p>
   <p class="small">Modelo IUTPC · Actividad gamificada · Recurso autocontenido, sin recolección de datos en servidores externos.</p>
@@ -1198,6 +1200,7 @@ function buildReportMd(){
   const done=Object.entries(state.levels).filter(([k,x])=>x).map(([k])=>'N'+k);
   const self=SELF.map((c,i)=>'- '+c+': '+(state.self[i]||'—')+'/5').join('\n');
   return `# Reporte de actividad — Activa el radar de datos
+**Universidad Tecnológica del Perú (UTP)**
 **Curso IA + DATA 2026 · Unidad 1 · Fundamentos de Business Intelligence · Sesión 1**
 
 ## 1. Participación
@@ -1234,7 +1237,7 @@ ${self}
 - **Revisión propia:** ${v('ia_review')}
 
 ---
-*Mg. Mario Quiroz Martínez · IA + DATA 2026 · Unidad 1: Fundamentos de Business Intelligence.*
+*Universidad Tecnológica del Perú (UTP) · Mg. Mario Quiroz Martínez · IA + DATA 2026 · Unidad 1: Fundamentos de Business Intelligence.*
 `;
 }
 function refreshReport(){ $('reportOut').value=buildReportMd(); }
@@ -1261,6 +1264,7 @@ function renderPrintReport(){
   const self=SELF.map((c,i)=>`<tr><td>${c}</td><td>${state.self[i]||'—'}/5</td></tr>`).join('');
   $('printReport').innerHTML=`
     <h1>Reporte de actividad — Activa el radar de datos</h1>
+    <p><strong>Universidad Tecnológica del Perú (UTP)</strong></p>
     <p><strong>Curso:</strong> IA + DATA 2026 · <strong>Unidad 1:</strong> Fundamentos de Business Intelligence · <strong>Sesión 1</strong></p>
     <p><strong>Modalidad:</strong> ${r.mode==='grupal'?'Grupal — Equipo: '+esc(r.teamName||'—'):'Individual'}</p>
     <h2>Participantes</h2>
@@ -1281,7 +1285,7 @@ function renderPrintReport(){
     <h2>Declaración de uso de IA</h2>
     <p><strong>Herramienta:</strong> ${esc(v('ia_tool'))} · <strong>Prompt:</strong> ${esc(v('ia_prompt'))}</p>
     <p><strong>Revisión propia:</strong> ${esc(v('ia_review'))}</p>
-    <hr><p><em>Mg. Mario Quiroz Martínez · IA + DATA 2026 · Unidad 1: Fundamentos de Business Intelligence.</em></p>`;
+    <hr><p><em>Universidad Tecnológica del Perú (UTP) · Mg. Mario Quiroz Martínez · IA + DATA 2026 · Unidad 1: Fundamentos de Business Intelligence.</em></p>`;
 }
 
 /* ---------- Copiar / descargar ---------- */
