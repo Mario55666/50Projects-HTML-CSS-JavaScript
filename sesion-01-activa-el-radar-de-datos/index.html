@@ -1,0 +1,1332 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#ff2038">
+<meta name="description" content="Activa el radar de datos — Sesión 1: Fundamentos de Business Intelligence. Circuito gamificado IUTPC · IA + DATA 2026 · Unidad 1.">
+<title>Activa el radar de datos · Sesión 1 · Fundamentos de BI · IA + DATA 2026</title>
+<style>
+/* ============================================================
+   ACTIVA EL RADAR DE DATOS — Sesión 1 · Fundamentos de BI
+   Curso IA + DATA 2026 · Unidad 1 · Modelo IUTPC gamificado
+   Autocontenido: HTML5 + CSS3 + JS vanilla. Sin dependencias externas.
+   ============================================================ */
+:root{
+  --bg:#0a0b10;--bg2:#0f111a;--panel:#12131a;--panel2:#0d0e14;--line:#1f2230;
+  --text:#e6e8f2;--muted:#8b8fa3;--steel:#8b8fa3;
+  --cyan:#00e5ff;--cyan-dim:#00e5ff14;
+  --alert:#ff2038;--alert-dim:#ff203818;
+  --amber:#ffd600;--amber-dim:#ffd60016;--gold:#ffd64a;
+  --green:#00ff9d;--green-dim:#00ff9d14;
+  --violet:#b829dd;--violet-dim:#b829dd18;
+  --radius:14px;--shadow:0 10px 34px rgba(0,0,0,.4);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:var(--bg);color:var(--text);line-height:1.55;
+  font-family:'Oswald',system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  background-image:
+    radial-gradient(circle at 8% 12%,rgba(255,32,56,.08) 0%,transparent 42%),
+    radial-gradient(circle at 92% 88%,rgba(0,229,255,.07) 0%,transparent 42%);
+}
+h1,h2,h3,h4{line-height:1.18;margin:.2em 0 .45em;letter-spacing:.3px}
+p{margin:.35em 0 .7em}
+a{color:var(--amber)}
+::selection{background:var(--alert);color:#fff}
+.mono{font-family:ui-monospace,"Cascadia Code",Consolas,monospace}
+
+/* ---------- Accesibilidad: foco ---------- */
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,
+textarea:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--amber);outline-offset:2px;border-radius:6px}
+.skip-link{position:absolute;left:-999px;top:0;background:var(--amber);color:#0a0b10;padding:.6rem 1rem;font-weight:700;z-index:200}
+.skip-link:focus{left:0}
+
+/* ---------- HUD ---------- */
+.hud{position:sticky;top:0;z-index:100;backdrop-filter:blur(8px);
+  background:linear-gradient(90deg,rgba(255,32,56,.16),rgba(10,11,16,.92) 45%);border-bottom:2px solid var(--alert)}
+.hud .wrap{max-width:1000px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:.7rem;flex-wrap:wrap;padding:.5rem 1rem}
+.hud .brand{display:flex;align-items:center;gap:.55rem;font-weight:800}
+.hud .logo{width:36px;height:36px;flex:none}
+.hud .mission-name{font-size:.95rem;text-transform:uppercase;letter-spacing:1px}
+.hud .mission-name small{display:block;font-weight:600;color:var(--muted);font-size:.66rem;letter-spacing:2px}
+.hud .stats{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;gap:.3rem;padding:.2rem .6rem;border-radius:999px;font-size:.82rem;font-weight:700;border:1px solid var(--line);background:rgba(255,255,255,.04)}
+.pill.xp{color:var(--gold);border-color:#ffd64a55;background:var(--amber-dim)}
+.pill.lvl{color:var(--cyan)} .pill.badge{color:var(--amber)}
+.hud-progress{height:6px;background:var(--line);width:100%}
+.hud-progress>i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--alert),var(--amber),var(--cyan));transition:width .5s ease}
+
+.container{max-width:1000px;margin:0 auto;padding:1.2rem 1rem 3rem}
+
+/* ---------- Hero ---------- */
+.hero{text-align:center;padding:1.4rem 0 .4rem}
+.eyebrow{color:var(--muted);text-transform:uppercase;letter-spacing:2px;font-size:.74rem;font-weight:700}
+.hero h1{font-size:clamp(1.7rem,5vw,2.8rem);margin:.4rem 0;text-transform:uppercase}
+.hero h1 .op{color:var(--alert)} .hero h1 .op2{color:var(--cyan)}
+.hero .lede{max-width:680px;margin:.4rem auto;color:var(--muted)}
+.radar{width:120px;height:120px;margin:.6rem auto;border-radius:50%;position:relative;
+  background:radial-gradient(circle,rgba(0,229,255,.08),transparent 70%);border:1px solid #00e5ff33}
+.radar::before,.radar::after{content:"";position:absolute;inset:0;border-radius:50%;border:1px solid #00e5ff22}
+.radar::before{inset:22px}.radar::after{inset:44px}
+.radar .sweep{position:absolute;inset:0;border-radius:50%;
+  background:conic-gradient(from 0deg,rgba(0,229,255,.35),transparent 60deg);animation:spin 4s linear infinite}
+.radar .blip{position:absolute;width:9px;height:9px;border-radius:50%;background:var(--alert);top:30%;left:64%;box-shadow:0 0 10px var(--alert)}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.briefing{max-width:760px;margin:1.1rem auto 0;text-align:left;background:linear-gradient(160deg,var(--panel),var(--bg2));
+  border:1px solid var(--line);border-left:5px solid var(--alert);border-radius:var(--radius);padding:1.1rem 1.3rem;box-shadow:var(--shadow);position:relative}
+.briefing .stamp{position:absolute;top:.7rem;right:.9rem;font-style:italic;font-weight:800;font-size:.82rem;color:var(--alert);
+  border:2px solid var(--alert);padding:.1rem .4rem;transform:rotate(-7deg);opacity:.85}
+.briefing .tag{color:var(--amber);font-weight:800;letter-spacing:1px;text-transform:uppercase;font-size:.78rem}
+.motiv{display:inline-block;margin-top:.8rem;background:var(--amber-dim);border:1px solid #ffd60055;color:var(--gold);padding:.4rem .8rem;border-radius:999px;font-weight:700;font-size:.86rem}
+
+.metric-row{display:flex;gap:.6rem;flex-wrap:wrap;justify-content:center;margin-top:1rem}
+.metric{flex:1 1 130px;max-width:210px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:.7rem .5rem;text-align:center}
+.metric b{display:block;font-size:1.1rem;color:var(--amber)}
+.metric small{color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.6px}
+
+/* ---------- Paneles ---------- */
+.panel{background:linear-gradient(160deg,var(--panel),var(--bg2));border:1px solid var(--line);border-left:5px solid var(--cyan);
+  border-radius:var(--radius);padding:1.2rem 1.35rem;margin:1.1rem 0;box-shadow:var(--shadow);position:relative}
+.panel.alert{border-left-color:var(--alert)} .panel.amber{border-left-color:var(--amber)}
+.panel.green{border-left-color:var(--green)} .panel.violet{border-left-color:var(--violet)}
+.kicker{display:inline-flex;align-items:center;gap:.4rem;background:var(--cyan);color:#04121a;font-weight:800;font-size:.75rem;
+  letter-spacing:.6px;text-transform:uppercase;padding:.32rem .8rem;border-radius:8px}
+.kicker.alert{background:var(--alert);color:#fff} .kicker.amber{background:var(--amber);color:#0a0b10}
+.kicker.green{background:var(--green);color:#04121a} .kicker.violet{background:var(--violet);color:#fff}
+.phase{color:var(--muted);font-size:.82rem;text-transform:uppercase;letter-spacing:1.4px;margin-top:.5rem}
+.aim{color:var(--amber);font-size:.92rem;font-weight:600;margin:.3rem 0}
+.mode-chip{display:inline-block;font-size:.72rem;font-weight:700;padding:.15rem .55rem;border-radius:999px;margin-left:.4rem;vertical-align:middle}
+.mode-chip.ind{background:var(--cyan-dim);color:var(--cyan);border:1px solid #00e5ff44}
+.mode-chip.grp{background:var(--amber-dim);color:var(--gold);border:1px solid #ffd60044}
+
+/* ---------- Tablas ---------- */
+.tbl-wrap{overflow-x:auto}
+table.data{width:100%;border-collapse:collapse;font-size:.9rem;min-width:420px}
+table.data th,table.data td{text-align:left;padding:.55rem .7rem;border-bottom:1px solid var(--line);vertical-align:top}
+table.data th{background:var(--cyan-dim);color:var(--cyan);font-size:.72rem;text-transform:uppercase;letter-spacing:.8px}
+table.data tr:last-child td{border-bottom:none}
+table.rubric td{color:var(--muted)} table.rubric td strong{color:var(--text)}
+
+/* ---------- Rastreador ---------- */
+.tracker{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.8rem}
+.tstep{flex:1 1 90px;text-align:center;padding:.6rem .3rem;border-radius:10px;background:rgba(255,255,255,.03);border:1px solid var(--line);opacity:.55;transition:.25s}
+.tstep.active{opacity:1;border-color:var(--amber)} .tstep.done{opacity:1;border-color:var(--green)}
+.tstep .n{width:30px;height:30px;border-radius:50%;background:var(--line);display:grid;place-items:center;margin:0 auto .3rem;font-weight:800}
+.tstep.active .n{background:var(--amber);color:#0a0b10} .tstep.done .n{background:var(--green);color:#04121a}
+.tstep small{display:block;font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+
+/* ---------- Formularios ---------- */
+label{display:block;font-size:.86rem;color:var(--muted);margin-bottom:.25rem;font-weight:600}
+.inp{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:9px;color:var(--text);padding:.55rem .8rem;font-family:inherit;font-size:.95rem;transition:.18s}
+.inp:focus{border-color:var(--amber);outline:none;box-shadow:0 0 0 3px var(--amber-dim)}
+textarea.inp{min-height:80px;resize:vertical} select.inp{cursor:pointer}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.8rem}
+.field{margin-bottom:.7rem}
+
+/* ---------- Botones ---------- */
+.btn{display:inline-flex;align-items:center;gap:.45rem;background:linear-gradient(135deg,var(--alert),var(--amber));color:#0a0b10;border:none;border-radius:9px;font-weight:800;font-family:inherit;font-size:.92rem;padding:.6rem 1.1rem;cursor:pointer;transition:.18s}
+.btn:hover{transform:translateY(-1px);filter:brightness(1.06)} .btn:active{transform:translateY(0)}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none;filter:none}
+.btn.cyan{background:var(--cyan);color:#04121a} .btn.solid{background:var(--amber);color:#0a0b10}
+.btn.ghost{background:transparent;border:2px solid var(--cyan);color:var(--cyan)}
+.btn.ghost.amber{border-color:var(--amber);color:var(--amber)}
+.btn.sm{padding:.4rem .75rem;font-size:.82rem}
+.btn-row{display:flex;gap:.55rem;flex-wrap:wrap;margin-top:.8rem}
+
+/* ---------- Callouts ---------- */
+.callout{background:var(--cyan-dim);border:1px solid #00e5ff33;border-radius:12px;padding:.85rem 1.05rem;margin:.8rem 0}
+.callout.amber{background:var(--amber-dim);border-color:#ffd60044} .callout.alert{background:var(--alert-dim);border-color:#ff203844}
+.callout .h{font-weight:800;color:var(--cyan);margin-bottom:.2rem}
+.callout.amber .h{color:var(--gold)} .callout.alert .h{color:var(--alert)}
+.oneline{background:var(--amber-dim);border:1px dashed #ffd600aa;border-radius:12px;padding:1rem;margin:1rem 0}
+.oneline .h{color:var(--gold);font-weight:800;text-transform:uppercase;letter-spacing:1px;font-size:.82rem}
+
+/* ---------- Preguntas cerradas (CQ) ---------- */
+.cq{background:rgba(255,255,255,.02);border:1px solid var(--line);border-radius:12px;padding:.85rem 1rem;margin:.7rem 0}
+.cq .q{font-weight:600;margin:.1rem 0 .6rem}
+.cq .q b{color:var(--cyan)}
+.opts{display:flex;flex-direction:column;gap:.45rem}
+.opts.row{flex-direction:row;flex-wrap:wrap}
+.opt{text-align:left;background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:9px;padding:.55rem .8rem;cursor:pointer;font-family:inherit;font-size:.9rem;transition:.15s}
+.opt:hover{border-color:var(--amber)}
+.opt.correct{border-color:var(--green);background:var(--green-dim);color:#b8ffe0}
+.opt.wrong{border-color:var(--alert);background:var(--alert-dim);color:#ffc2c2}
+.opt .mk{font-weight:800;margin-right:.4rem}
+.cq-fb{display:none;margin-top:.6rem;padding:.55rem .8rem;border-radius:8px;font-size:.87rem}
+.cq-fb.show{display:block}
+.cq-fb.ok{background:var(--green-dim);border:1px solid #00ff9d44;color:#b8ffe0}
+.cq-fb.no{background:var(--alert-dim);border:1px solid #ff203844;color:#ffc2c2}
+
+/* ---------- Asociación de conceptos ---------- */
+.assoc-row{display:grid;grid-template-columns:1fr 1.2fr;gap:.6rem;align-items:center;margin-bottom:.5rem}
+.assoc-row .term{background:var(--cyan-dim);border:1px solid #00e5ff33;border-radius:8px;padding:.5rem .7rem;font-weight:700;color:var(--cyan);font-size:.88rem}
+@media(max-width:520px){.assoc-row{grid-template-columns:1fr}}
+
+/* ---------- Clasificación (chips + bins) ---------- */
+.pool{display:flex;flex-wrap:wrap;gap:.5rem;margin:.7rem 0}
+.chip{background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:.4rem .85rem;font-size:.86rem;cursor:pointer;transition:.18s;user-select:none;color:var(--text)}
+.chip:hover{border-color:var(--amber)} .chip.placed{opacity:.4;pointer-events:none;text-decoration:line-through}
+.bins{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}
+.bin{min-height:90px;border:2px dashed var(--line);border-radius:12px;padding:.6rem}
+.bin.hover{border-color:var(--amber);background:var(--amber-dim)}
+.bin h5{margin:.1rem 0 .5rem;font-size:.82rem;text-transform:uppercase;letter-spacing:.6px;color:var(--cyan)}
+.bin .dropped{display:flex;flex-wrap:wrap;gap:.35rem}
+.bin .dropped span{background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:999px;padding:.25rem .6rem;font-size:.8rem}
+.bin .dropped span.wrong{border-color:var(--alert);color:var(--alert)} .bin .dropped span.right{border-color:var(--green);color:var(--green)}
+@media(max-width:520px){.bins{grid-template-columns:1fr}}
+
+/* ---------- Feedback general ---------- */
+.fb{margin-top:.6rem;padding:.7rem .9rem;border-radius:10px;font-size:.9rem;display:none}
+.fb.show{display:block}
+.fb.ok{background:var(--green-dim);border:1px solid #00ff9d44;color:#b8ffe0}
+.fb.err{background:var(--alert-dim);border:1px solid #ff203844;color:#ffc2c2}
+.fb ul{margin:.3rem 0 0;padding-left:1.1rem} .fb .lead{font-weight:800}
+
+/* ---------- Interpretación docente ---------- */
+.interp{margin-top:.9rem;padding:.7rem 1rem;border-left:3px solid var(--violet);border-radius:0 10px 10px 0;background:var(--violet-dim);color:#e2ccff;font-size:.88rem}
+.interp strong{color:#d9a7ff}
+
+/* ---------- Evidencia ---------- */
+.evi{background:var(--green-dim);border:1px solid #00ff9d33;border-radius:12px;padding:.9rem 1.05rem;margin-top:.9rem}
+.evi .h{color:#b8ffe0;font-weight:800;text-transform:uppercase;letter-spacing:.6px;font-size:.8rem;margin-bottom:.35rem}
+.evi code{background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:.1rem .4rem;font-size:.85rem;color:var(--amber)}
+.check{display:flex;align-items:center;gap:.5rem;margin-top:.5rem;font-size:.88rem;cursor:pointer}
+.check input{width:18px;height:18px;accent-color:var(--green);cursor:pointer}
+
+/* ---------- Insignias ---------- */
+.badges{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:.7rem}
+.badge-item{flex:1 1 140px;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:12px;padding:.7rem;text-align:center;opacity:.4;filter:grayscale(1);transition:.3s}
+.badge-item.earned{opacity:1;filter:none;border-color:var(--amber)}
+.badge-item .ico{font-size:1.7rem} .badge-item b{display:block;font-size:.85rem;margin-top:.2rem} .badge-item small{color:var(--muted);font-size:.72rem}
+
+/* ---------- Likert ---------- */
+.likert{display:flex;gap:.35rem;flex-wrap:wrap;margin-top:.4rem}
+.likert button{flex:1 1 40px;background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:.5rem;cursor:pointer;font-weight:700;transition:.15s;font-family:inherit}
+.likert button.sel{background:var(--amber);color:#0a0b10;border-color:var(--amber)}
+
+/* ---------- Participantes ---------- */
+.member-card{display:flex;gap:.5rem;align-items:flex-end;flex-wrap:wrap;background:rgba(255,255,255,.02);border:1px solid var(--line);border-radius:10px;padding:.6rem;margin-bottom:.5rem}
+.member-card .field{margin:0;flex:1 1 150px}
+.roster{margin-top:.6rem}
+.roster .row{display:flex;justify-content:space-between;gap:.5rem;align-items:center;padding:.45rem .7rem;border:1px solid var(--line);border-radius:8px;margin-bottom:.35rem;background:var(--panel2)}
+.roster .row b{color:var(--cyan)} .roster .row .role{color:var(--gold);font-size:.82rem}
+
+/* ---------- Bloqueo ---------- */
+.locked{position:relative}
+.locked .lockmsg{position:absolute;inset:0;background:rgba(10,11,16,.88);backdrop-filter:blur(2px);border-radius:var(--radius);display:grid;place-items:center;text-align:center;z-index:5;padding:1rem}
+.locked .lockmsg span{max-width:340px;color:var(--muted)} .locked .lockmsg .big{font-size:2rem;display:block;margin-bottom:.3rem}
+
+/* ---------- Toast ---------- */
+.toast-wrap{position:fixed;right:1rem;bottom:1rem;z-index:300;display:flex;flex-direction:column;gap:.5rem;max-width:320px}
+.toast{background:var(--panel);border:1px solid var(--amber);border-left:5px solid var(--amber);border-radius:10px;padding:.7rem .9rem;box-shadow:var(--shadow);animation:slidein .3s ease}
+.toast b{color:var(--amber)}
+@keyframes slidein{from{transform:translateX(30px);opacity:0}to{transform:translateX(0);opacity:1}}
+
+/* ---------- Tabs ---------- */
+.tabs{display:flex;gap:.4rem;flex-wrap:wrap;margin:1rem 0 .4rem;position:sticky;top:52px;z-index:40;background:var(--bg);padding:.4rem 0;border-bottom:1px solid var(--line)}
+.tabs button{flex:1 1 120px;background:var(--panel);border:1px solid var(--line);border-radius:9px;color:var(--muted);padding:.55rem .5rem;cursor:pointer;font-weight:700;font-size:.85rem;transition:.18s;font-family:inherit}
+.tabs button.active{border-color:var(--amber);color:var(--amber);background:var(--amber-dim)}
+.tabpane{display:none} .tabpane.active{display:block;animation:fade .3s ease}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+
+/* ---------- Footer ---------- */
+.foot{text-align:center;color:var(--muted);font-size:.82rem;border-top:1px solid var(--line);margin-top:2rem;padding:1.6rem 1rem 2.4rem}
+.foot .brandf{color:var(--amber);font-weight:700}
+.muted{color:var(--muted)} .small{font-size:.85rem} .center{text-align:center}
+
+/* ---------- Reporte imprimible (oculto en pantalla) ---------- */
+#printReport{display:none}
+
+/* ---------- Movimiento reducido ---------- */
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+/* ---------- Impresión / PDF ---------- */
+@media print{
+  body{background:#fff;color:#000;background-image:none}
+  .hud,.tabs,.toast-wrap,.hero,.container>.panel,.container>.callout,.btn,.btn-row,.skip-link,.hud-progress{display:none!important}
+  #printReport{display:block!important;max-width:100%;padding:0}
+  #printReport h1{font-size:20pt} #printReport h2{font-size:13pt;border-bottom:1px solid #999;padding-bottom:2px;margin-top:16px}
+  #printReport table{width:100%;border-collapse:collapse;font-size:9pt}
+  #printReport th,#printReport td{border:1px solid #999;padding:4px 6px;text-align:left}
+  #printReport .ok{color:#0a7a3d} #printReport .no{color:#b3261e}
+  a{color:#000}
+}
+@media(max-width:560px){.tabs{top:64px}}
+</style>
+</head>
+<body>
+<a href="#main" class="skip-link">Saltar al contenido principal</a>
+
+<!-- ================= HUD ================= -->
+<header class="hud" role="banner">
+  <div class="wrap">
+    <div class="brand">
+      <svg class="logo" viewBox="0 0 100 100" role="img" aria-label="Radar de datos IA + DATA">
+        <circle cx="50" cy="50" r="46" fill="none" stroke="#00e5ff" stroke-width="3"/>
+        <circle cx="50" cy="50" r="30" fill="none" stroke="#00e5ff" stroke-opacity=".5" stroke-width="2"/>
+        <circle cx="50" cy="50" r="14" fill="none" stroke="#00e5ff" stroke-opacity=".3" stroke-width="2"/>
+        <path d="M50 50 L50 6 A44 44 0 0 1 88 40 Z" fill="#00e5ff" fill-opacity=".28"/>
+        <circle cx="70" cy="32" r="5" fill="#ff2038"/>
+      </svg>
+      <span class="mission-name">Activa el radar de datos
+        <small>IA + DATA · Sesión 1</small>
+      </span>
+    </div>
+    <div class="stats" aria-live="polite">
+      <span class="pill xp">⭐ <span id="xpTotal">0</span> XP</span>
+      <span class="pill lvl">🔓 Niveles <span id="lvlCount">0</span>/5</span>
+      <span class="pill badge">🏅 <span id="badgeCount">0</span>/6</span>
+    </div>
+  </div>
+  <div class="hud-progress" role="progressbar" aria-label="Progreso de la misión" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="hudBar"><i id="hudBarFill"></i></div>
+</header>
+
+<main id="main" class="container" role="main">
+
+  <!-- ================= HERO ================= -->
+  <section class="hero" aria-labelledby="mainTitle">
+    <div class="eyebrow">IA + DATA 2026 · Unidad 1 · Fundamentos de Business Intelligence</div>
+    <h1 id="mainTitle"><span class="op">Activa</span> el radar de <span class="op2">datos</span></h1>
+    <div class="radar" aria-hidden="true"><div class="sweep"></div><div class="blip"></div></div>
+    <p class="lede"><strong>Sesión 1</strong> — Fundamentos, conceptos básicos y herramientas actuales del BI, y su aplicabilidad en las organizaciones.</p>
+
+    <div class="metric-row">
+      <div class="metric"><b>90 min</b><small>Duración</small></div>
+      <div class="metric"><b>5 niveles</b><small>Modelo IUTPC</small></div>
+      <div class="metric"><b>Ind./Grupal</b><small>Modalidad</small></div>
+      <div class="metric"><b>+75%</b><small>Trabajo individual</small></div>
+    </div>
+
+    <div class="briefing">
+      <span class="stamp">MISIÓN 01</span>
+      <div class="tag">▶ Briefing de misión</div>
+      <p style="margin-top:.4rem">Las organizaciones generan datos en cada interacción: ventas, usuarios, procesos y resultados.
+      Pero un <strong>dato aislado no produce valor</strong>: necesita organizarse, procesarse e interpretarse para
+      convertirse en <strong>información útil</strong> para decidir. En esta primera misión asumes el rol de
+      <strong>analista de inteligencia de negocios</strong>: explorarás los conceptos fundamentales del BI, reconocerás
+      sus herramientas actuales y analizarás cómo se aplican en situaciones reales. Supera desafíos breves, responde
+      preguntas de verificación y registra evidencias de aprendizaje.</p>
+      <span class="motiv">📡 ¿Listo/a para descubrir cómo los datos ayudan a las organizaciones a decidir mejor?</span>
+    </div>
+  </section>
+
+  <!-- ================= DATOS DE LA SESIÓN ================= -->
+  <section class="panel" aria-labelledby="datosTitle">
+    <span class="kicker">📡 Datos de la sesión</span>
+    <h2 id="datosTitle" style="margin-top:.6rem">Ficha técnica</h2>
+    <div class="tbl-wrap">
+      <table class="data"><tbody>
+        <tr><th style="width:30%">Curso</th><td>IA + DATA</td></tr>
+        <tr><th>Unidad 1</th><td>Fundamentos de Business Intelligence: introducción a la gestión y almacenamiento de datos, y fundamentos del Big Data.</td></tr>
+        <tr><th>Sesión 1</th><td>Fundamentos, conceptos básicos y definiciones del BI. Herramientas actuales y aplicabilidad en las organizaciones.</td></tr>
+        <tr><th>Logro de la unidad</th><td>El estudiante aplica los principios y fundamentos de la inteligencia de negocios, el almacenamiento y procesamiento de datos, y el Big Data para su implementación en las organizaciones.</td></tr>
+        <tr><th>Logro de la sesión</th><td><strong>Reconoce los fundamentos, conceptos básicos y principales herramientas del BI, y explica su aplicabilidad en distintos contextos organizacionales.</strong></td></tr>
+        <tr><th>Reto central</th><td>Identificar cómo el BI transforma los datos en información relevante para apoyar decisiones organizacionales.</td></tr>
+        <tr><th>Duración</th><td>90 minutos</td></tr>
+        <tr><th>Modalidad de participación</th><td>Individual o grupal · Modelo didáctico IUTPC</td></tr>
+      </tbody></table>
+    </div>
+  </section>
+
+  <!-- ================= INDICACIONES ================= -->
+  <section class="panel" aria-labelledby="comoTitle">
+    <span class="kicker">🧭 Cómo funciona la misión</span>
+    <h2 id="comoTitle" style="margin-top:.6rem">Reglas del radar</h2>
+    <div class="grid2">
+      <div class="callout"><div class="h">🎮 Avance por niveles</div><p class="small" style="margin:0">Recorres 5 niveles IUTPC. Cada uno se <strong>desbloquea</strong> al completar el anterior. Reintenta sin castigo.</p></div>
+      <div class="callout"><div class="h">⭐ XP e insignias</div><p class="small" style="margin:0">Ganas XP por responder, razonar y registrar evidencias. Cada logro otorga una insignia.</p></div>
+      <div class="callout"><div class="h">👤 Predominio individual</div><p class="small" style="margin:0">Más del 75% de los ejercicios son <strong>individuales</strong>; algunos admiten diálogo grupal.</p></div>
+      <div class="callout"><div class="h">💾 Guardado automático</div><p class="small" style="margin:0">Tus respuestas se guardan en <strong>este dispositivo</strong> (almacenamiento local). Nada se envía a servidores externos.</p></div>
+    </div>
+    <div class="oneline">
+      <div class="h">💡 En una frase</div>
+      <p style="margin:.3rem 0 0"><strong>Cada estudiante</strong> reconoce, de forma individual, qué es el BI y cómo convierte datos en decisiones,
+      respondiendo preguntas cerradas con retroalimentación inmediata. <strong>El equipo</strong> (si eliges modo grupal)
+      contrasta criterios y consolida el registro de todos sus integrantes en el reporte final.</p>
+    </div>
+  </section>
+
+  <!-- ================= REGISTRO ================= -->
+  <section class="panel amber" aria-labelledby="regTitle" id="registro">
+    <span class="kicker amber">👤 Registro de participación</span>
+    <h2 id="regTitle" style="margin-top:.6rem">Antes de iniciar la misión</h2>
+    <p class="muted small">Registra tus datos y selecciona la modalidad. Esta información se incorpora automáticamente al reporte final.
+      <strong>Privacidad:</strong> se guarda solo en tu navegador; no se transmite. Evita datos sensibles.</p>
+
+    <fieldset style="border:none;padding:0;margin:0 0 .8rem">
+      <legend class="small muted" style="margin-bottom:.4rem">Modalidad de participación</legend>
+      <div class="likert" style="max-width:360px" role="radiogroup" aria-label="Modalidad">
+        <button type="button" id="modeInd" class="sel" role="radio" aria-checked="true" onclick="setMode('individual')">👤 Individual</button>
+        <button type="button" id="modeGrp" role="radio" aria-checked="false" onclick="setMode('grupal')">👥 Grupal</button>
+      </div>
+    </fieldset>
+
+    <!-- Bloque individual -->
+    <div id="blockInd">
+      <div class="grid2">
+        <div class="field"><label for="iName">Apellidos y nombres completos *</label><input class="inp" id="iName" placeholder="Ej.: Ramírez Soto, Ana"></div>
+        <div class="field"><label for="iEmail">Correo institucional</label><input class="inp" id="iEmail" type="email" placeholder="ana.ramirez@iadata.edu.pe"></div>
+      </div>
+      <div class="callout" style="margin-top:.2rem"><p class="small" style="margin:0">🛡️ En modalidad individual, el sistema te asigna automáticamente el rol de <strong>Analista BI en formación</strong>.</p></div>
+    </div>
+
+    <!-- Bloque grupal -->
+    <div id="blockGrp" style="display:none">
+      <div class="field"><label for="gTeam">Nombre del equipo *</label><input class="inp" id="gTeam" placeholder="Ej.: Escuadrón Radar"></div>
+      <p class="small muted" style="margin:.2rem 0">Agrega a cada integrante con sus datos y rol. Todos aparecerán en el reporte final.</p>
+      <div class="member-card">
+        <div class="field"><label for="mName">Apellidos y nombres</label><input class="inp" id="mName" placeholder="Apellidos, Nombres"></div>
+        <div class="field"><label for="mEmail">Correo institucional</label><input class="inp" id="mEmail" type="email" placeholder="correo@iadata.edu.pe"></div>
+        <div class="field"><label for="mRole">Rol en el equipo</label>
+          <select class="inp" id="mRole">
+            <option>Coordinador/a de misión</option>
+            <option>Analista de datos</option>
+            <option>Investigador/a de herramientas</option>
+            <option>Relator/a estratégico/a</option>
+            <option>Verificador/a de evidencias</option>
+          </select></div>
+        <button type="button" class="btn cyan sm" onclick="addMember()">➕ Agregar</button>
+      </div>
+      <div class="roster" id="roster" aria-live="polite"></div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn" onclick="registerParticipation()">🚀 Registrar y activar radar</button>
+      <button class="btn ghost" onclick="saveProgress(true)">💾 Guardar avance</button>
+      <button class="btn ghost amber" onclick="resetProgress()">♻️ Reiniciar</button>
+      <button class="btn ghost" onclick="toggleHelp()">❓ Ayuda</button>
+    </div>
+    <div id="regMsg" class="fb" role="status"></div>
+
+    <div id="helpBox" class="callout" style="display:none;margin-top:.9rem">
+      <div class="h">❓ Ayuda rápida</div>
+      <ul class="small" style="margin:.3rem 0 0">
+        <li><strong>Registra</strong> tu participación (individual o grupal) para personalizar el reporte.</li>
+        <li>Avanza <strong>nivel por nivel</strong>; cada uno se desbloquea al completar el anterior.</li>
+        <li>Responde las <strong>preguntas cerradas</strong>: recibirás retroalimentación inmediata con el fundamento.</li>
+        <li>Al final, genera el <strong>reporte PDF</strong> o exporta el <strong>registro en Markdown</strong>.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ================= RASTREADOR ================= -->
+  <section class="panel" aria-labelledby="trackTitle">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem">
+      <span class="kicker">🛰️ Rastreador de la misión</span>
+      <span class="small muted">Progreso: <strong id="progPct" style="color:var(--amber)">0%</strong></span>
+    </div>
+    <div class="tracker" id="tracker">
+      <div class="tstep" data-step="1"><div class="n">1</div><small>Inicio</small></div>
+      <div class="tstep" data-step="2"><div class="n">2</div><small>Utilidad</small></div>
+      <div class="tstep" data-step="3"><div class="n">3</div><small>Transform.</small></div>
+      <div class="tstep" data-step="4"><div class="n">4</div><small>Práctica</small></div>
+      <div class="tstep" data-step="5"><div class="n">5</div><small>Cierre</small></div>
+    </div>
+  </section>
+
+  <!-- ================= TABS ================= -->
+  <nav class="tabs" id="tabs" role="tablist" aria-label="Secciones">
+    <button role="tab" class="active" data-tab="niveles" aria-selected="true">🎮 Niveles IUTPC</button>
+    <button role="tab" data-tab="insignias" aria-selected="false">🏅 Insignias</button>
+    <button role="tab" data-tab="rubrica" aria-selected="false">📊 Evaluación</button>
+    <button role="tab" data-tab="ia" aria-selected="false">🤖 Uso de IA</button>
+    <button role="tab" data-tab="informe" aria-selected="false">📄 Reporte</button>
+  </nav>
+
+  <!-- ============================================================ NIVELES ============================================================ -->
+  <div class="tabpane active" id="pane-niveles" role="tabpanel">
+
+  <!-- ===== NIVEL 1 · INICIO ===== -->
+  <section class="panel alert" id="n1" aria-labelledby="n1t">
+    <span class="kicker alert">🔴 Nivel 1 · Inicio · 12 min</span>
+    <p class="phase">Fase I · Activación y desafío</p>
+    <h2 id="n1t">Señal en el radar <span class="mode-chip ind">👤 Individual</span></h2>
+    <p class="aim">▶ Objetivo: activar tus saberes previos y distinguir dato de información.</p>
+
+    <div class="callout alert">
+      <div class="h">🛰️ Escena de apertura</div>
+      <p class="small">Una cadena de tiendas registra miles de ventas por día, pero la gerencia dice: <em>“tenemos muchísimos datos
+      y aun así no sabemos qué decidir”</em>. En el radar aparecen números dispersos que nadie interpreta.</p>
+      <label for="n1open"><strong>¿Por qué crees que tener muchos datos no basta para decidir?</strong> Escribe tu primera hipótesis:</label>
+      <textarea class="inp" id="n1open" placeholder="Creo que no basta porque…"></textarea>
+    </div>
+
+    <!-- Pregunta cerrada 1 (MC conceptual) -->
+    <div class="cq" data-qid="n1q1" data-label="Dato vs información (conceptual)">
+      <p class="q"><b>1.</b> ¿Cuál de estas afirmaciones describe mejor la diferencia entre <b>dato</b> e <b>información</b>?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1" onclick="answerCQ(this)">El dato es un registro en bruto; la información es ese dato organizado e interpretado para decidir</button>
+        <button class="opt" onclick="answerCQ(this)">Dato e información son sinónimos exactos</button>
+        <button class="opt" onclick="answerCQ(this)">La información es más pequeña que el dato</button>
+      </div>
+      <div class="cq-fb" data-fund="Un dato aislado (ej. “120 unidades”) no dice nada hasta que se organiza y contextualiza (“ventas del producto X esta semana”): ahí se vuelve información útil."></div>
+    </div>
+
+    <!-- Pregunta cerrada 2 (V/F aplicada) -->
+    <div class="cq" data-qid="n1q2" data-label="Un dato aislado ya es información (V/F)">
+      <p class="q"><b>2.</b> Verdadero o falso: <em>“Un dato aislado ya constituye información útil para la toma de decisiones.”</em></p>
+      <div class="opts row">
+        <button class="opt" onclick="answerCQ(this)">Verdadero</button>
+        <button class="opt" data-correct="1" onclick="answerCQ(this)">Falso</button>
+      </div>
+      <div class="cq-fb" data-fund="Es falso: el dato necesita organizarse, procesarse e interpretarse para convertirse en información que apoye una decisión."></div>
+    </div>
+
+    <div class="callout">
+      <div class="h">📶 Autopercepción inicial</div>
+      <p class="small" style="margin:.2rem 0">¿Qué tanto dominas hoy los fundamentos del BI? (1 = nada · 5 = mucho)</p>
+      <div class="likert" id="n1conf" role="radiogroup" aria-label="Confianza inicial de 1 a 5">
+        <button type="button" onclick="setLikert('n1conf',1,this)" aria-label="1">1</button>
+        <button type="button" onclick="setLikert('n1conf',2,this)" aria-label="2">2</button>
+        <button type="button" onclick="setLikert('n1conf',3,this)" aria-label="3">3</button>
+        <button type="button" onclick="setLikert('n1conf',4,this)" aria-label="4">4</button>
+        <button type="button" onclick="setLikert('n1conf',5,this)" aria-label="5">5</button>
+      </div>
+    </div>
+
+    <div class="btn-row"><button class="btn" onclick="completeLevel(1)">✅ Completar Nivel 1</button></div>
+    <div class="fb" id="n1fb" role="status" aria-live="polite"></div>
+
+    <div class="interp"><strong>📋 Interpretación docente:</strong> la hipótesis abierta revela la teoría intuitiva del estudiante
+      sobre el valor del dato; las dos preguntas cerradas verifican si distingue dato de información. La escala fija una línea base de confianza.</p>
+
+    <div class="evi">
+      <div class="h">📎 Evidencia sugerida</div>
+      <p class="small" style="margin:.1rem 0">Archivo <code>n1-dato-vs-informacion.md</code> con tu hipótesis y un ejemplo propio de dato que se convierte en información.</p>
+      <label class="check"><input type="checkbox" data-evi="e1" onchange="checkEvidence(this)"> Registré esta evidencia (+20 XP)</label>
+    </div>
+  </section>
+
+  <!-- ===== NIVEL 2 · UTILIDAD ===== -->
+  <section class="panel locked" id="n2" aria-labelledby="n2t">
+    <div class="lockmsg" id="lock2"><span><span class="big">🔒</span>Completa el <strong>Nivel 1</strong> para desbloquear la Utilidad.</span></div>
+    <span class="kicker amber">🟡 Nivel 2 · Utilidad · 16 min</span>
+    <p class="phase">Fase U · Conectar y contextualizar</p>
+    <h2 id="n2t">¿Para qué sirve el BI? <span class="mode-chip ind">👤 Individual</span> <span class="mode-chip grp">👥 Diálogo opcional</span></h2>
+    <p class="aim">▶ Objetivo: vincular el BI con su utilidad real en las organizaciones.</p>
+
+    <div class="callout">
+      <div class="h">🧠 Rutina: Antes pensaba / Ahora pienso</div>
+      <div class="grid2">
+        <div class="field"><label for="kwlBefore">Antes de esta sesión pensaba que el BI era…</label><textarea class="inp" id="kwlBefore" placeholder="Antes pensaba…"></textarea></div>
+        <div class="field"><label for="kwlNeed">Lo que necesito entender mejor es…</label><textarea class="inp" id="kwlNeed" placeholder="Necesito entender…"></textarea></div>
+      </div>
+      <div class="field"><label for="kwlAfter">Ahora pienso que el BI… <em>(se desbloquea en el Nivel 5)</em></label><textarea class="inp" id="kwlAfter" placeholder="Disponible tras el Nivel 5…" disabled></textarea></div>
+    </div>
+
+    <!-- CQ: utilidad del BI -->
+    <div class="cq" data-qid="n2q1" data-label="Utilidad del BI (conceptual)">
+      <p class="q"><b>1.</b> ¿Para qué sirve principalmente el Business Intelligence en una organización?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1" onclick="answerCQ(this)">Convertir datos en información y conocimiento para apoyar decisiones</button>
+        <button class="opt" onclick="answerCQ(this)">Reemplazar por completo a las personas que deciden</button>
+        <button class="opt" onclick="answerCQ(this)">Almacenar archivos sin analizarlos</button>
+      </div>
+      <div class="cq-fb" data-fund="El BI organiza, procesa y visualiza datos para que las personas decidan mejor y más rápido; apoya la decisión, no la sustituye."></div>
+    </div>
+
+    <!-- Asociación de conceptos: área ↔ decisión que apoya el BI -->
+    <div class="callout amber">
+      <div class="h">🔗 Asociación · ¿Qué decisión apoya el BI en cada área? <span class="mode-chip ind">👤</span></div>
+      <p class="small">Para cada área de negocio, elige la decisión típica que el BI ayuda a tomar.</p>
+      <div id="assocN2">
+        <div class="assoc-row"><span class="term">Ventas</span>
+          <select class="inp assoc-sel" data-ok="a"><option value="">Elige…</option>
+            <option value="a">Detectar productos más y menos vendidos</option>
+            <option value="b">Programar el mantenimiento de los equipos</option>
+            <option value="c">Definir el color del logotipo</option></select></div>
+        <div class="assoc-row"><span class="term">Marketing</span>
+          <select class="inp assoc-sel" data-ok="b"><option value="">Elige…</option>
+            <option value="a">Calcular el stock de almacén</option>
+            <option value="b">Medir qué campañas atraen más clientes</option>
+            <option value="c">Contratar personal de limpieza</option></select></div>
+        <div class="assoc-row"><span class="term">Operaciones / Logística</span>
+          <select class="inp assoc-sel" data-ok="c"><option value="">Elige…</option>
+            <option value="a">Elegir el nombre de la empresa</option>
+            <option value="b">Diseñar el afiche publicitario</option>
+            <option value="c">Optimizar tiempos de entrega y rutas</option></select></div>
+      </div>
+      <div class="btn-row"><button class="btn cyan sm" onclick="checkAssoc('assocN2','n2assocFb','asociacionN2','Asociación área↔decisión')">Comprobar asociación</button></div>
+      <div class="fb" id="n2assocFb" role="status" aria-live="polite"></div>
+    </div>
+
+    <div class="btn-row"><button class="btn" onclick="completeLevel(2)">✅ Completar Nivel 2</button></div>
+    <div class="fb" id="n2fb" role="status" aria-live="polite"></div>
+
+    <div class="interp"><strong>📋 Interpretación docente:</strong> la rutina “antes pensaba” explicita ideas previas; la asociación
+      área↔decisión evidencia si el estudiante conecta el BI con utilidad concreta y no con una idea vaga de “tecnología”.</p>
+
+    <div class="evi">
+      <div class="h">📎 Evidencia sugerida</div>
+      <p class="small" style="margin:.1rem 0">Archivo <code>n2-utilidad-bi.md</code> con tu “antes pensaba” y un ejemplo de decisión apoyada por BI en un área que conozcas.</p>
+      <label class="check"><input type="checkbox" data-evi="e2" onchange="checkEvidence(this)"> Registré esta evidencia (+20 XP)</label>
+    </div>
+  </section>
+
+  <!-- ===== NIVEL 3 · TRANSFORMACIÓN ===== -->
+  <section class="panel locked" id="n3" aria-labelledby="n3t">
+    <div class="lockmsg" id="lock3"><span><span class="big">🔒</span>Completa el <strong>Nivel 2</strong> para entrar al análisis.</span></div>
+    <span class="kicker cyan" style="background:var(--cyan);color:#04121a">🟠 Nivel 3 · Transformación · 34 min</span>
+    <p class="phase">Fase T · Construcción conceptual</p>
+    <h2 id="n3t">Del dato a la decisión <span class="mode-chip ind">👤 Individual</span></h2>
+    <p class="aim">▶ Objetivo: construir los conceptos base del BI y el recorrido dato → información → conocimiento → decisión.</p>
+
+    <!-- Asociación: concepto ↔ definición -->
+    <div class="callout">
+      <div class="h">🔗 Micro-actividad 1 · Asocia cada concepto con su definición</div>
+      <div id="assocN3">
+        <div class="assoc-row"><span class="term">Dato</span>
+          <select class="inp assoc-sel" data-ok="a"><option value="">Elige…</option>
+            <option value="a">Registro en bruto, sin procesar (un número, un nombre)</option>
+            <option value="b">Tablero visual con indicadores</option>
+            <option value="c">Métrica clave que mide un objetivo</option></select></div>
+        <div class="assoc-row"><span class="term">Información</span>
+          <select class="inp assoc-sel" data-ok="b"><option value="">Elige…</option>
+            <option value="a">Dato sin contexto</option>
+            <option value="b">Datos organizados e interpretados con significado</option>
+            <option value="c">Programa de computadora</option></select></div>
+        <div class="assoc-row"><span class="term">KPI</span>
+          <select class="inp assoc-sel" data-ok="c"><option value="">Elige…</option>
+            <option value="a">Archivo de respaldo</option>
+            <option value="b">Copia de seguridad</option>
+            <option value="c">Indicador clave que mide el avance de un objetivo</option></select></div>
+        <div class="assoc-row"><span class="term">Dashboard</span>
+          <select class="inp assoc-sel" data-ok="d"><option value="">Elige…</option>
+            <option value="d">Tablero visual que reúne indicadores para decidir de un vistazo</option>
+            <option value="a">Un dato aislado</option>
+            <option value="b">Una hoja en blanco</option></select></div>
+      </div>
+      <div class="btn-row"><button class="btn cyan sm" onclick="checkAssoc('assocN3','n3assocFb','asociacionN3','Asociación concepto↔definición')">Comprobar</button></div>
+      <div class="fb" id="n3assocFb" role="status" aria-live="polite"></div>
+    </div>
+
+    <!-- Clasificación de casos: Dato vs Información -->
+    <div class="callout amber">
+      <div class="h">🗂️ Micro-actividad 2 · Clasifica: ¿Dato o Información?</div>
+      <p class="small">Arrastra cada ficha a su columna — o, en móvil, <strong>toca la ficha y luego la columna</strong>.</p>
+      <div class="pool" id="dndPool"></div>
+      <div class="bins">
+        <div class="bin" data-bin="dato" ondragover="dndOver(event)" ondragleave="dndLeave(event)" ondrop="dndDrop(event)" onclick="dndTapBin('dato')"><h5>🔢 Dato</h5><div class="dropped" id="bindato"></div></div>
+        <div class="bin" data-bin="info" ondragover="dndOver(event)" ondragleave="dndLeave(event)" ondrop="dndDrop(event)" onclick="dndTapBin('info')"><h5>💡 Información</h5><div class="dropped" id="bininfo"></div></div>
+      </div>
+      <div class="btn-row"><button class="btn cyan sm" onclick="checkDnd()">Comprobar clasificación</button></div>
+      <div class="fb" id="dndFb" role="status" aria-live="polite"></div>
+    </div>
+
+    <!-- V/F razonado -->
+    <div class="cq" data-qid="n3q1" data-label="Ciclo dato→decisión (V/F)">
+      <p class="q"><b>3.</b> Verdadero o falso: <em>“El BI sigue un recorrido: datos → información → conocimiento → decisión.”</em></p>
+      <div class="opts row">
+        <button class="opt" data-correct="1" onclick="answerCQ(this)">Verdadero</button>
+        <button class="opt" onclick="answerCQ(this)">Falso</button>
+      </div>
+      <div class="cq-fb" data-fund="Verdadero: el BI transforma progresivamente el dato en información, esta en conocimiento y este sustenta la decisión organizacional."></div>
+    </div>
+
+    <!-- MC caso -->
+    <div class="cq" data-qid="n3q2" data-label="Caso aplicado (MC)">
+      <p class="q"><b>4.</b> Una clínica quiere reducir el tiempo de espera de sus pacientes. ¿Qué convierte sus datos en <b>información para decidir</b>?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1" onclick="answerCQ(this)">Un tablero que muestra el tiempo promedio de espera por hora y por área</button>
+        <button class="opt" onclick="answerCQ(this)">Una carpeta con todos los registros sin ordenar</button>
+        <button class="opt" onclick="answerCQ(this)">Guardar los datos y no analizarlos</button>
+      </div>
+      <div class="cq-fb" data-fund="Organizar los datos en un indicador visual (tiempo promedio por hora/área) revela dónde actuar: eso es BI aplicado a una decisión."></div>
+    </div>
+
+    <!-- Cierre 3 miradas -->
+    <div class="callout">
+      <div class="h">🔐 Cierre del Nivel 3 — tres miradas</div>
+      <div class="field"><label for="n3c1">Conceptual: ¿qué diferencia hay entre información y conocimiento?</label><textarea class="inp" id="n3c1" placeholder="La información… y el conocimiento…"></textarea></div>
+      <div class="field"><label for="n3c2">Aplicada: menciona un KPI útil para una tienda de ropa.</label><input class="inp" id="n3c2" placeholder="Ej.: ticket promedio, rotación de inventario…"></div>
+      <div class="field"><label for="n3c3">Metacognitiva: ¿qué idea tuya cambió en este nivel?</label><textarea class="inp" id="n3c3" placeholder="Antes pensaba… ahora pienso…"></textarea></div>
+    </div>
+
+    <div class="btn-row"><button class="btn" onclick="completeLevel(3)">✅ Completar Nivel 3</button></div>
+    <div class="fb" id="n3fb" role="status" aria-live="polite"></div>
+
+    <div class="interp"><strong>📋 Interpretación docente:</strong> asociación y clasificación evidencian el dominio conceptual base
+      (dato, información, KPI, dashboard); el caso y la pregunta metacognitiva muestran la transformación del concepto en comprensión aplicable.</p>
+
+    <div class="evi">
+      <div class="h">📎 Evidencia sugerida</div>
+      <p class="small" style="margin:.1rem 0">Archivo <code>n3-conceptos-bi.md</code> con las definiciones asociadas, tu clasificación y las respuestas de cierre.</p>
+      <label class="check"><input type="checkbox" data-evi="e3" onchange="checkEvidence(this)"> Registré esta evidencia (+20 XP)</label>
+    </div>
+  </section>
+
+  <!-- ===== NIVEL 4 · PRÁCTICA ===== -->
+  <section class="panel locked" id="n4" aria-labelledby="n4t">
+    <div class="lockmsg" id="lock4"><span><span class="big">🔒</span>Completa el <strong>Nivel 3</strong> para pasar a la práctica.</span></div>
+    <span class="kicker green">🟢 Nivel 4 · Práctica · 18 min</span>
+    <p class="phase">Fase P · Aplicación de herramientas</p>
+    <h2 id="n4t">Selecciona tu herramienta <span class="mode-chip ind">👤 Individual</span></h2>
+    <p class="aim">▶ Objetivo: reconocer herramientas actuales de BI y su aplicabilidad según el contexto organizacional.</p>
+
+    <div class="callout">
+      <div class="h">🧰 Arsenal de herramientas actuales de BI</div>
+      <div class="tbl-wrap">
+        <table class="data"><thead><tr><th>Herramienta</th><th>Uso predominante</th><th>Ventaja inicial</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Power BI</strong></td><td>Reportes empresariales</td><td>Integración con Excel y Microsoft 365</td></tr>
+          <tr><td><strong>Tableau</strong></td><td>Visualización avanzada</td><td>Exploración gráfica potente</td></tr>
+          <tr><td><strong>Looker Studio</strong></td><td>Marketing digital</td><td>Gratuito y conectado a Google</td></tr>
+          <tr><td><strong>Qlik Sense</strong></td><td>Analítica asociativa</td><td>Relaciones entre datos</td></tr>
+          <tr><td><strong>Excel / Power Query</strong></td><td>Análisis inicial</td><td>Familiaridad y disponibilidad</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+
+    <!-- Asociación herramienta ↔ escenario -->
+    <div class="callout amber">
+      <div class="h">🔗 Asocia la herramienta al escenario</div>
+      <div id="assocN4">
+        <div class="assoc-row"><span class="term">MYPE que solo maneja Excel y tiene presupuesto limitado</span>
+          <select class="inp assoc-sel" data-ok="a"><option value="">Elige…</option>
+            <option value="a">Power BI o Excel/Power Query</option>
+            <option value="b">Qlik Sense Enterprise</option>
+            <option value="c">Ninguna, mejor a mano</option></select></div>
+        <div class="assoc-row"><span class="term">Startup con datos en Google y sin presupuesto</span>
+          <select class="inp assoc-sel" data-ok="b"><option value="">Elige…</option>
+            <option value="a">Tableau Enterprise</option>
+            <option value="b">Looker Studio</option>
+            <option value="c">Un ERP de $50 000</option></select></div>
+        <div class="assoc-row"><span class="term">Empresa que necesita visualizaciones exploratorias avanzadas</span>
+          <select class="inp assoc-sel" data-ok="c"><option value="">Elige…</option>
+            <option value="a">Bloc de notas</option>
+            <option value="b">Solo correo electrónico</option>
+            <option value="c">Tableau</option></select></div>
+      </div>
+      <div class="btn-row"><button class="btn cyan sm" onclick="checkAssoc('assocN4','n4assocFb','asociacionN4','Asociación herramienta↔escenario')">Comprobar</button></div>
+      <div class="fb" id="n4assocFb" role="status" aria-live="polite"></div>
+    </div>
+
+    <!-- MC aplicabilidad -->
+    <div class="cq" data-qid="n4q1" data-label="Criterio de selección (MC)">
+      <p class="q"><b>5.</b> ¿Cuál es el criterio MÁS adecuado para elegir una herramienta de BI?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1" onclick="answerCQ(this)">Su ajuste al contexto: necesidad, datos, presupuesto y capacidad del equipo</button>
+        <button class="opt" onclick="answerCQ(this)">Que sea la más cara del mercado</button>
+        <button class="opt" onclick="answerCQ(this)">Que sea la más popular en redes sociales</button>
+      </div>
+      <div class="cq-fb" data-fund="No existe herramienta “perfecta”: la mejor es la que se adapta al contexto organizacional (necesidad, fuentes de datos, presupuesto y capacidades)."></div>
+    </div>
+
+    <!-- Ficha individual -->
+    <div class="callout">
+      <div class="h">🗒️ Ficha individual · Recomienda una herramienta</div>
+      <div class="field"><label for="p_org">Organización y sector (elige o describe un caso)</label><input class="inp" id="p_org" placeholder="Ej.: Minimarket de barrio · retail"></div>
+      <div class="field"><label for="p_need">Necesidad / decisión a apoyar</label><textarea class="inp" id="p_need" placeholder="Necesita monitorear ventas diarias e inventario para…"></textarea></div>
+      <div class="field"><label for="p_tool">Herramienta recomendada</label>
+        <select class="inp" id="p_tool"><option value="">Selecciona…</option><option>Power BI</option><option>Tableau</option><option>Looker Studio</option><option>Qlik Sense</option><option>Excel / Power Query</option></select></div>
+      <div class="field"><label for="p_just">Justificación (al menos 2 criterios: costo, integración, facilidad…)</label><textarea class="inp" id="p_just" placeholder="La recomiendo porque… y porque…"></textarea></div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn" onclick="completeLevel(4)">✅ Completar Nivel 4</button>
+      <button class="btn ghost" onclick="copyText(buildEvidenceMd(),'Ficha copiada en Markdown ✅')">📋 Copiar ficha (.md)</button>
+    </div>
+    <div class="fb" id="n4fb" role="status" aria-live="polite"></div>
+
+    <div class="interp"><strong>📋 Interpretación docente:</strong> la asociación y la ficha evidencian si el estudiante relaciona
+      herramienta con contexto (aplicabilidad), superando la idea de que “la más cara/popular es la mejor”.</p>
+
+    <div class="evi">
+      <div class="h">📎 Evidencia sugerida</div>
+      <p class="small" style="margin:.1rem 0">Archivo <code>n4-recomendacion-herramienta.md</code> con tu ficha completa.</p>
+      <label class="check"><input type="checkbox" data-evi="e4" onchange="checkEvidence(this)"> Registré esta evidencia (+20 XP)</label>
+    </div>
+  </section>
+
+  <!-- ===== NIVEL 5 · CIERRE ===== -->
+  <section class="panel locked" id="n5" aria-labelledby="n5t">
+    <div class="lockmsg" id="lock5"><span><span class="big">🔒</span>Completa el <strong>Nivel 4</strong> para el cierre.</span></div>
+    <span class="kicker violet">🔵 Nivel 5 · Cierre · 10 min</span>
+    <p class="phase">Fase C · Reflexión y transferencia</p>
+    <h2 id="n5t">Informe al radar <span class="mode-chip ind">👤 Individual</span></h2>
+    <p class="aim">▶ Objetivo: consolidar, reflexionar y proyectar la transferencia del aprendizaje.</p>
+
+    <div class="callout amber">
+      <div class="h">🌟 Se desbloquea: “Ahora pienso…” (rutina del Nivel 2)</div>
+      <div class="field"><label for="kwlAfter2">Ahora pienso que el BI…</label><textarea class="inp" id="kwlAfter2" placeholder="Ahora sé que el BI…"></textarea></div>
+    </div>
+
+    <div class="callout">
+      <div class="h">📶 Autoevaluación y reflexión</div>
+      <p class="small">Vuelve a medir tu confianza en los fundamentos del BI (1–5):</p>
+      <div class="likert" id="n5conf" role="radiogroup" aria-label="Confianza final de 1 a 5">
+        <button type="button" onclick="setLikert('n5conf',1,this)" aria-label="1">1</button>
+        <button type="button" onclick="setLikert('n5conf',2,this)" aria-label="2">2</button>
+        <button type="button" onclick="setLikert('n5conf',3,this)" aria-label="3">3</button>
+        <button type="button" onclick="setLikert('n5conf',4,this)" aria-label="4">4</button>
+        <button type="button" onclick="setLikert('n5conf',5,this)" aria-label="5">5</button>
+      </div>
+      <div class="field" style="margin-top:.7rem"><label for="n5transfer">Transferencia: ¿dónde y cómo aplicarías el BI fuera del aula?</label><textarea class="inp" id="n5transfer" placeholder="Lo aplicaría en… por ejemplo…"></textarea></div>
+      <div class="field"><label for="n5synth">Síntesis: los 3 conceptos clave que me llevo</label><input class="inp" id="n5synth" placeholder="Ej.: dato, información, KPI"></div>
+    </div>
+
+    <div class="btn-row"><button class="btn" onclick="completeLevel(5)">🏁 Completar Nivel 5 y cerrar misión</button></div>
+    <div class="fb" id="n5fb" role="status" aria-live="polite"></div>
+
+    <!-- Misión completada -->
+    <div id="finalPanel" class="callout amber" style="display:none;text-align:center;margin-top:1rem">
+      <div style="font-size:2.6rem">🏆</div>
+      <h3 style="margin:.2rem 0">Misión completada, <span id="finalName">Analista</span></h3>
+      <p class="small muted">Has explorado los principios esenciales del BI y reconocido cómo las organizaciones usan datos, procesos y
+        herramientas para decidir mejor. Verifica que tus respuestas estén completas y que todos los integrantes estén registrados;
+        luego genera el reporte en PDF o expórtalo en Markdown.</p>
+      <div class="metric-row">
+        <div class="metric"><b id="finalXP">0</b><small>XP total</small></div>
+        <div class="metric"><b id="finalBadges">0/6</b><small>Insignias</small></div>
+        <div class="metric"><b id="finalPct">0%</b><small>Progreso</small></div>
+      </div>
+      <div class="callout" style="text-align:left;margin-top:.8rem">
+        <div class="h">🛰️ Próxima misión</div>
+        <p class="small" style="margin:0">Si las organizaciones necesitan datos para generar inteligencia,
+          <strong>¿dónde se almacenan, cómo se organizan y qué ocurre cuando su volumen crece de forma masiva?</strong>
+          Eso exploraremos en la Sesión 2: almacenamiento de datos y fundamentos del Big Data.</p>
+      </div>
+      <div class="btn-row" style="justify-content:center"><button class="btn" onclick="goTab('informe')">📄 Ir al reporte</button></div>
+    </div>
+
+    <div class="interp"><strong>📋 Interpretación docente:</strong> comparar la confianza inicial (N1) con la final (N5) da un
+      indicador de autoeficacia; la transferencia y la síntesis muestran si el aprendizaje se proyecta a contextos reales.</p>
+  </section>
+
+  </div><!-- /pane-niveles -->
+
+  <!-- ============================================================ INSIGNIAS ============================================================ -->
+  <div class="tabpane" id="pane-insignias" role="tabpanel">
+    <section class="panel amber">
+      <span class="kicker amber">🏅 Sala de insignias</span>
+      <h2 style="margin-top:.6rem">Tu progreso, sin rankings</h2>
+      <p class="muted small">No compites contra nadie: cada insignia reconoce un logro. Se desbloquean al avanzar.</p>
+      <div class="badges" id="badgeGrid">
+        <div class="badge-item" data-badge="detector"><div class="ico">📡</div><b>Detector de datos</b><small>Completar el reto inicial (N1)</small></div>
+        <div class="badge-item" data-badge="traductor"><div class="ico">🎯</div><b>Traductor de valor</b><small>Conectar el BI con su utilidad (N2)</small></div>
+        <div class="badge-item" data-badge="analista"><div class="ico">🔬</div><b>Analista conceptual</b><small>Dominar los conceptos base (N3)</small></div>
+        <div class="badge-item" data-badge="selector"><div class="ico">🧰</div><b>Selector de herramientas</b><small>Aplicar herramientas de BI (N4)</small></div>
+        <div class="badge-item" data-badge="estratega"><div class="ico">🧭</div><b>Estratega de decisiones</b><small>Cerrar la misión (N5)</small></div>
+        <div class="badge-item" data-badge="guardian"><div class="ico">🗄️</div><b>Guardián de evidencias</b><small>Generar el reporte final</small></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ============================================================ RÚBRICA ============================================================ -->
+  <div class="tabpane" id="pane-rubrica" role="tabpanel">
+    <section class="panel">
+      <span class="kicker">📊 Evaluación formativa</span>
+      <h2 style="margin-top:.6rem">Rúbrica de desempeño</h2>
+      <div class="tbl-wrap">
+        <table class="data rubric">
+          <thead><tr><th>Criterio</th><th>Logrado</th><th>En proceso</th><th>Inicial</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Comprensión conceptual</strong></td><td>Explica y relaciona dato, información, conocimiento y KPI</td><td>Reconoce los conceptos con imprecisiones</td><td>Confunde dato con información</td></tr>
+            <tr><td><strong>Aplicación al contexto</strong></td><td>Vincula el BI y las herramientas con casos organizacionales</td><td>Aplica parcialmente</td><td>No relaciona teoría y caso</td></tr>
+            <tr><td><strong>Participación</strong></td><td>Responde con constancia y registra evidencias</td><td>Participación irregular</td><td>Escasa participación</td></tr>
+            <tr><td><strong>Comunicación y evidencia</strong></td><td>Registro y reporte completos y ordenados</td><td>Evidencia parcial</td><td>Evidencia incompleta</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout" style="margin-top:1rem"><div class="h">📝 Autoevaluación (1 = bajo · 5 = alto)</div><div id="selfEval"></div></div>
+      <div class="interp"><strong>📋 Qué evidencia cada nivel:</strong>
+        <ul class="small" style="margin:.3rem 0 0">
+          <li><strong>N1</strong> · distinción dato/información y línea base de confianza.</li>
+          <li><strong>N2</strong> · conexión del BI con utilidad concreta.</li>
+          <li><strong>N3</strong> · dominio conceptual y recorrido dato→decisión.</li>
+          <li><strong>N4</strong> · aplicabilidad de herramientas según contexto.</li>
+          <li><strong>N5</strong> · autorregulación y transferencia.</li>
+        </ul>
+        La retroalimentación es <strong>inmediata y no punitiva</strong>: cada respuesta explica su fundamento y se puede reintentar.</p>
+    </section>
+  </div>
+
+  <!-- ============================================================ IA ============================================================ -->
+  <div class="tabpane" id="pane-ia" role="tabpanel">
+    <section class="panel violet">
+      <span class="kicker violet">🤖 Uso responsable de inteligencia artificial</span>
+      <h2 style="margin-top:.6rem">Ética del analista de datos</h2>
+      <ul class="small">
+        <li>La IA es <strong>apoyo</strong>, no sustituye tu razonamiento ni el criterio para interpretar datos.</li>
+        <li><strong>Verifica, adapta y cita</strong> toda información o análisis generado con IA.</li>
+        <li><strong>No ingreses</strong> datos personales, sensibles o confidenciales de personas u organizaciones.</li>
+        <li>En inteligencia de negocios, usar IA con transparencia protege la <strong>confianza</strong> y evita decisiones basadas en sesgos.</li>
+      </ul>
+      <div class="callout"><div class="h">🧾 Declaración de uso de IA (editable)</div>
+        <div class="field"><label for="ia_tool">Herramienta utilizada</label><input class="inp" id="ia_tool" placeholder="Ej.: asistente de IA / ninguna"></div>
+        <div class="field"><label for="ia_prompt">Prompt empleado</label><textarea class="inp" id="ia_prompt" placeholder="Copia aquí el prompt…"></textarea></div>
+        <div class="field"><label for="ia_review">¿Qué revisaste, corregiste o ampliaste tú?</label><textarea class="inp" id="ia_review" placeholder="Yo verifiqué… corregí… añadí…"></textarea></div>
+        <div class="btn-row"><button class="btn" style="background:var(--violet);color:#fff" onclick="completeIA()">✅ Registrar declaración</button></div>
+        <div class="fb" id="iaFb" role="status" aria-live="polite"></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ============================================================ REPORTE ============================================================ -->
+  <div class="tabpane" id="pane-informe" role="tabpanel">
+    <section class="panel green">
+      <span class="kicker green">📄 Reporte de la actividad</span>
+      <h2 style="margin-top:.6rem">Genera tu evidencia final</h2>
+      <p class="muted small">Reúne datos de participantes, modalidad, roles, respuestas, resultados, retroalimentación, XP e insignias.</p>
+      <div class="btn-row">
+        <button class="btn solid" onclick="generatePDF()">🖨️ Generar reporte PDF</button>
+        <button class="btn ghost amber" onclick="downloadFile('sesion-01-activa-el-radar-de-datos.md', buildReportMd())">⬇️ Exportar registro en Markdown</button>
+        <button class="btn ghost" onclick="refreshReport()">🔄 Actualizar vista previa</button>
+        <button class="btn ghost" onclick="copyText(document.getElementById('reportOut').value,'Reporte copiado ✅')">📋 Copiar</button>
+      </div>
+      <label for="reportOut" style="margin-top:.8rem">Vista previa (Markdown)</label>
+      <textarea class="inp" id="reportOut" style="min-height:320px;font-family:ui-monospace,Consolas,monospace;font-size:.82rem" aria-label="Reporte en Markdown" readonly></textarea>
+      <p class="small muted" style="margin-top:.5rem">💡 “Generar reporte PDF” abre el diálogo de impresión de tu navegador: elige <strong>Guardar como PDF</strong>. El reporte incluye la lista completa de participantes.</p>
+    </section>
+  </div>
+
+</main>
+
+<!-- Reporte imprimible (se muestra solo al imprimir / PDF) -->
+<div id="printReport" aria-hidden="true"></div>
+
+<!-- ================= FOOTER ================= -->
+<footer class="foot" role="contentinfo">
+  <p><strong class="brandf">Mg. Mario Quiroz Martínez · IA + DATA 2026</strong></p>
+  <p>Unidad 1: Fundamentos de Business Intelligence</p>
+  <p class="small">Modelo IUTPC · Actividad gamificada · Recurso autocontenido, sin recolección de datos en servidores externos.</p>
+</footer>
+
+<div class="toast-wrap" id="toasts" aria-live="polite" aria-atomic="false"></div>
+
+<script>
+/* ============================================================
+   ESTADO — persistencia localStorage con respaldo en memoria
+   ============================================================ */
+const STORE_KEY='iadata_radar_s1_v1';
+let mem={};
+const store={
+  get(){ try{const r=localStorage.getItem(STORE_KEY);return r?JSON.parse(r):null;}catch(e){return mem[STORE_KEY]||null;} },
+  set(o){ try{localStorage.setItem(STORE_KEY,JSON.stringify(o));}catch(e){mem[STORE_KEY]=o;} },
+  clear(){ try{localStorage.removeItem(STORE_KEY);}catch(e){} mem={}; }
+};
+
+const XP={registro:20, nivel:[0,90,90,150,120,100], evidencia:20, cq:20, assoc:40, dnd:40, ia:60};
+let state={
+  reg:{mode:'individual', teamName:'', participants:[]},
+  xp:0,
+  levels:{1:false,2:false,3:false,4:false,5:false},
+  badges:{detector:false,traductor:false,analista:false,selector:false,estratega:false,guardian:false},
+  evidence:{e1:false,e2:false,e3:false,e4:false},
+  answers:{},            // qid -> {label, chosen, ok, fund}
+  assoc:{},              // groupKey -> {label, ok:bool}
+  dndDone:false,
+  fields:{}, likert:{}, self:{}
+};
+
+const $=id=>document.getElementById(id);
+function toast(m){const t=document.createElement('div');t.className='toast';t.innerHTML=m;$('toasts').appendChild(t);setTimeout(()=>t.remove(),4200);}
+function addXP(n,why){ if(n<=0)return; state.xp+=n; $('xpTotal').textContent=state.xp; toast('⭐ <b>+'+n+' XP</b>'+(why?' · '+why:'')); saveProgress(false); }
+
+function refreshProgress(){
+  const done=Object.values(state.levels).filter(Boolean).length;
+  const pct=Math.round(done/5*100);
+  $('lvlCount').textContent=done; $('progPct').textContent=pct+'%';
+  $('hudBarFill').style.width=pct+'%'; $('hudBar').setAttribute('aria-valuenow',pct);
+  $('badgeCount').textContent=Object.values(state.badges).filter(Boolean).length;
+  document.querySelectorAll('.tstep').forEach(s=>{const i=+s.dataset.step;
+    s.classList.toggle('done',state.levels[i]);
+    s.classList.toggle('active',!state.levels[i]&&(i===1||state.levels[i-1]));});
+}
+function grantBadge(k,label){ if(state.badges[k])return; state.badges[k]=true;
+  const el=document.querySelector('.badge-item[data-badge="'+k+'"]'); if(el)el.classList.add('earned');
+  toast('🏅 <b>Insignia:</b> '+label); refreshProgress(); saveProgress(false); }
+function unlock(n){ const s=$('n'+n),l=$('lock'+n); if(s)s.classList.remove('locked'); if(l)l.style.display='none'; }
+
+/* ============================================================
+   REGISTRO (individual / grupal)
+   ============================================================ */
+function setMode(m){
+  state.reg.mode=m;
+  $('modeInd').classList.toggle('sel',m==='individual');
+  $('modeGrp').classList.toggle('sel',m==='grupal');
+  $('modeInd').setAttribute('aria-checked',m==='individual');
+  $('modeGrp').setAttribute('aria-checked',m==='grupal');
+  $('blockInd').style.display = m==='individual'?'':'none';
+  $('blockGrp').style.display = m==='grupal'?'':'none';
+}
+function addMember(name,email,role){
+  name = name || $('mName').value.trim();
+  email = email || $('mEmail').value.trim();
+  role = role || $('mRole').value;
+  if(!name){ toast('✍️ Escribe el nombre del integrante.'); return; }
+  state.reg.participants.push({name,email,role});
+  if(!arguments.length){ $('mName').value=''; $('mEmail').value=''; }
+  renderRoster(); saveProgress(false);
+}
+function removeMember(idx){ state.reg.participants.splice(idx,1); renderRoster(); saveProgress(false); }
+function renderRoster(){
+  const box=$('roster'); if(!box) return; box.innerHTML='';
+  if(!state.reg.participants.length){ box.innerHTML='<p class="small muted">Aún no hay integrantes registrados.</p>'; return; }
+  const title=document.createElement('p'); title.className='small muted'; title.textContent='Integrantes registrados ('+state.reg.participants.length+'):'; box.appendChild(title);
+  state.reg.participants.forEach((p,i)=>{
+    const row=document.createElement('div'); row.className='row';
+    row.innerHTML='<span><b>'+esc(p.name)+'</b> · <span class="role">'+esc(p.role)+'</span><br><small class="muted">'+esc(p.email||'—')+'</small></span>'+
+      '<button class="btn ghost sm" aria-label="Quitar integrante" onclick="removeMember('+i+')">✕</button>';
+    box.appendChild(row);
+  });
+}
+function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+function registerParticipation(){
+  const msg=$('regMsg');
+  if(state.reg.mode==='individual'){
+    const name=$('iName').value.trim();
+    if(!name){ msg.className='fb err show'; msg.innerHTML='<span class="lead">✗ Falta tu nombre.</span> Escribe apellidos y nombres.'; $('iName').focus(); return; }
+    state.reg.participants=[{name, email:$('iEmail').value.trim(), role:'Analista BI en formación'}];
+    state.reg.teamName='';
+    msg.className='fb ok show'; msg.innerHTML='<span class="lead">✓ ¡Radar activado, '+esc(name.split(',')[0])+'!</span> Rol asignado: Analista BI en formación. Comienza por el Nivel 1.';
+  }else{
+    const team=$('gTeam').value.trim();
+    if(!team){ msg.className='fb err show'; msg.innerHTML='<span class="lead">✗ Falta el nombre del equipo.</span>'; $('gTeam').focus(); return; }
+    if(state.reg.participants.length<1){ msg.className='fb err show'; msg.innerHTML='<span class="lead">✗ Agrega al menos un integrante.</span> Usa el botón “Agregar”.'; return; }
+    state.reg.teamName=team;
+    msg.className='fb ok show'; msg.innerHTML='<span class="lead">✓ Equipo “'+esc(team)+'” registrado</span> con '+state.reg.participants.length+' integrante(s). Comiencen por el Nivel 1.';
+  }
+  if(!state._registered){ state._registered=true; addXP(XP.registro,'Registro'); }
+  saveProgress(false); $('n1').scrollIntoView({behavior:'smooth'});
+}
+
+/* ============================================================
+   CAMPOS / LIKERT
+   ============================================================ */
+function collectFields(){ document.querySelectorAll('.inp').forEach(el=>{ if(el.id) state.fields[el.id]=el.value; }); }
+function setLikert(g,v,btn){ state.likert[g]=v;
+  btn.parentNode.querySelectorAll('button').forEach(b=>{b.classList.remove('sel');b.setAttribute('aria-checked','false');});
+  btn.classList.add('sel'); btn.setAttribute('aria-checked','true'); saveProgress(false); }
+
+/* ============================================================
+   PREGUNTAS CERRADAS (CQ) — feedback inmediato con fundamento
+   ============================================================ */
+function answerCQ(btn){
+  const cq=btn.closest('.cq'); const qid=cq.dataset.qid; const label=cq.dataset.label||qid;
+  const correct=btn.dataset.correct==='1';
+  cq.querySelectorAll('.opt').forEach(o=>o.classList.remove('correct','wrong'));
+  btn.classList.add(correct?'correct':'wrong');
+  const fb=cq.querySelector('.cq-fb'); const fund=fb.dataset.fund||'';
+  if(correct){ fb.className='cq-fb ok show'; fb.innerHTML='<strong>✓ Correcto.</strong> '+fund;
+    if(!state.answers[qid] || !state.answers[qid].ok){ if(!state.answers[qid]||state.answers[qid].xp!==true){ addXP(XP.cq,'Respuesta correcta'); } state._cqxp=(state._cqxp||{}); }
+  }else{ fb.className='cq-fb no show'; fb.innerHTML='<strong>✗ Aún no.</strong> Pista: '+fund+'<br><em>Reintenta sin penalización.</em>'; }
+  state.answers[qid]={label, chosen:btn.textContent.trim(), ok:correct, fund};
+  checkLevelBadges(); saveProgress(false);
+}
+
+/* ============================================================
+   ASOCIACIÓN DE CONCEPTOS
+   ============================================================ */
+function checkAssoc(containerId, fbId, key, label){
+  const sels=[...document.querySelectorAll('#'+containerId+' .assoc-sel')];
+  const fb=$(fbId);
+  if(sels.some(s=>s.value==='')){ fb.className='fb err show'; fb.innerHTML='<span class="lead">Faltan asociaciones.</span> Completa todas las filas.'; return; }
+  let ok=0; sels.forEach(s=>{ const good=s.value===s.dataset.ok; s.style.borderColor=good?'var(--green)':'var(--alert)'; if(good)ok++; });
+  const all=ok===sels.length;
+  state.assoc[key]={label, ok:all, score:ok+'/'+sels.length};
+  if(all){ fb.className='fb ok show'; fb.innerHTML='<span class="lead">✓ ¡Asociación correcta!</span> Relacionaste bien cada elemento con su función.';
+    if(!state['_assoc_'+key]){ state['_assoc_'+key]=true; addXP(XP.assoc,'Asociación'); } }
+  else{ fb.className='fb err show'; fb.innerHTML='<span class="lead">✗ Casi.</span> Acertaste '+ok+' de '+sels.length+'. Revisa las marcadas en rojo y reintenta sin castigo.'; }
+  checkLevelBadges(); saveProgress(false);
+}
+
+/* ============================================================
+   CLASIFICACIÓN (drag&drop + fallback táctil) — Dato vs Información
+   ============================================================ */
+const DND_ITEMS=[
+  {t:'“1500” (sin contexto)', ok:'dato'},
+  {t:'Nombre de un cliente', ok:'dato'},
+  {t:'Fecha de una venta', ok:'dato'},
+  {t:'Ventas subieron 20% respecto al mes pasado', ok:'info'},
+  {t:'Tablero con productos más vendidos', ok:'info'},
+  {t:'Tiempo promedio de espera por área', ok:'info'}
+];
+let dndPlaced={}, dndSelected=null;
+function initDnd(){
+  const pool=$('dndPool'); pool.innerHTML='';
+  DND_ITEMS.forEach((it,idx)=>{
+    const c=document.createElement('button'); c.type='button'; c.className='chip'; c.textContent=it.t; c.dataset.idx=idx; c.draggable=true;
+    c.setAttribute('aria-label',it.t+'. Arrastra o toca para clasificar.');
+    c.addEventListener('dragstart',e=>e.dataTransfer.setData('text/plain',idx));
+    c.addEventListener('click',()=>{ document.querySelectorAll('#dndPool .chip').forEach(x=>x.style.outline='');
+      if(dndSelected===c){dndSelected=null;c.style.outline='';}else{dndSelected=c;c.style.outline='3px solid var(--amber)';} });
+    pool.appendChild(c);
+  });
+}
+function dndOver(e){e.preventDefault();e.currentTarget.classList.add('hover');}
+function dndLeave(e){e.currentTarget.classList.remove('hover');}
+function dndDrop(e){e.preventDefault();e.currentTarget.classList.remove('hover');placeChip(e.dataTransfer.getData('text/plain'),e.currentTarget.dataset.bin);}
+function dndTapBin(bin){ if(dndSelected){placeChip(dndSelected.dataset.idx,bin);dndSelected.style.outline='';dndSelected=null;} }
+function placeChip(idx,bin){
+  const chip=document.querySelector('#dndPool .chip[data-idx="'+idx+'"]'); if(!chip||chip.classList.contains('placed'))return;
+  chip.classList.add('placed'); dndPlaced[idx]=bin;
+  const span=document.createElement('span'); span.textContent=DND_ITEMS[idx].t; span.dataset.idx=idx; $('bin'+bin).appendChild(span);
+}
+function checkDnd(){
+  const total=DND_ITEMS.length, placed=Object.keys(dndPlaced).length, fb=$('dndFb');
+  if(placed<total){ fb.className='fb err show'; fb.innerHTML='<span class="lead">Faltan fichas.</span> Clasifica las '+(total-placed)+' restantes.'; return; }
+  let correct=0;
+  Object.entries(dndPlaced).forEach(([idx,bin])=>{ const span=document.querySelector('#bin'+bin+' span[data-idx="'+idx+'"]');
+    const right=DND_ITEMS[idx].ok===bin; if(right){correct++; if(span)span.className='right';} else if(span)span.className='wrong'; });
+  if(correct===total){ fb.className='fb ok show'; fb.innerHTML='<span class="lead">✓ ¡Clasificación perfecta!</span> Distingues un dato en bruto de la información ya interpretada.';
+    if(!state.dndDone){ state.dndDone=true; addXP(XP.dnd,'Clasificación dato/información'); } checkLevelBadges(); }
+  else{ fb.className='fb err show'; fb.innerHTML='<span class="lead">✗ Aún no.</span> Acertaste '+correct+' de '+total+'. Un <em>dato</em> es un registro suelto; la <em>información</em> ya está organizada e interpretada. '+
+    '<br><button class="btn sm ghost amber" style="margin-top:.5rem" onclick="resetDnd()">🔁 Reintentar</button>'; }
+  saveProgress(false);
+}
+function resetDnd(){ dndPlaced={}; $('bindato').innerHTML=''; $('bininfo').innerHTML=''; $('dndFb').className='fb'; initDnd(); }
+
+/* ---------- Insignias por nivel (comprensión) ---------- */
+function checkLevelBadges(){
+  // Analista conceptual: asociación N3 ok + clasificación ok + q3 y q4 correctas
+  if(state.assoc.asociacionN3 && state.assoc.asociacionN3.ok && state.dndDone &&
+     state.answers.n3q1 && state.answers.n3q1.ok && state.answers.n3q2 && state.answers.n3q2.ok){
+    grantBadge('analista','Analista conceptual');
+  }
+}
+
+/* ============================================================
+   COMPLETAR NIVELES
+   ============================================================ */
+function completeLevel(n){
+  collectFields(); const fb=$('n'+n+'fb'); let ok=true,msg='';
+  const ans=id=>state.answers[id]&&state.answers[id].ok;
+
+  if(n===1){
+    if(!$('n1open').value.trim()){ok=false;msg='Escribe tu hipótesis inicial.';}
+    else if(!ans('n1q1')||!ans('n1q2')){ok=false;msg='Responde correctamente las 2 preguntas cerradas (revisa el fundamento).';}
+    else if(!state.likert.n1conf){ok=false;msg='Marca tu confianza inicial (1–5).';}
+  }
+  if(n===2){
+    if(!$('kwlBefore').value.trim()){ok=false;msg='Completa “Antes pensaba…”.';}
+    else if(!ans('n2q1')){ok=false;msg='Responde correctamente la pregunta de utilidad del BI.';}
+    else if(!(state.assoc.asociacionN2&&state.assoc.asociacionN2.ok)){ok=false;msg='Completa correctamente la asociación área↔decisión.';}
+  }
+  if(n===3){
+    if(!(state.assoc.asociacionN3&&state.assoc.asociacionN3.ok)){ok=false;msg='Asocia correctamente cada concepto con su definición.';}
+    else if(!state.dndDone){ok=false;msg='Clasifica correctamente Dato vs Información.';}
+    else if(!ans('n3q1')||!ans('n3q2')){ok=false;msg='Responde correctamente las preguntas 3 y 4.';}
+    else if(!$('n3c1').value.trim()||!$('n3c2').value.trim()||!$('n3c3').value.trim()){ok=false;msg='Responde las 3 preguntas de cierre.';}
+  }
+  if(n===4){
+    if(!(state.assoc.asociacionN4&&state.assoc.asociacionN4.ok)){ok=false;msg='Completa la asociación herramienta↔escenario.';}
+    else if(!ans('n4q1')){ok=false;msg='Responde correctamente el criterio de selección.';}
+    else if(!$('p_org').value.trim()||!$('p_tool').value||!$('p_just').value.trim()){ok=false;msg='Completa la ficha: organización, herramienta y justificación.';}
+  }
+  if(n===5){
+    if(!$('kwlAfter2').value.trim()){ok=false;msg='Cierra la rutina: escribe “Ahora pienso…”.';}
+    else if(!state.likert.n5conf){ok=false;msg='Marca tu confianza final (1–5).';}
+    else if(!$('n5transfer').value.trim()){ok=false;msg='Responde la pregunta de transferencia.';}
+  }
+
+  if(!ok){ fb.className='fb err show'; fb.innerHTML='<span class="lead">Casi listo.</span> '+msg+' <br><small>Puedes reintentar sin penalización.</small>'; return; }
+
+  if(!state.levels[n]){ state.levels[n]=true; addXP(XP.nivel[n],'Nivel '+n+' completado'); }
+  fb.className='fb ok show';
+  if(n===1){ grantBadge('detector','Detector de datos'); fb.innerHTML='<span class="lead">✓ Nivel 1 completado.</span> Se desbloquea el Nivel 2.'; unlock(2); }
+  if(n===2){ grantBadge('traductor','Traductor de valor'); fb.innerHTML='<span class="lead">✓ Nivel 2 completado.</span> Se desbloquea el Nivel 3.'; unlock(3); }
+  if(n===3){ grantBadge('analista','Analista conceptual'); fb.innerHTML='<span class="lead">✓ Nivel 3 completado.</span> Se desbloquea el Nivel 4.'; unlock(4); }
+  if(n===4){ grantBadge('selector','Selector de herramientas'); fb.innerHTML='<span class="lead">✓ Nivel 4 completado.</span> Se desbloquea el Nivel 5.'; unlock(5); }
+  if(n===5){ grantBadge('estratega','Estratega de decisiones'); fb.innerHTML='<span class="lead">🏁 ¡Misión completada!</span> Genera tu reporte en la pestaña “Reporte”.'; showFinal(); }
+  refreshProgress(); refreshReport(); saveProgress(false);
+}
+
+/* ---------- IA ---------- */
+function completeIA(){
+  collectFields(); const fb=$('iaFb');
+  if(!$('ia_review').value.trim()){ fb.className='fb err show'; fb.innerHTML='<span class="lead">Falta un dato.</span> Indica qué revisaste o corregiste tú (si no usaste IA, decláralo).'; return; }
+  fb.className='fb ok show'; fb.innerHTML='<span class="lead">✓ Declaración registrada.</span> Usar IA con transparencia es parte de tu ética profesional.';
+  if(!state._iaxp){ state._iaxp=true; addXP(XP.ia,'Declaración de uso de IA'); }
+  saveProgress(false);
+}
+
+/* ---------- Evidencias ---------- */
+function checkEvidence(cb){ const k=cb.dataset.evi; state.evidence[k]=cb.checked; if(cb.checked)addXP(XP.evidencia,'Evidencia '+k.toUpperCase()); saveProgress(false); }
+
+/* ---------- Panel final ---------- */
+function showFinal(){ const p=$('finalPanel'); if(!p)return; p.style.display='block';
+  const first=(state.reg.participants[0]&&state.reg.participants[0].name)?state.reg.participants[0].name.split(',')[0]:'Analista';
+  $('finalName').textContent=first;
+  $('finalXP').textContent=state.xp;
+  $('finalBadges').textContent=Object.values(state.badges).filter(Boolean).length+'/6';
+  $('finalPct').textContent=Math.round(Object.values(state.levels).filter(Boolean).length/5*100)+'%';
+}
+
+/* ---------- Autoevaluación ---------- */
+const SELF=['Comprensión conceptual','Aplicación al contexto','Participación','Comunicación y evidencia'];
+function initSelfEval(){ const box=$('selfEval'); box.innerHTML='';
+  SELF.forEach((c,idx)=>{ const row=document.createElement('div'); row.className='field';
+    let b=''; for(let v=1;v<=5;v++) b+='<button type="button" aria-label="'+c+' nivel '+v+'" onclick="setSelf('+idx+','+v+',this)">'+v+'</button>';
+    row.innerHTML='<label>'+c+'</label><div class="likert" data-crit="'+idx+'" role="radiogroup" aria-label="'+c+'">'+b+'</div>'; box.appendChild(row); });
+}
+function setSelf(idx,v,btn){ state.self[idx]=v; btn.parentNode.querySelectorAll('button').forEach(x=>x.classList.remove('sel')); btn.classList.add('sel'); saveProgress(false); }
+
+/* ============================================================
+   MARKDOWN
+   ============================================================ */
+function v(id){ return ($(id)&&$(id).value.trim())||'—'; }
+function participantsMd(){
+  if(!state.reg.participants.length) return '- (sin participantes registrados)';
+  return state.reg.participants.map((p,i)=>`- ${i+1}. **${p.name}** · ${p.role} · ${p.email||'—'}`).join('\n');
+}
+function answersMd(){
+  const rows=Object.values(state.answers).map(a=>`- ${a.label}: **${a.ok?'Correcta':'Incorrecta'}** — “${a.chosen}”`);
+  const assoc=Object.values(state.assoc).map(a=>`- ${a.label}: **${a.ok?'Correcta':a.score||'—'}**`);
+  const cls=`- Clasificación Dato/Información: **${state.dndDone?'Correcta':'pendiente'}**`;
+  return [...rows,...assoc,cls].join('\n')||'- (sin respuestas aún)';
+}
+function buildEvidenceMd(){
+  collectFields();
+  return `# Ficha de recomendación de herramienta BI
+**Sesión 1 · Activa el radar de datos · IA + DATA 2026**
+
+- **Organización/sector:** ${v('p_org')}
+- **Necesidad/decisión:** ${v('p_need')}
+- **Herramienta recomendada:** ${v('p_tool')}
+- **Justificación:** ${v('p_just')}
+`;
+}
+function buildReportMd(){
+  collectFields();
+  const r=state.reg;
+  const badges=Object.entries(state.badges).filter(([k,x])=>x).map(([k])=>k);
+  const done=Object.entries(state.levels).filter(([k,x])=>x).map(([k])=>'N'+k);
+  const self=SELF.map((c,i)=>'- '+c+': '+(state.self[i]||'—')+'/5').join('\n');
+  return `# Reporte de actividad — Activa el radar de datos
+**Curso IA + DATA 2026 · Unidad 1 · Fundamentos de Business Intelligence · Sesión 1**
+
+## 1. Participación
+- **Modalidad:** ${r.mode==='grupal'?'Grupal':'Individual'}
+${r.mode==='grupal'?`- **Equipo:** ${r.teamName||'—'}`:''}
+
+### Participantes
+${participantsMd()}
+
+## 2. Resultados
+- **XP total:** ${state.xp}
+- **Niveles completados:** ${done.length?done.join(', '):'—'} (${Math.round(done.length/5*100)}%)
+- **Insignias:** ${badges.length?badges.join(', '):'—'}
+- **Confianza inicial → final:** ${state.likert.n1conf||'—'} → ${state.likert.n5conf||'—'} (1–5)
+
+## 3. Respuestas y retroalimentación
+${answersMd()}
+
+## 4. Producción del estudiante
+- **Hipótesis inicial (N1):** ${v('n1open')}
+- **Antes pensaba (N2):** ${v('kwlBefore')}
+- **Ahora pienso (N5):** ${v('kwlAfter2')}
+- **KPI propuesto (N3):** ${v('n3c2')}
+- **Herramienta recomendada (N4):** ${v('p_tool')} — ${v('p_just')}
+- **Transferencia (N5):** ${v('n5transfer')}
+- **Conceptos clave:** ${v('n5synth')}
+
+## 5. Autoevaluación
+${self}
+
+## 6. Declaración de uso de IA
+- **Herramienta:** ${v('ia_tool')}
+- **Prompt:** ${v('ia_prompt')}
+- **Revisión propia:** ${v('ia_review')}
+
+---
+*Mg. Mario Quiroz Martínez · IA + DATA 2026 · Unidad 1: Fundamentos de Business Intelligence.*
+`;
+}
+function refreshReport(){ $('reportOut').value=buildReportMd(); }
+
+/* ============================================================
+   REPORTE PDF (vista imprimible + window.print)
+   ============================================================ */
+function generatePDF(){
+  renderPrintReport();
+  grantBadge('guardian','Guardián de evidencias');
+  toast('🖨️ Abriendo diálogo de impresión… elige <b>Guardar como PDF</b>.');
+  setTimeout(()=>window.print(),350);
+}
+function renderPrintReport(){
+  collectFields();
+  const r=state.reg;
+  const partRows=state.reg.participants.length
+    ? state.reg.participants.map((p,i)=>`<tr><td>${i+1}</td><td>${esc(p.name)}</td><td>${esc(p.role)}</td><td>${esc(p.email||'—')}</td></tr>`).join('')
+    : '<tr><td colspan="4">Sin participantes registrados</td></tr>';
+  const ansRows=Object.values(state.answers).map(a=>`<tr><td>${esc(a.label)}</td><td class="${a.ok?'ok':'no'}">${a.ok?'Correcta':'Incorrecta'}</td><td>${esc(a.chosen)}</td><td>${esc(a.fund)}</td></tr>`).join('')||'<tr><td colspan="4">—</td></tr>';
+  const assocRows=Object.values(state.assoc).map(a=>`<tr><td>${esc(a.label)}</td><td class="${a.ok?'ok':'no'}">${a.ok?'Correcta':(a.score||'—')}</td></tr>`).join('');
+  const badges=Object.entries(state.badges).filter(([k,x])=>x).map(([k])=>k).join(', ')||'—';
+  const done=Object.entries(state.levels).filter(([k,x])=>x).map(([k])=>'N'+k).join(', ')||'—';
+  const self=SELF.map((c,i)=>`<tr><td>${c}</td><td>${state.self[i]||'—'}/5</td></tr>`).join('');
+  $('printReport').innerHTML=`
+    <h1>Reporte de actividad — Activa el radar de datos</h1>
+    <p><strong>Curso:</strong> IA + DATA 2026 · <strong>Unidad 1:</strong> Fundamentos de Business Intelligence · <strong>Sesión 1</strong></p>
+    <p><strong>Modalidad:</strong> ${r.mode==='grupal'?'Grupal — Equipo: '+esc(r.teamName||'—'):'Individual'}</p>
+    <h2>Participantes</h2>
+    <table><thead><tr><th>#</th><th>Apellidos y nombres</th><th>Rol</th><th>Correo</th></tr></thead><tbody>${partRows}</tbody></table>
+    <h2>Resultados</h2>
+    <p><strong>XP total:</strong> ${state.xp} · <strong>Niveles:</strong> ${done} · <strong>Insignias:</strong> ${badges}</p>
+    <p><strong>Confianza inicial → final:</strong> ${state.likert.n1conf||'—'} → ${state.likert.n5conf||'—'} (1–5)</p>
+    <h2>Respuestas y retroalimentación</h2>
+    <table><thead><tr><th>Pregunta</th><th>Resultado</th><th>Respuesta</th><th>Fundamento</th></tr></thead><tbody>${ansRows}</tbody></table>
+    ${assocRows?`<h2>Asociaciones y clasificación</h2><table><thead><tr><th>Actividad</th><th>Resultado</th></tr></thead><tbody>${assocRows}<tr><td>Clasificación Dato/Información</td><td class="${state.dndDone?'ok':'no'}">${state.dndDone?'Correcta':'Pendiente'}</td></tr></tbody></table>`:''}
+    <h2>Producción del estudiante</h2>
+    <p><strong>Hipótesis inicial:</strong> ${esc(v('n1open'))}</p>
+    <p><strong>Antes pensaba:</strong> ${esc(v('kwlBefore'))} · <strong>Ahora pienso:</strong> ${esc(v('kwlAfter2'))}</p>
+    <p><strong>Herramienta recomendada:</strong> ${esc(v('p_tool'))} — ${esc(v('p_just'))}</p>
+    <p><strong>Transferencia:</strong> ${esc(v('n5transfer'))} · <strong>Conceptos clave:</strong> ${esc(v('n5synth'))}</p>
+    <h2>Autoevaluación</h2>
+    <table><thead><tr><th>Criterio</th><th>Nivel</th></tr></thead><tbody>${self}</tbody></table>
+    <h2>Declaración de uso de IA</h2>
+    <p><strong>Herramienta:</strong> ${esc(v('ia_tool'))} · <strong>Prompt:</strong> ${esc(v('ia_prompt'))}</p>
+    <p><strong>Revisión propia:</strong> ${esc(v('ia_review'))}</p>
+    <hr><p><em>Mg. Mario Quiroz Martínez · IA + DATA 2026 · Unidad 1: Fundamentos de Business Intelligence.</em></p>`;
+}
+
+/* ---------- Copiar / descargar ---------- */
+function copyText(txt,okMsg){ const done=()=>toast('✅ '+(okMsg||'Copiado'));
+  if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(txt).then(done).catch(()=>fallbackCopy(txt,done)); } else fallbackCopy(txt,done); }
+function fallbackCopy(txt,done){ const ta=document.createElement('textarea'); ta.value=txt; ta.style.position='fixed'; ta.style.left='-9999px'; document.body.appendChild(ta); ta.select();
+  try{document.execCommand('copy');done();}catch(e){toast('Copia manual: selecciona el texto.');} ta.remove(); }
+function downloadFile(name,content){ const blob=new Blob([content],{type:'text/markdown;charset=utf-8'}); const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob); a.download=name; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(a.href);
+  grantBadge('guardian','Guardián de evidencias'); toast('⬇️ Descargando <b>'+name+'</b>'); }
+
+/* ---------- Tabs ---------- */
+function goTab(name){ document.querySelectorAll('.tabs button').forEach(b=>{const on=b.dataset.tab===name;b.classList.toggle('active',on);b.setAttribute('aria-selected',on);});
+  document.querySelectorAll('.tabpane').forEach(p=>p.classList.toggle('active',p.id==='pane-'+name));
+  if(name==='informe')refreshReport(); window.scrollTo({top:document.querySelector('.tabs').offsetTop-60,behavior:'smooth'}); }
+document.querySelectorAll('.tabs button').forEach(b=>b.addEventListener('click',()=>goTab(b.dataset.tab)));
+function toggleHelp(){ const h=$('helpBox'); h.style.display=h.style.display==='none'?'block':'none'; }
+
+/* ---------- Guardar / cargar / reiniciar ---------- */
+function saveProgress(notify){ collectFields(); store.set(state); if(notify)toast('💾 <b>Avance guardado</b> en este dispositivo.'); }
+function loadProgress(){
+  const saved=store.get(); if(!saved)return; state=Object.assign(state,saved);
+  const r=state.reg||{mode:'individual',participants:[],teamName:''};
+  setMode(r.mode||'individual');
+  if($('iName')&&r.participants&&r.mode==='individual'&&r.participants[0]){ $('iName').value=r.participants[0].name||''; $('iEmail').value=r.participants[0].email||''; }
+  if($('gTeam')) $('gTeam').value=r.teamName||'';
+  renderRoster();
+  Object.entries(state.fields||{}).forEach(([id,val])=>{ const el=$(id); if(el&&el!==document.activeElement&&!el.disabled)el.value=val; });
+  Object.entries(state.likert||{}).forEach(([g,val])=>{ const grp=$(g); if(grp){const b=grp.querySelectorAll('button')[val-1]; if(b){b.classList.add('sel');b.setAttribute('aria-checked','true');}} });
+  Object.entries(state.self||{}).forEach(([idx,val])=>{ const grp=document.querySelector('#selfEval .likert[data-crit="'+idx+'"]'); if(grp){const b=grp.querySelectorAll('button')[val-1]; if(b)b.classList.add('sel');} });
+  for(let i=1;i<=5;i++){ if(i===1||state.levels[i-1])unlock(i); }
+  Object.entries(state.badges).forEach(([k,val])=>{ if(val){const el=document.querySelector('.badge-item[data-badge="'+k+'"]'); if(el)el.classList.add('earned');} });
+  document.querySelectorAll('[data-evi]').forEach(cb=>{ if(state.evidence[cb.dataset.evi])cb.checked=true; });
+  $('xpTotal').textContent=state.xp;
+  if(state.levels[5])showFinal();
+  refreshProgress(); toast('📂 <b>Avance recuperado</b>.');
+}
+function resetProgress(){ if(!confirm('¿Reiniciar toda la misión? Se borrará tu avance en este dispositivo. No se puede deshacer.'))return; store.clear(); location.reload(); }
+
+/* ---------- Init ---------- */
+document.addEventListener('DOMContentLoaded',()=>{
+  initDnd(); initSelfEval(); renderRoster();
+  document.querySelectorAll('.inp').forEach(el=>el.addEventListener('change',()=>saveProgress(false)));
+  loadProgress(); refreshProgress(); unlock(1);
+});
+</script>
+</body>
+</html>
