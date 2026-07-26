@@ -1,0 +1,1669 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0072b9">
+<meta name="description" content="Operación Interfaz Clara — Sesión gamificada IUTPC sobre jerarquía visual y accesibilidad. Diseño de Interfaces Digitales · IDC · Enfoque DUA-Experiencial.">
+<title>Operación Interfaz Clara · Sesión 03 · Diseño de Interfaces Digitales · IDC</title>
+<style>
+/* ============================================================
+   OPERACIÓN INTERFAZ CLARA — Sesión gamificada IUTPC
+   Instituto de Diseño y Comunicación (IDC)
+   Enfoque DUA-Experiencial · Single-file, sin dependencias externas.
+   Paleta institucional IDC: #f3a100 (ámbar) · #0072b9 (azul)
+                             #555553 / #545452 (grises)
+   ============================================================ */
+
+:root{
+  --idc-amber:#f3a100;      /* activación, atención, medallas */
+  --idc-amber-dim:#f3a10022;
+  --idc-blue:#0072b9;       /* estructura, navegación, paneles */
+  --idc-blue-dim:#0072b915;
+  --idc-gray1:#555553;
+  --idc-gray2:#545452;
+  --bg:#0e1620;             /* fondo estudio/laboratorio oscuro */
+  --bg2:#132030;
+  --panel:#16202c;
+  --line:#233241;
+  --text:#eef3f8;
+  --muted:#9fb0bf;
+  --green:#2ec16b;
+  --green-dim:#2ec16b1a;
+  --red:#e8564a;
+  --red-dim:#e8564a1a;
+  --violet:#9b6dff;
+  --radius:14px;
+  --shadow:0 10px 34px rgba(0,0,0,.34);
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  line-height:1.55;
+  background-image:
+    radial-gradient(circle at 8% 0%,rgba(0,114,185,.14) 0%,transparent 42%),
+    radial-gradient(circle at 96% 100%,rgba(243,161,0,.10) 0%,transparent 42%);
+}
+h1,h2,h3,h4{line-height:1.2;margin:.2em 0 .45em}
+p{margin:.35em 0 .7em}
+a{color:var(--idc-amber)}
+::selection{background:var(--idc-amber);color:#1b1b1b}
+
+/* ---------- Accesibilidad: foco visible ---------- */
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,
+textarea:focus-visible,[tabindex]:focus-visible,.card-flip:focus-visible,.chip:focus-visible{
+  outline:3px solid var(--idc-amber);outline-offset:2px;border-radius:6px;
+}
+.skip-link{position:absolute;left:-999px;top:0;background:var(--idc-amber);color:#1b1b1b;
+  padding:.6rem 1rem;font-weight:700;z-index:200;border-radius:0 0 8px 0}
+.skip-link:focus{left:0}
+
+/* ---------- Barra superior fija (HUD) ---------- */
+.hud{position:sticky;top:0;z-index:100;backdrop-filter:blur(8px);
+  background:linear-gradient(90deg,rgba(0,114,185,.28),rgba(14,22,32,.94) 55%);
+  border-bottom:2px solid var(--idc-blue)}
+.hud .wrap{max-width:1000px;margin:0 auto;display:flex;justify-content:space-between;
+  align-items:center;gap:.8rem;flex-wrap:wrap;padding:.5rem 1rem}
+.hud .brand{display:flex;align-items:center;gap:.55rem;font-weight:800;letter-spacing:.3px}
+.hud .logo{width:34px;height:34px;flex:none}
+.hud .mission-name{font-size:.95rem}
+.hud .mission-name small{display:block;font-weight:600;color:var(--muted);font-size:.68rem;letter-spacing:1px;text-transform:uppercase}
+.hud .stats{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;gap:.35rem;padding:.2rem .6rem;border-radius:999px;
+  font-size:.82rem;font-weight:700;border:1px solid var(--line);background:rgba(255,255,255,.04)}
+.pill.xp{color:var(--idc-amber);border-color:#f3a10055;background:var(--idc-amber-dim)}
+.pill.badge{color:var(--idc-amber)}
+.pill.lvl{color:#8fd3ff}
+.hud-progress{height:6px;background:var(--line);width:100%}
+.hud-progress > i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--idc-blue),var(--idc-amber));transition:width .5s ease}
+
+.container{max-width:1000px;margin:0 auto;padding:1.2rem 1rem 3rem}
+
+/* ---------- Encabezado / briefing ---------- */
+.hero{text-align:center;padding:1.4rem 0 .4rem}
+.eyebrow{color:var(--muted);text-transform:uppercase;letter-spacing:2px;font-size:.74rem;font-weight:700}
+.hero h1{font-size:clamp(1.7rem,4.6vw,2.7rem);margin:.4rem 0}
+.hero h1 .op{color:var(--idc-amber)}
+.hero .lede{max-width:680px;margin:.4rem auto;color:var(--muted)}
+.briefing{max-width:760px;margin:1.1rem auto 0;text-align:left;background:linear-gradient(160deg,var(--panel),var(--bg2));
+  border:1px solid var(--line);border-left:5px solid var(--idc-amber);border-radius:var(--radius);
+  padding:1.1rem 1.3rem;box-shadow:var(--shadow)}
+.briefing .tag{color:var(--idc-amber);font-weight:800;letter-spacing:1px;text-transform:uppercase;font-size:.78rem}
+.motiv{display:inline-block;margin-top:.8rem;background:var(--idc-amber-dim);border:1px solid #f3a10055;
+  color:var(--idc-amber);padding:.4rem .8rem;border-radius:999px;font-weight:700;font-size:.86rem}
+
+/* ---------- Tarjetas de dato del hero ---------- */
+.metric-row{display:flex;gap:.6rem;flex-wrap:wrap;justify-content:center;margin-top:1rem}
+.metric{flex:1 1 130px;max-width:200px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:.7rem .5rem;text-align:center}
+.metric b{display:block;font-size:1.15rem;color:var(--idc-amber)}
+.metric small{color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.6px}
+
+/* ---------- Paneles / secciones ---------- */
+.panel{background:linear-gradient(160deg,var(--panel),var(--bg2));border:1px solid var(--line);
+  border-left:5px solid var(--idc-blue);border-radius:var(--radius);padding:1.2rem 1.35rem;
+  margin:1.1rem 0;box-shadow:var(--shadow);position:relative}
+.panel.amber{border-left-color:var(--idc-amber)}
+.panel.green{border-left-color:var(--green)}
+.panel.violet{border-left-color:var(--violet)}
+.kicker{display:inline-flex;align-items:center;gap:.4rem;background:var(--idc-blue);color:#fff;
+  font-weight:800;font-size:.76rem;letter-spacing:.6px;text-transform:uppercase;padding:.32rem .8rem;border-radius:8px}
+.kicker.amber{background:var(--idc-amber);color:#1b1b1b}
+.kicker.green{background:var(--green);color:#062713}
+.kicker.violet{background:var(--violet);color:#150a2e}
+.phase{color:var(--muted);font-size:.82rem;text-transform:uppercase;letter-spacing:1.4px;margin-top:.5rem}
+.aim{color:var(--idc-amber);font-size:.92rem;font-weight:600;margin:.3rem 0}
+
+/* ---------- Tablas ---------- */
+.tbl-wrap{overflow-x:auto}
+table.data{width:100%;border-collapse:collapse;font-size:.9rem;min-width:420px}
+table.data th,table.data td{text-align:left;padding:.55rem .7rem;border-bottom:1px solid var(--line);vertical-align:top}
+table.data th{background:var(--idc-blue-dim);color:#8fd3ff;font-size:.74rem;text-transform:uppercase;letter-spacing:.8px}
+table.data td{color:var(--text)}
+table.data tr:last-child td{border-bottom:none}
+table.rubric td{color:var(--muted)}
+table.rubric td strong{color:var(--text)}
+
+/* ---------- Rastreador de niveles ---------- */
+.tracker{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.8rem}
+.tstep{flex:1 1 90px;text-align:center;padding:.6rem .3rem;border-radius:10px;background:rgba(255,255,255,.03);
+  border:1px solid var(--line);opacity:.55;transition:.25s}
+.tstep.active{opacity:1;border-color:var(--idc-amber);box-shadow:0 0 0 2px var(--idc-amber-dim)}
+.tstep.done{opacity:1;border-color:var(--green)}
+.tstep .n{width:30px;height:30px;border-radius:50%;background:var(--line);display:grid;place-items:center;
+  margin:0 auto .3rem;font-weight:800}
+.tstep.active .n{background:var(--idc-amber);color:#1b1b1b}
+.tstep.done .n{background:var(--green);color:#062713}
+.tstep small{display:block;font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+
+/* ---------- Formularios ---------- */
+label{display:block;font-size:.86rem;color:var(--muted);margin-bottom:.25rem;font-weight:600}
+.inp{width:100%;background:#0c141d;border:1px solid var(--line);border-radius:9px;color:var(--text);
+  padding:.55rem .8rem;font-family:inherit;font-size:.95rem;transition:.18s}
+.inp:focus{border-color:var(--idc-amber);outline:none;box-shadow:0 0 0 3px var(--idc-amber-dim)}
+textarea.inp{min-height:84px;resize:vertical}
+select.inp{cursor:pointer}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.8rem}
+.field{margin-bottom:.7rem}
+
+/* ---------- Botones ---------- */
+.btn{display:inline-flex;align-items:center;gap:.45rem;background:var(--idc-amber);color:#1b1b1b;border:none;
+  border-radius:9px;font-weight:800;font-family:inherit;font-size:.92rem;padding:.6rem 1.1rem;cursor:pointer;transition:.18s}
+.btn:hover{transform:translateY(-1px);filter:brightness(1.05)}
+.btn:active{transform:translateY(0)}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none;filter:none}
+.btn.blue{background:var(--idc-blue);color:#fff}
+.btn.ghost{background:transparent;border:2px solid var(--idc-blue);color:#8fd3ff}
+.btn.ghost.amber{border-color:var(--idc-amber);color:var(--idc-amber)}
+.btn.sm{padding:.4rem .75rem;font-size:.82rem}
+.btn-row{display:flex;gap:.55rem;flex-wrap:wrap;margin-top:.8rem}
+
+/* ---------- Callouts ---------- */
+.callout{background:var(--idc-blue-dim);border:1px solid #0072b955;border-radius:12px;padding:.85rem 1.05rem;margin:.8rem 0}
+.callout.amber{background:var(--idc-amber-dim);border-color:#f3a10055}
+.callout .h{font-weight:800;color:var(--idc-amber);margin-bottom:.2rem}
+.callout.blue .h{color:#8fd3ff}
+.oneline{background:var(--idc-amber-dim);border:1px dashed #f3a100aa;border-radius:12px;padding:1rem;margin:1rem 0}
+.oneline .h{color:var(--idc-amber);font-weight:800;text-transform:uppercase;letter-spacing:1px;font-size:.82rem}
+
+/* ---------- Flip cards (definición interactiva) ---------- */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.7rem;margin-top:.8rem}
+.card-flip{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:12px;padding:1rem;
+  cursor:pointer;transition:.2s;position:relative}
+.card-flip:hover{border-color:var(--idc-amber);transform:translateY(-2px)}
+.card-flip h4{margin:0 0 .3rem;color:#8fd3ff;font-size:.98rem}
+.card-flip .back{display:none;color:var(--muted);font-size:.85rem;margin-top:.4rem}
+.card-flip.open .back{display:block}
+.card-flip .hint{position:absolute;top:.55rem;right:.7rem;color:var(--idc-amber);font-size:.8rem}
+
+/* ---------- Chips clasificación ---------- */
+.pool{display:flex;flex-wrap:wrap;gap:.5rem;margin:.7rem 0}
+.chip{background:#0c141d;border:1px solid var(--line);border-radius:999px;padding:.4rem .85rem;font-size:.86rem;
+  cursor:pointer;transition:.18s;user-select:none}
+.chip:hover{border-color:var(--idc-amber)}
+.chip.placed{opacity:.4;pointer-events:none;text-decoration:line-through}
+.bins{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}
+.bin{min-height:90px;border:2px dashed var(--line);border-radius:12px;padding:.6rem}
+.bin.hover{border-color:var(--idc-amber);background:var(--idc-amber-dim)}
+.bin h5{margin:.1rem 0 .5rem;font-size:.82rem;text-transform:uppercase;letter-spacing:.6px}
+.bin.ok h5{color:var(--green)} .bin.no h5{color:var(--red)}
+.bin .dropped{display:flex;flex-wrap:wrap;gap:.35rem}
+.bin .dropped span{background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:999px;padding:.25rem .6rem;font-size:.8rem}
+.bin .dropped span.wrong{border-color:var(--red);color:var(--red)}
+.bin .dropped span.right{border-color:var(--green);color:var(--green)}
+
+/* ---------- Anagrama ---------- */
+.anagram{display:flex;gap:.4rem;flex-wrap:wrap;margin:.6rem 0}
+.anagram .letter{width:38px;height:44px;display:grid;place-items:center;background:var(--idc-blue);color:#fff;
+  border-radius:8px;font-weight:800;font-size:1.15rem;letter-spacing:1px}
+
+/* ---------- Feedback / error productivo ---------- */
+.fb{margin-top:.6rem;padding:.7rem .9rem;border-radius:10px;font-size:.9rem;display:none}
+.fb.show{display:block}
+.fb.ok{background:var(--green-dim);border:1px solid #2ec16b55;color:#9be9bd}
+.fb.err{background:var(--red-dim);border:1px solid #e8564a55;color:#f5b3ad}
+.fb ul{margin:.3rem 0 0;padding-left:1.1rem}
+.fb .lead{font-weight:800}
+
+/* ---------- Interpretación docente ---------- */
+.interp{margin-top:.9rem;padding:.7rem 1rem;border-left:3px solid var(--violet);border-radius:0 10px 10px 0;
+  background:rgba(155,109,255,.08);color:#d7c9ff;font-size:.88rem}
+.interp strong{color:var(--violet)}
+
+/* ---------- Evidencia GitHub ---------- */
+.evi{background:var(--green-dim);border:1px solid #2ec16b44;border-radius:12px;padding:.9rem 1.05rem;margin-top:.9rem}
+.evi .h{color:#9be9bd;font-weight:800;text-transform:uppercase;letter-spacing:.6px;font-size:.8rem;margin-bottom:.35rem}
+.evi code{background:#0c141d;border:1px solid var(--line);border-radius:6px;padding:.1rem .4rem;font-size:.85rem;color:var(--idc-amber)}
+.evi .commit{font-family:ui-monospace,Consolas,monospace;font-size:.82rem;color:#9be9bd;display:block;margin:.35rem 0}
+.check{display:flex;align-items:center;gap:.5rem;margin-top:.5rem;font-size:.88rem;color:var(--text);cursor:pointer}
+.check input{width:18px;height:18px;accent-color:var(--green);cursor:pointer}
+
+/* ---------- Insignias ---------- */
+.badges{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:.7rem}
+.badge-item{flex:1 1 140px;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:12px;
+  padding:.7rem;text-align:center;opacity:.4;filter:grayscale(1);transition:.3s}
+.badge-item.earned{opacity:1;filter:none;border-color:var(--idc-amber);box-shadow:0 0 0 2px var(--idc-amber-dim)}
+.badge-item .ico{font-size:1.7rem}
+.badge-item b{display:block;font-size:.85rem;margin-top:.2rem}
+.badge-item small{color:var(--muted);font-size:.72rem}
+
+/* ---------- Escala Likert / autopercepción ---------- */
+.likert{display:flex;gap:.35rem;flex-wrap:wrap;margin-top:.4rem}
+.likert button{flex:1 1 40px;background:#0c141d;border:1px solid var(--line);color:var(--text);border-radius:8px;
+  padding:.5rem;cursor:pointer;font-weight:700;transition:.15s}
+.likert button.sel{background:var(--idc-amber);color:#1b1b1b;border-color:var(--idc-amber)}
+
+/* ---------- Bloqueo de niveles ---------- */
+.locked{position:relative}
+.locked .lockmsg{position:absolute;inset:0;background:rgba(10,16,22,.86);backdrop-filter:blur(2px);
+  border-radius:var(--radius);display:grid;place-items:center;text-align:center;z-index:5;padding:1rem}
+.locked .lockmsg span{max-width:340px;color:var(--muted)}
+.locked .lockmsg .big{font-size:2rem;display:block;margin-bottom:.3rem}
+
+/* ---------- Toast ---------- */
+.toast-wrap{position:fixed;right:1rem;bottom:1rem;z-index:300;display:flex;flex-direction:column;gap:.5rem;max-width:320px}
+.toast{background:var(--panel);border:1px solid var(--idc-amber);border-left:5px solid var(--idc-amber);
+  border-radius:10px;padding:.7rem .9rem;box-shadow:var(--shadow);animation:slidein .3s ease}
+.toast b{color:var(--idc-amber)}
+@keyframes slidein{from{transform:translateX(30px);opacity:0}to{transform:translateX(0);opacity:1}}
+
+/* ---------- Tabs de navegación ---------- */
+.tabs{display:flex;gap:.4rem;flex-wrap:wrap;margin:1rem 0 .4rem;position:sticky;top:52px;z-index:40;
+  background:var(--bg);padding:.4rem 0;border-bottom:1px solid var(--line)}
+.tabs button{flex:1 1 130px;background:var(--panel);border:1px solid var(--line);border-radius:9px;color:var(--muted);
+  padding:.55rem .5rem;cursor:pointer;font-weight:700;font-size:.86rem;transition:.18s;font-family:inherit}
+.tabs button.active{border-color:var(--idc-amber);color:var(--idc-amber);background:var(--idc-amber-dim)}
+.tabpane{display:none}
+.tabpane.active{display:block;animation:fade .3s ease}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+
+/* ---------- Footer ---------- */
+.foot{text-align:center;color:var(--muted);font-size:.82rem;border-top:1px solid var(--line);
+  margin-top:2rem;padding:1.6rem 1rem 2.4rem}
+.foot .idc{color:var(--idc-amber);font-weight:700}
+
+.muted{color:var(--muted)}
+.small{font-size:.85rem}
+.center{text-align:center}
+hr.sep{border:none;border-top:1px solid var(--line);margin:1rem 0}
+
+/* ---------- Movimiento reducido ---------- */
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+}
+
+/* ---------- Impresión (exportar a PDF) ---------- */
+@media print{
+  body{background:#fff;color:#000}
+  .hud,.tabs,.toast-wrap,.btn,.btn-row,.skip-link,.hud-progress{display:none!important}
+  .panel,.briefing,.callout{box-shadow:none;border:1px solid #ccc;background:#fff;color:#000;break-inside:avoid}
+  .tabpane{display:block!important}
+  .locked .lockmsg{display:none!important}
+  a{color:#000;text-decoration:underline}
+  .interp{background:#f4f0ff}
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width:560px){
+  .bins{grid-template-columns:1fr}
+  .tabs{top:64px}
+}
+</style>
+</head>
+<body>
+<a href="#main" class="skip-link">Saltar al contenido principal</a>
+
+<!-- ================= BARRA SUPERIOR / HUD ================= -->
+<header class="hud" role="banner">
+  <div class="wrap">
+    <div class="brand">
+      <!-- Logo IDC embebido como SVG (sin recurso externo) -->
+      <svg class="logo" viewBox="0 0 100 100" role="img" aria-label="Logotipo del Instituto de Diseño y Comunicación">
+        <rect x="4" y="4" width="92" height="92" rx="16" fill="#0072b9"/>
+        <text x="50" y="62" font-family="system-ui,sans-serif" font-size="40" font-weight="800"
+              text-anchor="middle" fill="#f3a100">IDC</text>
+      </svg>
+      <span class="mission-name">Operación Interfaz Clara
+        <small>IDC · Sesión 03</small>
+      </span>
+    </div>
+    <div class="stats" aria-live="polite">
+      <span class="pill xp">⭐ <span id="xpTotal">0</span> XP</span>
+      <span class="pill lvl">🔓 Niveles <span id="lvlCount">0</span>/5</span>
+      <span class="pill badge">🏅 Insignias <span id="badgeCount">0</span>/6</span>
+    </div>
+  </div>
+  <div class="hud-progress" role="progressbar" aria-label="Progreso de la misión" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="hudBar">
+    <i id="hudBarFill"></i>
+  </div>
+</header>
+
+<main id="main" class="container" role="main">
+
+  <!-- ================= HERO / BRIEFING ================= -->
+  <section class="hero" aria-labelledby="mainTitle">
+    <div class="eyebrow">Instituto de Diseño y Comunicación · Diseño de Interfaces Digitales</div>
+    <h1 id="mainTitle"><span class="op">Operación</span> Interfaz Clara</h1>
+    <p class="lede">Unidad: Investigación e Innovación Tecnológica · Semana 6 · Sesión 03 —
+      <strong>Principios de jerarquía visual y accesibilidad</strong>.</p>
+
+    <div class="metric-row" aria-hidden="false">
+      <div class="metric"><b>90 min</b><small>Duración</small></div>
+      <div class="metric"><b>5 niveles</b><small>Modelo IUTPC</small></div>
+      <div class="metric"><b>−34 %</b><small>Meta: reducir abandono</small></div>
+      <div class="metric"><b>DUA</b><small>Experiencial</small></div>
+    </div>
+
+    <div class="briefing">
+      <div class="tag">▶ Briefing de misión</div>
+      <p style="margin-top:.4rem">Bienvenido/a al <strong>Estudio Clarity</strong>, laboratorio de experiencia del IDC.
+      El <strong>portal de matrícula</strong> de una institución aliada pierde estudiantes: muchos abandonan el
+      trámite a mitad de camino. La dirección nos contrató para rediseñarlo. Tu misión, como
+      <strong>diseñador/a de experiencia junior</strong>, es diagnosticar por qué la interfaz confunde y proponer un
+      <strong>prototipo de baja fidelidad</strong> que aplique jerarquía visual, contraste y navegación accesible.
+      Supera los 5 niveles, acumula <strong>XP</strong>, desbloquea insignias y entrega tu propuesta al cliente.</p>
+      <span class="motiv">🎯 No buscamos la interfaz “bonita”, buscamos la interfaz <em>clara</em>. Empecemos.</span>
+    </div>
+  </section>
+
+  <!-- Aviso de supuestos de diseño -->
+  <div class="callout amber" role="note">
+    <div class="h">🧩 Supuesto de diseño</div>
+    <p class="small" style="margin:0">Algunos datos administrativos no venían fijados, así que se asumieron valores
+    coherentes: <strong>institución</strong> IDC · <strong>programa</strong> Diseño de Interfaces Digitales ·
+    <strong>semana 6 / sesión 03</strong> · <strong>modalidad presencial</strong> (adaptable a virtual) ·
+    <strong>equipos de 2–4</strong> estudiantes. Ajusta estos campos si tu sesión real difiere.</p>
+  </div>
+
+  <!-- ================= B. DATOS DE LA SESIÓN ================= -->
+  <section class="panel" aria-labelledby="datosTitle">
+    <span class="kicker">📋 Datos de la sesión</span>
+    <h2 id="datosTitle" style="margin-top:.6rem">Ficha técnica</h2>
+    <div class="tbl-wrap">
+      <table class="data">
+        <tbody>
+          <tr><th style="width:32%">Logro de unidad</th><td>Investiga y aplica principios de diseño de interacción para
+            proponer soluciones digitales centradas en las personas usuarias.</td></tr>
+          <tr><th>Logro de sesión</th><td><strong>Diseña una interfaz de baja fidelidad aplicando jerarquía visual,
+            contraste y navegación accesible</strong>, justificando sus decisiones ante un caso real.</td></tr>
+          <tr><th>Tema central</th><td>Principios de jerarquía visual y accesibilidad (WCAG 2.1 AA).</td></tr>
+          <tr><th>Duración</th><td>90 minutos</td></tr>
+          <tr><th>Modelo didáctico</th><td>IUTPC — Inicio · Utilidad · Transformación · Práctica · Cierre</td></tr>
+          <tr><th>Evidencia final</th><td>Prototipo comentado (wireframe) + justificación en Markdown
+            (<code>sesion-03-prototipo-accesible.md</code>).</td></tr>
+          <tr><th>Modalidad</th><td>Presencial (adaptable a virtual / semipresencial)</td></tr>
+          <tr><th>Saberes previos</th><td>Nociones básicas de composición, color y estructura de una pantalla.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ================= C. INDICACIONES INICIALES ================= -->
+  <section class="panel" aria-labelledby="comoTitle">
+    <span class="kicker">🧭 Cómo funciona la misión</span>
+    <h2 id="comoTitle" style="margin-top:.6rem">Reglas del juego</h2>
+    <div class="grid2">
+      <div class="callout blue"><div class="h">🎮 Avance por niveles</div><p class="small" style="margin:0">Recorres 5 niveles IUTPC.
+        Cada nivel se <strong>desbloquea</strong> al completar el anterior. Puedes reintentar sin castigo.</p></div>
+      <div class="callout blue"><div class="h">⭐ XP e insignias</div><p class="small" style="margin:0">Ganas XP por participar, razonar,
+        colaborar, reflexionar y registrar evidencias. Cada logro otorga una insignia.</p></div>
+      <div class="callout blue"><div class="h">👥 Grupal vs. 👤 individual</div><p class="small" style="margin:0">Niveles 1–4 se trabajan en
+        <strong>equipo</strong>; el reto de aplicación (Nivel 4) y la reflexión (Nivel 5) son <strong>individuales</strong>.</p></div>
+      <div class="callout blue"><div class="h">💾 Tu avance se guarda</div><p class="small" style="margin:0">Todo queda en <em>este</em>
+        navegador (localStorage). Nada se envía a servidores externos. Usa <strong>Guardar</strong> y <strong>Reiniciar</strong>.</p></div>
+    </div>
+
+    <div class="oneline">
+      <div class="h">💡 En una frase</div>
+      <p style="margin:.3rem 0 0"><strong>El equipo</strong> diagnostica por qué el portal de matrícula confunde y construye
+      juntos los criterios de una interfaz clara. <strong>Cada estudiante</strong> entrega, de forma individual, un
+      prototipo de baja fidelidad comentado con su justificación de jerarquía, contraste y accesibilidad.</p>
+    </div>
+
+    <div class="callout" role="note">
+      <div class="h">🤝 Lo que esperamos de ti</div>
+      <p class="small" style="margin:0">Participación honesta, escucha activa, argumentos basados en criterios (no en gustos)
+      y uso <strong>ético y transparente</strong> de cualquier herramienta de IA. Registra tus evidencias en GitHub.</p>
+    </div>
+  </section>
+
+  <!-- ================= D. REGISTRO ================= -->
+  <section class="panel amber" aria-labelledby="regTitle" id="registro">
+    <span class="kicker amber">👤 Registro de estudiante / equipo</span>
+    <h2 id="regTitle" style="margin-top:.6rem">Configura tu célula de diseño</h2>
+    <p class="muted small">Estos datos personalizan tu informe final. <strong>Privacidad:</strong> se guardan solo en tu
+      navegador; no se transmiten a ningún servidor. Evita datos sensibles.</p>
+
+    <fieldset style="border:none;padding:0;margin:0">
+      <legend class="small muted" style="margin-bottom:.5rem">Modalidad de trabajo</legend>
+      <div class="likert" style="max-width:340px" role="radiogroup" aria-label="Modo de trabajo">
+        <button type="button" id="modeTeam" class="sel" role="radio" aria-checked="true" onclick="setMode('team')">👥 Modo equipo</button>
+        <button type="button" id="modeSolo" role="radio" aria-checked="false" onclick="setMode('solo')">👤 Modo individual</button>
+      </div>
+    </fieldset>
+
+    <div class="grid2" style="margin-top:.8rem">
+      <div class="field"><label for="fName">Apellidos y nombres *</label>
+        <input class="inp" id="fName" placeholder="Ej.: Ramírez Soto, Ana"></div>
+      <div class="field"><label for="fEmail">Correo institucional</label>
+        <input class="inp" id="fEmail" type="email" placeholder="ana.ramirez@idc.edu.pe"></div>
+      <div class="field" id="teamOnly1"><label for="fTeam">Nombre del equipo</label>
+        <input class="inp" id="fTeam" placeholder="Ej.: Estudio Pixel Claro"></div>
+      <div class="field"><label for="fRole">Tu rol en el equipo</label>
+        <select class="inp" id="fRole">
+          <option value="">Selecciona…</option>
+          <option>Líder de diseño</option><option>Investigador/a UX</option>
+          <option>Prototipador/a</option><option>Especialista en accesibilidad</option>
+          <option>Comunicador/a</option>
+        </select></div>
+    </div>
+
+    <div id="teamOnly2">
+      <label>Miembros adicionales del equipo</label>
+      <div id="membersList"></div>
+      <button type="button" class="btn ghost sm" onclick="addMember()">➕ Agregar miembro</button>
+    </div>
+
+    <div class="field" style="margin-top:.8rem"><label for="fRepo">Repositorio GitHub (portafolio) — opcional</label>
+      <input class="inp" id="fRepo" placeholder="github.com/tu-usuario/portafolio-idc"></div>
+
+    <div class="btn-row">
+      <button class="btn" onclick="registerStudent()">🚀 Registrar y comenzar</button>
+      <button class="btn ghost" onclick="saveProgress(true)">💾 Guardar avance</button>
+      <button class="btn ghost amber" onclick="resetProgress()">♻️ Reiniciar</button>
+      <button class="btn ghost" onclick="toggleHelp()">❓ Ayuda</button>
+    </div>
+    <div id="regMsg" class="fb ok" role="status"></div>
+
+    <div id="helpBox" class="callout" style="display:none;margin-top:.9rem">
+      <div class="h">❓ Ayuda rápida</div>
+      <ul class="small" style="margin:.3rem 0 0">
+        <li><strong>Registra</strong> tus datos para personalizar el informe.</li>
+        <li>Ve <strong>nivel por nivel</strong>: cada uno se desbloquea al completar el anterior.</li>
+        <li>Marca las casillas <strong>“Ya realicé el commit”</strong> para ganar XP de portafolio.</li>
+        <li>Al final, <strong>copia o descarga</strong> tu informe en Markdown.</li>
+        <li>Todo se guarda en tu navegador; nada sale a internet.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ================= RASTREADOR ================= -->
+  <section class="panel" aria-labelledby="trackTitle">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem">
+      <span class="kicker">🛰️ Rastreador de la misión</span>
+      <span class="small muted">Progreso: <strong id="progPct" style="color:var(--idc-amber)">0%</strong></span>
+    </div>
+    <div class="tracker" id="tracker">
+      <div class="tstep" data-step="1"><div class="n">1</div><small>Inicio</small></div>
+      <div class="tstep" data-step="2"><div class="n">2</div><small>Utilidad</small></div>
+      <div class="tstep" data-step="3"><div class="n">3</div><small>Transform.</small></div>
+      <div class="tstep" data-step="4"><div class="n">4</div><small>Práctica</small></div>
+      <div class="tstep" data-step="5"><div class="n">5</div><small>Cierre</small></div>
+    </div>
+  </section>
+
+  <!-- ================= TABS ================= -->
+  <nav class="tabs" id="tabs" role="tablist" aria-label="Secciones de la misión">
+    <button role="tab" class="active" data-tab="niveles" aria-selected="true">🎮 Niveles IUTPC</button>
+    <button role="tab" data-tab="insignias" aria-selected="false">🏅 Insignias</button>
+    <button role="tab" data-tab="rubrica" aria-selected="false">📊 Evaluación</button>
+    <button role="tab" data-tab="ia" aria-selected="false">🤖 Uso de IA</button>
+    <button role="tab" data-tab="informe" aria-selected="false">📄 Informe final</button>
+  </nav>
+
+  <!-- ============================================================
+       TAB: NIVELES
+       ============================================================ -->
+  <div class="tabpane active" id="pane-niveles" role="tabpanel">
+
+  <!-- ===== NIVEL 1 · INICIO ===== -->
+  <section class="panel amber" id="n1" aria-labelledby="n1t">
+    <span class="kicker amber">🔴 Nivel 1 · Inicio · 12 min</span>
+    <p class="phase">Fase I · Activación y desafío</p>
+    <h2 id="n1t">Señal de Abandono</h2>
+    <p class="aim">▶ Objetivo: activar tus ideas previas sobre qué hace confusa una interfaz y presentar el problema real.</p>
+
+    <div class="callout">
+      <div class="h">🔎 Enigma de apertura (respuesta abierta)</div>
+      <p class="small">Observa el <strong>expediente del portal de matrícula</strong>. En la analítica, el 68 % de las personas
+      abandona en la pantalla de pago. La pantalla muestra <em>14 botones del mismo tamaño y color</em>, textos grises claros
+      sobre fondo blanco y el botón “Pagar” escondido abajo a la derecha.</p>
+      <label for="n1open"><strong>¿Por qué crees que la gente abandona aquí?</strong> Escribe tu primera hipótesis:</label>
+      <textarea class="inp" id="n1open" placeholder="Mi hipótesis: la gente abandona porque…"></textarea>
+    </div>
+
+    <div class="callout blue">
+      <div class="h">📶 Autopercepción inicial</div>
+      <p class="small" style="margin:.2rem 0">Antes de empezar, ¿qué tan preparado/a te sientes para diseñar una interfaz
+      clara y accesible? (1 = nada · 5 = mucho)</p>
+      <div class="likert" id="n1conf" role="radiogroup" aria-label="Confianza inicial de 1 a 5">
+        <button type="button" onclick="setLikert('n1conf',1,this)" aria-label="1">1</button>
+        <button type="button" onclick="setLikert('n1conf',2,this)" aria-label="2">2</button>
+        <button type="button" onclick="setLikert('n1conf',3,this)" aria-label="3">3</button>
+        <button type="button" onclick="setLikert('n1conf',4,this)" aria-label="4">4</button>
+        <button type="button" onclick="setLikert('n1conf',5,this)" aria-label="5">5</button>
+      </div>
+    </div>
+
+    <div class="callout">
+      <div class="h">🔐 Verificación de acceso — Nivel 1</div>
+      <div class="field"><label for="v1a">1. Conceptual: la <em>jerarquía visual</em> sirve, sobre todo, para…</label>
+        <select class="inp" id="v1a" data-ok="guiar" onchange="checkSelect(this)">
+          <option value="">Selecciona…</option>
+          <option value="guiar">Guiar la mirada hacia lo más importante primero</option>
+          <option>Que la pantalla tenga más colores</option>
+          <option>Llenar todo el espacio disponible</option>
+        </select></div>
+      <div class="field"><label for="v1b">2. Aplicada: en el portal de matrícula, ¿qué acción debería resaltar MÁS?</label>
+        <select class="inp" id="v1b" data-ok="pagar" onchange="checkSelect(this)">
+          <option value="">Selecciona…</option>
+          <option value="pagar">El botón principal “Pagar matrícula”</option>
+          <option>El enlace a “Términos y condiciones”</option>
+          <option>El logo de la institución</option>
+        </select></div>
+      <div class="btn-row">
+        <button class="btn" onclick="completeLevel(1)">✅ Completar Nivel 1</button>
+      </div>
+      <div class="fb" id="n1fb" role="status" aria-live="polite"></div>
+    </div>
+
+    <div class="interp"><strong>📋 Interpretación docente:</strong> la hipótesis abierta revela las teorías intuitivas del
+      estudiante sobre usabilidad; sus respuestas de verificación muestran si distingue “decorar” de “jerarquizar”. La escala
+      de confianza aporta una línea base para contrastar en el cierre (Nivel 5).</p>
+
+    <div class="evi">
+      <div class="h">📎 Evidencia para portafolio GitHub</div>
+      <p class="small" style="margin:.1rem 0">Archivo <code>n1-diagnostico-abandono.md</code> (<code>.md</code>) con tu hipótesis
+      inicial y 3 problemas que detectaste en la pantalla.</p>
+      <span class="commit">git commit -m "N1: diagnóstico inicial del portal de matrícula"</span>
+      <label class="check"><input type="checkbox" data-evi="e1" onchange="checkEvidence(this)"> Ya realicé el commit (+25 XP)</label>
+    </div>
+  </section>
+
+  <!-- ===== NIVEL 2 · UTILIDAD ===== -->
+  <section class="panel locked" id="n2" aria-labelledby="n2t">
+    <div class="lockmsg" id="lock2"><span><span class="big">🔒</span>Completa el <strong>Nivel 1</strong> para desbloquear la Utilidad.</span></div>
+    <span class="kicker">🟡 Nivel 2 · Utilidad · 18 min</span>
+    <p class="phase">Fase U · Conectar y contextualizar</p>
+    <h2 id="n2t">Mapa de Necesidades</h2>
+    <p class="aim">▶ Objetivo: vincular la jerarquía y la accesibilidad con su valor profesional y social real.</p>
+
+    <div class="callout">
+      <div class="h">🧠 Rutina de pensamiento — KWL</div>
+      <p class="small">Completa las dos primeras columnas ahora. La tercera (“Lo que aprendí”) se
+        <strong>desbloquea en el Nivel 5</strong>.</p>
+      <div class="grid2">
+        <div class="field"><label for="kwlK">✅ Lo que SÉ sobre interfaces claras</label>
+          <textarea class="inp" id="kwlK" placeholder="Ya sé que…"></textarea></div>
+        <div class="field"><label for="kwlW">❓ Lo que NECESITO saber</label>
+          <textarea class="inp" id="kwlW" placeholder="Necesito entender…"></textarea></div>
+      </div>
+      <div class="field"><label for="kwlL">🌟 Lo que APRENDÍ (se desbloquea en el Nivel 5)</label>
+        <textarea class="inp" id="kwlL" placeholder="Disponible tras completar el Nivel 5…" disabled></textarea></div>
+    </div>
+
+    <div class="callout blue">
+      <div class="h">🗳️ Dinámica colaborativa — Prioriza el impacto</div>
+      <p class="small">En equipo, ¿qué mejora reduciría MÁS el abandono en el portal? Vota la opción que defiendas y justifícala.</p>
+      <div class="field"><label for="n2vote">Mi voto de equipo</label>
+        <select class="inp" id="n2vote">
+          <option>Hacer visible y jerarquizar el botón “Pagar”</option>
+          <option>Añadir más colores e ilustraciones decorativas</option>
+          <option>Reducir el texto y mejorar contraste y etiquetas</option>
+          <option>Agregar un video de bienvenida</option>
+        </select></div>
+      <div class="field"><label for="n2just">Justificación (¿a quién beneficia y por qué?)</label>
+        <textarea class="inp" id="n2just" placeholder="Elegimos esto porque impacta a… y mejora…"></textarea></div>
+    </div>
+
+    <div class="callout">
+      <div class="h">🔐 Verificación de acceso — Nivel 2</div>
+      <div class="field"><label for="v2a">1. ¿Por qué la accesibilidad es un valor profesional, no un “extra”?</label>
+        <select class="inp" id="v2a" data-ok="mas" onchange="checkSelect(this)">
+          <option value="">Selecciona…</option>
+          <option value="mas">Amplía el número de personas que pueden completar el trámite</option>
+          <option>Hace la interfaz más colorida</option>
+          <option>Reduce el tamaño del archivo</option>
+        </select></div>
+      <div class="field"><label for="v2b">2. Contexto: mejorar contraste y etiquetas beneficia especialmente a…</label>
+        <select class="inp" id="v2b" data-ok="baja" onchange="checkSelect(this)">
+          <option value="">Selecciona…</option>
+          <option value="baja">Personas con baja visión o usando el móvil bajo el sol</option>
+          <option>Solo a personas expertas en diseño</option>
+          <option>A nadie en particular</option>
+        </select></div>
+      <div class="btn-row"><button class="btn" onclick="completeLevel(2)">✅ Completar Nivel 2</button></div>
+      <div class="fb" id="n2fb" role="status" aria-live="polite"></div>
+    </div>
+
+    <div class="interp"><strong>📋 Interpretación docente:</strong> el KWL explicita la distancia entre lo que el estudiante
+      cree saber y lo que necesita; la votación revela si prioriza criterios de impacto (claridad, accesibilidad) sobre
+      criterios estéticos superficiales.</p>
+
+    <div class="evi">
+      <div class="h">📎 Evidencia parcial para portafolio GitHub</div>
+      <p class="small" style="margin:.1rem 0">Archivo <code>n2-kwl-necesidades.md</code> con tus columnas K y W y el voto justificado del equipo.</p>
+      <span class="commit">git commit -m "N2: mapa de necesidades y rutina KWL"</span>
+      <label class="check"><input type="checkbox" data-evi="e2" onchange="checkEvidence(this)"> Ya realicé el commit (+25 XP)</label>
+    </div>
+  </section>
+
+  <!-- ===== NIVEL 3 · TRANSFORMACIÓN ===== -->
+  <section class="panel locked" id="n3" aria-labelledby="n3t">
+    <div class="lockmsg" id="lock3"><span><span class="big">🔒</span>Completa el <strong>Nivel 2</strong> para entrar al laboratorio.</span></div>
+    <span class="kicker">🟠 Nivel 3 · Transformación · 35 min</span>
+    <p class="phase">Fase T · Construcción conceptual</p>
+    <h2 id="n3t">Laboratorio de Jerarquía</h2>
+    <p class="aim">▶ Objetivo: explorar, analizar y transformar los principios de jerarquía visual, contraste y accesibilidad en comprensión aplicable.</p>
+
+    <!-- Microactividad 1: definición interactiva (flip cards) -->
+    <div class="callout">
+      <div class="h">🃏 Micro-actividad 1 · Definiciones vivas</div>
+      <p class="small">Objetivo: reconocer 4 principios. <strong>Toca cada tarjeta</strong> (o pulsa Enter) para revelar su definición y ejemplo. Ábrelas todas para avanzar.</p>
+      <div class="cards" id="flipCards">
+        <div class="card-flip" tabindex="0" role="button" aria-pressed="false">
+          <span class="hint">↻</span><h4>Jerarquía visual</h4>
+          <div class="back">Orden con que la mirada recorre la pantalla. Se construye con tamaño, peso, color y posición.
+            <em>Ej.: el botón “Pagar” grande y en color acento se ve primero.</em></div>
+        </div>
+        <div class="card-flip" tabindex="0" role="button" aria-pressed="false">
+          <span class="hint">↻</span><h4>Contraste</h4>
+          <div class="back">Diferencia perceptible entre elementos (color, luminancia, tamaño). WCAG 2.1 AA pide ≥ 4.5:1 en texto normal.
+            <em>Ej.: texto gris claro sobre blanco falla; texto oscuro pasa.</em></div>
+        </div>
+        <div class="card-flip" tabindex="0" role="button" aria-pressed="false">
+          <span class="hint">↻</span><h4>Foco / acción primaria</h4>
+          <div class="back">Cada pantalla necesita UNA acción dominante. Si todo resalta, nada resalta.
+            <em>Ej.: “Pagar” como único botón sólido; el resto, enlaces secundarios.</em></div>
+        </div>
+        <div class="card-flip" tabindex="0" role="button" aria-pressed="false">
+          <span class="hint">↻</span><h4>Navegación accesible</h4>
+          <div class="back">Se puede recorrer con teclado, tiene foco visible, etiquetas claras y no depende solo del color.
+            <em>Ej.: errores marcados con ícono + texto, no solo en rojo.</em></div>
+        </div>
+      </div>
+      <div class="fb" id="flipFb" role="status" aria-live="polite"></div>
+    </div>
+
+    <!-- Microactividad 2: clasificación drag & drop con fallback táctil -->
+    <div class="callout blue">
+      <div class="h">🗂️ Micro-actividad 2 · Clasifica: ¿accesible o barrera?</div>
+      <p class="small">Objetivo: discriminar decisiones que ayudan de las que excluyen.
+        <strong>Arrastra</strong> cada ficha a su columna — o, en móvil, <strong>toca la ficha y luego la columna</strong>.</p>
+      <div class="pool" id="dndPool"></div>
+      <div class="bins">
+        <div class="bin ok" data-bin="ok" ondragover="dndOver(event)" ondragleave="dndLeave(event)" ondrop="dndDrop(event)" onclick="dndTapBin('ok')">
+          <h5>✅ Buena práctica</h5><div class="dropped" id="binok"></div></div>
+        <div class="bin no" data-bin="no" ondragover="dndOver(event)" ondragleave="dndLeave(event)" ondrop="dndDrop(event)" onclick="dndTapBin('no')">
+          <h5>⛔ Barrera</h5><div class="dropped" id="binno"></div></div>
+      </div>
+      <div class="btn-row"><button class="btn sm blue" onclick="checkDnd()">Comprobar clasificación</button></div>
+      <div class="fb" id="dndFb" role="status" aria-live="polite"></div>
+    </div>
+
+    <!-- Microactividad 3: ANAGRAMA conceptual (obligatorio por skill IDC) -->
+    <div class="callout">
+      <div class="h">🔤 Micro-actividad 3 · Anagrama conceptual</div>
+      <p class="small">Objetivo: fijar el término central. Reordena las letras. <strong>Pista:</strong> propiedad que asegura que
+        el texto se lea sobre su fondo; WCAG pide como mínimo 4.5:1.</p>
+      <div class="anagram" id="anagramLetters" aria-hidden="true"></div>
+      <div class="field" style="max-width:320px"><label for="anagramInp">Escribe la palabra (9 letras)</label>
+        <input class="inp" id="anagramInp" maxlength="9" autocomplete="off" placeholder="_ _ _ _ _ _ _ _ _"></div>
+      <div class="btn-row">
+        <button class="btn sm" onclick="checkAnagram()">Comprobar</button>
+        <button class="btn ghost sm" onclick="shuffleAnagram()">🔀 Rebarajar</button>
+      </div>
+      <div class="fb" id="anagramFb" role="status" aria-live="polite"></div>
+    </div>
+
+    <!-- Microactividad 4: opción múltiple con caso -->
+    <div class="callout blue">
+      <div class="h">🧪 Micro-actividad 4 · Decisión sobre el caso</div>
+      <p class="small">Objetivo: aplicar los principios. En la pantalla de pago del portal conviven 14 botones idénticos.
+        ¿Cuál es la mejor primera decisión de jerarquía?</p>
+      <div class="field"><label for="v3case">Elige y observa por qué las otras opciones fallan:</label>
+        <select class="inp" id="v3case" data-ok="unico" onchange="checkSelect(this)">
+          <option value="">Selecciona…</option>
+          <option value="unico">Dejar “Pagar” como único botón sólido y convertir el resto en enlaces secundarios</option>
+          <option>Pintar los 14 botones de colores distintos</option>
+          <option>Aumentar el tamaño de todos los botones por igual</option>
+        </select></div>
+      <div class="fb" id="v3caseFb" role="status" aria-live="polite"></div>
+    </div>
+
+    <!-- Cierre de nivel: 3 preguntas -->
+    <div class="callout">
+      <div class="h">🔐 Cierre del Nivel 3 — tres miradas</div>
+      <div class="field"><label for="n3c1">Conceptual: ¿qué significa que “si todo resalta, nada resalta”?</label>
+        <textarea class="inp" id="n3c1" placeholder="Significa que…"></textarea></div>
+      <div class="field"><label for="n3c2">Aplicada: menciona un cambio concreto de contraste para el portal.</label>
+        <textarea class="inp" id="n3c2" placeholder="Cambiaría…"></textarea></div>
+      <div class="field"><label for="n3c3">Metacognitiva: ¿qué idea tuya cambió en este laboratorio?</label>
+        <textarea class="inp" id="n3c3" placeholder="Antes pensaba… ahora pienso…"></textarea></div>
+      <div class="btn-row"><button class="btn" onclick="completeLevel(3)">✅ Completar Nivel 3</button></div>
+      <div class="fb" id="n3fb" role="status" aria-live="polite"></div>
+    </div>
+
+    <div class="interp"><strong>📋 Interpretación docente:</strong> las cuatro micro-actividades cubren representación múltiple
+      (leer, clasificar, reconstruir, decidir). El anagrama fija el vocabulario técnico; la pregunta metacognitiva (“antes
+      pensaba / ahora pienso”) evidencia la transformación conceptual, núcleo de la fase T.</p>
+
+    <div class="evi">
+      <div class="h">📎 Evidencia para portafolio GitHub</div>
+      <p class="small" style="margin:.1rem 0">Archivo <code>n3-principios-jerarquia.md</code> con las 4 definiciones con tus palabras,
+        la clasificación y tus respuestas de cierre.</p>
+      <span class="commit">git commit -m "N3: principios de jerarquía, contraste y accesibilidad"</span>
+      <label class="check"><input type="checkbox" data-evi="e3" onchange="checkEvidence(this)"> Ya realicé el commit (+25 XP)</label>
+    </div>
+  </section>
+
+  <!-- ===== NIVEL 4 · PRÁCTICA ===== -->
+  <section class="panel locked" id="n4" aria-labelledby="n4t">
+    <div class="lockmsg" id="lock4"><span><span class="big">🔒</span>Completa el <strong>Nivel 3</strong> para pasar a producción.</span></div>
+    <span class="kicker">🟢 Nivel 4 · Práctica · 23 min</span>
+    <p class="phase">Fase P · Producción y aplicación (individual)</p>
+    <h2 id="n4t">Prototipo de Rescate</h2>
+    <p class="aim">▶ Objetivo: aplicar lo aprendido para diseñar tu prototipo de baja fidelidad del portal, listo para el cliente.</p>
+
+    <div class="callout amber">
+      <div class="h">📐 Criterios de calidad (léelos ANTES de crear)</div>
+      <ul class="small" style="margin:.2rem 0 0">
+        <li>Hay <strong>una acción primaria</strong> evidente por pantalla.</li>
+        <li>El texto principal cumple <strong>contraste ≥ 4.5:1</strong>.</li>
+        <li>La navegación funciona <strong>con teclado</strong> y no depende solo del color.</li>
+        <li>Cada decisión tiene una <strong>justificación</strong> basada en un principio.</li>
+      </ul>
+    </div>
+
+    <div class="callout">
+      <div class="h">🗒️ Ficha de misión — Prototipo comentado (editable)</div>
+      <div class="field"><label for="p_org">Pantalla que rediseñas</label>
+        <input class="inp" id="p_org" placeholder="Ej.: Pantalla de pago de matrícula"></div>
+      <div class="field"><label for="p_prob">Problema que resuelve tu prototipo</label>
+        <textarea class="inp" id="p_prob" placeholder="El abandono se debe a… y lo resuelvo…"></textarea></div>
+      <div class="field"><label for="p_primary">Acción primaria (la que más resalta)</label>
+        <input class="inp" id="p_primary" placeholder="Ej.: Botón “Pagar matrícula”"></div>
+      <div class="field"><label for="p_hier">Decisión de jerarquía (tamaño / posición / peso)</label>
+        <textarea class="inp" id="p_hier" placeholder="Coloco el botón principal… porque…"></textarea></div>
+      <div class="field"><label for="p_contrast">Decisión de contraste (colores / relación)</label>
+        <textarea class="inp" id="p_contrast" placeholder="Uso texto oscuro sobre fondo claro con relación ≈ 7:1 porque…"></textarea></div>
+      <div class="field"><label for="p_a11y">Decisión de accesibilidad (teclado / etiquetas / errores)</label>
+        <textarea class="inp" id="p_a11y" placeholder="Los errores se marcan con ícono + texto, no solo color…"></textarea></div>
+      <div class="field"><label for="p_sketch">Boceto en palabras (describe tu wireframe de arriba a abajo)</label>
+        <textarea class="inp" id="p_sketch" placeholder="Cabecera con título → resumen del costo → botón Pagar grande → enlaces secundarios abajo…"></textarea></div>
+    </div>
+
+    <div class="callout blue">
+      <div class="h">🎤 Comunicación profesional · Pitch de 60 segundos</div>
+      <p class="small">Redacta cómo presentarías tu prototipo al cliente en 60 segundos. Foco: problema → decisión clave → beneficio.</p>
+      <div class="field"><label for="p_pitch">Tu pitch</label>
+        <textarea class="inp" id="p_pitch" placeholder="“Reduje el abandono jerarquizando el pago: ahora la acción principal…”"></textarea></div>
+    </div>
+
+    <div class="callout">
+      <div class="h">🤝 Coevaluación entre pares</div>
+      <div class="field"><label for="p_valoro">Lo que más valoro de la propuesta de mi par es…</label>
+        <textarea class="inp" id="p_valoro" placeholder="Valoro que…"></textarea></div>
+      <div class="field"><label for="p_mejora">Una mejora posible sería…</label>
+        <textarea class="inp" id="p_mejora" placeholder="Podría mejorar si…"></textarea></div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn" onclick="completeLevel(4)">✅ Completar Nivel 4</button>
+      <button class="btn ghost" onclick="copyText(buildEvidenceMd(), 'Ficha copiada en Markdown ✅')">📋 Copiar ficha (Markdown)</button>
+      <button class="btn ghost amber" onclick="downloadFile('sesion-03-prototipo-accesible.md', buildEvidenceMd())">⬇️ Descargar .md</button>
+    </div>
+    <div class="fb" id="n4fb" role="status" aria-live="polite"></div>
+
+    <div class="interp"><strong>📋 Interpretación docente:</strong> la ficha traduce los principios en decisiones justificadas
+      —el salto de “saber” a “saber hacer”—. El pitch evalúa comunicación profesional y la coevaluación entrena la mirada
+      crítica constructiva entre pares.</p>
+
+    <div class="evi">
+      <div class="h">📎 Evidencia principal para portafolio GitHub</div>
+      <p class="small" style="margin:.1rem 0">Archivo <code>sesion-03-prototipo-accesible.md</code> (más una imagen
+        <code>.png</code> de tu boceto si lo dibujas).</p>
+      <span class="commit">git commit -m "N4: prototipo comentado del portal accesible"</span>
+      <label class="check"><input type="checkbox" data-evi="e4" onchange="checkEvidence(this)"> Ya realicé el commit (+25 XP)</label>
+    </div>
+  </section>
+
+  <!-- ===== NIVEL 5 · CIERRE ===== -->
+  <section class="panel locked" id="n5" aria-labelledby="n5t">
+    <div class="lockmsg" id="lock5"><span><span class="big">🔒</span>Completa el <strong>Nivel 4</strong> para la entrega final.</span></div>
+    <span class="kicker">🔵 Nivel 5 · Cierre · 12 min</span>
+    <p class="phase">Fase C · Reflexión y transferencia (individual)</p>
+    <h2 id="n5t">Entrega al Cliente</h2>
+    <p class="aim">▶ Objetivo: consolidar, reflexionar sobre tu aprendizaje y proyectar dónde lo aplicarás.</p>
+
+    <div class="callout amber">
+      <div class="h">🌟 Se desbloquea: “Lo que aprendí” (KWL)</div>
+      <p class="small">Vuelve a tu rutina del Nivel 2 y cierra el ciclo.</p>
+      <div class="field"><label for="kwlL2">Lo que APRENDÍ en esta sesión</label>
+        <textarea class="inp" id="kwlL2" placeholder="Ahora sé que… y puedo…"></textarea></div>
+    </div>
+
+    <div class="callout blue">
+      <div class="h">📶 Autoevaluación y reflexión</div>
+      <p class="small">Vuelve a medir tu confianza para diseñar interfaces claras y accesibles (1–5):</p>
+      <div class="likert" id="n5conf" role="radiogroup" aria-label="Confianza final de 1 a 5">
+        <button type="button" onclick="setLikert('n5conf',1,this)" aria-label="1">1</button>
+        <button type="button" onclick="setLikert('n5conf',2,this)" aria-label="2">2</button>
+        <button type="button" onclick="setLikert('n5conf',3,this)" aria-label="3">3</button>
+        <button type="button" onclick="setLikert('n5conf',4,this)" aria-label="4">4</button>
+        <button type="button" onclick="setLikert('n5conf',5,this)" aria-label="5">5</button>
+      </div>
+      <div class="field" style="margin-top:.7rem"><label for="n5transfer">Transferencia: ¿dónde y cómo aplicarías esto FUERA del aula?</label>
+        <textarea class="inp" id="n5transfer" placeholder="Lo aplicaría en… por ejemplo al…"></textarea></div>
+      <div class="field"><label for="n5commit">Compromiso de mejora (una acción concreta para tu próximo diseño)</label>
+        <textarea class="inp" id="n5commit" placeholder="Me comprometo a…"></textarea></div>
+      <div class="field"><label for="n5synth">Síntesis: los 3 conceptos clave que me llevo</label>
+        <input class="inp" id="n5synth" placeholder="Ej.: jerarquía, contraste, accesibilidad"></div>
+    </div>
+
+    <div class="btn-row"><button class="btn" onclick="completeLevel(5)">🏁 Completar Nivel 5 y cerrar misión</button></div>
+    <div class="fb" id="n5fb" role="status" aria-live="polite"></div>
+
+    <div class="interp"><strong>📋 Interpretación docente:</strong> comparar la confianza inicial (N1) con la final (N5) da un
+      indicador de autoeficacia percibida; la pregunta de transferencia y el compromiso muestran si el aprendizaje se proyecta
+      más allá de la tarea puntual.</p>
+
+    <!-- Panel de misión cumplida -->
+    <div id="finalPanel" class="callout" style="display:none;text-align:center;margin-top:1rem">
+      <div style="font-size:2.6rem">🏆</div>
+      <h3 style="margin:.2rem 0">¡Misión cumplida, <span id="finalName">diseñador/a</span>!</h3>
+      <p class="small muted">Rescataste el portal de matrícula. No importa solo el puntaje: importa cómo pasaste de
+        “decorar” a <strong>diseñar con criterio</strong>. Ese es el salto profesional.</p>
+      <div class="metric-row">
+        <div class="metric"><b id="finalXP">0</b><small>XP total</small></div>
+        <div class="metric"><b id="finalBadges">0/6</b><small>Insignias</small></div>
+        <div class="metric"><b id="finalPct">0%</b><small>Progreso</small></div>
+      </div>
+      <div class="btn-row" style="justify-content:center">
+        <button class="btn" onclick="goTab('informe')">📄 Ver informe final</button>
+      </div>
+    </div>
+
+    <div class="evi">
+      <div class="h">📎 Evidencia de cierre para portafolio GitHub</div>
+      <p class="small" style="margin:.1rem 0">Archivo <code>n5-reflexion-transferencia.md</code> con tu KWL cerrado y tu reflexión.</p>
+      <span class="commit">git commit -m "N5: reflexión, transferencia y cierre de la sesión 03"</span>
+      <label class="check"><input type="checkbox" data-evi="e5" onchange="checkEvidence(this)"> Ya realicé el commit (+25 XP)</label>
+    </div>
+  </section>
+
+  </div><!-- /pane-niveles -->
+
+  <!-- ============================================================
+       TAB: INSIGNIAS
+       ============================================================ -->
+  <div class="tabpane" id="pane-insignias" role="tabpanel">
+    <section class="panel amber">
+      <span class="kicker amber">🏅 Sala de insignias</span>
+      <h2 style="margin-top:.6rem">Tu progreso, sin rankings</h2>
+      <p class="muted small">Aquí no compites contra nadie: cada insignia reconoce un tipo de logro. Se desbloquean solas al avanzar.</p>
+      <div class="badges" id="badgeGrid">
+        <div class="badge-item" data-badge="explorador"><div class="ico">🧭</div><b>Explorador/a</b><small>Completar el reto inicial (N1)</small></div>
+        <div class="badge-item" data-badge="analista"><div class="ico">🔬</div><b>Analista</b><small>Demostrar comprensión conceptual (N3)</small></div>
+        <div class="badge-item" data-badge="estratega"><div class="ico">♟️</div><b>Estratega</b><small>Resolver el caso aplicado (N3/N4)</small></div>
+        <div class="badge-item" data-badge="constructor"><div class="ico">🛠️</div><b>Constructor/a</b><small>Elaborar la evidencia (N4)</small></div>
+        <div class="badge-item" data-badge="etico"><div class="ico">⚖️</div><b>Profesional ético</b><small>Completar la reflexión sobre uso de IA</small></div>
+        <div class="badge-item" data-badge="guardian"><div class="ico">🗄️</div><b>Guardián/a del portafolio</b><small>Registrar evidencias en GitHub</small></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ============================================================
+       TAB: RÚBRICA / EVALUACIÓN
+       ============================================================ -->
+  <div class="tabpane" id="pane-rubrica" role="tabpanel">
+    <section class="panel">
+      <span class="kicker">📊 Evaluación formativa</span>
+      <h2 style="margin-top:.6rem">Rúbrica de desempeño</h2>
+      <div class="tbl-wrap">
+        <table class="data rubric">
+          <thead><tr><th>Criterio</th><th>Logrado</th><th>En proceso</th><th>Inicial</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Comprensión conceptual</strong></td><td>Explica y relaciona jerarquía, contraste y accesibilidad</td>
+              <td>Reconoce los conceptos con algunas imprecisiones</td><td>Presenta confusiones relevantes</td></tr>
+            <tr><td><strong>Aplicación al caso</strong></td><td>Propone decisiones pertinentes y justificadas para el portal</td>
+              <td>Propone decisiones parcialmente pertinentes</td><td>No vincula principios y caso</td></tr>
+            <tr><td><strong>Trabajo colaborativo</strong></td><td>Participa, escucha y aporta constructivamente</td>
+              <td>Participa de manera irregular</td><td>Muestra escasa colaboración</td></tr>
+            <tr><td><strong>Comunicación y evidencia</strong></td><td>Prototipo claro, organizado y bien justificado</td>
+              <td>Evidencia parcial</td><td>Evidencia incompleta o poco clara</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout" style="margin-top:1rem">
+        <div class="h">📝 Autoevaluación (1 = bajo · 5 = alto)</div>
+        <div id="selfEval"></div>
+      </div>
+
+      <div class="callout blue">
+        <div class="h">🤝 Coevaluación breve</div>
+        <p class="small" style="margin:0">Se registra en el Nivel 4 (“Lo que más valoro…” y “Una mejora posible…”). Aparecerá en tu informe final.</p>
+      </div>
+
+      <div class="interp"><strong>📋 Interpretación docente — qué evidencia cada nivel:</strong>
+        <ul class="small" style="margin:.3rem 0 0">
+          <li><strong>N1</strong> · teorías intuitivas y línea base de confianza.</li>
+          <li><strong>N2</strong> · jerarquización de valor (impacto vs. estética) y saberes previos.</li>
+          <li><strong>N3</strong> · comprensión conceptual y cambio de idea (metacognición).</li>
+          <li><strong>N4</strong> · transferencia a producto y comunicación profesional.</li>
+          <li><strong>N5</strong> · autorregulación, proyección y cierre del ciclo experiencial.</li>
+        </ul>
+        La retroalimentación es <strong>formativa y no punitiva</strong>: el error abre pista, dato y contexto, nunca “game over”.</p>
+    </section>
+  </div>
+
+  <!-- ============================================================
+       TAB: USO DE IA
+       ============================================================ -->
+  <div class="tabpane" id="pane-ia" role="tabpanel">
+    <section class="panel violet">
+      <span class="kicker violet">🤖 Uso responsable de inteligencia artificial</span>
+      <h2 style="margin-top:.6rem">Ética profesional del diseñador/a</h2>
+      <ul class="small">
+        <li>La IA es <strong>apoyo</strong>, no sustituto de tu razonamiento ni de tu criterio de diseño.</li>
+        <li><strong>Verifica, adapta y cita</strong> toda información o recurso generado con IA.</li>
+        <li><strong>No ingreses</strong> datos personales, sensibles o confidenciales (tuyos, de compañeros o del cliente).</li>
+        <li>En diseño e innovación tecnológica, usar IA con transparencia sostiene la <strong>confianza profesional</strong> y evita
+          reproducir sesgos que excluyan a personas usuarias.</li>
+      </ul>
+
+      <div class="callout">
+        <div class="h">🧾 Declaración de uso de IA (editable)</div>
+        <div class="field"><label for="ia_tool">Herramienta utilizada</label>
+          <input class="inp" id="ia_tool" placeholder="Ej.: asistente de IA para ideas de layout / ninguna"></div>
+        <div class="field"><label for="ia_prompt">Prompt empleado</label>
+          <textarea class="inp" id="ia_prompt" placeholder="Copia aquí el prompt que usaste…"></textarea></div>
+        <div class="field"><label for="ia_review">¿Qué revisaste, corregiste o ampliaste tú?</label>
+          <textarea class="inp" id="ia_review" placeholder="Yo verifiqué… corregí… y añadí…"></textarea></div>
+        <div class="btn-row"><button class="btn violet" style="background:var(--violet);color:#fff" onclick="completeIA()">✅ Registrar declaración</button></div>
+        <div class="fb" id="iaFb" role="status" aria-live="polite"></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ============================================================
+       TAB: INFORME FINAL
+       ============================================================ -->
+  <div class="tabpane" id="pane-informe" role="tabpanel">
+    <section class="panel green">
+      <span class="kicker green">📄 Informe final para GitHub</span>
+      <h2 style="margin-top:.6rem">Genera tu reporte en Markdown</h2>
+      <p class="muted small">Reúne tus datos, respuestas, XP, insignias y reflexión en un único archivo listo para tu portafolio.</p>
+      <div class="btn-row">
+        <button class="btn" onclick="refreshReport()">🔄 Generar / actualizar informe</button>
+        <button class="btn ghost" onclick="copyText(document.getElementById('reportOut').value, 'Informe copiado ✅')">📋 Copiar</button>
+        <button class="btn ghost amber" onclick="downloadFile('sesion-03-operacion-interfaz-clara.md', document.getElementById('reportOut').value)">⬇️ Descargar .md</button>
+        <button class="btn ghost" onclick="window.print()">🖨️ Imprimir / PDF</button>
+      </div>
+      <label for="reportOut" style="margin-top:.8rem">Vista previa del informe</label>
+      <textarea class="inp" id="reportOut" style="min-height:320px;font-family:ui-monospace,Consolas,monospace;font-size:.82rem" aria-label="Informe en Markdown" readonly></textarea>
+
+      <div class="evi" style="margin-top:1rem">
+        <div class="h">🗂️ Rutas sugeridas en tu repositorio</div>
+        <ul class="small" style="margin:.2rem 0 0">
+          <li><code>/sesion-03/sesion-03-operacion-interfaz-clara.md</code> — informe completo</li>
+          <li><code>/sesion-03/sesion-03-prototipo-accesible.md</code> — evidencia principal (N4)</li>
+          <li><code>/sesion-03/assets/wireframe.png</code> — boceto (opcional)</li>
+        </ul>
+        <span class="commit">git add . &amp;&amp; git commit -m "Sesión 03 · Operación Interfaz Clara" &amp;&amp; git push</span>
+      </div>
+    </section>
+  </div>
+
+</main>
+
+<!-- ================= FOOTER ================= -->
+<footer class="foot" role="contentinfo">
+  <p><strong class="idc">Instituto de Diseño y Comunicación</strong> · Operación Interfaz Clara · Sesión 03</p>
+  <p>Mg. Mario Quiroz Martínez — Unidad didáctica Investigación e Innovación Tecnológica</p>
+  <p class="small">Enfoque DUA-Experiencial · Modelo IUTPC · Accesibilidad WCAG 2.1 AA · Recurso autocontenido, sin recolección de datos.</p>
+</footer>
+
+<div class="toast-wrap" id="toasts" aria-live="polite" aria-atomic="false"></div>
+
+<script>
+/* ============================================================
+   ESTADO DE LA MISIÓN
+   Persistencia: localStorage con fallback a memoria (por si el
+   navegador la bloquea; así funciona igual en GitHub Pages y en
+   entornos restringidos).
+   ============================================================ */
+const STORE_KEY = 'idc_operacion_interfaz_clara_v1';
+let mem = {}; // respaldo en memoria
+const store = {
+  get(){
+    try{ const raw = localStorage.getItem(STORE_KEY); return raw ? JSON.parse(raw) : null; }
+    catch(e){ return mem[STORE_KEY] || null; }
+  },
+  set(obj){
+    try{ localStorage.setItem(STORE_KEY, JSON.stringify(obj)); }
+    catch(e){ mem[STORE_KEY] = obj; }
+  },
+  clear(){ try{ localStorage.removeItem(STORE_KEY); }catch(e){} mem = {}; }
+};
+
+// Estado por defecto
+const XP = {registro:20, nivel:[0,100,100,150,150,100], evidencia:25, ana:40, ia:60, coev:30};
+let state = {
+  student:{name:'',email:'',team:'',role:'',repo:'',members:[],mode:'team'},
+  xp:0,
+  levels:{1:false,2:false,3:false,4:false,5:false},
+  badges:{explorador:false,analista:false,estratega:false,constructor:false,etico:false,guardian:false},
+  evidence:{e1:false,e2:false,e3:false,e4:false,e5:false},
+  anagramSolved:false,
+  fields:{},          // valores de inputs/textarea/select
+  likert:{},          // escalas
+  self:{}             // autoevaluación
+};
+
+/* ---------- Utilidades ---------- */
+const $ = id => document.getElementById(id);
+function toast(msg){
+  const t = document.createElement('div');
+  t.className='toast'; t.innerHTML = msg;
+  $('toasts').appendChild(t);
+  setTimeout(()=>t.remove(), 4200);
+}
+function addXP(n, why){
+  if(n<=0) return;
+  state.xp += n;
+  $('xpTotal').textContent = state.xp;
+  toast('⭐ <b>+'+n+' XP</b>'+(why?' · '+why:''));
+  saveProgress(false);
+}
+
+/* ---------- Barra de progreso / rastreador ---------- */
+function refreshProgress(){
+  const done = Object.values(state.levels).filter(Boolean).length;
+  const pct = Math.round(done/5*100);
+  $('lvlCount').textContent = done;
+  $('progPct').textContent = pct+'%';
+  $('hudBarFill').style.width = pct+'%';
+  $('hudBar').setAttribute('aria-valuenow', pct);
+  const bc = Object.values(state.badges).filter(Boolean).length;
+  $('badgeCount').textContent = bc;
+  // rastreador
+  document.querySelectorAll('.tstep').forEach(s=>{
+    const i = +s.dataset.step;
+    s.classList.toggle('done', state.levels[i]);
+    s.classList.toggle('active', !state.levels[i] && (i===1 || state.levels[i-1]));
+  });
+}
+
+/* ---------- Insignias ---------- */
+function grantBadge(key, label){
+  if(state.badges[key]) return;
+  state.badges[key] = true;
+  const el = document.querySelector('.badge-item[data-badge="'+key+'"]');
+  if(el) el.classList.add('earned');
+  toast('🏅 <b>Insignia:</b> '+label);
+  refreshProgress();
+  saveProgress(false);
+}
+
+/* ---------- Desbloqueo de niveles ---------- */
+function unlock(n){
+  const sec = $('n'+n); const lock = $('lock'+n);
+  if(sec){ sec.classList.remove('locked'); }
+  if(lock){ lock.style.display='none'; }
+}
+
+/* ============================================================
+   REGISTRO
+   ============================================================ */
+function setMode(m){
+  state.student.mode = m;
+  $('modeTeam').classList.toggle('sel', m==='team');
+  $('modeSolo').classList.toggle('sel', m==='solo');
+  $('modeTeam').setAttribute('aria-checked', m==='team');
+  $('modeSolo').setAttribute('aria-checked', m==='solo');
+  const show = m==='team' ? '' : 'none';
+  $('teamOnly1').style.display = show;
+  $('teamOnly2').style.display = show;
+}
+let memberCount = 0;
+function addMember(val){
+  memberCount++;
+  const row = document.createElement('div');
+  row.className='field'; row.style.display='flex'; row.style.gap='.4rem';
+  row.innerHTML = '<input class="inp" placeholder="Nombre de compañero/a de equipo" aria-label="Miembro del equipo" value="'+(val?String(val).replace(/"/g,'&quot;'):'')+'">'+
+    '<button type="button" class="btn ghost sm" aria-label="Quitar miembro" onclick="this.parentNode.remove();collectFields()">✕</button>';
+  $('membersList').appendChild(row);
+  row.querySelector('input').addEventListener('input', collectFields);
+}
+function registerStudent(){
+  const name = $('fName').value.trim();
+  const msg = $('regMsg');
+  if(!name){
+    msg.className='fb err show';
+    msg.innerHTML='<span class="lead">✗ Falta tu nombre.</span> Escribe apellidos y nombres para personalizar tu misión e informe.';
+    $('fName').focus();
+    return;
+  }
+  state.student.name = name;
+  state.student.email = $('fEmail').value.trim();
+  state.student.team = $('fTeam').value.trim();
+  state.student.role = $('fRole').value;
+  state.student.repo = $('fRepo').value.trim();
+  state.student.members = [...document.querySelectorAll('#membersList input')].map(i=>i.value.trim()).filter(Boolean);
+  msg.className='fb ok show';
+  msg.innerHTML='<span class="lead">✓ ¡Registrado, '+name.split(',')[0]+'!</span> Tu avance se guardará en este navegador. Comienza por el Nivel 1.';
+  if(!state._registered){ state._registered=true; addXP(XP.registro, 'Registro'); }
+  saveProgress(false);
+  $('n1').scrollIntoView({behavior:'smooth'});
+}
+
+/* ============================================================
+   CAPTURA DE CAMPOS (para guardar y para el informe)
+   ============================================================ */
+function collectFields(){
+  document.querySelectorAll('.inp').forEach(el=>{
+    if(el.id) state.fields[el.id] = el.value;
+  });
+  state.student.members = [...document.querySelectorAll('#membersList input')].map(i=>i.value.trim()).filter(Boolean);
+}
+
+/* ---------- Escala Likert ---------- */
+function setLikert(group, val, btn){
+  state.likert[group] = val;
+  btn.parentNode.querySelectorAll('button').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  btn.parentNode.querySelectorAll('button').forEach(b=>b.setAttribute('aria-checked','false'));
+  btn.setAttribute('aria-checked','true');
+  saveProgress(false);
+}
+
+/* ============================================================
+   VERIFICACIÓN (select con data-ok) — feedback error productivo
+   ============================================================ */
+const FEEDBACK = {
+  // pistas específicas por id (error productivo: pausa→pista→dato→contexto→reintento)
+  v1a:{dato:'La jerarquía ordena la atención: primero lo esencial.', ctx:'En un portal, decide qué mira la persona antes de actuar.'},
+  v1b:{dato:'La acción principal es la que la persona vino a completar.', ctx:'Aquí, pagar la matrícula: si se esconde, aumenta el abandono.'},
+  v2a:{dato:'Accesibilidad = más personas pueden usar el producto.', ctx:'Un trámite accesible reduce exclusión y abandono.'},
+  v2b:{dato:'El buen contraste ayuda en baja visión y en entornos con brillo.', ctx:'Pensar en el móvil bajo el sol es pensar en accesibilidad real.'},
+  v3case:{dato:'Una sola acción dominante evita la parálisis de decisión.', ctx:'Convertir 14 botones iguales en 1 primario + enlaces aclara la ruta.'}
+};
+function checkSelect(sel){
+  const ok = sel.value === sel.dataset.ok;
+  const fbId = sel.id+'Fb';
+  let fb = $(fbId);
+  if(!fb){ // crea contenedor de feedback contiguo si no existe
+    fb = document.createElement('div'); fb.id=fbId; fb.className='fb'; sel.parentNode.appendChild(fb);
+  }
+  const info = FEEDBACK[sel.id] || {dato:'Revisa el concepto clave.', ctx:'Relaciónalo con el caso del portal.'};
+  if(sel.value===''){ fb.className='fb'; return; }
+  if(ok){
+    fb.className='fb ok show';
+    fb.innerHTML='<span class="lead">✓ Correcto.</span> Lo identificaste porque reconociste su función en el contexto.';
+  }else{
+    fb.className='fb err show';
+    fb.innerHTML='<span class="lead">✗ Aún no.</span>'+
+      '<ul><li><strong>Pista:</strong> observa qué cambia en la situación.</li>'+
+      '<li><strong>Dato clave:</strong> '+info.dato+'</li>'+
+      '<li><strong>Contexto:</strong> '+info.ctx+'</li>'+
+      '<li><strong>Reintento:</strong> vuelve a elegir con esa pista en mente.</li></ul>';
+  }
+  saveProgress(false);
+}
+function selectOk(id){ const s=$(id); return s && s.value===s.dataset.ok; }
+
+/* ============================================================
+   NIVEL 3 · FLIP CARDS
+   ============================================================ */
+function initFlips(){
+  document.querySelectorAll('#flipCards .card-flip').forEach(c=>{
+    const open = ()=>{ c.classList.toggle('open');
+      c.setAttribute('aria-pressed', c.classList.contains('open'));
+      checkFlipsDone(); };
+    c.addEventListener('click', open);
+    c.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); open(); }});
+  });
+}
+function checkFlipsDone(){
+  const all = [...document.querySelectorAll('#flipCards .card-flip')];
+  if(all.every(c=>c.classList.contains('open')) && !state._flipsDone){
+    state._flipsDone = true;
+    const fb=$('flipFb'); fb.className='fb ok show';
+    fb.innerHTML='<span class="lead">✓ Definiciones exploradas.</span> Ya distingues jerarquía, contraste, foco y navegación accesible.';
+    addXP(30,'Definiciones vivas');
+    saveProgress(false);
+  }
+}
+
+/* ============================================================
+   NIVEL 3 · CLASIFICACIÓN (drag & drop + fallback táctil)
+   ============================================================ */
+const DND_ITEMS = [
+  {t:'Errores marcados con ícono + texto', ok:'ok'},
+  {t:'Contraste de texto 7:1', ok:'ok'},
+  {t:'Foco visible al navegar con teclado', ok:'ok'},
+  {t:'Una acción primaria por pantalla', ok:'ok'},
+  {t:'Texto gris claro sobre blanco', ok:'no'},
+  {t:'Errores señalados solo con color rojo', ok:'no'},
+  {t:'14 botones idénticos', ok:'no'},
+  {t:'Menú que solo funciona con mouse', ok:'no'}
+];
+let dndPlaced = {}; // texto -> bin elegido
+let dndSelected = null; // para fallback táctil
+function initDnd(){
+  const pool = $('dndPool'); pool.innerHTML='';
+  DND_ITEMS.forEach((it,idx)=>{
+    const c = document.createElement('button');
+    c.type='button'; c.className='chip'; c.textContent=it.t; c.dataset.idx=idx; c.draggable=true;
+    c.setAttribute('aria-label', it.t+'. Arrastra o toca para clasificar.');
+    c.addEventListener('dragstart', e=>{ e.dataTransfer.setData('text/plain', idx); });
+    c.addEventListener('click', ()=>{ // fallback táctil: seleccionar
+      document.querySelectorAll('#dndPool .chip').forEach(x=>x.style.outline='');
+      if(dndSelected===c){ dndSelected=null; c.style.outline=''; }
+      else { dndSelected=c; c.style.outline='3px solid var(--idc-amber)'; }
+    });
+    pool.appendChild(c);
+  });
+}
+function dndOver(e){ e.preventDefault(); e.currentTarget.classList.add('hover'); }
+function dndLeave(e){ e.currentTarget.classList.remove('hover'); }
+function dndDrop(e){
+  e.preventDefault(); e.currentTarget.classList.remove('hover');
+  const idx = e.dataTransfer.getData('text/plain');
+  placeChip(idx, e.currentTarget.dataset.bin);
+}
+function dndTapBin(bin){ // fallback táctil: soltar en columna tocada
+  if(dndSelected){ placeChip(dndSelected.dataset.idx, bin); dndSelected.style.outline=''; dndSelected=null; }
+}
+function placeChip(idx, bin){
+  const chip = document.querySelector('#dndPool .chip[data-idx="'+idx+'"]');
+  if(!chip || chip.classList.contains('placed')) return;
+  chip.classList.add('placed');
+  dndPlaced[idx] = bin;
+  const span = document.createElement('span');
+  span.textContent = DND_ITEMS[idx].t; span.dataset.idx=idx;
+  $('bin'+bin).appendChild(span);
+}
+function checkDnd(){
+  const total = DND_ITEMS.length;
+  const placed = Object.keys(dndPlaced).length;
+  const fb=$('dndFb');
+  if(placed<total){
+    fb.className='fb err show';
+    fb.innerHTML='<span class="lead">Faltan fichas.</span> Clasifica las '+ (total-placed) +' restantes antes de comprobar.';
+    return;
+  }
+  let correct=0;
+  Object.entries(dndPlaced).forEach(([idx,bin])=>{
+    const span = document.querySelector('#bin'+bin+' span[data-idx="'+idx+'"]');
+    const right = DND_ITEMS[idx].ok===bin;
+    if(right){ correct++; if(span) span.className='right'; }
+    else if(span) span.className='wrong';
+  });
+  if(correct===total){
+    fb.className='fb ok show';
+    fb.innerHTML='<span class="lead">✓ ¡Clasificación perfecta!</span> Distingues las prácticas que incluyen de las que crean barreras.';
+    if(!state._dndDone){ state._dndDone=true; addXP(40,'Clasificación accesible'); }
+  }else{
+    fb.className='fb err show';
+    fb.innerHTML='<span class="lead">✗ Aún no.</span>'+
+      '<ul><li><strong>Pista:</strong> revisa las marcadas en rojo ('+ (total-correct) +').</li>'+
+      '<li><strong>Dato clave:</strong> una barrera excluye a alguna persona usuaria (poco contraste, solo color, solo mouse).</li>'+
+      '<li><strong>Contexto:</strong> en el portal, cada barrera es una razón más para abandonar.</li>'+
+      '<li><strong>Reintento:</strong> pulsa “Rebarajar” abajo para reintentar sin castigo.</li></ul>'+
+      '<button class="btn sm ghost amber" style="margin-top:.5rem" onclick="resetDnd()">🔁 Reintentar clasificación</button>';
+  }
+  saveProgress(false);
+}
+function resetDnd(){ dndPlaced={}; $('binok').innerHTML=''; $('binno').innerHTML=''; $('dndFb').className='fb'; initDnd(); }
+
+/* ============================================================
+   NIVEL 3 · ANAGRAMA (obligatorio · concepto: CONTRASTE)
+   ============================================================ */
+const ANAGRAM_WORD = 'CONTRASTE';
+function shuffleAnagram(){
+  let arr = ANAGRAM_WORD.split('');
+  do{ for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; } }
+  while(arr.join('')===ANAGRAM_WORD);
+  const box=$('anagramLetters'); box.innerHTML='';
+  arr.forEach(l=>{ const s=document.createElement('span'); s.className='letter'; s.textContent=l; box.appendChild(s); });
+}
+function checkAnagram(){
+  const val = $('anagramInp').value.trim().toUpperCase().replace(/\s/g,'');
+  const fb=$('anagramFb');
+  if(val===ANAGRAM_WORD){
+    fb.className='fb ok show';
+    fb.innerHTML='<span class="lead">✓ ¡CONTRASTE!</span> Diferencia perceptible entre elementos. Ej.: texto oscuro sobre fondo claro cumple la relación mínima 4.5:1 de WCAG.';
+    if(!state.anagramSolved){ state.anagramSolved=true; addXP(XP.ana,'Anagrama resuelto'); }
+    maybeAnalista();
+  }else{
+    fb.className='fb err show';
+    fb.innerHTML='<span class="lead">✗ Aún no.</span>'+
+      '<ul><li><strong>Pista:</strong> empieza con C y termina con E.</li>'+
+      '<li><strong>Dato clave:</strong> es lo que permite leer el texto sobre su fondo.</li>'+
+      '<li><strong>Contexto:</strong> sin ello, el portal excluye a quien tiene baja visión.</li>'+
+      '<li><strong>Reintento:</strong> reordena las 9 letras y vuelve a intentarlo.</li></ul>';
+  }
+  saveProgress(false);
+}
+
+/* ---------- Insignia Analista: comprensión conceptual (N3) ---------- */
+function maybeAnalista(){
+  if(state._flipsDone && state._dndDone && state.anagramSolved && selectOk('v3case')){
+    grantBadge('analista','Analista — comprensión conceptual');
+    grantBadge('estratega','Estratega — caso aplicado resuelto');
+  }
+}
+
+/* ============================================================
+   COMPLETAR NIVELES (con validación de requisitos)
+   ============================================================ */
+function completeLevel(n){
+  collectFields();
+  const fb = $('n'+n+'fb');
+  let ok=true, msg='';
+
+  if(n===1){
+    if(!$('n1open').value.trim()){ ok=false; msg='Escribe tu hipótesis inicial en el enigma.'; }
+    else if(!selectOk('v1a')||!selectOk('v1b')){ ok=false; msg='Responde correctamente las 2 preguntas de verificación (revisa las pistas).'; }
+    else if(!state.likert.n1conf){ ok=false; msg='Marca tu nivel de confianza inicial (1–5).'; }
+  }
+  if(n===2){
+    if(!$('kwlK').value.trim()||!$('kwlW').value.trim()){ ok=false; msg='Completa las columnas “Lo que sé” y “Lo que necesito saber”.'; }
+    else if(!$('n2just').value.trim()){ ok=false; msg='Justifica el voto de tu equipo.'; }
+    else if(!selectOk('v2a')||!selectOk('v2b')){ ok=false; msg='Responde correctamente las 2 preguntas de verificación.'; }
+  }
+  if(n===3){
+    if(!state._flipsDone){ ok=false; msg='Abre las 4 tarjetas de definición.'; }
+    else if(!state._dndDone){ ok=false; msg='Clasifica correctamente las prácticas (Micro-actividad 2).'; }
+    else if(!state.anagramSolved){ ok=false; msg='Resuelve el anagrama conceptual.'; }
+    else if(!selectOk('v3case')){ ok=false; msg='Elige la decisión correcta sobre el caso (Micro-actividad 4).'; }
+    else if(!$('n3c1').value.trim()||!$('n3c2').value.trim()||!$('n3c3').value.trim()){ ok=false; msg='Responde las 3 preguntas de cierre.'; }
+  }
+  if(n===4){
+    const need=['p_prob','p_primary','p_hier','p_contrast','p_a11y','p_pitch'];
+    if(need.some(id=>!$(id).value.trim())){ ok=false; msg='Completa la ficha: problema, acción primaria, jerarquía, contraste, accesibilidad y pitch.'; }
+  }
+  if(n===5){
+    if(!$('kwlL2').value.trim()){ ok=false; msg='Cierra tu KWL: escribe “Lo que aprendí”.'; }
+    else if(!state.likert.n5conf){ ok=false; msg='Marca tu nivel de confianza final (1–5).'; }
+    else if(!$('n5transfer').value.trim()||!$('n5commit').value.trim()){ ok=false; msg='Responde la transferencia y tu compromiso de mejora.'; }
+  }
+
+  if(!ok){
+    fb.className='fb err show';
+    fb.innerHTML='<span class="lead">Casi listo.</span> '+msg+' <br><small>Puedes reintentar sin penalización.</small>';
+    return;
+  }
+
+  // éxito
+  if(!state.levels[n]){
+    state.levels[n]=true;
+    addXP(XP.nivel[n], 'Nivel '+n+' completado');
+  }
+  fb.className='fb ok show';
+
+  // recompensas específicas por nivel
+  if(n===1){ grantBadge('explorador','Explorador/a — reto inicial'); fb.innerHTML='<span class="lead">✓ Nivel 1 completado.</span> Insignia: Explorador/a. Se desbloquea el Nivel 2.'; unlock(2); }
+  if(n===2){ fb.innerHTML='<span class="lead">✓ Nivel 2 completado.</span> Conectaste el tema con su valor profesional. Se desbloquea el Nivel 3.'; unlock(3); }
+  if(n===3){ grantBadge('analista','Analista — comprensión conceptual'); grantBadge('estratega','Estratega — caso aplicado'); fb.innerHTML='<span class="lead">✓ Nivel 3 completado.</span> Insignias: Analista y Estratega. Se desbloquea el Nivel 4.'; unlock(4); }
+  if(n===4){ grantBadge('constructor','Constructor/a — evidencia elaborada'); if($('p_valoro').value.trim()&&$('p_mejora').value.trim()&&!state._coev){ state._coev=true; addXP(XP.coev,'Coevaluación entre pares'); } fb.innerHTML='<span class="lead">✓ Nivel 4 completado.</span> Insignia: Constructor/a. Se desbloquea el Nivel 5.'; unlock(5); }
+  if(n===5){
+    fb.innerHTML='<span class="lead">🏁 ¡Misión cerrada!</span> Revisa tu informe final en la pestaña correspondiente.';
+    showFinal();
+  }
+  // desbloquea el KWL "Lo que aprendí" del nivel 2 (visual) cuando entra al 5
+  refreshProgress();
+  refreshReport();
+  saveProgress(false);
+}
+
+/* ---------- IA responsable ---------- */
+function completeIA(){
+  collectFields();
+  const fb=$('iaFb');
+  if(!$('ia_review').value.trim()){
+    fb.className='fb err show';
+    fb.innerHTML='<span class="lead">Falta un dato.</span> Describe qué revisaste, corregiste o ampliaste tú (aunque no hayas usado IA, indícalo).';
+    return;
+  }
+  fb.className='fb ok show';
+  fb.innerHTML='<span class="lead">✓ Declaración registrada.</span> Usar IA con transparencia es parte de tu ética profesional.';
+  grantBadge('etico','Profesional ético — uso responsable de IA');
+  saveProgress(false);
+}
+
+/* ---------- Evidencias GitHub ---------- */
+function checkEvidence(cb){
+  const k = cb.dataset.evi;
+  state.evidence[k] = cb.checked;
+  if(cb.checked){ addXP(XP.evidencia, 'Evidencia '+k.toUpperCase()+' registrada'); }
+  const all = Object.values(state.evidence).every(Boolean);
+  if(all){ grantBadge('guardian','Guardián/a del portafolio'); }
+  saveProgress(false);
+}
+
+/* ---------- Panel final ---------- */
+function showFinal(){
+  const p=$('finalPanel'); if(!p) return;
+  p.style.display='block';
+  $('finalName').textContent = state.student.name ? state.student.name.split(',')[0] : 'diseñador/a';
+  $('finalXP').textContent = state.xp;
+  $('finalBadges').textContent = Object.values(state.badges).filter(Boolean).length+'/6';
+  $('finalPct').textContent = Math.round(Object.values(state.levels).filter(Boolean).length/5*100)+'%';
+}
+
+/* ============================================================
+   AUTOEVALUACIÓN (rúbrica)
+   ============================================================ */
+const SELF_CRITERIA = ['Comprensión conceptual','Aplicación al caso','Trabajo colaborativo','Comunicación y evidencia'];
+function initSelfEval(){
+  const box=$('selfEval'); box.innerHTML='';
+  SELF_CRITERIA.forEach((c,idx)=>{
+    const row=document.createElement('div'); row.className='field';
+    let btns='';
+    for(let v=1;v<=5;v++){ btns+='<button type="button" aria-label="'+c+' nivel '+v+'" onclick="setSelf('+idx+','+v+',this)">'+v+'</button>'; }
+    row.innerHTML='<label>'+c+'</label><div class="likert" data-crit="'+idx+'" role="radiogroup" aria-label="'+c+'">'+btns+'</div>';
+    box.appendChild(row);
+  });
+}
+function setSelf(idx,val,btn){
+  state.self[idx]=val;
+  btn.parentNode.querySelectorAll('button').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  saveProgress(false);
+}
+
+/* ============================================================
+   GENERACIÓN DE MARKDOWN
+   ============================================================ */
+function v(id){ return ($(id) && $(id).value.trim()) || '—'; }
+function buildEvidenceMd(){
+  collectFields();
+  const s=state.student;
+  return `# Prototipo comentado — Portal de matrícula accesible
+**Sesión 03 · Operación Interfaz Clara · IDC**
+
+- **Autor/a:** ${s.name||'—'}
+- **Equipo:** ${s.team||'—'}  ·  **Rol:** ${s.role||'—'}
+
+## Pantalla rediseñada
+${v('p_org')}
+
+## Problema que resuelve
+${v('p_prob')}
+
+## Decisiones de diseño
+- **Acción primaria:** ${v('p_primary')}
+- **Jerarquía visual:** ${v('p_hier')}
+- **Contraste:** ${v('p_contrast')}
+- **Accesibilidad:** ${v('p_a11y')}
+
+## Boceto (wireframe en palabras)
+${v('p_sketch')}
+
+## Pitch de 60 segundos
+${v('p_pitch')}
+
+## Coevaluación recibida
+- **Lo que más valoro:** ${v('p_valoro')}
+- **Mejora posible:** ${v('p_mejora')}
+`;
+}
+function buildReportMd(){
+  collectFields();
+  const s=state.student;
+  const badges = Object.entries(state.badges).filter(([k,val])=>val).map(([k])=>k);
+  const done = Object.entries(state.levels).filter(([k,val])=>val).map(([k])=>'N'+k);
+  const evi = Object.entries(state.evidence).filter(([k,val])=>val).map(([k])=>k.toUpperCase());
+  const self = SELF_CRITERIA.map((c,i)=>'- '+c+': '+(state.self[i]||'—')+'/5').join('\n');
+  return `# Informe de sesión — Operación Interfaz Clara
+**Instituto de Diseño y Comunicación · Diseño de Interfaces Digitales · Sesión 03**
+
+## 1. Datos
+- **Estudiante:** ${s.name||'—'}
+- **Correo:** ${s.email||'—'}
+- **Equipo:** ${s.team||'—'} (${s.mode==='solo'?'individual':'equipo'})
+- **Rol:** ${s.role||'—'}
+- **Miembros:** ${(s.members&&s.members.length)?s.members.join(', '):'—'}
+- **Repositorio:** ${s.repo||'—'}
+
+## 2. Progreso
+- **XP total:** ${state.xp}
+- **Niveles completados:** ${done.length?done.join(', '):'—'} (${Math.round(done.length/5*100)}%)
+- **Insignias:** ${badges.length?badges.join(', '):'—'}
+- **Confianza inicial → final:** ${state.likert.n1conf||'—'} → ${state.likert.n5conf||'—'} (escala 1–5)
+
+## 3. Respuestas clave
+- **Hipótesis inicial (N1):** ${v('n1open')}
+- **KWL — Sé:** ${v('kwlK')}
+- **KWL — Necesito saber:** ${v('kwlW')}
+- **KWL — Aprendí:** ${v('kwlL2')}
+- **Cierre conceptual (N3):** ${v('n3c1')}
+- **Cierre aplicado (N3):** ${v('n3c2')}
+- **Cierre metacognitivo (N3):** ${v('n3c3')}
+
+## 4. Evidencia principal (N4)
+- **Acción primaria:** ${v('p_primary')}
+- **Jerarquía:** ${v('p_hier')}
+- **Contraste:** ${v('p_contrast')}
+- **Accesibilidad:** ${v('p_a11y')}
+- **Pitch:** ${v('p_pitch')}
+
+## 5. Reflexión final (N5)
+- **Transferencia:** ${v('n5transfer')}
+- **Compromiso de mejora:** ${v('n5commit')}
+- **Conceptos clave:** ${v('n5synth')}
+
+## 6. Autoevaluación
+${self}
+
+## 7. Declaración de uso de IA
+- **Herramienta:** ${v('ia_tool')}
+- **Prompt:** ${v('ia_prompt')}
+- **Revisión propia:** ${v('ia_review')}
+
+## 8. Evidencias registradas en GitHub
+${evi.length?evi.map(e=>'- '+e).join('\n'):'- (aún sin marcar commits)'}
+
+### Rutas y commits sugeridos
+- \`sesion-03/n1-diagnostico-abandono.md\`  →  \`git commit -m "N1: diagnóstico inicial"\`
+- \`sesion-03/n2-kwl-necesidades.md\`  →  \`git commit -m "N2: mapa de necesidades y KWL"\`
+- \`sesion-03/n3-principios-jerarquia.md\`  →  \`git commit -m "N3: principios de jerarquía y accesibilidad"\`
+- \`sesion-03/sesion-03-prototipo-accesible.md\`  →  \`git commit -m "N4: prototipo comentado"\`
+- \`sesion-03/n5-reflexion-transferencia.md\`  →  \`git commit -m "N5: reflexión y transferencia"\`
+
+---
+*Generado en el recurso “Operación Interfaz Clara”. Mg. Mario Quiroz Martínez — Unidad didáctica Investigación e Innovación Tecnológica.*
+`;
+}
+function refreshReport(){ $('reportOut').value = buildReportMd(); }
+
+/* ---------- Copiar / descargar ---------- */
+function copyText(txt, okMsg){
+  const done=()=>toast('✅ '+(okMsg||'Copiado'));
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(done).catch(()=>fallbackCopy(txt,done));
+  } else fallbackCopy(txt,done);
+}
+function fallbackCopy(txt,done){
+  const ta=document.createElement('textarea'); ta.value=txt; ta.style.position='fixed'; ta.style.left='-9999px';
+  document.body.appendChild(ta); ta.select();
+  try{ document.execCommand('copy'); done(); }catch(e){ toast('Copia manual: selecciona el texto.'); }
+  ta.remove();
+}
+function downloadFile(name, content){
+  const blob=new Blob([content],{type:'text/markdown;charset=utf-8'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name;
+  document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(a.href);
+  toast('⬇️ Descargando <b>'+name+'</b>');
+}
+
+/* ============================================================
+   TABS
+   ============================================================ */
+function goTab(name){
+  document.querySelectorAll('.tabs button').forEach(b=>{
+    const on = b.dataset.tab===name;
+    b.classList.toggle('active',on); b.setAttribute('aria-selected',on);
+  });
+  document.querySelectorAll('.tabpane').forEach(p=>p.classList.toggle('active', p.id==='pane-'+name));
+  if(name==='informe') refreshReport();
+  window.scrollTo({top:document.querySelector('.tabs').offsetTop-60, behavior:'smooth'});
+}
+document.querySelectorAll('.tabs button').forEach(b=> b.addEventListener('click', ()=>goTab(b.dataset.tab)) );
+
+/* ---------- Ayuda ---------- */
+function toggleHelp(){ const h=$('helpBox'); h.style.display = h.style.display==='none'?'block':'none'; }
+
+/* ============================================================
+   GUARDAR / CARGAR / REINICIAR
+   ============================================================ */
+function saveProgress(notify){
+  collectFields();
+  store.set(state);
+  if(notify) toast('💾 <b>Avance guardado</b> en este navegador.');
+}
+function loadProgress(){
+  const saved = store.get();
+  if(!saved) return;
+  state = Object.assign(state, saved);
+  // restaurar UI
+  const s=state.student;
+  if($('fName')) $('fName').value=s.name||'';
+  if($('fEmail')) $('fEmail').value=s.email||'';
+  if($('fTeam')) $('fTeam').value=s.team||'';
+  if($('fRole')) $('fRole').value=s.role||'';
+  if($('fRepo')) $('fRepo').value=s.repo||'';
+  setMode(s.mode||'team');
+  (s.members||[]).forEach(m=>addMember(m));
+  // restaurar campos generales
+  Object.entries(state.fields||{}).forEach(([id,val])=>{ const el=$(id); if(el && el!==document.activeElement) el.value=val; });
+  // likert
+  Object.entries(state.likert||{}).forEach(([g,val])=>{
+    const grp=$(g); if(grp){ const b=grp.querySelectorAll('button')[val-1]; if(b){ b.classList.add('sel'); b.setAttribute('aria-checked','true'); } }
+  });
+  // autoevaluación
+  Object.entries(state.self||{}).forEach(([idx,val])=>{
+    const grp=document.querySelector('#selfEval .likert[data-crit="'+idx+'"]'); if(grp){ const b=grp.querySelectorAll('button')[val-1]; if(b) b.classList.add('sel'); }
+  });
+  // niveles/desbloqueos
+  for(let i=1;i<=5;i++){ if(state.levels[i]){ const fb=$('n'+i+'fb'); } if(i===1||state.levels[i-1]) unlock(i); }
+  // insignias
+  Object.entries(state.badges).forEach(([k,val])=>{ if(val){ const el=document.querySelector('.badge-item[data-badge="'+k+'"]'); if(el) el.classList.add('earned'); } });
+  // evidencias
+  document.querySelectorAll('[data-evi]').forEach(cb=>{ if(state.evidence[cb.dataset.evi]) cb.checked=true; });
+  $('xpTotal').textContent=state.xp;
+  if(state.levels[5]) showFinal();
+  refreshProgress();
+  toast('📂 <b>Avance recuperado</b>. Continúa donde lo dejaste.');
+}
+function resetProgress(){
+  if(!confirm('¿Reiniciar toda la misión? Se borrará tu avance guardado en este navegador. Esta acción no se puede deshacer.')) return;
+  store.clear();
+  location.reload();
+}
+
+/* ============================================================
+   INICIALIZACIÓN
+   ============================================================ */
+document.addEventListener('DOMContentLoaded', ()=>{
+  initFlips();
+  initDnd();
+  shuffleAnagram();
+  initSelfEval();
+  // guardar al escribir (con leve debounce implícito por evento)
+  document.querySelectorAll('.inp').forEach(el=> el.addEventListener('change', ()=>saveProgress(false)) );
+  // recalcular insignia analista al cambiar el caso del N3
+  const v3=$('v3case'); if(v3) v3.addEventListener('change', maybeAnalista);
+  loadProgress();
+  refreshProgress();
+  unlock(1);
+});
+</script>
+</body>
+</html>
