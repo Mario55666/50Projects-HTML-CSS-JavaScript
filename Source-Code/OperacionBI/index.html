@@ -1,889 +1,750 @@
 <!DOCTYPE html>
+<!-- Operación BI · Sesión 3: Arquitectura de Datos y Modelo Entidad-Relación
+     ARCHIVO ÚNICO AUTOCONTENIDO — sin dependencias externas.
+     Método serie IA+DATA (DataCorp Global / Arsenal BI) · Modelo Didáctico IUTPC · DUA · WCAG 2.1 AA.
+     Mg. Mario Quiroz Martínez · IA + DATA 2026 · Unidad 1: Fundamentos de Business Intelligence. -->
 <html lang="es">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="description" content="Operación BI: actividad gamificada IUTPC para diseñar la arquitectura básica y el modelo inicial de un sistema de datos según una necesidad de información organizacional." />
-<meta name="author" content="Unidad didáctica Fundamentos de BI y Big Data - IUTPC" />
-<title>Operación BI · Arsenal BI — Arquitectura de Datos (IUTPC)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#0a0b10" />
+<meta name="description" content="Circuito gamificado IUTPC — Sesión 3: diseño de una arquitectura básica de datos y un modelo inicial entidad-relación según una necesidad de información organizacional. Curso IA+DATA, Unidad 1. Narrativa: agencia Operación BI." />
+<meta name="author" content="Mg. Mario Quiroz Martínez — IA + DATA 2026" />
+<title>Operación BI · Sesión 3 · Arquitectura de Datos · IA + DATA 2026</title>
 <style>
-  /* ============================================================
-     Operación BI — Actividad gamificada IUTPC (single-file)
-     Paleta BI/Data · WCAG 2.1 AA · prefers-reduced-motion
-     ============================================================ */
+  /* ===========================================================
+     Sistema de diseño heredado de la serie (Arsenal BI):
+     tema oscuro inmersivo · acentos cian/ámbar · sin ranking.
+     =========================================================== */
   :root {
-    --azul-estructura: #0b2a4a;   /* estructura, navegación, paneles */
-    --azul-medio: #12507e;
-    --cian-dato: #0a7d78;         /* dato, énfasis analítico */
-    --ambar-accion: #b06a00;      /* atención, llamadas a la acción (contraste AA sobre blanco) */
-    --ambar-suave: #fff4e0;
-    --verde-logro: #1f7a3d;       /* estado logrado */
-    --rojo-error: #b3261e;        /* estado error (con icono, no solo color) */
-    --gris-base: #2b2f33;
-    --gris-suave: #f4f6f8;
-    --gris-borde: #d4dae0;
-    --blanco: #ffffff;
-    --sombra: 0 2px 10px rgba(11, 42, 74, 0.12);
-    --radio: 12px;
-    --foco: 3px solid #0a7d78;
+    --bg: #0a0b10;
+    --panel: #12131a;
+    --panel-2: #171826;
+    --line: #1f2230;
+    --text: #e6e8f2;
+    --muted: #9aa0b6;
+    --cyan: #00e5ff;
+    --amber: #ffd600;
+    --gold: #ffd64a;
+    --green: #00ff9d;
+    --alert: #ff2038;
+    --violet: #b829dd;
+    --ok-ink: #063b28;
+    --radio: 14px;
+    --foco: 3px solid var(--cyan);
+    /* Acentos accesibles sobre tema oscuro (texto claro sobre fondos oscuros) */
+    --tag-ludic: #00e5ff;
+    --tag-gami: #ffd600;
+    --tag-tech: #b829dd;
   }
 
   * { box-sizing: border-box; }
-
   html { scroll-behavior: smooth; }
-
   body {
     margin: 0;
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    color: var(--gris-base);
-    background: var(--gris-suave);
+    background: radial-gradient(1200px 600px at 80% -10%, #101a2e 0, transparent 60%), var(--bg);
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     line-height: 1.55;
     font-size: 17px;
   }
 
-  /* ---- Accesibilidad: skip link y foco visible reforzado ---- */
   .skip-link {
-    position: absolute;
-    left: -999px;
-    top: 0;
-    background: var(--azul-estructura);
-    color: #fff;
-    padding: 10px 16px;
-    z-index: 100;
-    border-radius: 0 0 var(--radio) 0;
+    position: absolute; left: -999px; top: 0; z-index: 100;
+    background: var(--cyan); color: #001018; font-weight: 800;
+    padding: 10px 16px; border-radius: 0 0 12px 0;
   }
   .skip-link:focus { left: 0; }
 
-  a { color: var(--azul-medio); }
+  a { color: var(--cyan); }
+  :focus-visible { outline: var(--foco); outline-offset: 3px; border-radius: 6px; }
 
-  :focus-visible {
-    outline: var(--foco);
-    outline-offset: 2px;
-    border-radius: 4px;
-  }
+  h1, h2, h3, h4 { line-height: 1.15; color: var(--text); }
+  h1 { font-size: 2rem; margin: 0 0 8px; letter-spacing: 0.5px; }
 
-  h1, h2, h3 { font-family: "Segoe UI", system-ui, sans-serif; line-height: 1.2; color: var(--azul-estructura); }
+  .wrap { max-width: 1000px; margin: 0 auto; padding: 0 18px; }
 
-  /* ---- Header / narrativa ---- */
+  /* ---------- Header / narrativa ---------- */
   header.top {
-    background: linear-gradient(135deg, var(--azul-estructura), var(--azul-medio));
-    color: #fff;
-    padding: 28px 20px 20px;
+    border-bottom: 1px solid var(--line);
+    background: linear-gradient(180deg, #101828 0, #0a0b10 100%);
+    padding: 28px 0 22px;
   }
-  .wrap { max-width: 960px; margin: 0 auto; }
-  header.top h1 { color: #fff; margin: 0 0 6px; font-size: 1.9rem; }
   .eyebrow {
-    display: inline-block;
-    background: rgba(255,255,255,0.15);
-    border: 1px solid rgba(255,255,255,0.35);
-    padding: 3px 12px;
-    border-radius: 999px;
-    font-size: 0.8rem;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    margin-bottom: 10px;
+    display: inline-block; margin-bottom: 12px;
+    font-size: 0.78rem; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--cyan); border: 1px solid #17384a; background: #071b24;
+    padding: 4px 12px; border-radius: 999px;
   }
-  header.top p.lead { margin: 6px 0 0; max-width: 62ch; color: #e7eef5; }
+  header.top .lead { color: #c9cee2; max-width: 68ch; margin: 6px 0 0; }
+  .marca { color: var(--amber); font-weight: 800; }
 
-  /* ---- Barra de progreso global con anillo SVG ---- */
-  .progreso-global {
-    display: flex;
-    align-items: center;
-    gap: 18px;
-    margin-top: 18px;
-    background: rgba(255,255,255,0.08);
-    border: 1px solid rgba(255,255,255,0.2);
-    border-radius: var(--radio);
-    padding: 14px 16px;
-    flex-wrap: wrap;
+  /* ---------- HUD de progreso (XP / anillo / insignias) ---------- */
+  .hud {
+    display: flex; gap: 18px; align-items: center; flex-wrap: wrap;
+    margin-top: 20px; padding: 14px 16px;
+    background: var(--panel); border: 1px solid var(--line); border-radius: var(--radio);
   }
-  .anillo { flex: 0 0 auto; }
-  .anillo circle.pista { stroke: rgba(255,255,255,0.25); }
-  .anillo circle.avance {
-    stroke: #ffd479;
-    stroke-linecap: round;
-    transition: stroke-dashoffset 0.6s ease;
-  }
-  .anillo text { fill: #fff; font-size: 15px; font-weight: 700; }
-  .stats-xp { color: #fff; }
-  .stats-xp strong { font-size: 1.4rem; }
+  .anillo circle.pista { stroke: #23283b; }
+  .anillo circle.avance { stroke: var(--cyan); stroke-linecap: round; transition: stroke-dashoffset .6s ease; }
+  .anillo text { fill: var(--text); font-size: 15px; font-weight: 800; }
+  .hud .xp strong { font-size: 1.5rem; color: var(--amber); }
+  .hud .xp small { color: var(--muted); }
   .insignias { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
   .insignia {
-    font-size: 0.78rem;
-    background: rgba(255,255,255,0.16);
-    border: 1px solid rgba(255,255,255,0.3);
-    padding: 3px 10px;
-    border-radius: 999px;
-    opacity: 0.35;
-    transition: opacity 0.3s ease, transform 0.3s ease;
+    font-size: 0.76rem; padding: 4px 10px; border-radius: 999px;
+    border: 1px solid var(--line); color: var(--muted); background: #0e1018;
+    opacity: 0.5; transition: opacity .3s ease, transform .3s ease;
   }
-  .insignia.ganada { opacity: 1; background: #ffd479; color: var(--azul-estructura); font-weight: 700; border-color: #ffd479; }
+  .insignia.ganada { opacity: 1; color: #10131c; background: var(--amber); border-color: var(--amber); font-weight: 800; }
 
-  main { padding: 24px 20px 60px; }
+  /* ---------- Leyenda de etiquetas (tag-ludic / gami / tech) ---------- */
+  .tags { margin: 16px 0 0; display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag {
+    font-size: 0.72rem; font-weight: 700; letter-spacing: 0.02em;
+    padding: 3px 9px; border-radius: 999px; border: 1px solid;
+  }
+  .tag-ludic { color: var(--tag-ludic); border-color: #17384a; background: #061a22; }
+  .tag-gami  { color: var(--tag-gami);  border-color: #40390a; background: #1a1705; }
+  .tag-tech  { color: #e59bf5; border-color: #3a1145; background: #1a0720; }
 
-  /* ---- Tarjetas de sección / niveles ---- */
+  main { padding: 24px 0 70px; }
+
+  /* ---------- Niveles ---------- */
   section.nivel {
-    background: var(--blanco);
-    border: 1px solid var(--gris-borde);
-    border-radius: var(--radio);
-    box-shadow: var(--sombra);
-    margin: 0 auto 22px;
-    max-width: 960px;
-    overflow: hidden;
+    background: var(--panel); border: 1px solid var(--line); border-radius: var(--radio);
+    margin: 0 auto 22px; overflow: hidden;
   }
-  .nivel-head {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 16px 20px;
-    background: var(--gris-suave);
-    border-bottom: 1px solid var(--gris-borde);
-  }
+  .nivel-head { display: flex; gap: 14px; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--line); background: var(--panel-2); }
   .nivel-num {
-    flex: 0 0 auto;
-    width: 44px; height: 44px;
-    border-radius: 50%;
-    background: var(--azul-medio);
-    color: #fff;
-    display: grid;
-    place-items: center;
-    font-weight: 800;
-    font-size: 1.1rem;
+    flex: 0 0 auto; width: 46px; height: 46px; border-radius: 12px;
+    display: grid; place-items: center; font-weight: 900; font-size: 1.15rem;
+    background: #0e1a24; color: var(--cyan); border: 1px solid #17384a;
   }
   .nivel-titulo { margin: 0; font-size: 1.2rem; }
-  .nivel-meta { margin: 2px 0 0; font-size: 0.82rem; color: #5a6470; }
-  .nivel-estado {
-    margin-left: auto;
-    font-size: 0.8rem;
-    font-weight: 700;
-    padding: 4px 12px;
-    border-radius: 999px;
-    background: #e7ebef;
-    color: #5a6470;
-    white-space: nowrap;
-  }
-  .nivel-estado.activo { background: var(--ambar-suave); color: var(--ambar-accion); }
-  .nivel-estado.logrado { background: #e2f3e8; color: var(--verde-logro); }
+  .nivel-meta { margin: 3px 0 0; font-size: 0.82rem; color: var(--muted); }
+  .nivel-estado { margin-left: auto; font-size: 0.76rem; font-weight: 800; padding: 5px 12px; border-radius: 999px; background: #0e1018; border: 1px solid var(--line); color: var(--muted); white-space: nowrap; }
+  .nivel-estado.activo { color: var(--amber); border-color: #40390a; }
+  .nivel-estado.logrado { color: var(--green); border-color: #0a3c2a; }
   .nivel-cuerpo { padding: 20px; }
-
-  /* Bloqueo de niveles (máquina de estados) */
   section.nivel[data-bloqueado="true"] .nivel-cuerpo { display: none; }
   section.nivel[data-bloqueado="true"] { opacity: 0.7; }
-  .candado {
-    display: none;
-    align-items: center;
-    gap: 10px;
-    padding: 16px 20px;
-    color: #5a6470;
-    font-size: 0.92rem;
-  }
+  .candado { display: none; align-items: center; gap: 10px; padding: 16px 20px; color: var(--muted); }
   section.nivel[data-bloqueado="true"] .candado { display: flex; }
 
-  /* ---- Componentes de interacción ---- */
-  .consigna {
-    background: var(--ambar-suave);
-    border-left: 4px solid var(--ambar-accion);
-    padding: 12px 16px;
-    border-radius: 0 8px 8px 0;
-    margin: 0 0 18px;
-  }
-  .consigna strong { color: var(--ambar-accion); }
-
   .op-cognitiva {
-    display: inline-block;
-    font-size: 0.72rem;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    background: #e6f2f1;
-    color: var(--cian-dato);
-    border: 1px solid #b8ddda;
-    padding: 2px 9px;
-    border-radius: 999px;
-    margin-bottom: 10px;
+    display: inline-block; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em;
+    color: var(--cyan); border: 1px solid #17384a; background: #061a22; padding: 2px 9px; border-radius: 999px; margin-bottom: 10px;
   }
+  .consigna { background: #10131c; border-left: 4px solid var(--amber); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 0 0 18px; }
+  .consigna strong { color: var(--amber); }
 
-  button {
-    font: inherit;
-    cursor: pointer;
-    border-radius: 8px;
-    border: 1px solid var(--gris-borde);
-    background: var(--blanco);
-    padding: 9px 16px;
-    transition: transform 0.12s ease, background 0.2s ease, border-color 0.2s ease;
-  }
-  button:hover { border-color: var(--cian-dato); }
+  /* ---------- Botones ---------- */
+  button { font: inherit; cursor: pointer; border-radius: 10px; border: 1px solid var(--line); background: #10131c; color: var(--text); padding: 9px 16px; transition: transform .12s ease, border-color .2s ease, background .2s ease; }
+  button:hover { border-color: var(--cyan); }
   button:active { transform: translateY(1px); }
-  .btn-primario {
-    background: var(--cian-dato);
-    color: #fff;
-    border-color: var(--cian-dato);
-    font-weight: 700;
-  }
-  .btn-primario:hover { background: #0a6b66; }
-  .btn-primario[disabled] { background: #9fb4b3; border-color: #9fb4b3; cursor: not-allowed; }
-  .btn-ambar { background: var(--ambar-accion); color: #fff; border-color: var(--ambar-accion); font-weight: 700; }
+  .btn-primario { background: var(--cyan); color: #001018; border-color: var(--cyan); font-weight: 800; }
+  .btn-primario:hover { background: #4df0ff; }
+  .btn-primario[disabled] { background: #2a3742; color: #6b7686; border-color: #2a3742; cursor: not-allowed; }
+  .btn-amber { background: var(--amber); color: #10131c; border-color: var(--amber); font-weight: 800; }
 
-  /* Mito o evidencia */
-  .afirmacion {
-    border: 1px solid var(--gris-borde);
-    border-radius: 10px;
-    padding: 14px;
-    margin-bottom: 12px;
-    background: var(--blanco);
-  }
+  /* ---------- Mito o evidencia ---------- */
+  .afirmacion { border: 1px solid var(--line); border-radius: 12px; padding: 14px; margin-bottom: 12px; background: #0e1018; }
   .afirmacion p { margin: 0 0 10px; }
   .afirmacion .opciones { display: flex; gap: 10px; flex-wrap: wrap; }
-  .afirmacion.resuelta { border-color: var(--verde-logro); }
-  .afirmacion .fb { margin: 10px 0 0; font-size: 0.9rem; }
-
-  /* Estados de logro / error (color + icono) */
-  .fb-ok { color: var(--verde-logro); }
-  .fb-ok::before { content: "✓ "; font-weight: 800; }
-  .fb-error { color: var(--rojo-error); }
-  .fb-error::before { content: "✗ "; font-weight: 800; }
+  .afirmacion.resuelta { border-color: #0a3c2a; }
+  .fb { font-size: 0.92rem; }
+  .fb-ok { color: var(--green); }
+  .fb-ok::before { content: "✓ "; font-weight: 900; }
+  .fb-error { color: #ff8a8a; }
+  .fb-error::before { content: "✗ "; font-weight: 900; }
 
   /* Panel de refuerzo (Pausa-Pista-Dato-Contexto-Reintento) */
-  .refuerzo {
-    background: #fbeeee;
-    border: 1px solid #e5b7b4;
-    border-left: 4px solid var(--rojo-error);
-    border-radius: 0 8px 8px 0;
-    padding: 12px 14px;
-    margin-top: 10px;
-    font-size: 0.9rem;
-  }
-  .refuerzo dt { font-weight: 700; color: var(--rojo-error); margin-top: 6px; }
-  .refuerzo dd { margin: 0 0 4px; }
+  .refuerzo { background: #1a0d10; border: 1px solid #4a1f22; border-left: 4px solid var(--alert); border-radius: 0 8px 8px 0; padding: 10px 14px; margin-top: 10px; font-size: 0.9rem; }
+  .refuerzo dt { font-weight: 800; color: #ff8a8a; margin-top: 6px; }
+  .refuerzo dd { margin: 0 0 4px; color: #d7bcbf; }
 
-  /* Cartas de restricción */
-  .cartas { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin: 14px 0; }
-  .carta {
-    background: linear-gradient(135deg, #14324f, #1d4b73);
-    color: #fff;
-    border-radius: 10px;
-    padding: 14px;
-    box-shadow: var(--sombra);
-  }
-  .carta h4 { color: #ffd479; margin: 0 0 6px; font-size: 0.95rem; }
-  .carta p { margin: 0; font-size: 0.85rem; color: #dbe6f0; }
+  /* ---------- Cartas de restricción ---------- */
+  .cartas { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; margin: 14px 0; }
+  .carta { background: linear-gradient(135deg, #131a2a, #0e1420); border: 1px solid #22304a; border-radius: 12px; padding: 14px; }
+  .carta h4 { color: var(--cyan); margin: 0 0 6px; font-size: 0.95rem; }
+  .carta p { margin: 0; font-size: 0.85rem; color: #b9c0d6; }
 
-  /* Chips clasificables (drag & drop + tap fallback) */
+  /* ---------- Ruta del dato (ordenar) ---------- */
   .banco { display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0 16px; }
-  .chip {
-    background: var(--blanco);
-    border: 2px solid var(--gris-borde);
-    border-radius: 999px;
-    padding: 8px 14px;
-    font-size: 0.9rem;
-  }
-  .chip[aria-pressed="true"] { border-color: var(--cian-dato); background: #e6f2f1; box-shadow: 0 0 0 2px rgba(10,125,120,0.25); }
+  .chip { background: #10131c; border: 2px solid var(--line); color: var(--text); border-radius: 10px; padding: 9px 14px; font-size: 0.9rem; }
+  .chip[aria-pressed="true"] { border-color: var(--cyan); background: #061a22; box-shadow: 0 0 0 2px rgba(0,229,255,.25); }
   .chip.colocado { display: none; }
-  .zonas { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
-  .zona {
-    border: 2px dashed var(--gris-borde);
-    border-radius: 10px;
-    padding: 12px;
-    min-height: 120px;
-    background: var(--gris-suave);
-  }
-  .zona.dragover { border-color: var(--cian-dato); background: #eaf6f5; }
-  .zona h4 { margin: 0 0 8px; font-size: 0.95rem; color: var(--azul-medio); }
-  .zona .colocados { display: flex; flex-wrap: wrap; gap: 8px; }
-  .zona .colocado-chip {
-    font-size: 0.82rem;
-    padding: 5px 10px;
-    border-radius: 999px;
-    display: inline-flex;
-    gap: 6px;
-    align-items: center;
-  }
-  .zona .colocado-chip.bien { background: #e2f3e8; color: var(--verde-logro); }
-  .zona .colocado-chip.mal { background: #fbeeee; color: var(--rojo-error); }
+  .slots { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+  .slot { border: 2px dashed var(--line); border-radius: 12px; padding: 10px; min-height: 92px; background: #0e1018; text-align: center; }
+  .slot .num { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+  .slot.dragover { border-color: var(--cyan); background: #061a22; }
+  .slot .puesto { margin-top: 6px; font-size: 0.85rem; font-weight: 700; padding: 8px; border-radius: 8px; }
+  .slot .puesto.bien { background: #06251b; color: var(--green); border: 1px solid #0a3c2a; }
+  .slot .puesto.mal { background: #26090c; color: #ff8a8a; border: 1px solid #4a1f22; }
 
-  /* Estaciones comparativas */
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 12px 0;
-    font-size: 0.9rem;
-  }
-  caption { text-align: left; font-weight: 700; color: var(--azul-estructura); margin-bottom: 8px; }
-  th, td { border: 1px solid var(--gris-borde); padding: 9px 11px; text-align: left; vertical-align: top; }
-  thead th { background: var(--azul-estructura); color: #fff; }
-  tbody th { background: var(--gris-suave); }
+  /* ---------- Tablas complejas ---------- */
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 0.9rem; }
+  caption { text-align: left; font-weight: 800; color: var(--cyan); margin-bottom: 8px; }
+  th, td { border: 1px solid var(--line); padding: 9px 11px; text-align: left; vertical-align: top; }
+  thead th { background: #0e1a24; color: var(--cyan); }
+  tbody th { background: #10131c; color: var(--text); }
   .tabla-scroll { overflow-x: auto; }
 
-  /* Formularios avanzados */
-  form fieldset {
-    border: 1px solid var(--gris-borde);
-    border-radius: 10px;
-    padding: 14px 16px;
-    margin: 0 0 18px;
-  }
-  form legend { font-weight: 700; color: var(--azul-estructura); padding: 0 6px; }
+  /* ---------- Formularios ---------- */
+  form fieldset { border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; margin: 0 0 18px; background: #0e1018; }
+  form legend { font-weight: 800; color: var(--amber); padding: 0 6px; }
   label { display: block; font-weight: 600; margin: 12px 0 4px; font-size: 0.92rem; }
   input[type="text"], input[type="number"], select, textarea {
-    width: 100%;
-    padding: 9px 11px;
-    border: 1px solid var(--gris-borde);
-    border-radius: 8px;
-    font: inherit;
-    background: var(--blanco);
+    width: 100%; padding: 9px 11px; border: 1px solid var(--line); border-radius: 8px;
+    font: inherit; background: #0a0c14; color: var(--text);
   }
-  textarea { min-height: 72px; resize: vertical; }
-  input:invalid:not(:placeholder-shown) { border-color: var(--rojo-error); }
-  .ayuda { font-weight: 400; font-size: 0.8rem; color: #5a6470; margin: 2px 0 0; }
-  .fila-indicador { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  input::placeholder, textarea::placeholder { color: #5a6274; }
+  textarea { min-height: 68px; resize: vertical; }
+  input:invalid:not(:placeholder-shown) { border-color: var(--alert); }
+  .ayuda { font-weight: 400; font-size: 0.8rem; color: var(--muted); margin: 2px 0 0; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .grid3 { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 10px; align-items: end; }
   .checks label { display: flex; align-items: flex-start; gap: 8px; font-weight: 400; }
   .checks input { width: auto; margin-top: 4px; }
 
-  /* Pistas progresivas */
-  .pista-box summary { cursor: pointer; font-weight: 700; color: var(--cian-dato); }
-  details { border: 1px solid var(--gris-borde); border-radius: 8px; padding: 10px 14px; margin: 10px 0; background: var(--blanco); }
-  details summary { cursor: pointer; font-weight: 600; }
+  details { border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; margin: 10px 0; background: #0e1018; }
+  details summary { cursor: pointer; font-weight: 700; }
   details[open] summary { margin-bottom: 8px; }
+  .pista-box summary { color: var(--cyan); }
 
   /* Rúbrica */
-  .rubrica td.logrado { background: #eaf6ee; }
-  .rubrica td.proceso { background: #fff7e6; }
-  .rubrica td.inicial { background: #fbeeee; }
+  .rubrica td.logrado { background: #06251b; }
+  .rubrica td.proceso { background: #201a05; }
+  .rubrica td.inicial { background: #26090c; }
 
-  /* Bloques de export */
+  .aviso { background: #061a22; border: 1px solid #17384a; border-radius: 10px; padding: 12px 14px; font-size: 0.88rem; margin: 12px 0; }
+  .aviso strong { color: var(--cyan); }
+
   .export-acciones { display: flex; gap: 12px; flex-wrap: wrap; margin: 14px 0; }
-  #salidaMarkdown {
-    width: 100%; min-height: 220px; font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
-    font-size: 0.82rem; white-space: pre; overflow: auto;
-  }
+  #salidaMarkdown { width: 100%; min-height: 240px; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.82rem; white-space: pre; overflow: auto; }
 
-  .aviso {
-    background: #e6f2f1;
-    border: 1px solid #b8ddda;
-    border-radius: 8px;
-    padding: 12px 14px;
-    font-size: 0.88rem;
-    margin: 12px 0;
-  }
-  .aviso strong { color: var(--cian-dato); }
+  /* Likert autoevaluación */
+  .likert { display: flex; gap: 6px; flex-wrap: wrap; }
+  .likert button[aria-pressed="true"] { background: var(--cyan); color: #001018; border-color: var(--cyan); font-weight: 800; }
 
-  footer.pie {
-    background: var(--azul-estructura);
-    color: #cdd9e5;
-    padding: 22px 20px;
-    text-align: center;
-    font-size: 0.85rem;
-  }
-  footer.pie strong { color: #fff; }
+  footer.pie { border-top: 1px solid var(--line); background: #08090e; color: var(--muted); padding: 22px 0; text-align: center; font-size: 0.85rem; }
+  footer.pie strong { color: var(--text); }
 
-  .sr-only {
-    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
-    overflow: hidden; clip: rect(0,0,0,0); border: 0;
-  }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
 
-  /* Microanimación de acierto */
   @keyframes pop { 0% { transform: scale(1); } 40% { transform: scale(1.12); } 100% { transform: scale(1); } }
-  .pop { animation: pop 0.4s ease; }
+  .pop { animation: pop .4s ease; }
 
-  /* prefers-reduced-motion: desactiva movimiento no esencial */
-  @media (prefers-reduced-motion: reduce) {
-    * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
-  }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
+  @media (max-width: 640px) { .grid2, .grid3 { grid-template-columns: 1fr; } h1 { font-size: 1.6rem; } body { font-size: 16px; } }
 
-  @media (max-width: 620px) {
-    .fila-indicador { grid-template-columns: 1fr; }
-    body { font-size: 16px; }
-  }
-
-  /* Impresión: informe/evidencia imprimible en PDF */
+  /* Impresión (evidencia en PDF) */
   @media print {
-    header.top, .progreso-global, footer.pie, .no-print, button, details.pista-box { display: none !important; }
-    body { background: #fff; font-size: 12px; }
-    section.nivel { box-shadow: none; border: 1px solid #999; page-break-inside: avoid; }
+    header.top .hud, .tags, footer.pie, .no-print, button, details.pista-box { display: none !important; }
+    body { background: #fff; color: #000; font-size: 12px; }
+    section.nivel { border: 1px solid #999; page-break-inside: avoid; }
     section.nivel[data-bloqueado="true"] .nivel-cuerpo { display: block !important; }
     section.nivel[data-bloqueado="true"] .candado { display: none !important; }
-    #reporteImpresion { display: block !important; }
+    a { color: #000; }
+    #reporteImpresion { display: block !important; color: #000; }
   }
   #reporteImpresion { display: none; }
 </style>
 </head>
 <body>
-<a class="skip-link" href="#nivel1">Saltar al contenido de la actividad</a>
+<a class="skip-link" href="#n1">Saltar a la actividad</a>
 
 <header class="top">
   <div class="wrap">
-    <span class="eyebrow">IUTPC · Fundamentos de BI y Big Data · Semana 3 — Arquitectura de Datos</span>
-    <h1>Operación BI: Arsenal de Decisiones</h1>
+    <span class="eyebrow">IA + DATA 2026 · Unidad 1 · Semana 3 — Sesión 3 · Modelo IUTPC</span>
+    <h1>Operación BI — Arquitectura de Datos</h1>
     <p class="lead">
-      Eres <strong>Analista BI en formación</strong> en la agencia de consultoría
-      <strong>«Operación BI»</strong>. Tu equipo recibe un expediente organizacional y debe
-      <strong>diseñar una arquitectura básica de datos</strong> y <strong>recomendar una herramienta de BI viable y justificada</strong>.
-      No compites contra otros equipos: compites contra el <em>desafío</em>.
+      Eres <strong>Analista de Datos en formación</strong> en la agencia <span class="marca">«Operación BI»</span>.
+      En la sesión anterior aprendiste a elegir herramientas de BI; hoy resuelves lo que las hace posibles:
+      <strong>diseñar la arquitectura básica de datos y un modelo inicial de base de datos</strong> según la
+      necesidad de información de una organización. Compites contra el <em>desafío</em>, no contra otros equipos.
+    </p>
+    <p class="lead" style="margin-top:8px;color:var(--muted)">
+      <strong>Logro de la sesión:</strong> Diseña una arquitectura básica y un modelo inicial de sistema de bases de datos,
+      de acuerdo con una necesidad de información organizacional.
     </p>
 
-    <div class="progreso-global" role="group" aria-label="Progreso de la misión">
-      <svg class="anillo" width="90" height="90" viewBox="0 0 90 90" role="img" aria-label="Anillo de progreso de la misión">
-        <circle class="pista" cx="45" cy="45" r="38" fill="none" stroke-width="9" />
-        <circle id="anilloAvance" class="avance" cx="45" cy="45" r="38" fill="none" stroke-width="9"
-                stroke-dasharray="238.76" stroke-dashoffset="238.76" transform="rotate(-90 45 45)" />
-        <text id="anilloTexto" x="45" y="50" text-anchor="middle">0%</text>
+    <div class="hud" role="group" aria-label="Progreso de la misión">
+      <svg class="anillo" width="88" height="88" viewBox="0 0 88 88" role="img" aria-label="Anillo de progreso">
+        <circle class="pista" cx="44" cy="44" r="37" fill="none" stroke-width="9" />
+        <circle id="anilloAvance" class="avance" cx="44" cy="44" r="37" fill="none" stroke-width="9"
+                stroke-dasharray="232.48" stroke-dashoffset="232.48" transform="rotate(-90 44 44)" />
+        <text id="anilloTexto" x="44" y="49" text-anchor="middle">0%</text>
       </svg>
-      <div class="stats-xp">
-        <div><strong id="xpTotal">0</strong> XP de calidad · Nivel <span id="nivelActual">1</span> de 5</div>
-        <div class="insignias" aria-label="Insignias obtenidas">
-          <span class="insignia" data-badge="detective">🔎 Detective de datos</span>
-          <span class="insignia" data-badge="expediente">📁 Lector de expedientes</span>
-          <span class="insignia" data-badge="comparador">⚖️ Comparador BI</span>
-          <span class="insignia" data-badge="recomendador">🎯 Analista recomendador</span>
+      <div class="xp">
+        <div><strong id="xpTotal">0</strong> XP de calidad · <small>Nivel <span id="nivelActual">1</span> de 5 · sin ranking</small></div>
+        <div class="insignias" aria-label="Insignias por logro observable">
+          <span class="insignia" data-badge="detector">🔎 Detector de datos</span>
+          <span class="insignia" data-badge="analista">📁 Analista de necesidades</span>
+          <span class="insignia" data-badge="arquitecto">🏗️ Arquitecto de datos</span>
+          <span class="insignia" data-badge="modelador">🧩 Modelador ER</span>
           <span class="insignia" data-badge="reflexivo">🧠 Consultor reflexivo</span>
         </div>
       </div>
+    </div>
+
+    <div class="tags" aria-label="Técnicas aplicadas en esta actividad">
+      <span class="tag tag-ludic">Mito o evidencia</span>
+      <span class="tag tag-ludic">Expediente con cartas de restricción</span>
+      <span class="tag tag-ludic">Ruta del dato (drag & drop)</span>
+      <span class="tag tag-ludic">Clasificación de conceptos ER</span>
+      <span class="tag tag-ludic">Diseño de arquitectura + modelo ER</span>
+      <span class="tag tag-ludic">Pitch / defensa breve</span>
+      <span class="tag tag-gami">XP por calidad</span>
+      <span class="tag tag-gami">Pistas progresivas</span>
+      <span class="tag tag-gami">Insignias por logro</span>
+      <span class="tag tag-gami">Niveles con desbloqueo</span>
+      <span class="tag tag-gami">Narrativa inmersiva</span>
+      <span class="tag tag-gami">Declaración de uso de IA</span>
+      <span class="tag tag-gami">Roles cooperativos</span>
+      <span class="tag tag-tech">HTML semántico</span>
+      <span class="tag tag-tech">Tablas con scope y caption</span>
+      <span class="tag tag-tech">Formularios (validación, datalist)</span>
+      <span class="tag tag-tech">Details / Summary</span>
     </div>
     <p class="sr-only" role="status" aria-live="polite" id="anuncio"></p>
   </div>
 </header>
 
-<main class="wrap">
+<main>
+<div class="wrap">
 
-  <!-- Panel: reglas de juego, rúbrica y registro -->
+  <!-- Reglas, rúbrica y registro -->
   <details class="no-print">
     <summary><strong>📋 Reglas, rúbrica y registro del equipo</strong> (visibles desde el inicio)</summary>
-
     <div class="aviso">
-      <strong>Cómo se gana XP:</strong> los puntos se otorgan por <strong>calidad de la evidencia</strong>
-      —identificar la necesidad, relacionar indicadores con fuentes, justificar con 3 criterios y reconocer un riesgo o medida de gobernanza—
-      <strong>nunca por rapidez ni por número de clics</strong>. Las pistas <em>no penalizan</em> y los reintentos son libres.
+      <strong>Cómo se gana XP:</strong> por <strong>calidad de la evidencia</strong> —identificar la necesidad de información,
+      representar los componentes de la arquitectura, definir entidades/atributos/claves coherentes, relacionar la base de datos
+      con indicadores y decisiones, y cuidar la calidad/gobernanza del dato— <strong>nunca por rapidez ni por número de clics</strong>.
+      Las pistas <em>no penalizan</em> y los reintentos son libres.
     </div>
 
     <h3>Registro individual / grupal</h3>
     <form id="formRegistro" aria-label="Registro del equipo">
-      <div class="fila-indicador">
-        <div>
-          <label for="regEquipo">Nombre del equipo</label>
-          <input type="text" id="regEquipo" placeholder="Ej.: Escuadrón Dato" />
-        </div>
-        <div>
-          <label for="regIntegrantes">Integrantes (separa con comas)</label>
-          <input type="text" id="regIntegrantes" placeholder="Ana, Luis, Marta" />
-        </div>
+      <div class="grid2">
+        <div><label for="regEquipo">Nombre del equipo</label><input type="text" id="regEquipo" placeholder="Ej.: Escuadrón Dato" /></div>
+        <div><label for="regIntegrantes">Integrantes (separa con comas)</label><input type="text" id="regIntegrantes" placeholder="Ana, Luis, Marta" /></div>
       </div>
       <fieldset>
         <legend>Roles cooperativos</legend>
-        <p class="ayuda">Asignen un responsable por rol. Los roles rotan la palabra en el pitch final.</p>
-        <div class="fila-indicador">
-          <div><label for="rolAnalista">🧩 Analista de necesidad</label><input type="text" id="rolAnalista" placeholder="¿Quién?" /></div>
-          <div><label for="rolDatos">🗄️ Curador de datos y gobernanza</label><input type="text" id="rolDatos" placeholder="¿Quién?" /></div>
-          <div><label for="rolHerramienta">🛠️ Evaluador de herramientas</label><input type="text" id="rolHerramienta" placeholder="¿Quién?" /></div>
+        <p class="ayuda">Un responsable por rol; rotan la palabra en el pitch de cierre.</p>
+        <div class="grid2">
+          <div><label for="rolArquitecto">🏗️ Arquitecto de datos</label><input type="text" id="rolArquitecto" placeholder="¿Quién?" /></div>
+          <div><label for="rolModelador">🧩 Modelador entidad-relación</label><input type="text" id="rolModelador" placeholder="¿Quién?" /></div>
+          <div><label for="rolCurador">🔐 Curador de calidad y gobernanza</label><input type="text" id="rolCurador" placeholder="¿Quién?" /></div>
           <div><label for="rolVocero">📣 Vocero del pitch</label><input type="text" id="rolVocero" placeholder="¿Quién?" /></div>
         </div>
       </fieldset>
     </form>
 
-    <h3>Rúbrica de la evidencia (visible desde el inicio)</h3>
+    <h3>Rúbrica de la evidencia (Sesión 3)</h3>
     <div class="tabla-scroll">
       <table class="rubrica">
-        <caption>Escala: Logrado · En proceso · Inicial. Aplica a la Matriz comparativa + Ficha de recomendación BI.</caption>
-        <thead>
-          <tr><th scope="col">Criterio</th><th scope="col">Logrado</th><th scope="col">En proceso</th><th scope="col">Inicial</th></tr>
-        </thead>
+        <caption>Escala: Logrado · En proceso · Inicial. Aplica a la evidencia principal (arquitectura + modelo ER).</caption>
+        <thead><tr><th scope="col">Criterio</th><th scope="col">Logrado</th><th scope="col">En proceso</th><th scope="col">Inicial</th></tr></thead>
         <tbody>
-          <tr><th scope="row">Necesidad de negocio</th><td class="logrado">Concreta, medible y ligada al caso</td><td class="proceso">Enunciada pero genérica</td><td class="inicial">Ausente o confusa</td></tr>
-          <tr><th scope="row">Indicadores y fuentes</th><td class="logrado">3 KPIs con fuente de datos identificable</td><td class="proceso">2 KPIs o fuentes parciales</td><td class="inicial">Sin fuentes claras</td></tr>
-          <tr><th scope="row">Pertinencia de la herramienta</th><td class="logrado">Ajustada al caso y a las restricciones</td><td class="proceso">Razonable pero poco ajustada</td><td class="inicial">No pertinente</td></tr>
-          <tr><th scope="row">Justificación</th><td class="logrado">≥3 criterios argumentados</td><td class="proceso">1–2 criterios</td><td class="inicial">Sin argumentos</td></tr>
-          <tr><th scope="row">Riesgo y gobernanza del dato</th><td class="logrado">Riesgo + medida de seguridad/gobernanza</td><td class="proceso">Riesgo sin medida</td><td class="inicial">Ausente</td></tr>
+          <tr><th scope="row">Necesidad de información</th><td class="logrado">Concreta y ligada a una decisión del caso</td><td class="proceso">Enunciada pero genérica</td><td class="inicial">Ausente o confusa</td></tr>
+          <tr><th scope="row">Fuentes de datos</th><td class="logrado">≥3 fuentes pertinentes</td><td class="proceso">1–2 fuentes</td><td class="inicial">Sin fuentes claras</td></tr>
+          <tr><th scope="row">Componentes de arquitectura</th><td class="logrado">Operacional + transformación + repositorio analítico</td><td class="proceso">Componentes incompletos</td><td class="inicial">Sin flujo</td></tr>
+          <tr><th scope="row">Herramienta BI e indicadores</th><td class="logrado">Herramienta + 2 indicadores con su origen</td><td class="proceso">Indicadores sin origen</td><td class="inicial">Ausente</td></tr>
+          <tr><th scope="row">Modelo entidad-relación</th><td class="logrado">≥4 entidades con atributos y PK + ≥3 relaciones con cardinalidad</td><td class="proceso">Entidades sin claves/relaciones claras</td><td class="inicial">Incompleto</td></tr>
+          <tr><th scope="row">Calidad y gobernanza del dato</th><td class="logrado">Medida contra duplicidad + criterio ético/seguridad</td><td class="proceso">Solo mención parcial</td><td class="inicial">Ausente</td></tr>
         </tbody>
       </table>
     </div>
   </details>
 
-  <!-- ================= NIVEL 1 · INICIO (I) ================= -->
-  <section class="nivel" id="nivel1" data-nivel="1" data-bloqueado="false" aria-labelledby="t1">
+  <!-- ============ N1 · INICIO ============ -->
+  <section class="nivel" id="n1" data-nivel="1" data-bloqueado="false" aria-labelledby="t1">
     <div class="nivel-head">
       <span class="nivel-num" aria-hidden="true">I</span>
       <div>
-        <h2 class="nivel-titulo" id="t1">Inicio · Activar saberes y clima</h2>
-        <p class="nivel-meta">10 min · Momento IUTPC: Inicio (I) · Meta: activar conocimientos previos sobre BI y Big Data</p>
+        <h2 class="nivel-titulo" id="t1">Nivel I · Inicio — «El dashboard sin datos»</h2>
+        <p class="nivel-meta">10 min · Activar saberes y clima · Conecta las herramientas de BI (Sesión 2) con la necesidad de datos confiables</p>
       </div>
       <span class="nivel-estado activo" id="estado1">En curso</span>
     </div>
     <div class="nivel-cuerpo">
       <span class="op-cognitiva">Operación cognitiva: clasificar criterios</span>
       <div class="consigna">
-        <strong>Misión 1 — Mito o evidencia.</strong> Antes de recomendar nada, tu equipo debe limpiar el terreno de mitos.
-        Clasifica cada afirmación sobre BI y Big Data. La retroalimentación te explica <em>por qué</em>.
+        <strong>Misión 1 — Mito o evidencia.</strong> Un dashboard atractivo no sirve si sus datos están desordenados.
+        Clasifica cada afirmación; la retroalimentación explica <em>por qué</em>.
       </div>
-
       <div id="mitoContenedor"></div>
-
       <details class="pista-box">
         <summary>💡 Pista progresiva (no penaliza)</summary>
-        <p>Big Data no se define solo por el <em>volumen</em>: recuerda las 5 V (volumen, velocidad, variedad, veracidad y valor).
-        Y un buen tablero prioriza <strong>pocos indicadores pertinentes</strong> ligados a una pregunta de negocio, no muchos.</p>
+        <p>«Una buena visualización no compensa una mala arquitectura». Para decidir con confianza se necesitan datos
+        <strong>identificables (clave única), relacionados, consistentes y protegidos</strong>.</p>
       </details>
       <p id="mitoResumen" class="fb" aria-live="polite"></p>
     </div>
-    <div class="candado"><span aria-hidden="true">🔒</span> Este nivel está bloqueado.</div>
+    <div class="candado"><span aria-hidden="true">🔒</span> Nivel bloqueado.</div>
   </section>
 
-  <!-- ================= NIVEL 2 · UTILIDAD (U) ================= -->
-  <section class="nivel" id="nivel2" data-nivel="2" data-bloqueado="true" aria-labelledby="t2">
+  <!-- ============ N2 · UTILIDAD ============ -->
+  <section class="nivel" id="n2" data-nivel="2" data-bloqueado="true" aria-labelledby="t2">
     <div class="nivel-head">
       <span class="nivel-num" aria-hidden="true">U</span>
       <div>
-        <h2 class="nivel-titulo" id="t2">Utilidad · Explicitar el para qué</h2>
-        <p class="nivel-meta">15 min · Momento IUTPC: Utilidad (U) · Meta: leer el expediente y nombrar la necesidad de negocio</p>
+        <h2 class="nivel-titulo" id="t2">Nivel U · Utilidad — Expediente «Sabores del Barrio»</h2>
+        <p class="nivel-meta">15 min · Explicitar el para qué · Identificar necesidades y problemas de datos</p>
       </div>
       <span class="nivel-estado" id="estado2">Pendiente</span>
     </div>
     <div class="nivel-cuerpo">
       <span class="op-cognitiva">Operación cognitiva: analizar condiciones</span>
       <div class="consigna">
-        <strong>Misión 2 — Expediente «CaféVerde».</strong> Lee el caso y sus <em>cartas de restricción</em>.
-        Luego identifica la <strong>necesidad de negocio</strong> real: el <em>para qué</em> de todo el proyecto.
+        <strong>Misión 2 — Diagnóstico del caso.</strong> Lee el expediente y sus cartas de restricción; luego identifica
+        los problemas de datos y la necesidad de información de la gerencia.
       </div>
 
       <details open>
-        <summary><strong>📁 Expediente organizacional (datos ficticios / anonimizados)</strong></summary>
-        <p><strong>Organización:</strong> «CaféVerde», cadena regional de 12 cafeterías.</p>
-        <p><strong>Síntoma:</strong> merma alta de productos perecederos (hasta 30 % en algunas tiendas) y desconocimiento de qué productos se venden juntos.</p>
-        <p><strong>Datos disponibles:</strong> ventas por ticket en hojas de cálculo por tienda (POS), inventario semanal manual y registro de mermas en papel.</p>
+        <summary><strong>📁 Expediente organizacional (datos ficticios)</strong></summary>
+        <p><strong>«Sabores del Barrio»</strong> — cadena de restaurantes con <strong>3 locales</strong>. Recibe pedidos por
+        caja, WhatsApp y una app de delivery. Cada sede registra ventas, productos, clientes, proveedores e inventario en
+        <strong>archivos Excel separados</strong>. La gerencia quiere responder: «¿Qué platos se venden más?»,
+        «¿Qué productos están por agotarse?» y «¿Qué clientes compran con mayor frecuencia?».</p>
       </details>
 
       <h3>Cartas de restricción</h3>
       <div class="cartas" role="list" aria-label="Restricciones del caso">
-        <div class="carta" role="listitem"><h4>💰 Presupuesto reducido</h4><p>No hay dinero para una plataforma corporativa costosa.</p></div>
-        <div class="carta" role="listitem"><h4>👥 Equipo sin especialistas</h4><p>No cuentan con ingenieros de datos; el personal usa Excel.</p></div>
-        <div class="carta" role="listitem"><h4>🗂️ Datos dispersos</h4><p>La información vive en hojas de cálculo y papel, sin integración.</p></div>
-        <div class="carta" role="listitem"><h4>⏱️ Plazo de 6 semanas</h4><p>La dirección espera resultados accionables pronto.</p></div>
-        <div class="carta" role="listitem"><h4>🔐 Privacidad</h4><p>Los datos de clientes deben tratarse con cuidado y anonimizarse.</p></div>
+        <div class="carta" role="listitem"><h4>👥 Clientes duplicados</h4><p>El mismo cliente aparece con nombres distintos en cada local.</p></div>
+        <div class="carta" role="listitem"><h4>🏷️ Códigos inconsistentes</h4><p>Un mismo producto está registrado con códigos diferentes.</p></div>
+        <div class="carta" role="listitem"><h4>📄 Reportes que no coinciden</h4><p>Los reportes entre locales no cuadran.</p></div>
+        <div class="carta" role="listitem"><h4>🗂️ Datos dispersos</h4><p>Todo vive en hojas de cálculo separadas, sin integración.</p></div>
       </div>
 
-      <form id="formNecesidad" aria-label="Identificar la necesidad de negocio">
+      <form id="formProblemas" aria-label="Problemas y necesidad de información">
         <fieldset>
-          <legend>¿Cuál es la necesidad de negocio del caso?</legend>
+          <legend>1 · ¿Qué problemas de datos identificas? (marca los que apliquen)</legend>
           <div class="checks">
-            <label><input type="radio" name="necesidad" value="a" /> Instalar cámaras de seguridad en todas las tiendas.</label>
-            <label><input type="radio" name="necesidad" value="b" /> Reducir la merma de perecederos anticipando la demanda por tienda y producto, y entender qué se vende junto.</label>
-            <label><input type="radio" name="necesidad" value="c" /> Contratar más personal de ventas para atender público.</label>
-            <label><input type="radio" name="necesidad" value="d" /> Rediseñar el logotipo y la identidad de marca.</label>
+            <label><input type="checkbox" name="prob" value="dup" /> Clientes repetidos sin un código único que los identifique.</label>
+            <label><input type="checkbox" name="prob" value="cod" /> Productos con códigos distintos entre locales.</label>
+            <label><input type="checkbox" name="prob" value="int" /> Datos dispersos en Excel, sin integración.</label>
+            <label><input type="checkbox" name="prob" value="rep" /> Reportes que no coinciden entre sedes.</label>
+            <label><input type="checkbox" name="prob" value="logo" /> El logotipo del restaurante es poco atractivo.</label>
           </div>
-          <button type="button" class="btn-primario" id="btnNecesidad" style="margin-top:12px">Confirmar necesidad</button>
+        </fieldset>
+        <fieldset>
+          <legend>2 · ¿Cuál es la necesidad de información de la gerencia?</legend>
+          <div class="checks">
+            <label><input type="radio" name="nec" value="a" /> Cambiar el diseño del local y el uniforme del personal.</label>
+            <label><input type="radio" name="nec" value="b" /> Responder qué platos se venden más, qué productos se agotan y qué clientes compran más, con datos unificados y confiables.</label>
+            <label><input type="radio" name="nec" value="c" /> Publicar más promociones en redes sociales.</label>
+          </div>
+          <button type="button" class="btn-primario" id="btnProblemas" style="margin-top:12px">Confirmar diagnóstico</button>
         </fieldset>
       </form>
-      <p id="fbNecesidad" class="fb" aria-live="polite"></p>
-      <div id="refuerzoNecesidad"></div>
+      <p id="fbProblemas" class="fb" aria-live="polite"></p>
+      <div id="refuerzoProblemas"></div>
     </div>
-    <div class="candado"><span aria-hidden="true">🔒</span> Completa el <strong>Nivel I (Inicio)</strong> para desbloquear este nivel.</div>
+    <div class="candado"><span aria-hidden="true">🔒</span> Completa el <strong>Nivel I</strong> para desbloquear.</div>
   </section>
 
-  <!-- ================= NIVEL 3 · TRANSFORMACIÓN (T) ================= -->
-  <section class="nivel" id="nivel3" data-nivel="3" data-bloqueado="true" aria-labelledby="t3">
+  <!-- ============ N3 · TRANSFORMACIÓN ============ -->
+  <section class="nivel" id="n3" data-nivel="3" data-bloqueado="true" aria-labelledby="t3">
     <div class="nivel-head">
       <span class="nivel-num" aria-hidden="true">T</span>
       <div>
-        <h2 class="nivel-titulo" id="t3">Transformación · Construir y comparar</h2>
-        <p class="nivel-meta">30 min · Momento IUTPC: Transformación (T) · Meta: clasificar criterios y comparar alternativas de BI</p>
+        <h2 class="nivel-titulo" id="t3">Nivel T · Transformación — «De la operación al análisis»</h2>
+        <p class="nivel-meta">30 min · Construir y comparar · Arquitectura de datos y modelado entidad-relación</p>
       </div>
       <span class="nivel-estado" id="estado3">Pendiente</span>
     </div>
     <div class="nivel-cuerpo">
       <span class="op-cognitiva">Operación cognitiva: comparar alternativas · clasificar criterios</span>
+
       <div class="consigna">
-        <strong>Misión 3A — Clasifica los criterios.</strong> Arrastra (o toca el criterio y luego la caja) cada tarjeta a su categoría:
-        <em>técnico</em>, <em>de negocio</em> o <em>de gobernanza del dato</em>. Sirve para argumentar con orden en la matriz.
+        <strong>Misión 3A — Arma la ruta del dato.</strong> Coloca cada componente en su posición del flujo
+        (arrastra o toca el componente y luego el casillero). Del origen hasta la decisión.
       </div>
+      <div id="banco" class="banco" aria-label="Componentes por ordenar"></div>
+      <div class="slots" id="slots">
+        <div class="slot" data-pos="1" tabindex="0" role="button" aria-label="Posición 1 de la ruta del dato"><span class="num">Paso 1</span><div class="puesto-wrap"></div></div>
+        <div class="slot" data-pos="2" tabindex="0" role="button" aria-label="Posición 2"><span class="num">Paso 2</span><div class="puesto-wrap"></div></div>
+        <div class="slot" data-pos="3" tabindex="0" role="button" aria-label="Posición 3"><span class="num">Paso 3</span><div class="puesto-wrap"></div></div>
+        <div class="slot" data-pos="4" tabindex="0" role="button" aria-label="Posición 4"><span class="num">Paso 4</span><div class="puesto-wrap"></div></div>
+        <div class="slot" data-pos="5" tabindex="0" role="button" aria-label="Posición 5"><span class="num">Paso 5</span><div class="puesto-wrap"></div></div>
+        <div class="slot" data-pos="6" tabindex="0" role="button" aria-label="Posición 6"><span class="num">Paso 6</span><div class="puesto-wrap"></div></div>
+      </div>
+      <p class="ayuda">Accesible por teclado y táctil: selecciona un componente (Enter/clic) y activa el casillero destino.</p>
+      <p id="fbRuta" class="fb" aria-live="polite"></p>
 
-      <div id="banco" class="banco" aria-label="Criterios por clasificar"></div>
-      <div class="zonas" id="zonas">
-        <div class="zona" data-cat="tecnico" aria-label="Zona: Criterio técnico" tabindex="0" role="button" aria-describedby="ayudaZona">
-          <h4>🛠️ Criterio técnico</h4><div class="colocados"></div>
+      <details>
+        <summary><strong>📖 Referencia — componentes de la arquitectura de datos para BI</strong></summary>
+        <div class="tabla-scroll">
+          <table>
+            <caption>Del dato operacional al análisis (ejemplo «Sabores del Barrio»)</caption>
+            <thead><tr><th scope="col">Componente</th><th scope="col">Función principal</th><th scope="col">Ejemplo</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Fuentes de datos</th><td>Generan o capturan datos</td><td>Caja, WhatsApp, app de delivery, inventario</td></tr>
+              <tr><th scope="row">Base de datos operacional</th><td>Registra transacciones cotidianas</td><td>Pedidos, clientes, productos, pagos</td></tr>
+              <tr><th scope="row">Proceso ETL / ELT</th><td>Extrae, transforma, limpia y carga</td><td>Unifica códigos de productos y elimina duplicados</td></tr>
+              <tr><th scope="row">Data Warehouse / Data Mart</th><td>Integra datos históricos para análisis</td><td>Ventas por sede, mes, producto y cliente</td></tr>
+              <tr><th scope="row">Herramienta BI</th><td>Analiza y visualiza</td><td>Power BI, Tableau o Looker Studio</td></tr>
+              <tr><th scope="row">Dashboard / Decisión</th><td>Comunica indicadores para decidir</td><td>Productos más vendidos, quiebres de stock</td></tr>
+            </tbody>
+          </table>
         </div>
-        <div class="zona" data-cat="negocio" aria-label="Zona: Criterio de negocio" tabindex="0" role="button">
-          <h4>📈 Criterio de negocio</h4><div class="colocados"></div>
-        </div>
-        <div class="zona" data-cat="gobernanza" aria-label="Zona: Criterio de gobernanza del dato" tabindex="0" role="button">
-          <h4>🔐 Criterio de gobernanza</h4><div class="colocados"></div>
-        </div>
-      </div>
-      <p id="ayudaZona" class="ayuda">Accesible por teclado y táctil: selecciona un criterio (Enter/clic) y luego activa la caja destino.</p>
-      <p id="fbClasifica" class="fb" aria-live="polite"></p>
+      </details>
 
-      <div class="consigna" style="margin-top:22px">
-        <strong>Misión 3B — Estación de análisis comparativo.</strong> Estudia las tres alternativas frente a las restricciones del caso.
-        Esta tabla alimenta tu matriz del Nivel P.
+      <div class="consigna" style="margin-top:20px">
+        <strong>Misión 3B — Reto de análisis «¿Qué pasa si no diseñamos?».</strong> Clasifica cada práctica como
+        <em>error de diseño</em> o <em>buena práctica</em>. Piensa en duplicidad, consistencia y trazabilidad.
       </div>
-      <div class="tabla-scroll">
-        <table>
-          <caption>Alternativas de arquitectura/herramienta de BI frente al caso «CaféVerde»</caption>
-          <thead>
-            <tr>
-              <th scope="col">Alternativa</th>
-              <th scope="col">Costo</th>
-              <th scope="col">Ajuste a datos actuales</th>
-              <th scope="col">Facilidad para equipo sin especialistas</th>
-              <th scope="col">Escalabilidad</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <th scope="row">A. Hoja de cálculo avanzada</th>
-              <td>Muy bajo</td><td>Alto (ya la usan)</td><td>Alta</td><td>Baja</td>
-            </tr>
-            <tr>
-              <th scope="row">B. BI de autoservicio (dashboards)</th>
-              <td>Medio</td><td>Alto (conecta POS y hojas)</td><td>Media–alta</td><td>Media</td>
-            </tr>
-            <tr>
-              <th scope="row">C. Plataforma Big Data (data lake)</th>
-              <td>Alto</td><td>Requiere reingeniería</td><td>Baja</td><td>Muy alta</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <button type="button" class="btn-primario" id="btnEstacion">Registré la comparación (avanzar)</button>
-      <p id="fbEstacion" class="fb" aria-live="polite"></p>
+      <div id="erContenedor"></div>
+      <details class="pista-box">
+        <summary>💡 Pista progresiva</summary>
+        <p><strong>Entidad</strong>: objeto relevante (Cliente, Producto). <strong>Clave primaria</strong>: identificador único
+        (id_cliente). <strong>Clave foránea</strong>: campo que relaciona tablas. <strong>Cardinalidad</strong>: tipo de relación
+        (un cliente → muchos pedidos). Registrar todo en una sola tabla genera redundancia e inconsistencia.</p>
+      </details>
+      <p id="fbER" class="fb" aria-live="polite"></p>
     </div>
-    <div class="candado"><span aria-hidden="true">🔒</span> Completa el <strong>Nivel U (Utilidad)</strong> para desbloquear este nivel.</div>
+    <div class="candado"><span aria-hidden="true">🔒</span> Completa el <strong>Nivel U</strong> para desbloquear.</div>
   </section>
 
-  <!-- ================= NIVEL 4 · PRÁCTICA (P) ================= -->
-  <section class="nivel" id="nivel4" data-nivel="4" data-bloqueado="true" aria-labelledby="t4">
+  <!-- ============ N4 · PRÁCTICA (EVIDENCIA) ============ -->
+  <section class="nivel" id="n4" data-nivel="4" data-bloqueado="true" aria-labelledby="t4">
     <div class="nivel-head">
       <span class="nivel-num" aria-hidden="true">P</span>
       <div>
-        <h2 class="nivel-titulo" id="t4">Práctica · Aplicación autónoma (evidencia principal)</h2>
-        <p class="nivel-meta">25 min · Momento IUTPC: Práctica (P) — mayor énfasis · Meta: producir la matriz + ficha de recomendación BI</p>
+        <h2 class="nivel-titulo" id="t4">Nivel P · Práctica — «Diseña la arquitectura y el modelo inicial»</h2>
+        <p class="nivel-meta">25 min · Aplicación autónoma · EVIDENCIA PRINCIPAL exportable</p>
       </div>
       <span class="nivel-estado" id="estado4">Pendiente</span>
     </div>
     <div class="nivel-cuerpo">
       <span class="op-cognitiva">Operación cognitiva: analizar condiciones · comparar alternativas</span>
       <div class="consigna">
-        <strong>Misión 4 — Ficha de recomendación BI.</strong> Esta es tu <strong>evidencia principal</strong>.
-        El XP se otorga por <strong>calidad</strong> según la rúbrica: cada criterio bien resuelto suma. Puedes reintentar sin castigo.
+        <strong>Misión 4 — Producto de dos partes.</strong> El XP se otorga por <strong>calidad</strong> según la rúbrica.
+        Puedes evaluar y reintentar sin castigo. Elige un sector y diseña su arquitectura + modelo ER.
       </div>
 
-      <form id="formEvidencia" aria-label="Ficha de recomendación BI">
+      <form id="formEvidencia" aria-label="Diseño de arquitectura y modelo entidad-relación">
         <fieldset>
-          <legend>1 · Necesidad de negocio concreta</legend>
-          <label for="evNecesidad">Redacta la necesidad en una frase medible</label>
-          <textarea id="evNecesidad" placeholder="Ej.: Reducir la merma de perecederos un 15 % en 3 meses anticipando la demanda por tienda."></textarea>
-          <p class="ayuda">Logrado = concreta y medible, ligada al caso.</p>
-        </fieldset>
-
-        <fieldset>
-          <legend>2 · Tres indicadores con su fuente de datos</legend>
-          <p class="ayuda">Usa la lista de sugerencias o escribe el tuyo. Cada indicador necesita una fuente identificable.</p>
-          <datalist id="kpis">
-            <option value="% de merma por tienda y categoría"></option>
-            <option value="Ticket promedio por franja horaria"></option>
-            <option value="Productos comprados juntos (afinidad)"></option>
-            <option value="Rotación de inventario semanal"></option>
-            <option value="Ventas por producto y tienda"></option>
-          </datalist>
-          <datalist id="fuentes">
-            <option value="Sistema de ventas (POS)"></option>
-            <option value="Registro de mermas"></option>
-            <option value="Inventario semanal"></option>
-            <option value="Detalle de tickets"></option>
-          </datalist>
-          <div class="fila-indicador">
-            <div><label for="kpi1">Indicador 1</label><input type="text" id="kpi1" list="kpis" placeholder="KPI" /></div>
-            <div><label for="src1">Fuente 1</label><input type="text" id="src1" list="fuentes" placeholder="Fuente de datos" /></div>
-          </div>
-          <div class="fila-indicador">
-            <div><label for="kpi2">Indicador 2</label><input type="text" id="kpi2" list="kpis" placeholder="KPI" /></div>
-            <div><label for="src2">Fuente 2</label><input type="text" id="src2" list="fuentes" placeholder="Fuente de datos" /></div>
-          </div>
-          <div class="fila-indicador">
-            <div><label for="kpi3">Indicador 3</label><input type="text" id="kpi3" list="kpis" placeholder="KPI" /></div>
-            <div><label for="src3">Fuente 3</label><input type="text" id="src3" list="fuentes" placeholder="Fuente de datos" /></div>
-          </div>
-        </fieldset>
-
-        <fieldset>
-          <legend>3 · Herramienta recomendada (pertinente al caso)</legend>
-          <label for="evHerramienta">Selecciona la alternativa</label>
-          <select id="evHerramienta">
-            <option value="">— Elige —</option>
-            <option value="A">A. Hoja de cálculo avanzada</option>
-            <option value="B">B. BI de autoservicio (dashboards)</option>
-            <option value="C">C. Plataforma Big Data (data lake)</option>
+          <legend>0 · Caso y necesidad de información</legend>
+          <label for="evSector">Sector del caso</label>
+          <select id="evSector">
+            <option value="">— Elige un sector —</option>
+            <option>Retail (tienda de ropa: ventas, stock, clientes, promociones)</option>
+            <option>Educación (instituto: matrícula, asistencia, cursos, docentes, notas)</option>
+            <option>Salud (clínica: pacientes, citas, especialidades, médicos, pagos)</option>
+            <option>Logística (delivery: pedidos, repartidores, rutas, tiempos, reclamos)</option>
+            <option>Municipalidad (trámites, ciudadanos, áreas, plazos, estado)</option>
           </select>
-          <p class="ayuda">Logrado = ajustada al caso y a las restricciones (presupuesto, equipo, plazo, datos en Excel/POS).</p>
+          <label for="evNecesidad">Necesidad / decisión de negocio que apoyará el diseño</label>
+          <textarea id="evNecesidad" placeholder="Ej.: Anticipar quiebres de stock por tienda y producto para reponer a tiempo."></textarea>
         </fieldset>
 
         <fieldset>
-          <legend>4 · Justificación con al menos tres criterios</legend>
-          <div class="checks">
-            <label><input type="checkbox" name="crit" value="costo" /> Costo total adecuado al presupuesto</label>
-            <label><input type="checkbox" name="crit" value="ajuste" /> Se conecta a los datos actuales (POS/hojas)</label>
-            <label><input type="checkbox" name="crit" value="facilidad" /> Usable por un equipo sin especialistas</label>
-            <label><input type="checkbox" name="crit" value="tiempo" /> Implementable en el plazo (6 semanas)</label>
-            <label><input type="checkbox" name="crit" value="necesidad" /> Responde a la necesidad (demanda/afinidad)</label>
-            <label><input type="checkbox" name="crit" value="gobernanza" /> Permite gobernanza y privacidad del dato</label>
+          <legend>Parte A · Esquema de arquitectura de datos</legend>
+          <label>Tres (o más) fuentes de datos</label>
+          <div class="grid3">
+            <input type="text" id="fte1" list="fuentesDL" placeholder="Fuente 1" aria-label="Fuente 1" />
+            <input type="text" id="fte2" list="fuentesDL" placeholder="Fuente 2" aria-label="Fuente 2" />
+            <input type="text" id="fte3" list="fuentesDL" placeholder="Fuente 3" aria-label="Fuente 3" />
           </div>
-          <label for="evArgumento">Argumento breve (sintetiza tu elección)</label>
-          <textarea id="evArgumento" placeholder="Ej.: Elegimos B porque conecta POS y hojas, la usa el equipo actual, cabe en presupuesto y en 6 semanas..."></textarea>
+          <datalist id="fuentesDL">
+            <option value="Caja / POS"></option><option value="App de delivery"></option>
+            <option value="WhatsApp / pedidos"></option><option value="Inventario"></option>
+            <option value="CRM / clientes"></option><option value="Formularios web"></option>
+          </datalist>
+          <div class="grid2">
+            <div><label for="evOperacional">Base de datos operacional</label><input type="text" id="evOperacional" placeholder="Ej.: BD de pedidos y clientes" /></div>
+            <div><label for="evTransform">Acción de limpieza / transformación (ETL·ELT)</label><input type="text" id="evTransform" placeholder="Ej.: Unificar códigos y eliminar duplicados" /></div>
+          </div>
+          <div class="grid2">
+            <div><label for="evRepo">Repositorio analítico (Data Warehouse / Data Mart)</label><input type="text" id="evRepo" placeholder="Ej.: DW de ventas históricas" /></div>
+            <div><label for="evBI">Herramienta BI propuesta</label><input type="text" id="evBI" list="biDL" placeholder="Ej.: Power BI" /><datalist id="biDL"><option value="Power BI"></option><option value="Tableau"></option><option value="Looker Studio"></option></datalist></div>
+          </div>
+          <label>Dos indicadores del dashboard (con la tabla/fuente de donde salen)</label>
+          <div class="grid2">
+            <div><input type="text" id="ind1" placeholder="Indicador 1" aria-label="Indicador 1" /><input type="text" id="indf1" placeholder="Origen (tabla/fuente) del indicador 1" aria-label="Origen indicador 1" style="margin-top:8px" /></div>
+            <div><input type="text" id="ind2" placeholder="Indicador 2" aria-label="Indicador 2" /><input type="text" id="indf2" placeholder="Origen (tabla/fuente) del indicador 2" aria-label="Origen indicador 2" style="margin-top:8px" /></div>
+          </div>
         </fieldset>
 
         <fieldset>
-          <legend>5 · Riesgo/límite y medida de seguridad o gobernanza</legend>
-          <label for="evRiesgo">Riesgo o límite</label>
-          <input type="text" id="evRiesgo" placeholder="Ej.: La calidad de los datos manuales de mermas es baja." />
-          <label for="evGobernanza">Medida de seguridad / gobernanza del dato</label>
-          <input type="text" id="evGobernanza" placeholder="Ej.: Anonimizar datos de clientes y designar un responsable de calidad de datos." />
+          <legend>Parte B · Modelo entidad-relación básico</legend>
+          <p class="ayuda">Mínimo 4 entidades: nombre, dos atributos y una clave primaria por entidad.</p>
+          <datalist id="entDL"><option value="Cliente"></option><option value="Producto"></option><option value="Pedido"></option><option value="Detalle_Pedido"></option><option value="Local"></option><option value="Proveedor"></option><option value="Inventario"></option><option value="Pago"></option></datalist>
+          <div class="tabla-scroll">
+            <table>
+              <caption>Entidades del modelo</caption>
+              <thead><tr><th scope="col">Entidad</th><th scope="col">Atributo 1</th><th scope="col">Atributo 2</th><th scope="col">Clave primaria</th></tr></thead>
+              <tbody id="entBody"></tbody>
+            </table>
+          </div>
+          <label style="margin-top:14px">Tres (o más) relaciones con cardinalidad</label>
+          <div id="relWrap"></div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Calidad y gobernanza del dato</legend>
+          <div class="grid2">
+            <div><label for="evDup">Medida contra duplicidad / inconsistencia</label><input type="text" id="evDup" placeholder="Ej.: Usar id_cliente único y catálogo maestro de productos." /></div>
+            <div><label for="evSeg">Criterio de seguridad / ética del dato</label><input type="text" id="evSeg" placeholder="Ej.: Solo datos ficticios; accesos por rol; no cargar datos personales en IA." /></div>
+          </div>
         </fieldset>
 
         <details class="pista-box">
           <summary>💡 Pistas progresivas (no penalizan)</summary>
           <ul>
-            <li>La herramienta <strong>B (BI de autoservicio)</strong> suele ajustar mejor a un caso con Excel/POS, presupuesto medio y sin especialistas.</li>
-            <li>Un buen KPI siempre nombra <strong>qué se mide</strong> y <strong>de dónde salen los datos</strong>.</li>
-            <li>Gobernanza no es solo seguridad: incluye <em>quién es responsable</em> de la calidad del dato.</li>
+            <li>Un buen indicador nombra <strong>qué mide</strong> y <strong>de qué tabla/fuente</strong> proviene.</li>
+            <li><strong>Producto</strong> y <strong>Detalle de Venta</strong> no son lo mismo: el detalle registra cantidad y precio por pedido.</li>
+            <li>Para no duplicar clientes, define una <strong>clave primaria única</strong> (id_cliente) y relaciónala con los pedidos (clave foránea).</li>
           </ul>
         </details>
 
-        <button type="button" class="btn-primario" id="btnEvaluar" style="margin-top:8px">Evaluar calidad de la evidencia</button>
+        <button type="button" class="btn-primario" id="btnEvaluar" style="margin-top:8px">Evaluar calidad del diseño</button>
       </form>
       <div id="fbEvidencia" class="fb" aria-live="polite"></div>
     </div>
-    <div class="candado"><span aria-hidden="true">🔒</span> Completa el <strong>Nivel T (Transformación)</strong> para desbloquear este nivel.</div>
+    <div class="candado"><span aria-hidden="true">🔒</span> Completa el <strong>Nivel T</strong> para desbloquear.</div>
   </section>
 
-  <!-- ================= NIVEL 5 · CIERRE (C) ================= -->
-  <section class="nivel" id="nivel5" data-nivel="5" data-bloqueado="true" aria-labelledby="t5">
+  <!-- ============ N5 · CIERRE ============ -->
+  <section class="nivel" id="n5" data-nivel="5" data-bloqueado="true" aria-labelledby="t5">
     <div class="nivel-head">
       <span class="nivel-num" aria-hidden="true">C</span>
       <div>
-        <h2 class="nivel-titulo" id="t5">Cierre · Reflexión y transferencia</h2>
-        <p class="nivel-meta">10 min · Momento IUTPC: Cierre (C) · Meta: metacognición, transferencia y transparencia de IA</p>
+        <h2 class="nivel-titulo" id="t5">Nivel C · Cierre — «La ruta del dato»</h2>
+        <p class="nivel-meta">10 min · Reflexión y transferencia · Ticket de salida + declaración de IA</p>
       </div>
       <span class="nivel-estado" id="estado5">Pendiente</span>
     </div>
     <div class="nivel-cuerpo">
       <span class="op-cognitiva">Operación cognitiva: analizar condiciones (transferir)</span>
-      <div class="consigna">
-        <strong>Misión 5 — Ticket de salida y pitch.</strong> Cierra la consultoría: reflexiona, transfiere el aprendizaje a otro sector
-        y declara el uso de IA. Luego exporta la evidencia.
-      </div>
 
-      <form id="formCierre" aria-label="Ticket de salida y declaración de IA">
+      <div class="consigna"><strong>Misión 5 — Síntesis, reflexión y evidencia.</strong> Reconstruye la ruta, completa tu ticket de salida y declara el uso de IA. Luego exporta.</div>
+
+      <form id="formCierre" aria-label="Cierre metacognitivo">
+        <fieldset>
+          <legend>Síntesis: «La ruta del dato»</legend>
+          <p class="ayuda">Completa la secuencia con los pasos intermedios.</p>
+          <p style="font-weight:700">Fuentes de datos →
+            <select id="ruta1" aria-label="Paso 2"><option value="">…</option><option>Base operacional</option><option>Dashboard</option><option>Decisión</option></select> →
+            <select id="ruta2" aria-label="Paso 3"><option value="">…</option><option>ETL / limpieza</option><option>Fuentes</option><option>Pitch</option></select> →
+            <select id="ruta3" aria-label="Paso 4"><option value="">…</option><option>Data Warehouse</option><option>Caja</option><option>Logo</option></select> →
+            <select id="ruta4" aria-label="Paso 5"><option value="">…</option><option>Herramienta BI</option><option>Excel suelto</option><option>WhatsApp</option></select> → Decisión
+          </p>
+          <button type="button" id="btnRuta">Comprobar ruta</button>
+          <p id="fbRutaCierre" class="fb" aria-live="polite"></p>
+        </fieldset>
+
         <fieldset>
           <legend>Ticket de salida (individual)</legend>
-          <label for="cHallazgos">Dos hallazgos que te llevas</label>
-          <textarea id="cHallazgos" placeholder="1) ...  2) ..."></textarea>
-          <label for="cDuda">Una duda que aún tienes</label>
-          <input type="text" id="cDuda" placeholder="¿Qué te gustaría profundizar?" />
-          <label for="cTransfer">Transferencia: ¿en qué <em>otro</em> sector aplicarías esta arquitectura de datos y por qué?</label>
-          <textarea id="cTransfer" placeholder="Ej.: En una clínica, para anticipar demanda de citas y reducir ausentismo..."></textarea>
+          <label for="cDif">¿Qué diferencia comprendes entre una base de datos operacional y un repositorio analítico?</label>
+          <textarea id="cDif" placeholder="La operacional registra el día a día; el repositorio analítico integra histórico para analizar…"></textarea>
+          <label for="cReto">¿Qué fue lo más retador al identificar entidades y relaciones?</label>
+          <input type="text" id="cReto" placeholder="Tu respuesta" />
+          <label for="cDup">¿Qué criterio usarás para evitar duplicidad o inconsistencia de datos?</label>
+          <input type="text" id="cDup" placeholder="Ej.: claves primarias únicas y catálogos maestros" />
+          <label for="cTransfer">Transferencia: ¿en qué <em>otra</em> organización aplicarías este diseño y qué decisión mejoraría?</label>
+          <textarea id="cTransfer" placeholder="Ej.: En una clínica, para anticipar demanda de citas por especialidad…"></textarea>
+        </fieldset>
+
+        <fieldset>
+          <legend>Autoevaluación (progreso personal, sin ranking)</legend>
+          <p class="ayuda" id="likertAyuda">1 = Inicial · 2 = En proceso · 3 = Logrado</p>
+          <div id="autoeval"></div>
         </fieldset>
 
         <fieldset>
           <legend>Declaración de uso de IA (transparencia y trazabilidad)</legend>
-          <div class="checks">
-            <label><input type="checkbox" id="iaUso" /> Usamos una herramienta de IA en esta actividad</label>
+          <p class="ayuda">Regla de oro: solo datos ficticios; nunca datos personales, financieros o confidenciales en herramientas de IA.</p>
+          <div class="checks"><label><input type="checkbox" id="iaUso" /> Usamos una herramienta de IA como copiloto en esta actividad</label></div>
+          <div class="grid2">
+            <div><label for="iaHerramienta">Herramienta y propósito</label><input type="text" id="iaHerramienta" placeholder="Ej.: asistente de IA para revisar el modelo ER" /></div>
+            <div><label for="iaPrompt">Prompt significativo utilizado</label><input type="text" id="iaPrompt" placeholder="Ej.: 'revisa duplicidades y cardinalidades de mi modelo'" /></div>
           </div>
-          <div class="fila-indicador">
-            <div><label for="iaHerramienta">¿Qué herramienta?</label><input type="text" id="iaHerramienta" placeholder="Ej.: asistente de IA" /></div>
-            <div><label for="iaPrompt">¿Qué le pediste? (prompt)</label><input type="text" id="iaPrompt" placeholder="Ej.: sugerir KPIs de merma" /></div>
-          </div>
-          <label for="iaRevision">¿Cómo revisó el equipo lo generado por IA?</label>
-          <input type="text" id="iaRevision" placeholder="Ej.: contrastamos con el expediente y descartamos un KPI no pertinente." />
+          <label for="iaRevision">Revisión humana realizada</label>
+          <input type="text" id="iaRevision" placeholder="Ej.: contrastamos con el caso y corregimos una relación mal planteada." />
         </fieldset>
 
         <button type="button" class="btn-primario" id="btnCierre">Registrar cierre</button>
       </form>
       <p id="fbCierre" class="fb" aria-live="polite"></p>
 
-      <h3>Exportar evidencia</h3>
+      <h3>Genera tu evidencia final</h3>
       <div class="aviso">
-        <strong>Formato Markdown</strong> para entregar en la Práctica (P) y versión <strong>imprimible en PDF</strong>
-        (usa «Imprimir» → «Guardar como PDF»). El registro incluye equipo, roles, respuestas, XP e insignias.
+        <strong>Markdown</strong> (entrega en la Práctica) y versión <strong>imprimible en PDF</strong> (Imprimir → Guardar como PDF).
+        El reporte incluye participantes, roles, respuestas, autoevaluación, declaración de IA, XP e insignias.
       </div>
       <div class="export-acciones no-print">
-        <button type="button" class="btn-ambar" id="btnGenerar">📝 Generar Markdown de la evidencia</button>
+        <button type="button" class="btn-amber" id="btnGenerar">📝 Generar Markdown</button>
         <button type="button" id="btnDescargar">⬇️ Descargar .md</button>
-        <button type="button" id="btnImprimir">🖨️ Imprimir / Guardar PDF</button>
+        <button type="button" id="btnImprimir">🖨️ Imprimir / PDF</button>
         <button type="button" id="btnReiniciar">♻️ Reiniciar progreso</button>
       </div>
       <textarea id="salidaMarkdown" class="no-print" aria-label="Evidencia en Markdown" placeholder="Pulsa «Generar Markdown» para ver aquí tu evidencia exportable."></textarea>
     </div>
-    <div class="candado"><span aria-hidden="true">🔒</span> Completa el <strong>Nivel P (Práctica)</strong> para desbloquear este nivel.</div>
+    <div class="candado"><span aria-hidden="true">🔒</span> Completa el <strong>Nivel P</strong> para desbloquear.</div>
   </section>
 
-  <!-- Bloque imprimible generado dinámicamente -->
   <div id="reporteImpresion" aria-hidden="true"></div>
 
-  <!-- Justificación para el docente -->
   <details class="no-print">
     <summary><strong>🎓 Justificación pedagógica (para el docente)</strong></summary>
-    <p>La actividad recorre la ruta <strong>Logro → Proceso cognitivo → Reto → Evidencia → Retroalimentación → Transferencia</strong>
-    y organiza los cinco momentos <strong>IUTPC</strong> (Inicio, Utilidad, Transformación, Práctica, Cierre) con desbloqueo progresivo.
-    Aplica el <strong>DUA</strong> en sus tres principios: <em>representación</em> (texto breve, tarjetas, tablas con <code>scope</code>/<code>caption</code>,
-    anillo SVG de progreso), <em>acción y expresión</em> (selección, clasificación drag-and-drop con alternativa táctil y por teclado,
-    redacción breve, formularios) e <em>implicación</em> (narrativa de consultoría, roles cooperativos, reto vs. desafío, sin ranking público).</p>
-    <p>La <strong>evaluación es formativa</strong>: la rúbrica es visible desde el inicio, el XP premia la <strong>calidad</strong> (no la rapidez ni los clics),
-    el error activa un <strong>refuerzo de cinco pasos</strong> (pausa, pista, dato, contexto, reintento) y hay reintentos sin castigo.
-    El <strong>ticket de salida</strong> añade metacognición y transferencia a un nuevo contexto. Cumple <strong>WCAG 2.1 AA</strong>
-    (contraste, navegación por teclado, textos alternativos, foco visible, <code>prefers-reduced-motion</code>), usa <strong>datos ficticios</strong>
-    e incorpora <strong>declaración de uso de IA</strong> y una <strong>medida de gobernanza del dato</strong>.</p>
+    <p>La actividad conserva el método de la serie IA+DATA (narrativa inmersiva, niveles IUTPC con desbloqueo, XP por calidad,
+    insignias, progreso personal sin ranking, rúbrica visible, autoevaluación, declaración de uso de IA y reporte exportable) e
+    implementa los procedimientos y el logro de la <strong>Sesión 3</strong>: diseñar una <strong>arquitectura básica de datos</strong>
+    (Fuentes → Operacional → ETL → Data Warehouse → BI → Decisión) y un <strong>modelo entidad-relación</strong> inicial según una
+    necesidad de información organizacional, sobre el caso «Sabores del Barrio» y sectores (retail, educación, salud, logística, sector público).</p>
+    <p>Cumple el <strong>DUA</strong> en representación (texto breve, tarjetas, tablas con <code>scope</code>/<code>caption</code>, anillo SVG),
+    acción/expresión (clasificación, ordenamiento drag-and-drop con alternativa táctil y por teclado, formularios, redacción) e implicación
+    (narrativa, roles cooperativos, reto vs. desafío). La <strong>evaluación es formativa</strong>: rúbrica visible, XP por calidad, refuerzo de
+    cinco pasos ante el error (pausa, pista, dato, contexto, reintento) y reintentos sin castigo. Accesibilidad <strong>WCAG 2.1 AA</strong>
+    (contraste, teclado, ARIA, foco visible, <code>prefers-reduced-motion</code>), <strong>datos ficticios</strong> y criterio ético de IA.</p>
   </details>
 
+</div>
 </main>
 
 <footer class="pie">
-  <p><strong>Operación BI · Arsenal de Decisiones</strong> — Actividad gamificada DUA-Experiencial</p>
-  <p>IUTPC · Unidad didáctica: Fundamentos de BI y Big Data · Semana 3: Arquitectura de Datos</p>
-  <p>Datos ficticios/anonimizados · Diseño instruccional gamificado · Progreso personal sin ranking público</p>
+  <div class="wrap">
+    <p><strong>Operación BI · Sesión 3 — Arquitectura de Datos</strong> · Actividad gamificada DUA-IUTPC</p>
+    <p><strong>Mg. Mario Quiroz Martínez</strong> · IA + DATA 2026 · Unidad 1: Fundamentos de Business Intelligence.</p>
+    <p>Datos ficticios/anonimizados · Progreso personal sin ranking público · «Una buena visualización no compensa una mala arquitectura».</p>
+  </div>
 </footer>
 
 <script>
-/* ============================================================
-   Operación BI — Lógica: máquina de estados, XP por calidad,
-   feedback con fundamento, exportación. Estado en memoria con
-   persistencia local tolerante a fallos (try/catch).
-   ============================================================ */
+/* ===========================================================
+   Operación BI — Sesión 3. Máquina de estados, XP por calidad,
+   feedback con fundamento y exportación. Estado en memoria con
+   persistencia local tolerante a fallos (Guardado local del progreso).
+   =========================================================== */
 (function () {
   "use strict";
+  var CIRC = 232.48; // 2·π·r (r=37)
 
-  var CIRC = 238.76; // 2·π·r (r=38)
-
-  // ---- Estado (fuente de verdad en memoria) ----
   var estado = {
-    nivel: 1,
-    xp: 0,
-    badges: [],
-    n1: { hechas: 0, correctas: 0 },
-    n2: false,
-    n3clasifica: false,
-    n3estacion: false,
-    n4: { xp: 0, evaluada: false },
-    n5: false,
+    nivel: 1, xp: 0, badges: [],
+    n1: { hechas: 0 }, n2: false,
+    n3ruta: false, n3er: { hechas: 0 },
+    n4: { xp: 0, evaluada: false }, n5: false,
     respuestas: {}
   };
 
-  // ---- Persistencia tolerante a fallos ----
-  var KEY = "operacionBI.v1";
-  function guardar() {
-    try { window.localStorage.setItem(KEY, JSON.stringify(estado)); }
-    catch (e) { /* localStorage no disponible: el estado sigue en memoria */ }
-  }
-  function cargar() {
-    try {
-      var raw = window.localStorage.getItem(KEY);
-      if (raw) { estado = Object.assign(estado, JSON.parse(raw)); }
-    } catch (e) { /* ignorar */ }
-  }
+  var KEY = "operacionBI.s3.v1";
+  function guardar() { try { window.localStorage.setItem(KEY, JSON.stringify(estado)); } catch (e) {} }
+  function cargar() { try { var r = window.localStorage.getItem(KEY); if (r) { estado = Object.assign(estado, JSON.parse(r)); } } catch (e) {} }
 
-  function $(sel) { return document.querySelector(sel); }
-  function anunciar(msg) { var a = $("#anuncio"); if (a) { a.textContent = msg; } }
+  function $(s) { return document.querySelector(s); }
+  function anunciar(m) { var a = $("#anuncio"); if (a) { a.textContent = m; } }
+  function esc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+  function val(id) { var el = document.getElementById(id); return el ? String(el.value || "").trim() : ""; }
 
-  // ---- XP y badges ----
-  function sumarXP(n) {
-    estado.xp += n;
-    render();
-    guardar();
-  }
+  function sumarXP(n) { estado.xp += n; render(); guardar(); }
   function ganarBadge(id) {
     if (estado.badges.indexOf(id) === -1) {
       estado.badges.push(id);
@@ -892,531 +753,471 @@
       guardar();
     }
   }
-
-  // ---- Máquina de estados: desbloqueo de niveles ----
-  function desbloquear(nivel) {
-    if (nivel > estado.nivel) { estado.nivel = nivel; }
-    var sec = document.querySelector('section.nivel[data-nivel="' + nivel + '"]');
+  function desbloquear(n) {
+    if (n > estado.nivel) { estado.nivel = n; }
+    var sec = document.querySelector('section.nivel[data-nivel="' + n + '"]');
     if (sec) {
       sec.setAttribute("data-bloqueado", "false");
-      var est = $("#estado" + nivel);
-      if (est) { est.textContent = "En curso"; est.className = "nivel-estado activo"; }
+      var e = $("#estado" + n);
+      if (e && !e.classList.contains("logrado")) { e.textContent = "En curso"; e.className = "nivel-estado activo"; }
     }
-    render();
-    guardar();
+    render(); guardar();
   }
-  function marcarLogrado(nivel) {
-    var est = $("#estado" + nivel);
-    if (est) { est.textContent = "Logrado"; est.className = "nivel-estado logrado"; }
-  }
+  function marcarLogrado(n) { var e = $("#estado" + n); if (e) { e.textContent = "Logrado"; e.className = "nivel-estado logrado"; } }
 
   function render() {
     $("#xpTotal").textContent = estado.xp;
     $("#nivelActual").textContent = estado.nivel;
-    var completos = 0;
-    if (estado.n1.hechas >= 6) { completos++; }
-    if (estado.n2) { completos++; }
-    if (estado.n3clasifica && estado.n3estacion) { completos++; }
-    if (estado.n4.evaluada) { completos++; }
-    if (estado.n5) { completos++; }
-    var pct = Math.round((completos / 5) * 100);
-    var anillo = $("#anilloAvance");
-    anillo.setAttribute("stroke-dashoffset", String(CIRC - (CIRC * pct) / 100));
+    var c = 0;
+    if (estado.n1.hechas >= 6) { c++; }
+    if (estado.n2) { c++; }
+    if (estado.n3ruta && estado.n3er.hechas >= 4) { c++; }
+    if (estado.n4.evaluada) { c++; }
+    if (estado.n5) { c++; }
+    var pct = Math.round((c / 5) * 100);
+    $("#anilloAvance").setAttribute("stroke-dashoffset", String(CIRC - (CIRC * pct) / 100));
     $("#anilloTexto").textContent = pct + "%";
   }
 
-  // ============================================================
-  // NIVEL 1 — Mito o evidencia
-  // ============================================================
+  /* ---------- N1: Mito o evidencia ---------- */
   var afirmaciones = [
-    { t: "Big Data se define solo por el gran volumen de datos.", r: "mito",
-      fb: "Además del volumen intervienen velocidad, variedad, veracidad y valor (las 5 V)." },
-    { t: "Un dashboard de BI convierte datos en decisiones si responde a una pregunta de negocio.", r: "evidencia",
-      fb: "El valor del tablero está en responder una pregunta concreta, no en mostrar datos por mostrarlos." },
-    { t: "Cuantos más indicadores tenga un tablero, mejor será la decisión.", r: "mito",
-      fb: "El exceso de KPIs genera sobrecarga cognitiva; conviene pocos indicadores pertinentes." },
-    { t: "La calidad y la gobernanza del dato condicionan la confianza en el análisis.", r: "evidencia",
-      fb: "Sin datos confiables y gobernados, cualquier análisis pierde validez." },
-    { t: "BI y Big Data son exactamente lo mismo.", r: "mito",
-      fb: "BI explota datos para decidir; Big Data aborda datos de gran volumen/variedad/velocidad. Se relacionan, no son idénticos." },
-    { t: "Un KPI debe estar ligado a una fuente de datos identificable.", r: "evidencia",
-      fb: "Un indicador sin fuente no es medible ni auditable." }
+    { t: "Un dashboard atractivo garantiza buenas decisiones aunque los datos estén duplicados o incompletos.", r: "mito",
+      fb: "La visualización no compensa una mala arquitectura: con datos duplicados, los indicadores mienten." },
+    { t: "Si un cliente aparece con nombres distintos en cada local, el conteo de clientes frecuentes será poco confiable.", r: "evidencia",
+      fb: "Sin un identificador único, el mismo cliente se cuenta varias veces." },
+    { t: "Guardar ventas, productos, clientes y pagos en una sola tabla facilita el análisis y evita errores.", r: "mito",
+      fb: "Amontonar todo en una tabla produce redundancia e inconsistencia; por eso se separan entidades." },
+    { t: "Una clave primaria única por cliente evita duplicidad y permite relacionar sus pedidos.", r: "evidencia",
+      fb: "La clave primaria identifica sin ambigüedad y habilita relaciones mediante claves foráneas." },
+    { t: "La calidad y la seguridad del dato influyen en la confianza de los reportes de BI.", r: "evidencia",
+      fb: "Datos confiables y protegidos son la base de indicadores creíbles." },
+    { t: "Cuantas más tablas y campos sin relación tenga el modelo, mejor será.", r: "mito",
+      fb: "Un modelo bueno no es el más grande, sino el coherente: entidades bien definidas y relacionadas." }
   ];
-
   function pintarMito() {
-    var cont = $("#mitoContenedor");
-    cont.innerHTML = "";
+    var c = $("#mitoContenedor"); c.innerHTML = "";
     afirmaciones.forEach(function (a, i) {
-      var div = document.createElement("div");
-      div.className = "afirmacion";
-      div.id = "af" + i;
-      div.innerHTML =
-        '<p><strong>' + (i + 1) + '.</strong> ' + a.t + '</p>' +
-        '<div class="opciones">' +
-          '<button type="button" data-i="' + i + '" data-op="mito">🚫 Mito</button>' +
-          '<button type="button" data-i="' + i + '" data-op="evidencia">✅ Evidencia</button>' +
-        '</div>' +
+      var d = document.createElement("div");
+      d.className = "afirmacion"; d.id = "af" + i;
+      d.innerHTML = '<p><strong>' + (i + 1) + '.</strong> ' + esc(a.t) + '</p>' +
+        '<div class="opciones"><button type="button" data-i="' + i + '" data-op="mito">🚫 Mito</button>' +
+        '<button type="button" data-i="' + i + '" data-op="evidencia">✅ Evidencia</button></div>' +
         '<p class="fb" id="fbaf' + i + '"></p>';
-      cont.appendChild(div);
+      c.appendChild(d);
     });
   }
-
   function responderMito(i, op) {
-    var a = afirmaciones[i];
-    var div = $("#af" + i);
-    var fb = $("#fbaf" + i);
-    if (div.classList.contains("resuelta")) { return; }
+    var a = afirmaciones[i], d = $("#af" + i), fb = $("#fbaf" + i);
+    if (d.classList.contains("resuelta")) { return; }
     if (op === a.r) {
-      div.classList.add("resuelta");
-      fb.className = "fb fb-ok";
-      fb.textContent = "Correcto: " + a.fb;
-      estado.n1.hechas++;
-      estado.n1.correctas++;
-      sumarXP(10);
-      ganarBadge("detective");
-      anunciar("Respuesta correcta. Sumas 10 XP.");
+      d.classList.add("resuelta"); fb.className = "fb fb-ok"; fb.textContent = "Correcto: " + a.fb;
+      estado.n1.hechas++; sumarXP(10); ganarBadge("detector"); anunciar("Correcto. +10 XP.");
     } else {
-      fb.className = "fb fb-error";
-      fb.innerHTML =
-        '<span class="fb-error">Aún no.</span> ' +
-        '<span class="refuerzo" style="display:block"><dl style="margin:0">' +
-        '<dt>Pista</dt><dd>Relee la afirmación pensando en el caso «CaféVerde».</dd>' +
-        '<dt>Dato clave</dt><dd>' + a.fb + '</dd>' +
-        '<dt>Contexto</dt><dd>En una consultoría de BI, distinguir mito de evidencia evita recomendar mal.</dd>' +
-        '<dt>Reintento</dt><dd>Vuelve a elegir con esa idea en mente.</dd>' +
-        '</dl></span>';
+      fb.className = "fb"; fb.innerHTML = '<dl class="refuerzo"><dt>Aún no</dt><dd>Reléela pensando en «Sabores del Barrio».</dd>' +
+        '<dt>Dato clave</dt><dd>' + esc(a.fb) + '</dd><dt>Contexto</dt><dd>Distinguir mito de evidencia evita diseñar mal la base de datos.</dd>' +
+        '<dt>Reintento</dt><dd>Vuelve a elegir con esa idea en mente.</dd></dl>';
     }
-    // Resumen y desbloqueo
     if (estado.n1.hechas >= 6) {
       $("#mitoResumen").className = "fb fb-ok";
       $("#mitoResumen").textContent = "Terreno despejado: clasificaste las 6 afirmaciones. ¡Nivel Utilidad desbloqueado!";
-      marcarLogrado(1);
-      desbloquear(2);
-    } else {
-      $("#mitoResumen").textContent = "Progreso: " + estado.n1.hechas + " de 6 clasificadas correctamente.";
-    }
+      marcarLogrado(1); desbloquear(2);
+    } else { $("#mitoResumen").textContent = "Progreso: " + estado.n1.hechas + " de 6 correctas."; }
     guardar();
   }
 
-  // ============================================================
-  // NIVEL 2 — Necesidad de negocio
-  // ============================================================
-  function evaluarNecesidad() {
-    var sel = document.querySelector('input[name="necesidad"]:checked');
-    var fb = $("#fbNecesidad");
-    var ref = $("#refuerzoNecesidad");
-    ref.innerHTML = "";
-    if (!sel) { fb.className = "fb fb-error"; fb.textContent = "Selecciona una opción."; return; }
-    if (estado.n2) { fb.className = "fb fb-ok"; fb.textContent = "Necesidad ya confirmada. Avanza al Nivel Transformación."; return; }
-    if (sel.value === "b") {
+  /* ---------- N2: problemas + necesidad ---------- */
+  function evaluarProblemas() {
+    var fb = $("#fbProblemas"), ref = $("#refuerzoProblemas"); ref.innerHTML = "";
+    if (estado.n2) { fb.className = "fb fb-ok"; fb.textContent = "Diagnóstico ya confirmado. Avanza al Nivel Transformación."; return; }
+    var marcados = Array.prototype.map.call(document.querySelectorAll('input[name="prob"]:checked'), function (c) { return c.value; });
+    var correctos = ["dup", "cod", "int", "rep"];
+    var buenos = marcados.filter(function (m) { return correctos.indexOf(m) !== -1; }).length;
+    var incluyoLogo = marcados.indexOf("logo") !== -1;
+    var nec = document.querySelector('input[name="nec"]:checked');
+    var okNec = nec && nec.value === "b";
+    if (buenos >= 3 && !incluyoLogo && okNec) {
       fb.className = "fb fb-ok";
-      fb.textContent = "Correcto: la necesidad es reducir merma anticipando demanda y entender la afinidad de productos. Ese es el 'para qué' que guía toda la arquitectura.";
-      estado.n2 = true;
-      estado.respuestas.necesidadCaso = sel.value;
-      sumarXP(15);
-      ganarBadge("expediente");
-      marcarLogrado(2);
-      desbloquear(3);
-      anunciar("Necesidad identificada. Nivel Transformación desbloqueado.");
+      fb.textContent = "Diagnóstico correcto: los problemas son de datos (duplicidad, códigos, dispersión, reportes que no cuadran) y la necesidad es responder las preguntas de negocio con datos unificados.";
+      estado.n2 = true; estado.respuestas.problemas = marcados; estado.respuestas.necesidadCaso = "b";
+      sumarXP(15); ganarBadge("analista"); marcarLogrado(2); desbloquear(3); anunciar("Diagnóstico confirmado. Nivel Transformación desbloqueado.");
     } else {
-      fb.className = "fb fb-error";
-      fb.textContent = "Aún no: esa opción no ataca el síntoma del expediente.";
-      ref.innerHTML =
-        '<dl class="refuerzo">' +
-        '<dt>Pista</dt><dd>¿Qué problema cuesta dinero hoy en «CaféVerde»?</dd>' +
-        '<dt>Dato clave</dt><dd>El síntoma es merma de perecederos y desconocer qué se vende junto.</dd>' +
-        '<dt>Contexto</dt><dd>La necesidad de negocio nombra el resultado esperado, no una acción cualquiera.</dd>' +
-        '<dt>Reintento</dt><dd>Elige la opción que reduce merma anticipando la demanda.</dd>' +
-        '</dl>';
+      fb.className = "fb fb-error"; fb.textContent = "Aún no está completo.";
+      var motivos = [];
+      if (buenos < 3) { motivos.push("marca al menos 3 problemas reales de datos"); }
+      if (incluyoLogo) { motivos.push("el logotipo no es un problema de datos"); }
+      if (!okNec) { motivos.push("elige la necesidad de información correcta (las preguntas de la gerencia)"); }
+      ref.innerHTML = '<dl class="refuerzo"><dt>Pista</dt><dd>' + esc(motivos.join("; ")) + '.</dd>' +
+        '<dt>Dato clave</dt><dd>Los problemas son de calidad e integración de datos, no de imagen.</dd>' +
+        '<dt>Reintento</dt><dd>Ajusta tu selección y confirma otra vez.</dd></dl>';
     }
     guardar();
   }
 
-  // ============================================================
-  // NIVEL 3 — Clasificación (drag & drop + tap fallback) y estación
-  // ============================================================
-  var criterios = [
-    { id: "c1", t: "Costo total de la herramienta", cat: "negocio" },
-    { id: "c2", t: "Conectores a POS y hojas de cálculo", cat: "tecnico" },
-    { id: "c3", t: "Facilidad de uso sin especialistas", cat: "negocio" },
-    { id: "c4", t: "Escalabilidad y rendimiento", cat: "tecnico" },
-    { id: "c5", t: "Anonimización de datos de clientes", cat: "gobernanza" },
-    { id: "c6", t: "Responsable de la calidad del dato", cat: "gobernanza" }
+  /* ---------- N3A: Ruta del dato (ordenar) ---------- */
+  var pasos = [
+    { id: "p_fuentes", t: "Fuentes de datos", pos: 1 },
+    { id: "p_oper", t: "Base de datos operacional", pos: 2 },
+    { id: "p_etl", t: "ETL / ELT (limpieza)", pos: 3 },
+    { id: "p_dw", t: "Data Warehouse / Data Mart", pos: 4 },
+    { id: "p_bi", t: "Herramienta BI", pos: 5 },
+    { id: "p_dash", t: "Dashboard / Decisión", pos: 6 }
   ];
-  var seleccionado = null;
-  var colocadosOK = 0;
-
+  var seleccion = null, colocados = 0;
+  function barajar(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
   function pintarBanco() {
-    var banco = $("#banco");
-    banco.innerHTML = "";
-    criterios.forEach(function (c) {
-      var b = document.createElement("button");
-      b.type = "button";
-      b.className = "chip";
-      b.id = c.id;
-      b.textContent = c.t;
-      b.setAttribute("draggable", "true");
-      b.setAttribute("aria-pressed", "false");
-      b.setAttribute("data-cat", c.cat);
-      banco.appendChild(b);
+    var b = $("#banco"); b.innerHTML = "";
+    barajar(pasos).forEach(function (p) {
+      var el = document.createElement("button");
+      el.type = "button"; el.className = "chip"; el.id = p.id; el.textContent = p.t;
+      el.setAttribute("draggable", "true"); el.setAttribute("aria-pressed", "false"); el.setAttribute("data-pos", String(p.pos));
+      b.appendChild(el);
     });
   }
-
-  function colocar(chip, zona) {
-    var esperado = chip.getAttribute("data-cat");
-    var real = zona.getAttribute("data-cat");
-    var destino = zona.querySelector(".colocados");
-    var span = document.createElement("span");
-    span.className = "colocado-chip " + (esperado === real ? "bien" : "mal");
-    span.textContent = (esperado === real ? "✓ " : "✗ ") + chip.textContent;
-    destino.appendChild(span);
-    chip.classList.add("colocado");
-    chip.setAttribute("aria-pressed", "false");
-    seleccionado = null;
-
-    var fb = $("#fbClasifica");
-    if (esperado === real) {
-      colocadosOK++;
-      sumarXP(5);
-      fb.className = "fb fb-ok";
-      fb.textContent = "Bien clasificado. Llevas " + colocadosOK + " de " + criterios.length + ".";
-    } else {
-      fb.className = "fb fb-error";
-      fb.innerHTML = '<span class="refuerzo" style="display:block"><dl style="margin:0">' +
-        '<dt>Aún no</dt><dd>«' + chip.textContent + '» encaja mejor en otra categoría.</dd>' +
-        '<dt>Pista</dt><dd>Técnico = capacidades del sistema; Negocio = costo/uso/valor; Gobernanza = privacidad y responsabilidad del dato.</dd>' +
-        '</dl></span>';
-    }
-    if (colocadosOK >= criterios.length) {
-      estado.n3clasifica = true;
-      fb.className = "fb fb-ok";
-      fb.textContent = "¡Clasificación completa! Criterios ordenados para argumentar en la matriz.";
-      ganarBadge("comparador");
-      verificarNivel3();
+  function colocarPaso(chip, slot) {
+    var esperado = parseInt(chip.getAttribute("data-pos"), 10);
+    var real = parseInt(slot.getAttribute("data-pos"), 10);
+    var wrap = slot.querySelector(".puesto-wrap");
+    if (wrap.querySelector(".puesto")) { return; } // ocupado
+    var p = document.createElement("div");
+    p.className = "puesto " + (esperado === real ? "bien" : "mal");
+    p.textContent = (esperado === real ? "✓ " : "✗ ") + chip.textContent;
+    wrap.appendChild(p);
+    chip.classList.add("colocado"); chip.setAttribute("aria-pressed", "false"); seleccion = null;
+    var fb = $("#fbRuta");
+    if (esperado === real) { colocados++; sumarXP(5); fb.className = "fb fb-ok"; fb.textContent = "Bien ubicado (" + colocados + "/6)."; }
+    else { fb.className = "fb fb-error"; fb.textContent = "«" + chip.textContent + "» va en otra posición. Recuerda: primero se captura, luego se integra y al final se analiza para decidir."; }
+    if (document.querySelectorAll("#banco .chip:not(.colocado)").length === 0) {
+      var bien = document.querySelectorAll("#slots .puesto.bien").length;
+      if (bien === 6) { estado.n3ruta = true; fb.className = "fb fb-ok"; fb.textContent = "¡Ruta del dato completa y en orden! Fuentes → Operacional → ETL → Data Warehouse → BI → Decisión."; ganarBadge("arquitecto"); }
+      else { fb.className = "fb fb-error"; fb.textContent = "Hay pasos fuera de orden. Pulsa «Reordenar» para reintentar."; }
+      verificarN3();
     }
     guardar();
   }
+  function reiniciarRuta() {
+    colocados = 0; seleccion = null;
+    document.querySelectorAll("#slots .puesto-wrap").forEach(function (w) { w.innerHTML = ""; });
+    pintarBanco(); $("#fbRuta").textContent = "";
+  }
+  function initRuta() {
+    var banco = $("#banco");
+    banco.addEventListener("click", function (e) {
+      var chip = e.target.closest(".chip"); if (!chip) { return; }
+      if (seleccion === chip) { chip.setAttribute("aria-pressed", "false"); seleccion = null; anunciar("Selección cancelada."); }
+      else { if (seleccion) { seleccion.setAttribute("aria-pressed", "false"); } seleccion = chip; chip.setAttribute("aria-pressed", "true"); anunciar("Seleccionado " + chip.textContent + ". Activa un casillero."); }
+    });
+    banco.addEventListener("dragstart", function (e) { var c = e.target.closest(".chip"); if (c) { e.dataTransfer.setData("text/plain", c.id); } });
+    document.querySelectorAll("#slots .slot").forEach(function (slot) {
+      slot.addEventListener("click", function () { if (seleccion) { colocarPaso(seleccion, slot); } });
+      slot.addEventListener("keydown", function (e) { if ((e.key === "Enter" || e.key === " ") && seleccion) { e.preventDefault(); colocarPaso(seleccion, slot); } });
+      slot.addEventListener("dragover", function (e) { e.preventDefault(); slot.classList.add("dragover"); });
+      slot.addEventListener("dragleave", function () { slot.classList.remove("dragover"); });
+      slot.addEventListener("drop", function (e) { e.preventDefault(); slot.classList.remove("dragover"); var id = e.dataTransfer.getData("text/plain"); var chip = document.getElementById(id); if (chip && !chip.classList.contains("colocado")) { colocarPaso(chip, slot); } });
+    });
+  }
 
-  function verificarNivel3() {
-    if (estado.n3clasifica && estado.n3estacion) {
-      marcarLogrado(3);
-      desbloquear(4);
-      anunciar("Nivel Práctica desbloqueado.");
+  /* ---------- N3B: errores de diseño (clasificar) ---------- */
+  var practicas = [
+    { t: "Registrar el nombre del cliente en cada pedido, sin un código único.", r: "error", fb: "Genera duplicados y clientes 'distintos' que en realidad son el mismo. Se previene con clave primaria." },
+    { t: "Guardar pedido, producto, cliente y pago en una sola tabla gigante.", r: "error", fb: "Produce redundancia e inconsistencia. Se separan en entidades relacionadas por claves foráneas." },
+    { t: "Cambiar el precio de un producto sin conservar el historial de ventas.", r: "error", fb: "Se pierde trazabilidad: los reportes históricos quedan mal. Se conserva el precio en el detalle de venta." },
+    { t: "Definir id_cliente como clave primaria y usarlo como clave foránea en Pedido.", r: "buena", fb: "Correcto: identifica sin ambigüedad y relaciona cliente con sus pedidos." },
+    { t: "Separar Producto y Detalle_Pedido con sus propias claves.", r: "buena", fb: "Correcto: evita repetir datos del producto en cada pedido." }
+  ];
+  function pintarER() {
+    var c = $("#erContenedor"); c.innerHTML = "";
+    practicas.forEach(function (p, i) {
+      var d = document.createElement("div"); d.className = "afirmacion"; d.id = "er" + i;
+      d.innerHTML = '<p><strong>' + (i + 1) + '.</strong> ' + esc(p.t) + '</p>' +
+        '<div class="opciones"><button type="button" data-i="' + i + '" data-op="error">⚠️ Error de diseño</button>' +
+        '<button type="button" data-i="' + i + '" data-op="buena">👍 Buena práctica</button></div>' +
+        '<p class="fb" id="fber' + i + '"></p>';
+      c.appendChild(d);
+    });
+  }
+  function responderER(i, op) {
+    var p = practicas[i], d = $("#er" + i), fb = $("#fber" + i);
+    if (d.classList.contains("resuelta")) { return; }
+    if (op === p.r) {
+      d.classList.add("resuelta"); fb.className = "fb fb-ok"; fb.textContent = "Correcto: " + p.fb;
+      estado.n3er.hechas++; sumarXP(6); anunciar("Correcto. +6 XP.");
+    } else {
+      fb.className = "fb"; fb.innerHTML = '<dl class="refuerzo"><dt>Aún no</dt><dd>Piensa en duplicidad, consistencia y trazabilidad.</dd><dt>Dato clave</dt><dd>' + esc(p.fb) + '</dd><dt>Reintento</dt><dd>Vuelve a clasificar.</dd></dl>';
+    }
+    var fbG = $("#fbER");
+    if (estado.n3er.hechas >= 5) { fbG.className = "fb fb-ok"; fbG.textContent = "Analizaste las 5 prácticas de diseño."; }
+    else { fbG.textContent = "Progreso 3B: " + estado.n3er.hechas + " de 5."; }
+    verificarN3(); guardar();
+  }
+  function verificarN3() {
+    if (estado.n3ruta && estado.n3er.hechas >= 4) { marcarLogrado(3); desbloquear(4); anunciar("Nivel Práctica desbloqueado."); }
+  }
+
+  /* ---------- N4: entidades y relaciones dinámicas ---------- */
+  function pintarEntidades() {
+    var body = $("#entBody"); body.innerHTML = "";
+    for (var i = 1; i <= 4; i++) {
+      var tr = document.createElement("tr");
+      tr.innerHTML =
+        '<td><input type="text" id="ent' + i + 'n" list="entDL" placeholder="Entidad ' + i + '" aria-label="Entidad ' + i + ' nombre" /></td>' +
+        '<td><input type="text" id="ent' + i + 'a" placeholder="atributo" aria-label="Entidad ' + i + ' atributo 1" /></td>' +
+        '<td><input type="text" id="ent' + i + 'b" placeholder="atributo" aria-label="Entidad ' + i + ' atributo 2" /></td>' +
+        '<td><input type="text" id="ent' + i + 'k" placeholder="id_..." aria-label="Entidad ' + i + ' clave primaria" /></td>';
+      body.appendChild(tr);
+    }
+    var rw = $("#relWrap"); rw.innerHTML = "";
+    for (var r = 1; r <= 3; r++) {
+      var div = document.createElement("div"); div.className = "grid3"; div.style.marginTop = "8px";
+      div.innerHTML =
+        '<input type="text" id="rel' + r + 'a" placeholder="Entidad A" aria-label="Relación ' + r + ' entidad A" />' +
+        '<select id="rel' + r + 'c" aria-label="Relación ' + r + ' cardinalidad"><option value="">cardinalidad</option><option>1:1</option><option>1:N</option><option>N:M</option></select>' +
+        '<input type="text" id="rel' + r + 'b" placeholder="Entidad B" aria-label="Relación ' + r + ' entidad B" />';
+      rw.appendChild(div);
     }
   }
-
-  function initDnD() {
-    var banco = $("#banco");
-    var zonas = document.querySelectorAll(".zona");
-
-    // Selección por teclado / tap (fallback universal)
-    banco.addEventListener("click", function (e) {
-      var chip = e.target.closest(".chip");
-      if (!chip) { return; }
-      if (seleccionado === chip) {
-        chip.setAttribute("aria-pressed", "false");
-        seleccionado = null;
-        anunciar("Selección cancelada.");
-      } else {
-        if (seleccionado) { seleccionado.setAttribute("aria-pressed", "false"); }
-        seleccionado = chip;
-        chip.setAttribute("aria-pressed", "true");
-        anunciar("Seleccionado " + chip.textContent + ". Ahora activa una categoría.");
-      }
-    });
-
-    zonas.forEach(function (zona) {
-      zona.addEventListener("click", function () {
-        if (seleccionado) { colocar(seleccionado, zona); }
-      });
-      zona.addEventListener("keydown", function (e) {
-        if ((e.key === "Enter" || e.key === " ") && seleccionado) {
-          e.preventDefault();
-          colocar(seleccionado, zona);
-        }
-      });
-      // Drag & drop nativo (mejora progresiva)
-      zona.addEventListener("dragover", function (e) { e.preventDefault(); zona.classList.add("dragover"); });
-      zona.addEventListener("dragleave", function () { zona.classList.remove("dragover"); });
-      zona.addEventListener("drop", function (e) {
-        e.preventDefault();
-        zona.classList.remove("dragover");
-        var id = e.dataTransfer.getData("text/plain");
-        var chip = document.getElementById(id);
-        if (chip && !chip.classList.contains("colocado")) { colocar(chip, zona); }
-      });
-    });
-
-    banco.addEventListener("dragstart", function (e) {
-      var chip = e.target.closest(".chip");
-      if (chip) { e.dataTransfer.setData("text/plain", chip.id); }
-    });
-  }
-
-  // ============================================================
-  // NIVEL 4 — Evidencia (XP por calidad, según rúbrica)
-  // ============================================================
-  function val(id) { var el = document.getElementById(id); return el ? el.value.trim() : ""; }
-
   function evaluarEvidencia() {
-    var criteriosLogro = [];
-    var puntos = 0;
+    var crit = [], puntos = 0;
+    // 0. Sector + necesidad (15)
+    var sector = val("evSector"), nec = val("evNecesidad");
+    if (sector && nec.length >= 20) { puntos += 15; crit.push("Necesidad de información: LOGRADO"); }
+    else if (sector || nec) { puntos += 6; crit.push("Necesidad de información: EN PROCESO (elige sector y redacta la decisión que apoyará)"); }
+    else { crit.push("Necesidad de información: INICIAL"); }
+    // A. Fuentes (15)
+    var fuentes = [val("fte1"), val("fte2"), val("fte3")].filter(Boolean).length;
+    if (fuentes >= 3) { puntos += 15; crit.push("Fuentes de datos: LOGRADO (" + fuentes + ")"); }
+    else if (fuentes >= 1) { puntos += fuentes * 4; crit.push("Fuentes de datos: EN PROCESO (" + fuentes + "/3)"); }
+    else { crit.push("Fuentes de datos: INICIAL"); }
+    // A. Componentes arquitectura (20)
+    var comp = [val("evOperacional"), val("evTransform"), val("evRepo")].filter(Boolean).length;
+    if (comp === 3) { puntos += 20; crit.push("Componentes de arquitectura: LOGRADO (operacional + ETL + repositorio)"); }
+    else if (comp >= 1) { puntos += comp * 5; crit.push("Componentes de arquitectura: EN PROCESO (" + comp + "/3)"); }
+    else { crit.push("Componentes de arquitectura: INICIAL"); }
+    // A. Herramienta + 2 indicadores con origen (15)
+    var bi = val("evBI");
+    var ind = 0;
+    if (val("ind1") && val("indf1")) { ind++; }
+    if (val("ind2") && val("indf2")) { ind++; }
+    if (bi && ind === 2) { puntos += 15; crit.push("Herramienta BI e indicadores: LOGRADO"); }
+    else if (bi || ind >= 1) { puntos += 6; crit.push("Herramienta BI e indicadores: EN PROCESO (indicadores con su origen)"); }
+    else { crit.push("Herramienta BI e indicadores: INICIAL"); }
+    // B. Modelo ER (25)
+    var ents = 0, entsConClave = 0;
+    for (var i = 1; i <= 4; i++) {
+      var n = val("ent" + i + "n"), a = val("ent" + i + "a"), b = val("ent" + i + "b"), k = val("ent" + i + "k");
+      if (n) { ents++; }
+      if (n && a && b && k) { entsConClave++; }
+    }
+    var rels = 0;
+    for (var r = 1; r <= 3; r++) { if (val("rel" + r + "a") && val("rel" + r + "b") && val("rel" + r + "c")) { rels++; } }
+    if (entsConClave >= 4 && rels >= 3) { puntos += 25; crit.push("Modelo entidad-relación: LOGRADO (4 entidades completas + 3 relaciones con cardinalidad)"); }
+    else { var parcial = Math.min(entsConClave, 4) * 3 + Math.min(rels, 3) * 4; puntos += parcial; crit.push("Modelo entidad-relación: EN PROCESO (" + entsConClave + "/4 entidades completas, " + rels + "/3 relaciones)"); }
+    // Gobernanza (10)
+    var dup = val("evDup"), seg = val("evSeg");
+    if (dup && seg) { puntos += 10; crit.push("Calidad y gobernanza: LOGRADO"); }
+    else if (dup || seg) { puntos += 4; crit.push("Calidad y gobernanza: EN PROCESO"); }
+    else { crit.push("Calidad y gobernanza: INICIAL"); }
 
-    // 1. Necesidad concreta (≥ 25 caracteres)
-    var nec = val("evNecesidad");
-    if (nec.length >= 25) { puntos += 20; criteriosLogro.push("Necesidad de negocio: LOGRADO"); }
-    else if (nec.length > 0) { puntos += 8; criteriosLogro.push("Necesidad de negocio: EN PROCESO (hazla más concreta y medible)"); }
-    else { criteriosLogro.push("Necesidad de negocio: INICIAL (falta redactarla)"); }
-
-    // 2. Tres indicadores con fuente
-    var pares = 0;
-    [["kpi1", "src1"], ["kpi2", "src2"], ["kpi3", "src3"]].forEach(function (p) {
-      if (val(p[0]) && val(p[1])) { pares++; }
-    });
-    if (pares === 3) { puntos += 20; criteriosLogro.push("Indicadores y fuentes: LOGRADO (3 KPIs con fuente)"); }
-    else if (pares >= 1) { puntos += pares * 5; criteriosLogro.push("Indicadores y fuentes: EN PROCESO (" + pares + "/3 completos)"); }
-    else { criteriosLogro.push("Indicadores y fuentes: INICIAL"); }
-
-    // 3. Herramienta pertinente (B es la pertinente al caso)
-    var herr = val("evHerramienta");
-    if (herr === "B") { puntos += 20; criteriosLogro.push("Pertinencia de la herramienta: LOGRADO (B se ajusta al caso)"); }
-    else if (herr) { puntos += 6; criteriosLogro.push("Pertinencia de la herramienta: EN PROCESO (revisa restricciones: presupuesto, equipo, plazo, datos)"); }
-    else { criteriosLogro.push("Pertinencia de la herramienta: INICIAL (elige una)"); }
-
-    // 4. Justificación ≥ 3 criterios
-    var crit = document.querySelectorAll('input[name="crit"]:checked').length;
-    var arg = val("evArgumento");
-    if (crit >= 3 && arg.length >= 20) { puntos += 20; criteriosLogro.push("Justificación: LOGRADO (" + crit + " criterios + argumento)"); }
-    else if (crit >= 1) { puntos += 8; criteriosLogro.push("Justificación: EN PROCESO (marca ≥3 criterios y argumenta)"); }
-    else { criteriosLogro.push("Justificación: INICIAL"); }
-
-    // 5. Riesgo + gobernanza
-    var riesgo = val("evRiesgo");
-    var gob = val("evGobernanza");
-    if (riesgo && gob) { puntos += 20; criteriosLogro.push("Riesgo y gobernanza: LOGRADO (riesgo + medida)"); }
-    else if (riesgo || gob) { puntos += 8; criteriosLogro.push("Riesgo y gobernanza: EN PROCESO (falta " + (riesgo ? "la medida" : "el riesgo") + ")"); }
-    else { criteriosLogro.push("Riesgo y gobernanza: INICIAL"); }
-
-    // Ajuste de XP (no acumular en reintentos: reemplaza el aporte previo)
-    var delta = puntos - estado.n4.xp;
-    estado.n4.xp = puntos;
-    estado.n4.evaluada = true;
+    var delta = puntos - estado.n4.xp; estado.n4.xp = puntos; estado.n4.evaluada = true;
     if (delta !== 0) { sumarXP(delta); } else { render(); }
 
-    var fb = $("#fbEvidencia");
-    var nivelLogro = puntos >= 80 ? "LOGRADO" : (puntos >= 40 ? "EN PROCESO" : "INICIAL");
-    var claseFb = puntos >= 80 ? "fb-ok" : "fb-error";
-    var html = '<p class="' + claseFb + '"><strong>Calidad de la evidencia: ' + nivelLogro + '</strong> — ' + puntos + '/100 puntos de calidad.</p>';
-    html += '<ul>';
-    criteriosLogro.forEach(function (c) { html += "<li>" + c + "</li>"; });
-    html += "</ul>";
+    var nivelLogro = puntos >= 80 ? "LOGRADO" : (puntos >= 45 ? "EN PROCESO" : "INICIAL");
+    var clase = puntos >= 80 ? "fb-ok" : "fb-error";
+    var html = '<p class="' + clase + '"><strong>Calidad del diseño: ' + nivelLogro + '</strong> — ' + puntos + '/100.</p><ul>';
+    crit.forEach(function (c) { html += "<li>" + esc(c) + "</li>"; }); html += "</ul>";
     if (puntos >= 80) {
-      html += '<p class="fb-ok">¡Evidencia sólida! Insignia «Analista recomendador» desbloqueada y Nivel Cierre disponible.</p>';
-      ganarBadge("recomendador");
-      marcarLogrado(4);
-      desbloquear(5);
-      anunciar("Evidencia lograda. Nivel Cierre desbloqueado.");
+      html += '<p class="fb-ok">¡Diseño sólido! Insignia «Modelador ER» desbloqueada y Nivel Cierre disponible.</p>';
+      ganarBadge("modelador"); marcarLogrado(4); desbloquear(5); anunciar("Diseño logrado. Nivel Cierre desbloqueado.");
     } else {
-      html += '<p class="fb-error">Puedes mejorar y volver a evaluar sin penalización. Revisa los criterios en "En proceso" o "Inicial" y usa las pistas.</p>';
-      // Con nivel EN PROCESO también se desbloquea el cierre para no bloquear la reflexión, pero sin la insignia de calidad.
-      if (puntos >= 40) { desbloquear(5); }
+      html += '<p class="fb-error">Mejora los criterios en proceso y vuelve a evaluar sin penalización.</p>';
+      if (puntos >= 45) { desbloquear(5); }
     }
-    fb.innerHTML = html;
+    $("#fbEvidencia").innerHTML = html;
 
-    // Guardar respuestas para exportación
+    // guardar respuestas
+    var entidades = [];
+    for (var e = 1; e <= 4; e++) { if (val("ent" + e + "n")) { entidades.push({ n: val("ent" + e + "n"), a: val("ent" + e + "a"), b: val("ent" + e + "b"), k: val("ent" + e + "k") }); } }
+    var relaciones = [];
+    for (var rr = 1; rr <= 3; rr++) { if (val("rel" + rr + "a")) { relaciones.push({ a: val("rel" + rr + "a"), c: val("rel" + rr + "c"), b: val("rel" + rr + "b") }); } }
     estado.respuestas.evidencia = {
-      necesidad: nec, herramienta: herr, argumento: arg, riesgo: riesgo, gobernanza: gob,
-      indicadores: [
-        { kpi: val("kpi1"), fuente: val("src1") },
-        { kpi: val("kpi2"), fuente: val("src2") },
-        { kpi: val("kpi3"), fuente: val("src3") }
-      ],
-      criterios: Array.prototype.map.call(document.querySelectorAll('input[name="crit"]:checked'), function (c) { return c.value; }),
-      puntos: puntos, nivelLogro: nivelLogro
+      sector: sector, necesidad: nec,
+      fuentes: [val("fte1"), val("fte2"), val("fte3")].filter(Boolean),
+      operacional: val("evOperacional"), transform: val("evTransform"), repo: val("evRepo"), bi: bi,
+      indicadores: [{ i: val("ind1"), o: val("indf1") }, { i: val("ind2"), o: val("indf2") }],
+      entidades: entidades, relaciones: relaciones,
+      duplicidad: dup, seguridad: seg, puntos: puntos, nivelLogro: nivelLogro
     };
     guardar();
   }
 
-  // ============================================================
-  // NIVEL 5 — Cierre y exportación
-  // ============================================================
+  /* ---------- N5: autoevaluación, ruta, cierre ---------- */
+  var autoItems = [
+    "Identifico fuentes de datos pertinentes al caso.",
+    "Represento los componentes de una arquitectura de datos.",
+    "Defino entidades, atributos y claves coherentes.",
+    "Establezco relaciones y cardinalidad correctamente.",
+    "Vinculo la base de datos con indicadores y decisiones."
+  ];
+  function pintarAutoeval() {
+    var c = $("#autoeval"); c.innerHTML = "";
+    autoItems.forEach(function (t, i) {
+      var d = document.createElement("div"); d.style.margin = "10px 0";
+      var b = '<div class="likert" role="group" aria-label="' + esc(t) + '">';
+      for (var k = 1; k <= 3; k++) { b += '<button type="button" data-ae="' + i + '" data-v="' + k + '" aria-pressed="false">' + k + '</button>'; }
+      b += '</div>';
+      d.innerHTML = '<div>' + esc(t) + '</div>' + b;
+      c.appendChild(d);
+    });
+    if (!estado.respuestas.autoeval) { estado.respuestas.autoeval = {}; }
+  }
+  function comprobarRuta() {
+    var ok = val("ruta1") === "Base operacional" && val("ruta2") === "ETL / limpieza" && val("ruta3") === "Data Warehouse" && val("ruta4") === "Herramienta BI";
+    var fb = $("#fbRutaCierre");
+    if (ok) { fb.className = "fb fb-ok"; fb.textContent = "Correcto: Fuentes → Base operacional → ETL → Data Warehouse → Herramienta BI → Decisión."; }
+    else { fb.className = "fb fb-error"; fb.textContent = "Aún no. Recuerda: se captura, se limpia, se almacena para análisis y luego se visualiza para decidir."; }
+    estado.respuestas.rutaOk = ok; guardar();
+  }
   function registrarCierre() {
-    var yaRegistrado = estado.n5;
+    var ya = estado.n5;
     estado.respuestas.cierre = {
-      hallazgos: val("cHallazgos"),
-      duda: val("cDuda"),
-      transferencia: val("cTransfer"),
-      ia: {
-        uso: document.getElementById("iaUso").checked,
-        herramienta: val("iaHerramienta"),
-        prompt: val("iaPrompt"),
-        revision: val("iaRevision")
-      }
+      dif: val("cDif"), reto: val("cReto"), dup: val("cDup"), transferencia: val("cTransfer"),
+      ia: { uso: $("#iaUso").checked, herramienta: val("iaHerramienta"), prompt: val("iaPrompt"), revision: val("iaRevision") }
     };
-    estado.n5 = true;
-    ganarBadge("reflexivo");
-    marcarLogrado(5);
-    if (!yaRegistrado) { sumarXP(10); }
-    var fb = $("#fbCierre");
-    fb.className = "fb fb-ok";
-    fb.textContent = "Cierre registrado. Ya puedes generar y exportar la evidencia. ¡Misión completada!";
-    anunciar("Cierre registrado. Misión completada.");
-    guardar();
+    estado.n5 = true; ganarBadge("reflexivo"); marcarLogrado(5);
+    if (!ya) { sumarXP(10); }
+    var fb = $("#fbCierre"); fb.className = "fb fb-ok"; fb.textContent = "Cierre registrado. Ya puedes generar y exportar la evidencia. ¡Misión completada!";
+    anunciar("Cierre registrado."); guardar();
   }
 
+  /* ---------- Exportación ---------- */
   function construirMarkdown() {
-    var r = estado.respuestas;
-    var badgesTxt = estado.badges.length ? estado.badges.join(", ") : "ninguna aún";
+    var r = estado.respuestas, L = [];
     var equipo = val("regEquipo") || "(sin nombre)";
-    var integrantes = val("regIntegrantes") || "(no indicados)";
-    var lines = [];
-    lines.push("# Operación BI — Evidencia de la agencia \"" + equipo + "\"");
-    lines.push("");
-    lines.push("_IUTPC · Fundamentos de BI y Big Data · Semana 3: Arquitectura de Datos · Datos ficticios/anonimizados._");
-    lines.push("");
-    lines.push("## Registro del equipo");
-    lines.push("- **Equipo:** " + equipo);
-    lines.push("- **Integrantes:** " + integrantes);
-    lines.push("- **Roles cooperativos:**");
-    lines.push("  - Analista de necesidad: " + (val("rolAnalista") || "—"));
-    lines.push("  - Curador de datos y gobernanza: " + (val("rolDatos") || "—"));
-    lines.push("  - Evaluador de herramientas: " + (val("rolHerramienta") || "—"));
-    lines.push("  - Vocero del pitch: " + (val("rolVocero") || "—"));
-    lines.push("- **XP de calidad:** " + estado.xp);
-    lines.push("- **Insignias:** " + badgesTxt);
-    lines.push("");
-
+    L.push("# Operación BI — Sesión 3 · Evidencia del equipo \"" + equipo + "\"");
+    L.push("");
+    L.push("_IA + DATA 2026 · Unidad 1 · Sesión 3: Arquitectura de Datos y Modelo Entidad-Relación · Datos ficticios._");
+    L.push("");
+    L.push("## Participantes y roles");
+    L.push("- **Equipo:** " + equipo);
+    L.push("- **Integrantes:** " + (val("regIntegrantes") || "(no indicados)"));
+    L.push("- **Arquitecto de datos:** " + (val("rolArquitecto") || "—"));
+    L.push("- **Modelador ER:** " + (val("rolModelador") || "—"));
+    L.push("- **Curador de calidad y gobernanza:** " + (val("rolCurador") || "—"));
+    L.push("- **Vocero del pitch:** " + (val("rolVocero") || "—"));
+    L.push("- **XP de calidad:** " + estado.xp + " · **Insignias:** " + (estado.badges.length ? estado.badges.join(", ") : "ninguna aún"));
+    L.push("");
     var ev = r.evidencia;
-    lines.push("## Ficha de recomendación BI");
+    L.push("## Diseño (evidencia principal)");
     if (ev) {
-      lines.push("### 1. Necesidad de negocio");
-      lines.push(ev.necesidad || "_(pendiente)_");
-      lines.push("");
-      lines.push("### 2. Indicadores y fuentes");
-      lines.push("");
-      lines.push("| # | Indicador (KPI) | Fuente de datos |");
-      lines.push("|---|-----------------|-----------------|");
-      ev.indicadores.forEach(function (ind, i) {
-        lines.push("| " + (i + 1) + " | " + (ind.kpi || "—") + " | " + (ind.fuente || "—") + " |");
-      });
-      lines.push("");
-      var mapa = { A: "A. Hoja de cálculo avanzada", B: "B. BI de autoservicio (dashboards)", C: "C. Plataforma Big Data (data lake)" };
-      lines.push("### 3. Herramienta recomendada");
-      lines.push(mapa[ev.herramienta] || "_(pendiente)_");
-      lines.push("");
-      lines.push("### 4. Justificación (criterios)");
-      lines.push("- Criterios marcados: " + (ev.criterios.length ? ev.criterios.join(", ") : "—"));
-      lines.push("- Argumento: " + (ev.argumento || "—"));
-      lines.push("");
-      lines.push("### 5. Riesgo/límite y gobernanza del dato");
-      lines.push("- **Riesgo/límite:** " + (ev.riesgo || "—"));
-      lines.push("- **Medida de seguridad/gobernanza:** " + (ev.gobernanza || "—"));
-      lines.push("");
-      lines.push("> **Calidad de la evidencia:** " + ev.nivelLogro + " (" + ev.puntos + "/100).");
-    } else {
-      lines.push("_La ficha aún no ha sido evaluada en el Nivel P._");
-    }
-    lines.push("");
-
+      L.push("**Sector:** " + (ev.sector || "—"));
+      L.push("");
+      L.push("**Necesidad / decisión:** " + (ev.necesidad || "—"));
+      L.push("");
+      L.push("### Parte A · Arquitectura de datos");
+      L.push("`Fuentes → Base operacional → ETL/ELT → Data Warehouse → Herramienta BI → Dashboard/Decisión`");
+      L.push("- **Fuentes:** " + (ev.fuentes.length ? ev.fuentes.join(", ") : "—"));
+      L.push("- **Base operacional:** " + (ev.operacional || "—"));
+      L.push("- **Transformación (ETL/ELT):** " + (ev.transform || "—"));
+      L.push("- **Repositorio analítico:** " + (ev.repo || "—"));
+      L.push("- **Herramienta BI:** " + (ev.bi || "—"));
+      L.push("- **Indicadores:** " + ev.indicadores.map(function (x) { return (x.i || "—") + " (origen: " + (x.o || "—") + ")"; }).join(" · "));
+      L.push("");
+      L.push("### Parte B · Modelo entidad-relación");
+      L.push("");
+      L.push("| Entidad | Atributo 1 | Atributo 2 | Clave primaria |");
+      L.push("|---|---|---|---|");
+      (ev.entidades || []).forEach(function (e) { L.push("| " + (e.n || "—") + " | " + (e.a || "—") + " | " + (e.b || "—") + " | " + (e.k || "—") + " |"); });
+      L.push("");
+      L.push("**Relaciones:**");
+      (ev.relaciones || []).forEach(function (x) { L.push("- " + (x.a || "—") + " —(" + (x.c || "—") + ")→ " + (x.b || "—")); });
+      L.push("");
+      L.push("### Calidad y gobernanza del dato");
+      L.push("- **Contra duplicidad:** " + (ev.duplicidad || "—"));
+      L.push("- **Seguridad / ética:** " + (ev.seguridad || "—"));
+      L.push("");
+      L.push("> **Calidad del diseño:** " + ev.nivelLogro + " (" + ev.puntos + "/100).");
+    } else { L.push("_El diseño aún no ha sido evaluado en el Nivel P._"); }
+    L.push("");
+    L.push("## Autoevaluación (1 Inicial · 2 En proceso · 3 Logrado)");
+    var ae = r.autoeval || {};
+    autoItems.forEach(function (t, i) { L.push("- " + t + " **" + (ae[i] || "—") + "**"); });
+    L.push("");
     var c = r.cierre;
-    lines.push("## Cierre: metacognición y transferencia");
+    L.push("## Cierre: metacognición y transferencia");
     if (c) {
-      lines.push("- **Dos hallazgos:** " + (c.hallazgos || "—"));
-      lines.push("- **Una duda:** " + (c.duda || "—"));
-      lines.push("- **Transferencia a otro sector:** " + (c.transferencia || "—"));
-      lines.push("");
-      lines.push("### Declaración de uso de IA");
-      lines.push("- ¿Se usó IA?: " + (c.ia.uso ? "Sí" : "No"));
-      lines.push("- Herramienta: " + (c.ia.herramienta || "—"));
-      lines.push("- Prompt: " + (c.ia.prompt || "—"));
-      lines.push("- Revisión humana: " + (c.ia.revision || "—"));
-    } else {
-      lines.push("_El cierre aún no ha sido registrado._");
-    }
-    lines.push("");
-    lines.push("---");
-    lines.push("_Generado desde la actividad gamificada «Operación BI · Arsenal de Decisiones»._");
-    return lines.join("\n");
+      L.push("- **Operacional vs analítico:** " + (c.dif || "—"));
+      L.push("- **Lo más retador (entidades/relaciones):** " + (c.reto || "—"));
+      L.push("- **Criterio anti-duplicidad:** " + (c.dup || "—"));
+      L.push("- **Transferencia:** " + (c.transferencia || "—"));
+      L.push("");
+      L.push("### Declaración de uso de IA");
+      L.push("- ¿Se usó IA?: " + (c.ia.uso ? "Sí" : "No"));
+      L.push("- Herramienta y propósito: " + (c.ia.herramienta || "—"));
+      L.push("- Prompt: " + (c.ia.prompt || "—"));
+      L.push("- Revisión humana: " + (c.ia.revision || "—"));
+    } else { L.push("_El cierre aún no ha sido registrado._"); }
+    L.push("");
+    L.push("---");
+    L.push("_Generado desde «Operación BI · Sesión 3». Mg. Mario Quiroz Martínez · IA + DATA 2026._");
+    return L.join("\n");
   }
-
   function generarMarkdown() {
     var md = construirMarkdown();
     $("#salidaMarkdown").value = md;
-    // Preparar bloque imprimible
-    $("#reporteImpresion").innerHTML =
-      '<h1>Operación BI — Evidencia</h1><pre style="white-space:pre-wrap;font-family:inherit">' +
-      md.replace(/&/g, "&amp;").replace(/</g, "&lt;") + "</pre>";
-    anunciar("Markdown generado.");
-    return md;
+    $("#reporteImpresion").innerHTML = '<h1>Operación BI — Sesión 3 · Evidencia</h1><pre style="white-space:pre-wrap;font-family:inherit">' + esc(md) + "</pre>";
+    anunciar("Markdown generado."); return md;
   }
-
   function descargar() {
     var md = generarMarkdown();
     var blob = new Blob([md], { type: "text/markdown;charset=utf-8" });
-    var url = URL.createObjectURL(blob);
-    var a = document.createElement("a");
-    a.href = url;
-    a.download = "evidencia-operacion-bi.md";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    var url = URL.createObjectURL(blob), a = document.createElement("a");
+    a.href = url; a.download = "evidencia-operacion-bi-sesion3.md";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
     setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
   }
-
   function reiniciar() {
-    if (!window.confirm("¿Reiniciar todo el progreso de la actividad? Esta acción no se puede deshacer.")) { return; }
-    try { window.localStorage.removeItem(KEY); } catch (e) { /* ignore */ }
+    if (!window.confirm("¿Reiniciar todo el progreso? No se puede deshacer.")) { return; }
+    try { window.localStorage.removeItem(KEY); } catch (e) {}
     window.location.reload();
   }
 
-  // ---- Restaurar UI desde estado persistido ----
   function restaurarUI() {
-    for (var n = 2; n <= 5; n++) {
-      if (estado.nivel >= n) { desbloquear(n); }
-    }
+    for (var n = 2; n <= 5; n++) { if (estado.nivel >= n) { desbloquear(n); } }
     if (estado.n1.hechas >= 6) { marcarLogrado(1); }
     if (estado.n2) { marcarLogrado(2); }
-    if (estado.n3clasifica && estado.n3estacion) { marcarLogrado(3); }
+    if (estado.n3ruta && estado.n3er.hechas >= 4) { marcarLogrado(3); }
     if (estado.n4.evaluada && estado.n4.xp >= 80) { marcarLogrado(4); }
     if (estado.n5) { marcarLogrado(5); }
-    estado.badges.forEach(function (b) {
-      var el = document.querySelector('.insignia[data-badge="' + b + '"]');
-      if (el) { el.classList.add("ganada"); }
-    });
+    estado.badges.forEach(function (b) { var el = document.querySelector('.insignia[data-badge="' + b + '"]'); if (el) { el.classList.add("ganada"); } });
     render();
   }
 
-  // ============================================================
-  // Inicialización
-  // ============================================================
   document.addEventListener("DOMContentLoaded", function () {
     cargar();
-    pintarMito();
-    pintarBanco();
-    initDnD();
+    pintarMito(); pintarBanco(); initRuta(); pintarER(); pintarEntidades(); pintarAutoeval();
 
-    $("#mitoContenedor").addEventListener("click", function (e) {
-      var b = e.target.closest("button[data-op]");
-      if (b) { responderMito(parseInt(b.getAttribute("data-i"), 10), b.getAttribute("data-op")); }
+    $("#mitoContenedor").addEventListener("click", function (e) { var b = e.target.closest("button[data-op]"); if (b) { responderMito(parseInt(b.getAttribute("data-i"), 10), b.getAttribute("data-op")); } });
+    $("#erContenedor").addEventListener("click", function (e) { var b = e.target.closest("button[data-op]"); if (b) { responderER(parseInt(b.getAttribute("data-i"), 10), b.getAttribute("data-op")); } });
+    $("#autoeval").addEventListener("click", function (e) {
+      var b = e.target.closest("button[data-ae]"); if (!b) { return; }
+      var idx = b.getAttribute("data-ae"), v = b.getAttribute("data-v");
+      b.parentNode.querySelectorAll("button").forEach(function (x) { x.setAttribute("aria-pressed", "false"); });
+      b.setAttribute("aria-pressed", "true");
+      if (!estado.respuestas.autoeval) { estado.respuestas.autoeval = {}; }
+      estado.respuestas.autoeval[idx] = v; guardar();
     });
-    $("#btnNecesidad").addEventListener("click", evaluarNecesidad);
-    $("#btnEstacion").addEventListener("click", function () {
-      var fb = $("#fbEstacion");
-      fb.className = "fb fb-ok";
-      fb.textContent = "Comparación registrada. Ya puedes construir tu matriz en el Nivel Práctica.";
-      if (!estado.n3estacion) {
-        estado.n3estacion = true;
-        sumarXP(10);
-      }
-      verificarNivel3();
-      guardar();
-    });
+    $("#btnProblemas").addEventListener("click", evaluarProblemas);
     $("#btnEvaluar").addEventListener("click", evaluarEvidencia);
+    $("#btnRuta").addEventListener("click", comprobarRuta);
     $("#btnCierre").addEventListener("click", registrarCierre);
     $("#btnGenerar").addEventListener("click", generarMarkdown);
     $("#btnDescargar").addEventListener("click", descargar);
     $("#btnImprimir").addEventListener("click", function () { generarMarkdown(); window.print(); });
     $("#btnReiniciar").addEventListener("click", reiniciar);
+
+    // Botón reordenar ruta
+    var rr = document.createElement("button"); rr.type = "button"; rr.textContent = "🔄 Reordenar ruta"; rr.style.marginTop = "8px";
+    rr.addEventListener("click", reiniciarRuta);
+    $("#slots").insertAdjacentElement("afterend", rr);
 
     restaurarUI();
   });
