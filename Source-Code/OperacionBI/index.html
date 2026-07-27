@@ -248,6 +248,38 @@
   .likert { display: flex; gap: 6px; flex-wrap: wrap; }
   .likert button[aria-pressed="true"] { background: var(--cyan); color: #001018; border-color: var(--cyan); font-weight: 800; }
 
+  /* ---------- Retroalimentación asistida en vivo (N4) ---------- */
+  .n4-live { border: 1px solid #17384a; background: #071b24; border-radius: 12px; padding: 12px 14px; margin: 10px 0; }
+  .n4-live h4 { margin: 0 0 8px; color: var(--cyan); font-size: 0.95rem; }
+  .medidor { height: 10px; border-radius: 999px; background: #10131c; border: 1px solid var(--line); overflow: hidden; margin: 6px 0 10px; }
+  .medidor > span { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--alert), var(--amber), var(--green)); transition: width .3s ease; }
+  .n4-live ul { margin: 0; padding-left: 18px; font-size: 0.86rem; }
+  .n4-live li.ok { color: var(--green); } .n4-live li.ok::marker { content: "✓ "; }
+  .n4-live li.mid { color: var(--amber); }
+  .n4-live li.no { color: #ff8a8a; }
+
+  /* ---------- Mentor (andamiaje permanente) ---------- */
+  .mentor {
+    position: fixed; right: 16px; bottom: 16px; width: min(360px, calc(100vw - 32px)); z-index: 50;
+    background: var(--panel); border: 1px solid var(--cyan); border-radius: 14px;
+    box-shadow: 0 10px 40px rgba(0,0,0,.5); overflow: hidden;
+  }
+  .mentor-head { display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: #0e1a24; border-bottom: 1px solid var(--line); }
+  .mentor-head strong { color: var(--cyan); font-size: 0.95rem; }
+  .mentor-head .toggle { margin-left: auto; padding: 4px 10px; font-size: 0.8rem; }
+  .mentor-body { padding: 12px; max-height: 52vh; overflow: auto; }
+  .mentor[data-min="true"] .mentor-body { display: none; }
+  .mentor .contexto { font-size: 0.82rem; color: var(--muted); margin: 0 0 4px; }
+  .mentor .objetivo { font-weight: 700; margin: 0 0 8px; }
+  .mentor .msg { background: #0e1018; border: 1px solid var(--line); border-radius: 10px; padding: 10px; font-size: 0.86rem; min-height: 40px; margin: 0 0 10px; }
+  .mentor-acciones { display: flex; flex-wrap: wrap; gap: 6px; }
+  .mentor-acciones button { font-size: 0.8rem; padding: 6px 10px; }
+  .mentor .and { margin: 10px 0 0; font-size: 0.82rem; color: #c9cee2; }
+  .mentor .and li { margin: 3px 0; }
+  .mentor-fab { position: fixed; right: 16px; bottom: 16px; z-index: 49; display: none; }
+  @media (max-width: 640px) { .mentor { right: 8px; left: 8px; width: auto; bottom: 8px; } }
+  @media print { .mentor, .mentor-fab { display: none !important; } }
+
   footer.pie { border-top: 1px solid var(--line); background: #08090e; color: var(--muted); padding: 22px 0; text-align: center; font-size: 0.85rem; }
   footer.pie strong { color: var(--text); }
 
@@ -319,6 +351,8 @@
       <span class="tag tag-ludic">Diseño de arquitectura + modelo ER</span>
       <span class="tag tag-ludic">Pitch / defensa breve</span>
       <span class="tag tag-gami">XP por calidad</span>
+      <span class="tag tag-gami">Mentor (andamiaje permanente)</span>
+      <span class="tag tag-gami">Retroalimentación asistida en vivo</span>
       <span class="tag tag-gami">Pistas progresivas</span>
       <span class="tag tag-gami">Insignias por logro</span>
       <span class="tag tag-gami">Niveles con desbloqueo</span>
@@ -670,6 +704,12 @@
           </ul>
         </details>
 
+        <div id="n4Live" class="n4-live" aria-live="polite">
+          <h4>🛰️ Retroalimentación asistida en vivo</h4>
+          <p class="ayuda" style="margin:0 0 4px">Se actualiza mientras completas el diseño (no necesitas enviar). Objetivo: llegar a Logrado en cada criterio.</p>
+          <div class="medidor" role="progressbar" aria-label="Calidad del diseño" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="medidorFill"></span></div>
+          <ul id="n4LiveList"></ul>
+        </div>
         <button type="button" class="btn-primario" id="btnEvaluar" style="margin-top:8px">Evaluar calidad del diseño</button>
       </form>
       <div id="fbEvidencia" class="fb" aria-live="polite"></div>
@@ -774,6 +814,27 @@
 
 </div>
 </main>
+
+<!-- Mentor: andamiaje permanente (refuerzos y retroalimentación asistida) -->
+<aside class="mentor" id="mentor" role="complementary" aria-label="Mentor Operación BI — apoyo y retroalimentación">
+  <div class="mentor-head">
+    <span aria-hidden="true">🧭</span><strong>Mentor · Operación BI</strong>
+    <button type="button" class="toggle" id="mentorToggle" aria-expanded="true" aria-controls="mentorBody">Ocultar</button>
+  </div>
+  <div class="mentor-body" id="mentorBody">
+    <p class="contexto" id="mentorContexto">Nivel I · Inicio</p>
+    <p class="objetivo" id="mentorObjetivo"></p>
+    <div class="msg" id="mentorMsg" role="status" aria-live="polite">Pulsa «Pista» cuando lo necesites: nunca penaliza. Puedo darte pistas progresivas, un ejemplo resuelto y decirte cómo vas.</div>
+    <div class="mentor-acciones">
+      <button type="button" id="mentorPista">💡 Pista</button>
+      <button type="button" id="mentorEjemplo">🧪 Ejemplo resuelto</button>
+      <button type="button" id="mentorComoVoy">📊 ¿Cómo voy?</button>
+      <button type="button" id="mentorGlosario">📖 Glosario</button>
+    </div>
+    <ul class="and" id="mentorAnd" aria-label="Preguntas de andamiaje"></ul>
+  </div>
+</aside>
+<button type="button" class="mentor-fab btn-primario" id="mentorFab" aria-label="Abrir Mentor">🧭 Mentor</button>
 
 <footer class="pie">
   <div class="wrap">
@@ -1041,7 +1102,7 @@
       rw.appendChild(div);
     }
   }
-  function evaluarEvidencia() {
+  function computeEvidencia() {
     var crit = [], puntos = 0;
     // 0. Sector + necesidad (15)
     var sector = val("evSector"), nec = val("evNecesidad");
@@ -1083,6 +1144,37 @@
     else if (dup || seg) { puntos += 4; crit.push("Calidad y gobernanza: EN PROCESO"); }
     else { crit.push("Calidad y gobernanza: INICIAL"); }
 
+    var nivelLogro = puntos >= 80 ? "LOGRADO" : (puntos >= 45 ? "EN PROCESO" : "INICIAL");
+    return { puntos: puntos, crit: crit, nivelLogro: nivelLogro };
+  }
+
+  function nivelDeCrit(texto) {
+    if (/LOGRADO/.test(texto)) { return "ok"; }
+    if (/EN PROCESO/.test(texto)) { return "mid"; }
+    return "no";
+  }
+
+  function medidorVivo() {
+    var res = computeEvidencia();
+    var fill = $("#medidorFill");
+    if (fill) { fill.style.width = res.puntos + "%"; }
+    var bar = document.querySelector("#n4Live .medidor");
+    if (bar) { bar.setAttribute("aria-valuenow", String(res.puntos)); }
+    var ul = $("#n4LiveList");
+    if (ul) {
+      ul.innerHTML = "";
+      res.crit.forEach(function (c) {
+        var li = document.createElement("li");
+        li.className = nivelDeCrit(c);
+        li.textContent = c;
+        ul.appendChild(li);
+      });
+    }
+    return res;
+  }
+
+  function evaluarEvidencia() {
+    var res = computeEvidencia(), crit = res.crit, puntos = res.puntos;
     var delta = puntos - estado.n4.xp; estado.n4.xp = puntos; estado.n4.evaluada = true;
     if (delta !== 0) { sumarXP(delta); } else { render(); }
 
@@ -1334,6 +1426,112 @@
     else { play(); }
   }
 
+  /* ---------- Mentor: andamiaje permanente (refuerzos + retroalimentación asistida) ---------- */
+  var mentorData = {
+    1: { ctx: "Nivel I · Inicio", obj: "Reconoce por qué un dashboard necesita datos organizados.",
+         pistas: ["Observa el mapa: sin ETL los datos llegan «sucios» (duplicados, inconsistentes).",
+                  "«Una buena visualización no compensa una mala arquitectura».",
+                  "Si una afirmación depende solo del volumen o de «mientras más, mejor», suele ser mito."],
+         ejemplo: "Ejemplo: «Cuantos más indicadores, mejor» es MITO: satura la decisión; conviene pocos KPIs pertinentes ligados a una pregunta de negocio.",
+         and: ["¿De dónde provienen los datos de un dashboard?", "¿Qué pasa si un cliente aparece con 3 nombres distintos?"] },
+    2: { ctx: "Nivel U · Utilidad", obj: "Identifica los problemas de datos y la necesidad de información del caso.",
+         pistas: ["Los problemas son de calidad e integración de datos, no de imagen o marketing.",
+                  "Relee las cartas: clientes duplicados, códigos distintos, datos dispersos, reportes que no cuadran.",
+                  "La necesidad = las 3 preguntas de la gerencia respondidas con datos unificados y confiables."],
+         ejemplo: "Ejemplo de necesidad: «Saber qué platos se venden más y qué productos se agotan, con datos unificados por cliente y producto».",
+         and: ["¿Qué decisión se tomaría mal con datos duplicados?", "¿Qué áreas o sistemas generan datos en el caso?"] },
+    3: { ctx: "Nivel T · Transformación", obj: "Ordena la ruta del dato y distingue errores de diseño de buenas prácticas.",
+         pistas: ["Primero se CAPTURA, luego se INTEGRA/LIMPIA y al final se ANALIZA para decidir.",
+                  "El ETL va DESPUÉS de la base operacional y ANTES del Data Warehouse.",
+                  "Guardar pedido, producto, cliente y pago en una sola tabla es un ERROR (redundancia e inconsistencia)."],
+         ejemplo: "Ruta correcta: Fuentes → Base operacional → ETL → Data Warehouse → Herramienta BI → Dashboard/Decisión.",
+         and: ["¿Qué diferencia hay entre base operacional y Data Warehouse?", "¿Por qué separar Producto y Detalle de Venta?"] },
+    4: { ctx: "Nivel P · Práctica (evidencia)", obj: "Diseña la arquitectura (Parte A) y el modelo entidad-relación (Parte B).",
+         pistas: ["Cada indicador debe nombrar QUÉ mide y DE QUÉ tabla/fuente sale.",
+                  "Define una clave primaria única por entidad (id_cliente, id_producto…).",
+                  "Relaciona con claves foráneas (id_cliente dentro de Pedido) y asigna cardinalidad (1:N, N:M)."],
+         ejemplo: "Ejemplo — Entidad: Cliente | atributos: nombre, correo | PK: id_cliente. Relación: Cliente —(1:N)→ Venta.",
+         and: ["¿Qué dato identifica de forma única a cada cliente?", "¿Cuál es la diferencia entre Producto y Detalle de Venta?",
+               "¿Qué información necesita el dashboard y de qué tabla provendría?", "¿Cómo evitar registrar dos veces al mismo cliente?",
+               "¿Qué decisión se tomaría con cada indicador?"] },
+    5: { ctx: "Nivel C · Cierre", obj: "Reconstruye la ruta, reflexiona y declara el uso de IA.",
+         pistas: ["Ruta: Fuentes → Base operacional → ETL → Data Warehouse → Herramienta BI → Decisión.",
+                  "Operacional = registra el día a día; analítico = integra histórico para decidir.",
+                  "Declara herramienta, prompt y revisión humana; usa solo datos ficticios."],
+         ejemplo: "Transferencia: en una clínica, este diseño anticiparía la demanda de citas por especialidad para reducir ausentismo.",
+         and: ["¿Qué criterio usarás para evitar duplicidad?", "¿En qué otra organización aplicarías este diseño?"] }
+  };
+  var GLOSARIO = "📖 Glosario: <b>Entidad</b> = objeto relevante (Cliente, Producto). <b>Atributo</b> = su característica (nombre, precio). " +
+    "<b>Clave primaria (PK)</b> = identificador único (id_cliente). <b>Clave foránea (FK)</b> = campo que relaciona tablas. " +
+    "<b>Cardinalidad</b> = tipo de relación (1:1, 1:N, N:M). <b>ETL/ELT</b> = extraer, transformar/limpiar y cargar. " +
+    "<b>BD operacional</b> = el día a día. <b>Data Warehouse</b> = histórico para análisis.";
+  var mentorNivel = 1, pistaIdx = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+
+  function renderMentor() {
+    var d = mentorData[mentorNivel]; if (!d) { return; }
+    $("#mentorContexto").textContent = d.ctx;
+    $("#mentorObjetivo").textContent = "🎯 " + d.obj;
+    var ul = $("#mentorAnd"); ul.innerHTML = "<li><em>Preguntas para pensar:</em></li>";
+    d.and.forEach(function (q) { var li = document.createElement("li"); li.textContent = "• " + q; ul.appendChild(li); });
+  }
+  function setMentorNivel(n) {
+    if (!mentorData[n] || n === mentorNivel) { return; }
+    mentorNivel = n; renderMentor();
+    $("#mentorMsg").innerHTML = "Estás en <b>" + esc(mentorData[n].ctx) + "</b>. Pide una pista, un ejemplo o «¿Cómo voy?».";
+  }
+  function mentorPista() {
+    var d = mentorData[mentorNivel], i = pistaIdx[mentorNivel] || 0;
+    if (i < d.pistas.length) {
+      $("#mentorMsg").innerHTML = "💡 <b>Pista " + (i + 1) + "/" + d.pistas.length + ":</b> " + esc(d.pistas[i]);
+      pistaIdx[mentorNivel] = i + 1;
+    } else {
+      $("#mentorMsg").innerHTML = "Ya viste todas las pistas de este nivel (no penalizan). Prueba «Ejemplo resuelto» o «¿Cómo voy?».";
+    }
+    anunciar("Pista mostrada.");
+  }
+  function mentorEjemplo() { $("#mentorMsg").innerHTML = "🧪 " + esc(mentorData[mentorNivel].ejemplo); }
+  function mentorGlosario() { $("#mentorMsg").innerHTML = GLOSARIO; }
+  function mentorComoVoy() {
+    if (mentorNivel === 4) {
+      var res = medidorVivo();
+      var faltan = res.crit.filter(function (c) { return !/LOGRADO/.test(c); });
+      var msg = "📊 Calidad actual: <b>" + res.puntos + "/100</b> (" + res.nivelLogro + "). ";
+      msg += faltan.length ? "Aún por mejorar: " + esc(faltan.map(function (c) { return c.split(":")[0]; }).join(", ")) + "." : "¡Todos los criterios en Logrado! Pulsa «Evaluar».";
+      $("#mentorMsg").innerHTML = msg;
+    } else {
+      var hechos = { 1: estado.n1.hechas >= 6, 2: estado.n2, 3: (estado.n3ruta && estado.n3er.hechas >= 4), 5: estado.n5 };
+      $("#mentorMsg").innerHTML = hechos[mentorNivel]
+        ? "✅ Este nivel está completo. Puedes avanzar al siguiente."
+        : "🔸 Aún no completas este nivel. Sigue la misión; usa «Pista» si te atascas.";
+    }
+  }
+  function initMentor() {
+    renderMentor();
+    $("#mentorPista").addEventListener("click", mentorPista);
+    $("#mentorEjemplo").addEventListener("click", mentorEjemplo);
+    $("#mentorGlosario").addEventListener("click", mentorGlosario);
+    $("#mentorComoVoy").addEventListener("click", mentorComoVoy);
+    var aside = $("#mentor"), fab = $("#mentorFab"), tgl = $("#mentorToggle");
+    tgl.addEventListener("click", function () { aside.style.display = "none"; fab.style.display = "block"; });
+    fab.addEventListener("click", function () { aside.style.display = "block"; fab.style.display = "none"; });
+
+    // Detecta el nivel activo por desplazamiento para dar apoyo contextual
+    if ("IntersectionObserver" in window) {
+      var ratios = {};
+      var obs = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) { ratios[e.target.getAttribute("data-nivel")] = e.isIntersecting ? e.intersectionRatio : 0; });
+        var mejor = null, max = 0;
+        Object.keys(ratios).forEach(function (k) { if (ratios[k] > max) { max = ratios[k]; mejor = k; } });
+        if (mejor && max > 0.15) { setMentorNivel(parseInt(mejor, 10)); }
+      }, { threshold: [0.15, 0.4, 0.7] });
+      document.querySelectorAll("section.nivel").forEach(function (s) { obs.observe(s); });
+    }
+
+    // Retroalimentación asistida en vivo del formulario de evidencia
+    var form = $("#formEvidencia");
+    if (form) { form.addEventListener("input", medidorVivo); form.addEventListener("change", medidorVivo); medidorVivo(); }
+  }
+
   function restaurarUI() {
     for (var n = 2; n <= 5; n++) { if (estado.nivel >= n) { desbloquear(n); } }
     if (estado.n1.hechas >= 6) { marcarLogrado(1); }
@@ -1347,7 +1545,7 @@
 
   document.addEventListener("DOMContentLoaded", function () {
     cargar();
-    pintarMito(); pintarBanco(); initRuta(); pintarER(); pintarEntidades(); pintarAutoeval(); initMapa();
+    pintarMito(); pintarBanco(); initRuta(); pintarER(); pintarEntidades(); pintarAutoeval(); initMapa(); initMentor();
 
     $("#mitoContenedor").addEventListener("click", function (e) { var b = e.target.closest("button[data-op]"); if (b) { responderMito(parseInt(b.getAttribute("data-i"), 10), b.getAttribute("data-op")); } });
     $("#erContenedor").addEventListener("click", function (e) { var b = e.target.closest("button[data-op]"); if (b) { responderER(parseInt(b.getAttribute("data-i"), 10), b.getAttribute("data-op")); } });
