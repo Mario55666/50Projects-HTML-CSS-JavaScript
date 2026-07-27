@@ -140,6 +140,25 @@
   .consigna { background: #10131c; border-left: 4px solid var(--amber); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 0 0 18px; }
   .consigna strong { color: var(--amber); }
 
+  /* ---------- Mapa interactivo (canvas) + física de flujo ---------- */
+  .mapa-wrap { border: 1px solid var(--line); border-radius: 12px; background: #0a0c14; padding: 12px; margin: 0 0 18px; }
+  .mapa-wrap canvas { width: 100%; height: auto; display: block; border-radius: 8px; background: radial-gradient(600px 200px at 20% 0, #0e1a2a 0, #0a0c14 70%); }
+  .mapa-controls { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 10px; }
+  .mapa-controls .leyenda { margin-left: auto; font-size: 0.78rem; color: var(--muted); }
+  .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; vertical-align: middle; margin: 0 3px 0 8px; }
+  .dot.sucio { background: var(--alert); } .dot.limpio { background: var(--green); }
+  .mapa-fallback { display: none; }
+  @media (prefers-reduced-motion: reduce) { .mapa-wrap canvas { display: none; } .mapa-fallback { display: block; } }
+
+  /* ---------- Tarjeta de asociación (juegos) ---------- */
+  .assoc { border: 1px solid #40390a; background: #14120a; border-radius: 12px; padding: 14px 16px; margin: 0 0 18px; }
+  .assoc h4 { margin: 0 0 8px; color: var(--amber); }
+  .assoc .par { display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; align-items: center; margin: 10px 0; }
+  .assoc .par .caja { background: #0e1018; border: 1px solid var(--line); border-radius: 10px; padding: 10px; font-size: 0.85rem; }
+  .assoc .par .flecha { color: var(--cyan); font-weight: 900; font-size: 1.2rem; text-align: center; }
+  .assoc .caja strong { color: var(--cyan); }
+  @media (max-width: 640px) { .assoc .par { grid-template-columns: 1fr; } .assoc .par .flecha { transform: rotate(90deg); } }
+
   /* ---------- Botones ---------- */
   button { font: inherit; cursor: pointer; border-radius: 10px; border: 1px solid var(--line); background: #10131c; color: var(--text); padding: 9px 16px; transition: transform .12s ease, border-color .2s ease, background .2s ease; }
   button:hover { border-color: var(--cyan); }
@@ -291,6 +310,8 @@
     </div>
 
     <div class="tags" aria-label="Técnicas aplicadas en esta actividad">
+      <span class="tag tag-ludic">Mapa interactivo (canvas)</span>
+      <span class="tag tag-ludic">Simulador de flujo (física de partículas)</span>
       <span class="tag tag-ludic">Mito o evidencia</span>
       <span class="tag tag-ludic">Expediente con cartas de restricción</span>
       <span class="tag tag-ludic">Ruta del dato (drag & drop)</span>
@@ -372,7 +393,52 @@
       <span class="nivel-estado activo" id="estado1">En curso</span>
     </div>
     <div class="nivel-cuerpo">
-      <span class="op-cognitiva">Operación cognitiva: clasificar criterios</span>
+      <span class="op-cognitiva">Operación cognitiva: analizar condiciones</span>
+
+      <div class="consigna">
+        <strong>Motivación — Mapa interactivo «La ruta del dato».</strong> Observa cómo los <em>paquetes de datos</em> viajan
+        desde las fuentes hasta la decisión. Antes del <strong>ETL</strong> llegan <span class="dot sucio" aria-hidden="true"></span>
+        <em>sucios</em> (duplicados, inconsistentes) y salen <span class="dot limpio" aria-hidden="true"></span> <em>limpios</em>.
+        Sin esa arquitectura, el dashboard muestra datos poco confiables.
+      </div>
+
+      <figure class="mapa-wrap" aria-label="Simulación del flujo de datos por la arquitectura de BI">
+        <canvas id="mapaCanvas" width="920" height="240" role="img"
+                aria-label="Animación: paquetes de datos fluyen por Fuentes, Base operacional, ETL, Data Warehouse, Herramienta BI y Decisión; se limpian al pasar por el ETL."></canvas>
+        <div class="mapa-fallback aviso">
+          <strong>Ruta del dato:</strong> Fuentes → Base operacional → <strong>ETL (limpieza)</strong> → Data Warehouse → Herramienta BI → Decisión.
+          Los datos se unifican y depuran en el ETL antes de analizarse. (Animación desactivada por preferencia de movimiento reducido.)
+        </div>
+        <figcaption class="mapa-controls">
+          <button type="button" id="mapaPlay" class="btn-primario" aria-pressed="true">⏸️ Pausar</button>
+          <button type="button" id="mapaCalidad">Ver «sin ETL» (datos sin limpiar)</button>
+          <span class="leyenda"><span class="dot sucio"></span>dato sin depurar · <span class="dot limpio"></span>dato depurado</span>
+        </figcaption>
+      </figure>
+
+      <div class="assoc">
+        <h4>🎮 Puente lúdico — de un juego clásico a un simulador de datos</h4>
+        <p style="margin:0 0 6px;font-size:0.9rem">
+          Este mapa reutiliza la idea de <strong>sistemas de partículas y fuerzas</strong> del repositorio
+          <a href="https://github.com/Mario55666/Physics-for-JavaScript-Games-Animation-Simulations" target="_blank" rel="noopener">Physics&nbsp;for&nbsp;JavaScript&nbsp;Games</a>
+          para representar el flujo de datos. Y la <em>lógica de decidir con datos</em> se relaciona con un clásico de
+          <a href="https://github.com/Mario55666/basic-computer-games" target="_blank" rel="noopener">basic-computer-games</a>:
+        </p>
+        <div class="par">
+          <div class="caja"><strong>Simulación de partículas / flujo</strong><br />(Physics for JavaScript Games — partículas, velocidad y fuerzas)</div>
+          <div class="flecha" aria-hidden="true">↔</div>
+          <div class="caja"><strong>43_Hammurabi</strong> · <em>basic-computer-games</em><br />gestionas grano, tierra y población <strong>decidiendo con indicadores año a año</strong>: el mismo bucle dato → decisión → consecuencia que en BI.</div>
+        </div>
+        <details>
+          <summary style="font-size:0.85rem">Otras asociaciones posibles</summary>
+          <ul style="font-size:0.85rem;margin:8px 0 0">
+            <li><strong>Movimiento de proyectil</strong> (Physics for JS Games) ↔ <strong>42_Gunner / 12_Bombs_Away</strong> (basic-computer-games): calcular con variables observadas.</li>
+            <li><strong>Sistema de partículas de recursos</strong> ↔ <strong>83_Stock_Market / 38_Fur_Trader</strong>: decisiones de negocio a partir de datos que cambian.</li>
+          </ul>
+          <p style="font-size:0.82rem;color:var(--muted);margin:8px 0 0">Pertinencia: el <strong>logro</strong> de la sesión es decidir la arquitectura según una <strong>necesidad de información</strong>; por eso el juego motivador elegido es de <em>decisión basada en datos</em> (Hammurabi), no de acción.</p>
+        </details>
+      </div>
+
       <div class="consigna">
         <strong>Misión 1 — Mito o evidencia.</strong> Un dashboard atractivo no sirve si sus datos están desordenados.
         Clasifica cada afirmación; la retroalimentación explica <em>por qué</em>.
@@ -1180,6 +1246,94 @@
     window.location.reload();
   }
 
+  /* ---------- Mapa interactivo: física ligera de flujo de datos ----------
+     Inspirado en sistemas de partículas + fuerzas (Physics for JS Games).
+     Comunica el estado del pipeline (dato sucio -> ETL -> dato limpio);
+     respeta prefers-reduced-motion (usa el fallback textual). */
+  function initMapa() {
+    var canvas = document.getElementById("mapaCanvas");
+    if (!canvas || !canvas.getContext) { return; }
+    var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var ctx = canvas.getContext("2d");
+    var W = canvas.width, H = canvas.height;
+    var nodos = [
+      { x: 70,  n: "Fuentes" }, { x: 210, n: "Operacional" }, { x: 370, n: "ETL" },
+      { x: 540, n: "Data WH" }, { x: 700, n: "BI" }, { x: 850, n: "Decisión" }
+    ];
+    var yBase = H / 2;
+    var etlX = nodos[2].x;
+    var particulas = [];
+    var reproduciendo = !reduce;
+    var conETL = true; // si false, los datos no se limpian (motivación: "sin arquitectura")
+    var raf = null, ultimo = 0, acumulaSpawn = 0;
+
+    function nueva() {
+      // Física simple: velocidad horizontal + oscilación vertical (jitter) si está sucia
+      return { x: nodos[0].x, vx: 55 + Math.random() * 25, faseY: Math.random() * Math.PI * 2, limpio: false };
+    }
+    function dibujarNodos() {
+      ctx.textAlign = "center";
+      ctx.font = "600 13px system-ui, sans-serif";
+      for (var i = 0; i < nodos.length; i++) {
+        var nd = nodos[i];
+        if (i < nodos.length - 1) {
+          ctx.strokeStyle = "#233047"; ctx.lineWidth = 3;
+          ctx.beginPath(); ctx.moveTo(nd.x + 26, yBase); ctx.lineTo(nodos[i + 1].x - 26, yBase); ctx.stroke();
+        }
+        var esETL = nd.n === "ETL";
+        ctx.fillStyle = esETL ? "#1a2f14" : "#0e1a2a";
+        ctx.strokeStyle = esETL ? "#00ff9d" : "#17384a"; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(nd.x, yBase, 26, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = esETL ? "#00ff9d" : "#00e5ff";
+        ctx.fillText(esETL ? "ETL" : "", nd.x, yBase + 4);
+        ctx.fillStyle = "#c9cee2";
+        ctx.fillText(nd.n, nd.x, yBase + 46);
+      }
+    }
+    function frame(t) {
+      if (!ultimo) { ultimo = t; }
+      var dt = Math.min((t - ultimo) / 1000, 0.05); ultimo = t;
+      acumulaSpawn += dt;
+      if (acumulaSpawn > 0.55 && particulas.length < 26) { particulas.push(nueva()); acumulaSpawn = 0; }
+      ctx.clearRect(0, 0, W, H);
+      dibujarNodos();
+      for (var i = particulas.length - 1; i >= 0; i--) {
+        var p = particulas[i];
+        p.x += p.vx * dt;
+        if (conETL && !p.limpio && p.x >= etlX) { p.limpio = true; }
+        var sucio = !(conETL ? p.limpio : false);
+        // jitter vertical (fuerza oscilante) mientras esté sucio
+        var y = yBase + (sucio ? Math.sin(t / 90 + p.faseY) * 9 : 0);
+        ctx.beginPath(); ctx.arc(p.x, y, 5, 0, Math.PI * 2);
+        ctx.fillStyle = sucio ? "#ff2038" : "#00ff9d"; ctx.fill();
+        if (p.x > W - 40) { particulas.splice(i, 1); }
+      }
+      if (reproduciendo) { raf = window.requestAnimationFrame(frame); }
+    }
+    function dibujarEstatico() { ctx.clearRect(0, 0, W, H); dibujarNodos(); }
+    function play() { if (raf) { return; } reproduciendo = true; ultimo = 0; raf = window.requestAnimationFrame(frame); }
+    function pause() { reproduciendo = false; if (raf) { window.cancelAnimationFrame(raf); raf = null; } }
+
+    var btnPlay = document.getElementById("mapaPlay");
+    var btnCal = document.getElementById("mapaCalidad");
+    if (btnPlay) {
+      btnPlay.addEventListener("click", function () {
+        if (reproduciendo) { pause(); btnPlay.textContent = "▶️ Reanudar"; btnPlay.setAttribute("aria-pressed", "false"); }
+        else { play(); btnPlay.textContent = "⏸️ Pausar"; btnPlay.setAttribute("aria-pressed", "true"); }
+      });
+    }
+    if (btnCal) {
+      btnCal.addEventListener("click", function () {
+        conETL = !conETL; particulas = [];
+        btnCal.textContent = conETL ? "Ver «sin ETL» (datos sin limpiar)" : "Ver «con ETL» (datos depurados)";
+        anunciar(conETL ? "Flujo con ETL: los datos se depuran." : "Flujo sin ETL: los datos llegan sucios al análisis.");
+        if (!reproduciendo && !reduce) { dibujarEstatico(); }
+      });
+    }
+    if (reduce) { dibujarEstatico(); if (btnPlay) { btnPlay.textContent = "▶️ Reproducir"; btnPlay.setAttribute("aria-pressed", "false"); } }
+    else { play(); }
+  }
+
   function restaurarUI() {
     for (var n = 2; n <= 5; n++) { if (estado.nivel >= n) { desbloquear(n); } }
     if (estado.n1.hechas >= 6) { marcarLogrado(1); }
@@ -1193,7 +1347,7 @@
 
   document.addEventListener("DOMContentLoaded", function () {
     cargar();
-    pintarMito(); pintarBanco(); initRuta(); pintarER(); pintarEntidades(); pintarAutoeval();
+    pintarMito(); pintarBanco(); initRuta(); pintarER(); pintarEntidades(); pintarAutoeval(); initMapa();
 
     $("#mitoContenedor").addEventListener("click", function (e) { var b = e.target.closest("button[data-op]"); if (b) { responderMito(parseInt(b.getAttribute("data-i"), 10), b.getAttribute("data-op")); } });
     $("#erContenedor").addEventListener("click", function (e) { var b = e.target.closest("button[data-op]"); if (b) { responderER(parseInt(b.getAttribute("data-i"), 10), b.getAttribute("data-op")); } });
