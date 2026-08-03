@@ -1,0 +1,1365 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0072b9">
+<meta name="description" content="Semiotics PlayLab — PWA gamificada para dominar denotación, connotación, sintagma y paradigma. Instituto de Diseño y Comunicación.">
+<title>Semiotics PlayLab · Introducción a la Semiótica</title>
+
+<!-- Bootstrap 5 (cacheado por el service worker para uso offline) -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<!-- Tipografía Playfair Display + Lora con fallback a serif del sistema -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,900;1,600;1,700&family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  /* Cielo de Monet: lavanda, celeste, melocotón */
+  --lav:#cdb4db; --lav2:#b8a3d6; --cel:#a2d2ff; --cel2:#bde0fe; --peach:#ffc9a9; --peach2:#ffb997;
+  /* Acentos IDC */
+  --idc-amarillo:#f3a100; --idc-azul:#0072b9; --idc-gris1:#555553; --idc-gris2:#545452;
+  --ink:#3a3550; --muted:#6a6580; --white:#fffdf9;
+  --ok:#2f9e6b; --err:#d98236; --gold:#f3a100;
+  --surface:rgba(255,255,255,.72);
+  --glass:rgba(255,255,255,.55);
+  --radius:22px; --radius-sm:14px;
+  --shadow:0 12px 40px rgba(90,80,140,.18), 0 2px 10px rgba(90,80,140,.10);
+  --shadow-soft:0 8px 28px rgba(120,110,170,.14);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; color:var(--ink);
+  font-family:'Lora', Georgia, 'Times New Roman', serif;
+  min-height:100vh; overflow-x:hidden;
+  background:
+    radial-gradient(1200px 700px at 12% -8%, rgba(255,201,169,.55), transparent 60%),
+    radial-gradient(1100px 800px at 92% 4%, rgba(162,210,255,.55), transparent 62%),
+    radial-gradient(1300px 900px at 50% 108%, rgba(205,180,219,.6), transparent 60%),
+    linear-gradient(160deg,#e9dcf3 0%, #dbe7fb 42%, #ffe3d3 100%);
+  background-attachment:fixed;
+}
+/* Bruma lenta de fondo */
+body::before{
+  content:""; position:fixed; inset:-20%; z-index:-1; pointer-events:none;
+  background:
+    radial-gradient(500px 380px at 20% 30%, rgba(255,255,255,.5), transparent 70%),
+    radial-gradient(600px 420px at 80% 70%, rgba(255,236,214,.45), transparent 70%);
+  filter:blur(30px); animation:bruma 26s ease-in-out infinite alternate;
+}
+@keyframes bruma{0%{transform:translate3d(0,0,0) scale(1)}100%{transform:translate3d(-3%,2%,0) scale(1.08)}}
+
+h1,h2,h3,h4,.display-serif{font-family:'Playfair Display', Georgia, serif;}
+.serif-it{font-family:'Playfair Display', Georgia, serif; font-style:italic;}
+.text-idc-azul{color:var(--idc-azul)!important}
+.text-idc-amarillo{color:var(--idc-amarillo)!important}
+.bg-glass{background:var(--glass); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);}
+
+/* ---------- NAV ---------- */
+.topbar{
+  position:sticky; top:0; z-index:1030;
+  background:rgba(255,253,249,.66); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+  border-bottom:1px solid rgba(255,255,255,.6);
+}
+.brand-badge{
+  width:44px;height:44px;border-radius:14px;display:grid;place-items:center;
+  background:linear-gradient(135deg,var(--idc-azul),#3aa0e0); color:#fff; font-weight:900;
+  box-shadow:0 6px 18px rgba(0,114,185,.4); font-family:'Playfair Display',serif;
+}
+.nav-pill{
+  border:none; background:transparent; color:var(--idc-gris1); font-weight:600;
+  padding:.4rem .85rem; border-radius:999px; font-family:'Lora',serif; font-size:.92rem;
+  transition:.25s; white-space:nowrap;
+}
+.nav-pill:hover{background:rgba(255,255,255,.7); color:var(--idc-azul)}
+.nav-pill.active{background:linear-gradient(135deg,var(--idc-azul),#3aa0e0); color:#fff; box-shadow:0 6px 16px rgba(0,114,185,.32)}
+
+/* ---------- CARDS / GLASS ---------- */
+.panel{
+  background:var(--surface); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+  border:1px solid rgba(255,255,255,.7); border-radius:var(--radius); box-shadow:var(--shadow);
+}
+.soft-card{
+  background:var(--surface); border:1px solid rgba(255,255,255,.7);
+  border-radius:var(--radius-sm); box-shadow:var(--shadow-soft); transition:.3s;
+}
+.soft-card:hover{transform:translateY(-4px); box-shadow:var(--shadow)}
+
+.section{display:none; animation:fadein .5s ease}
+.section.active{display:block}
+@keyframes fadein{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+.phase-chip{display:inline-flex;align-items:center;gap:.4rem;font-size:.72rem;font-weight:700;letter-spacing:.06em;
+  text-transform:uppercase;padding:.3rem .7rem;border-radius:999px;background:rgba(243,161,0,.16);color:#a56c00;border:1px solid rgba(243,161,0,.3)}
+
+.btn-idc{background:linear-gradient(135deg,var(--idc-azul),#3aa0e0);color:#fff;border:none;font-weight:600;border-radius:999px;padding:.6rem 1.4rem;box-shadow:0 8px 20px rgba(0,114,185,.3);transition:.25s;font-family:'Lora',serif}
+.btn-idc:hover{transform:translateY(-2px);box-shadow:0 12px 26px rgba(0,114,185,.42);color:#fff}
+.btn-amber{background:linear-gradient(135deg,var(--idc-amarillo),#ffbf47);color:#4a3200;border:none;font-weight:700;border-radius:999px;padding:.6rem 1.4rem;box-shadow:0 8px 20px rgba(243,161,0,.32);transition:.25s;font-family:'Lora',serif}
+.btn-amber:hover{transform:translateY(-2px);box-shadow:0 12px 26px rgba(243,161,0,.45);color:#4a3200}
+.btn-ghost{background:rgba(255,255,255,.65);border:1px solid rgba(0,114,185,.25);color:var(--idc-azul);border-radius:999px;font-weight:600;padding:.55rem 1.3rem;transition:.25s;font-family:'Lora',serif}
+.btn-ghost:hover{background:#fff;transform:translateY(-2px);color:var(--idc-azul)}
+
+/* ---------- HUD ---------- */
+.hud{position:fixed;right:14px;bottom:14px;z-index:1040;display:flex;gap:.5rem;flex-wrap:wrap;justify-content:flex-end;max-width:92vw}
+.hud .chip{background:rgba(255,253,249,.9);border:1px solid rgba(255,255,255,.8);border-radius:999px;padding:.35rem .8rem;font-weight:700;font-size:.85rem;box-shadow:var(--shadow-soft);color:var(--idc-gris1);display:flex;align-items:center;gap:.35rem}
+.hud .chip.pts{color:#a56c00}
+.hud .chip.lvl{color:var(--idc-azul)}
+
+/* Progress bar Monet */
+.prog{height:12px;border-radius:999px;background:rgba(255,255,255,.6);overflow:hidden}
+.prog>span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--idc-azul),var(--idc-amarillo));transition:width .5s ease}
+
+/* ---------- AD PIECES (recreadas en CSS/SVG, sin dependencias externas) ---------- */
+.ad{border-radius:14px;overflow:hidden;box-shadow:var(--shadow);border:6px solid #fff;position:relative}
+.ad-papel{aspect-ratio:3/4;background:linear-gradient(160deg,#bfe0f2,#8fc4e8 60%,#5aa0d6);color:#0a3a5a;padding:14px;font-family:'Lora',serif}
+.ad-domino{aspect-ratio:3/4;background:linear-gradient(155deg,#ff8a12,#ff6a00);color:#3a1500;padding:14px;text-align:center}
+.ad-remax{aspect-ratio:1/1;background:#12212f;position:relative;color:#fff}
+.hotspot{position:absolute;border:2px dashed rgba(255,255,255,.9);border-radius:8px;cursor:pointer;transition:.2s;background:rgba(243,161,0,.05)}
+.hotspot:hover,.hotspot:focus{background:rgba(243,161,0,.3);border-color:var(--idc-amarillo);outline:none}
+.hotspot.found{background:rgba(47,158,107,.35);border-color:var(--ok);border-style:solid}
+
+/* ---------- MEMORY ---------- */
+.mem-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem}
+@media(max-width:576px){.mem-grid{grid-template-columns:repeat(3,1fr);gap:.45rem}}
+.mcard{aspect-ratio:3/4;perspective:800px;cursor:pointer}
+.mcard-inner{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d}
+.mcard.flip .mcard-inner,.mcard.matched .mcard-inner{transform:rotateY(180deg)}
+.mface{position:absolute;inset:0;backface-visibility:hidden;border-radius:12px;display:grid;place-items:center;text-align:center;padding:.4rem;font-weight:600;font-size:.72rem}
+.mfront{background:linear-gradient(135deg,var(--idc-azul),#3aa0e0);color:#fff;font-family:'Playfair Display',serif;font-size:1.4rem}
+.mback{background:#fff;transform:rotateY(180deg);border:2px solid var(--lav);color:var(--ink)}
+.mcard.matched .mback{border-color:var(--ok);box-shadow:0 0 0 3px rgba(47,158,107,.3) inset}
+
+/* ---------- ANAGRAMA ---------- */
+.tile{width:46px;height:52px;border-radius:10px;display:inline-grid;place-items:center;font-family:'Playfair Display',serif;font-weight:700;font-size:1.5rem;
+  background:#fff;border:2px solid var(--lav);cursor:pointer;transition:.15s;user-select:none;color:var(--ink)}
+.tile:hover{transform:translateY(-3px);border-color:var(--idc-azul)}
+.tile.used{opacity:.25;pointer-events:none}
+.slot{width:46px;height:52px;border-radius:10px;display:inline-grid;place-items:center;font-family:'Playfair Display',serif;font-weight:700;font-size:1.5rem;
+  background:rgba(0,114,185,.08);border:2px dashed var(--idc-azul);cursor:pointer;color:var(--idc-azul)}
+.tile-wrap,.slot-wrap{display:flex;gap:.35rem;flex-wrap:wrap;justify-content:center}
+
+/* ---------- BOARD ---------- */
+.board{display:grid;grid-template-columns:repeat(6,1fr);gap:.5rem}
+@media(max-width:576px){.board{grid-template-columns:repeat(4,1fr)}}
+.cell{aspect-ratio:1/1;border-radius:12px;display:grid;place-items:center;font-weight:800;font-family:'Playfair Display',serif;color:#fff;position:relative;font-size:1rem;box-shadow:var(--shadow-soft)}
+.c-den{background:linear-gradient(135deg,#4a90d9,#0072b9)} .c-con{background:linear-gradient(135deg,#e8724a,#d94e3a)}
+.c-sin{background:linear-gradient(135deg,#3fae6b,#1f8a4c)} .c-par{background:linear-gradient(135deg,#f3a100,#e08a00)}
+.c-int{background:linear-gradient(135deg,#8b6fd6,#6c4fc7)} .c-goal{background:linear-gradient(135deg,#111,#444)}
+.pawn{position:absolute;inset:0;display:grid;place-items:center;font-size:1.6rem;animation:hop .5s ease}
+@keyframes hop{0%{transform:translateY(-10px);opacity:.4}100%{transform:none;opacity:1}}
+
+/* ---------- OPTIONS ---------- */
+.opt{width:100%;text-align:left;border:1.5px solid rgba(0,114,185,.2);background:rgba(255,255,255,.7);border-radius:14px;padding:.8rem 1rem;margin-bottom:.6rem;transition:.2s;font-family:'Lora',serif;color:var(--ink);font-weight:500}
+.opt:hover{border-color:var(--idc-azul);background:#fff;transform:translateX(3px)}
+.opt.correct{border-color:var(--ok);background:rgba(47,158,107,.14);animation:pulseok .5s}
+.opt.wrong{border-color:var(--err);background:rgba(217,130,54,.14);animation:shake .45s}
+@keyframes pulseok{0%,100%{transform:scale(1)}50%{transform:scale(1.02)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+
+/* ---------- FEEDBACK MODAL ---------- */
+.fb-back{position:fixed;inset:0;background:rgba(58,53,80,.45);backdrop-filter:blur(4px);z-index:2000;display:none;align-items:center;justify-content:center;padding:1rem}
+.fb-back.show{display:flex;animation:fadein .3s}
+.fb-card{max-width:520px;width:100%;background:var(--white);border-radius:24px;box-shadow:0 30px 80px rgba(60,50,90,.4);overflow:hidden;animation:pop .4s cubic-bezier(.2,1.4,.5,1)}
+@keyframes pop{from{transform:scale(.85);opacity:0}to{transform:none;opacity:1}}
+.fb-head{padding:1.1rem 1.4rem;color:#fff;font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;display:flex;align-items:center;gap:.6rem}
+.fb-head.ok{background:linear-gradient(135deg,var(--ok),#3fbe86)}
+.fb-head.err{background:linear-gradient(135deg,var(--err),#f0a35a)}
+.fb-body{padding:1.2rem 1.4rem;font-family:'Lora',serif;line-height:1.6}
+.fb-row{display:flex;gap:.6rem;margin-bottom:.7rem;font-size:.95rem}
+.fb-row b{color:var(--idc-azul)}
+.fb-emoji{font-size:1.4rem;line-height:1}
+
+/* Confetti */
+.confetti{position:fixed;top:-10px;width:10px;height:14px;z-index:2100;pointer-events:none;opacity:.95;border-radius:2px}
+
+/* Badges */
+.badge-idc{display:inline-flex;flex-direction:column;align-items:center;gap:.3rem;width:96px;text-align:center;opacity:.35;filter:grayscale(1);transition:.4s}
+.badge-idc.earned{opacity:1;filter:none;animation:pop .5s}
+.badge-medal{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;font-size:1.7rem;background:linear-gradient(135deg,var(--idc-amarillo),#ffcf6b);box-shadow:0 8px 20px rgba(243,161,0,.4);border:3px solid #fff}
+.badge-idc small{font-size:.68rem;font-weight:700;color:var(--idc-gris1);line-height:1.15}
+
+/* Sala de exposición */
+.post{border-left:4px solid var(--idc-amarillo)}
+.react-btn{border:none;background:rgba(0,114,185,.08);border-radius:999px;padding:.2rem .6rem;font-size:.82rem;font-weight:700;color:var(--idc-azul);transition:.2s}
+.react-btn:hover{background:rgba(0,114,185,.18);transform:scale(1.08)}
+
+.form-control,.form-control:focus{background:rgba(255,255,255,.85);border-radius:12px;border:1.5px solid rgba(0,114,185,.2);font-family:'Lora',serif;box-shadow:none}
+.form-control:focus{border-color:var(--idc-azul)}
+
+.footer-idc{background:rgba(84,84,82,.92);color:#ece9e2;font-family:'Lora',serif}
+.footer-idc .logo-idc{font-family:'Playfair Display',serif;font-weight:900;letter-spacing:.04em}
+
+.term-tip{border-bottom:2px dotted var(--idc-amarillo);cursor:help;font-weight:600}
+
+/* Simon */
+.simon-grid{display:grid;grid-template-columns:repeat(2,120px);gap:.7rem;justify-content:center}
+@media(max-width:400px){.simon-grid{grid-template-columns:repeat(2,90px)}}
+.simon-btn{height:120px;border-radius:18px;border:none;cursor:pointer;font-family:'Playfair Display',serif;color:#fff;font-weight:700;font-size:.95rem;opacity:.55;transition:.15s;box-shadow:var(--shadow-soft)}
+@media(max-width:400px){.simon-btn{height:90px;font-size:.8rem}}
+.simon-btn.lit{opacity:1;transform:scale(1.05);box-shadow:0 0 26px currentColor}
+.s-den{background:#0072b9} .s-con{background:#d94e3a} .s-sin{background:#1f8a4c} .s-par{background:#e08a00}
+
+@media print{
+  .topbar,.hud,.no-print,.btn,.btn-idc,.btn-amber,.btn-ghost{display:none!important}
+  body{background:#fff!important}
+  body::before{display:none}
+  .panel,.soft-card{box-shadow:none!important;border:1px solid #ccc!important;background:#fff!important}
+  .section{display:block!important}
+  #print-ficha{display:block!important}
+}
+</style>
+</head>
+<body>
+
+<!-- ===================== NAV ===================== -->
+<header class="topbar">
+  <div class="container-xl py-2">
+    <div class="d-flex align-items-center gap-2">
+      <div class="brand-badge">Sp</div>
+      <div class="me-auto">
+        <div class="serif-it fw-bold text-idc-azul" style="font-size:1.15rem;line-height:1">Semiotics PlayLab</div>
+        <div class="small text-idc-gris1" style="font-size:.72rem">Introducción a la Semiótica · IDC</div>
+      </div>
+      <button class="btn-ghost d-none d-lg-inline" id="installBtn" style="display:none">⬇︎ Instalar app</button>
+    </div>
+    <nav class="d-flex gap-1 mt-2 pb-1" style="overflow-x:auto" id="navPills">
+      <button class="nav-pill active" data-go="inicio">🎬 Inicio</button>
+      <button class="nav-pill" data-go="registro">👥 Equipo</button>
+      <button class="nav-pill" data-go="quiz">🧠 Trivia</button>
+      <button class="nav-pill" data-go="anagrama">🔤 Anagrama</button>
+      <button class="nav-pill" data-go="memoria">🃏 Memoria</button>
+      <button class="nav-pill" data-go="simulador">🧪 Simulador</button>
+      <button class="nav-pill" data-go="simon">🎨 Secuencia</button>
+      <button class="nav-pill" data-go="tablero">🎲 Tablero</button>
+      <button class="nav-pill" data-go="ficha">📝 Ficha</button>
+      <button class="nav-pill" data-go="sala">🖼️ Sala</button>
+      <button class="nav-pill" data-go="logros">🏅 Logros</button>
+    </nav>
+  </div>
+</header>
+
+<main class="container-xl py-4" style="max-width:1000px">
+
+<!-- ===================== INICIO (I·U de IUTPC) ===================== -->
+<section class="section active" id="inicio">
+  <div class="panel p-4 p-md-5 mb-4 text-center">
+    <span class="phase-chip mb-3">Fase I · Inicio &nbsp;·&nbsp; Fase U · Utilidad</span>
+    <h1 class="display-serif fw-black mt-2" style="font-size:clamp(2rem,6vw,3.4rem);line-height:1.05">
+      <span class="serif-it text-idc-azul">Misión</span> Semiótica
+    </h1>
+    <p class="lead serif-it text-idc-gris1 mb-3" style="font-size:1.15rem">Descifra los mensajes ocultos en las imágenes que nos rodean.</p>
+    <p class="mx-auto" style="max-width:640px;color:var(--muted)">
+      Bienvenido, <b>Agente de la Semiótica</b>. Tu misión es convertirte en un <b class="text-idc-azul">Analista Visual de Élite</b>:
+      aprenderás a distinguir <span class="term-tip" data-t="den">denotación</span> y <span class="term-tip" data-t="con">connotación</span>,
+      y a leer las operaciones <span class="term-tip" data-t="sin">sintagmáticas</span> y <span class="term-tip" data-t="par">paradigmáticas</span>
+      jugando con piezas publicitarias reales.
+    </p>
+    <div class="d-flex gap-2 justify-content-center flex-wrap mt-4">
+      <button class="btn-idc" data-go="registro">🚀 Aceptar la misión</button>
+      <button class="btn-ghost" data-go="quiz">Jugar directo</button>
+    </div>
+  </div>
+
+  <!-- Utilidad: por qué importa -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-4"><div class="soft-card p-4 h-100">
+      <div class="fs-2">👁️</div><h3 class="h5 mt-2 text-idc-azul">Ver como diseñador</h3>
+      <p class="mb-0" style="color:var(--muted)">El diseñador no solo crea: <b>controla el significado</b>. Estas herramientas te permiten decidir qué comunica cada imagen.</p>
+    </div></div>
+    <div class="col-md-4"><div class="soft-card p-4 h-100">
+      <div class="fs-2">🧩</div><h3 class="h5 mt-2 text-idc-azul">Teoría viva</h3>
+      <p class="mb-0" style="color:var(--muted)">De <b>Saussure</b> (signo, significante/significado) a <b>Barthes</b> (mito y connotación), aplicada a afiches que reconoces.</p>
+    </div></div>
+    <div class="col-md-4"><div class="soft-card p-4 h-100">
+      <div class="fs-2">🎯</div><h3 class="h5 mt-2 text-idc-azul">Logro de la sesión</h3>
+      <p class="mb-0" style="color:var(--muted)">Al terminar, <b>distingues niveles denotativo/connotativo</b> y las operaciones sintagmáticas y paradigmáticas en piezas reales.</p>
+    </div></div>
+  </div>
+
+  <!-- Ruta IUTPC -->
+  <div class="panel p-4">
+    <h2 class="h4 serif-it text-idc-azul mb-1">Tu ruta de aprendizaje <span style="font-size:.8rem" class="text-idc-gris1">(modelo IUTPC)</span></h2>
+    <p class="small text-idc-gris1 mb-3">Progreso de la misión — completa retos para llenar la barra.</p>
+    <div class="prog mb-3"><span id="globalProg" style="width:0%"></span></div>
+    <div class="row g-2 text-center small fw-bold">
+      <div class="col"><div class="soft-card py-2">I<br><span class="fw-normal" style="color:var(--muted)">Inicio</span></div></div>
+      <div class="col"><div class="soft-card py-2">U<br><span class="fw-normal" style="color:var(--muted)">Utilidad</span></div></div>
+      <div class="col"><div class="soft-card py-2">T<br><span class="fw-normal" style="color:var(--muted)">Transformación</span></div></div>
+      <div class="col"><div class="soft-card py-2">P<br><span class="fw-normal" style="color:var(--muted)">Práctica</span></div></div>
+      <div class="col"><div class="soft-card py-2">C<br><span class="fw-normal" style="color:var(--muted)">Cierre</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== REGISTRO (Equipo / Individual) ===================== -->
+<section class="section" id="registro">
+  <div class="panel p-4 p-md-5">
+    <span class="phase-chip mb-2">Registro de la misión</span>
+    <h2 class="display-serif text-idc-azul">Registra tu escuadrón</h2>
+    <p style="color:var(--muted)">Forma un equipo de <b>2 a 4 integrantes</b> o trabaja en modo individual (trabajo en casa). Elige un modo: se desactivará el otro.</p>
+    <div class="d-flex gap-2 flex-wrap mb-4">
+      <button class="btn-idc" id="btn-grupal" onclick="toggleModo('grupal')">👥 Registrar Equipo</button>
+      <button class="btn-amber" id="btn-individual" onclick="toggleModo('individual')">👤 Registrar Individual</button>
+    </div>
+
+    <div id="registro-grupal" style="display:none">
+      <h3 class="h5 serif-it text-idc-azul">Datos del equipo</h3>
+      <div class="mb-2"><input class="form-control" id="team-name" placeholder="Nombre del equipo (ej. Los Descifradores)"></div>
+      <div class="table-responsive"><table class="table align-middle">
+        <thead><tr class="small text-idc-gris1"><th>N°</th><th>Nombres</th><th>Apellidos</th><th>Correo electrónico</th></tr></thead>
+        <tbody id="team-rows"></tbody>
+      </table></div>
+      <p class="small text-idc-gris1 mb-0">✔️ Modo grupal activo — el registro individual está inhabilitado.</p>
+    </div>
+
+    <div id="registro-individual" style="display:none">
+      <h3 class="h5 serif-it text-idc-azul">Datos del participante</h3>
+      <div class="row g-2">
+        <div class="col-md-4"><input class="form-control" id="ind-nombres" placeholder="Nombres"></div>
+        <div class="col-md-4"><input class="form-control" id="ind-apellidos" placeholder="Apellidos"></div>
+        <div class="col-md-4"><input class="form-control" id="ind-correo" placeholder="Correo electrónico"></div>
+      </div>
+      <p class="small text-idc-gris1 mt-2 mb-0">✔️ Modo individual activo — el registro grupal está inhabilitado.</p>
+    </div>
+
+    <div class="text-center mt-4">
+      <button class="btn-idc" onclick="guardarRegistro()">💾 Guardar y comenzar</button>
+      <button class="btn-ghost" data-go="quiz">Ir a la Trivia →</button>
+    </div>
+    <div id="reg-status" class="text-center mt-3 fw-bold text-idc-azul"></div>
+  </div>
+</section>
+
+<!-- ===================== TRIVIA / QUIZ (T) ===================== -->
+<section class="section" id="quiz">
+  <div class="panel p-4 p-md-5">
+    <span class="phase-chip mb-2">Fase T · Transformación</span>
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+      <h2 class="display-serif text-idc-azul mb-0">Trivia: Descifra el Signo</h2>
+      <div class="text-end"><div class="small text-idc-gris1">Pregunta <b id="q-idx">1</b>/<b id="q-total">6</b></div>
+        <div class="prog mt-1" style="width:140px"><span id="q-prog" style="width:16%"></span></div></div>
+    </div>
+    <p style="color:var(--muted)">Observa la pieza, aplica la teoría y elige. Cada respuesta abre una <b>ventana de refuerzo</b> que fija el concepto en tu memoria.</p>
+    <div id="quiz-area" class="mt-3"></div>
+    <div id="quiz-end" style="display:none" class="text-center py-4"></div>
+  </div>
+</section>
+
+<!-- ===================== ANAGRAMA (P) ===================== -->
+<section class="section" id="anagrama">
+  <div class="panel p-4 p-md-5">
+    <span class="phase-chip mb-2">Fase P · Práctica · Refuerzo léxico</span>
+    <h2 class="display-serif text-idc-azul">Anagrama Conceptual</h2>
+    <p style="color:var(--muted)">Reconstruye el término clave a partir de las letras mezcladas. Toca una letra para colocarla; toca un espacio lleno para devolverla.</p>
+    <div class="soft-card p-3 mb-3">
+      <div class="small text-idc-gris1">Pista conceptual</div>
+      <div id="ana-hint" class="serif-it fs-5 text-idc-azul"></div>
+    </div>
+    <div class="slot-wrap mb-3" id="ana-slots"></div>
+    <div class="tile-wrap mb-3" id="ana-tiles"></div>
+    <div class="d-flex gap-2 flex-wrap justify-content-center">
+      <button class="btn-idc" onclick="anaCheck()">✓ Comprobar</button>
+      <button class="btn-ghost" onclick="anaReset()">↺ Reiniciar palabra</button>
+      <button class="btn-ghost" onclick="anaHint()">💡 Pista extra</button>
+    </div>
+    <div class="text-center mt-3 small text-idc-gris1">Palabra <b id="ana-idx">1</b> de <b id="ana-total">5</b></div>
+  </div>
+</section>
+
+<!-- ===================== MEMORIA ===================== -->
+<section class="section" id="memoria">
+  <div class="panel p-4 p-md-5">
+    <span class="phase-chip mb-2">Fase P · Práctica · Memoria visual</span>
+    <h2 class="display-serif text-idc-azul">Parejas Semióticas</h2>
+    <p style="color:var(--muted)">Empareja cada <b>concepto</b> con su <b>ejemplo</b>. Cada acierto abre una explicación breve. Combos consecutivos suman bonus.</p>
+    <div class="d-flex gap-3 mb-3 small fw-bold">
+      <span class="text-idc-azul">Parejas: <span id="mem-pairs">0</span>/6</span>
+      <span style="color:#a56c00">Combo: ×<span id="mem-combo">1</span></span>
+      <span style="color:var(--muted)">Intentos: <span id="mem-tries">0</span></span>
+    </div>
+    <div class="mem-grid" id="mem-grid"></div>
+    <div class="text-center mt-3"><button class="btn-ghost" onclick="initMemory()">↺ Barajar de nuevo</button></div>
+  </div>
+</section>
+
+<!-- ===================== SIMULADOR / ESCAPE (P) ===================== -->
+<section class="section" id="simulador">
+  <div class="panel p-4 p-md-5">
+    <span class="phase-chip mb-2">Fase P · Práctica · Simulador de decisiones</span>
+    <h2 class="display-serif text-idc-azul">Laboratorio Paradigmático</h2>
+    <p style="color:var(--muted)">Eres director de arte. Cada decisión <b>paradigmática</b> (elegir un signo entre alternativas ausentes) cambia la <b>connotación</b> del afiche. Observa las consecuencias.</p>
+
+    <div class="row g-4 align-items-center">
+      <div class="col-md-5">
+        <div class="ad ad-domino" id="sim-preview">
+          <div style="font-family:'Playfair Display',serif;font-weight:900;font-size:1.6rem" id="sim-brand">SUPER PROMO</div>
+          <div style="font-size:3.4rem;line-height:1" id="sim-emoji">🍕</div>
+          <div class="mt-2 fw-bold" id="sim-claim" style="font-size:1.1rem">¡Ven por algo mejor!</div>
+          <div class="mt-2 badge bg-dark" id="sim-price">S/. 16.90</div>
+        </div>
+        <div class="small text-center mt-2 text-idc-gris1" id="sim-read">Connotación actual: <b>—</b></div>
+      </div>
+      <div class="col-md-7">
+        <div class="mb-3">
+          <div class="small fw-bold text-idc-azul mb-1">1 · Paleta de color <span class="text-idc-gris1 fw-normal">(eje paradigmático)</span></div>
+          <div class="d-flex gap-2 flex-wrap" id="sim-color"></div>
+        </div>
+        <div class="mb-3">
+          <div class="small fw-bold text-idc-azul mb-1">2 · Tipografía del titular</div>
+          <div class="d-flex gap-2 flex-wrap" id="sim-type"></div>
+        </div>
+        <div class="mb-3">
+          <div class="small fw-bold text-idc-azul mb-1">3 · Encuadre del producto</div>
+          <div class="d-flex gap-2 flex-wrap" id="sim-frame"></div>
+        </div>
+        <button class="btn-idc" onclick="simEvaluar()">🔍 Analizar mi decisión</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== SIMON / SECUENCIA ===================== -->
+<section class="section" id="simon">
+  <div class="panel p-4 p-md-5 text-center">
+    <span class="phase-chip mb-2">Fase P · Práctica · Secuencia (Simon)</span>
+    <h2 class="display-serif text-idc-azul">Secuencia del Signo</h2>
+    <p style="color:var(--muted)" class="mx-auto" style="max-width:560px">Memoriza el orden en que se iluminan los cuatro niveles de análisis y repítelo. Cada ronda añade un paso. <b>Azul=Denotación · Rojo=Connotación · Verde=Sintagma · Ámbar=Paradigma.</b></p>
+    <div class="simon-grid my-3">
+      <button class="simon-btn s-den" data-s="0" onclick="simonTap(0)">Denotación</button>
+      <button class="simon-btn s-con" data-s="1" onclick="simonTap(1)">Connotación</button>
+      <button class="simon-btn s-sin" data-s="2" onclick="simonTap(2)">Sintagma</button>
+      <button class="simon-btn s-par" data-s="3" onclick="simonTap(3)">Paradigma</button>
+    </div>
+    <div class="mb-2 fw-bold text-idc-azul">Ronda: <span id="simon-round">0</span></div>
+    <button class="btn-idc" id="simon-start" onclick="simonStart()">▶ Iniciar secuencia</button>
+    <div class="small text-idc-gris1 mt-2" id="simon-msg"></div>
+  </div>
+</section>
+
+<!-- ===================== TABLERO ===================== -->
+<section class="section" id="tablero">
+  <div class="panel p-4 p-md-5">
+    <span class="phase-chip mb-2">Fase P · Práctica · Carrera semiótica</span>
+    <h2 class="display-serif text-idc-azul">El Recorrido del Signo</h2>
+    <p style="color:var(--muted)">Lanza el dado y avanza. Cada casilla te reta con una pregunta de su categoría. Aciertas → avanzas. Fallas → refuerzo y te quedas. Llega a la <b>Meta</b>.</p>
+    <div class="d-flex align-items-center gap-3 mb-3 flex-wrap">
+      <button class="btn-amber" id="dice-btn" onclick="tirarDado()">🎲 Lanzar dado</button>
+      <div class="fs-3" id="dice-face">—</div>
+      <div class="small text-idc-gris1">Casilla <b id="board-pos">0</b>/20</div>
+      <div class="prog flex-grow-1" style="min-width:120px"><span id="board-prog" style="width:0%"></span></div>
+    </div>
+    <div class="board" id="board"></div>
+  </div>
+</section>
+
+<!-- ===================== FICHA + EXPORTACIÓN ===================== -->
+<section class="section" id="ficha">
+  <div class="panel p-4 p-md-5" id="print-ficha">
+    <span class="phase-chip mb-2 no-print">Fase P · Práctica · Análisis aplicado</span>
+    <h2 class="display-serif text-idc-azul">Ficha de Análisis Semiótico Visual</h2>
+    <p style="color:var(--muted)" class="no-print">Analiza una pieza publicitaria asignada y completa las 6 dimensiones. Luego genera tu <b>Informe Semiótico</b> en PDF o Markdown y envíalo a tu equipo.</p>
+
+    <div class="mb-3 no-print">
+      <label class="small fw-bold text-idc-azul">Pieza asignada</label>
+      <select class="form-control" id="fi-pieza">
+        <option>Afiche "PAPEL" — campaña contra el bullying (parada de autobús)</option>
+        <option>Domino's Pizza — "Súper Promoción" (valla urbana)</option>
+        <option>RE/MAX — "Se Vende" casa Los Olivos (pieza inmobiliaria)</option>
+        <option>Otra pieza (indicar en el análisis)</option>
+      </select>
+    </div>
+
+    <div class="row g-3">
+      <div class="col-12"><label class="small fw-bold text-idc-azul">1 · Identificación del signo principal</label>
+        <textarea class="form-control" id="fi1" rows="2" placeholder="¿Cuál es el significante visual dominante? ¿Cuál es su significado inmediato?"></textarea></div>
+      <div class="col-md-6"><label class="small fw-bold text-idc-azul">2 · Nivel denotativo</label>
+        <textarea class="form-control" id="fi2" rows="3" placeholder="Describe literalmente lo que se ve, sin interpretar."></textarea></div>
+      <div class="col-md-6"><label class="small fw-bold text-idc-azul">3 · Nivel connotativo</label>
+        <textarea class="form-control" id="fi3" rows="3" placeholder="¿Qué valores, ideas o emociones evoca? ¿A qué cultura apela?"></textarea></div>
+      <div class="col-md-6"><label class="small fw-bold text-idc-azul">4 · Operación sintagmática</label>
+        <textarea class="form-control" id="fi4" rows="3" placeholder="¿Cómo se relacionan los signos presentes? (composición, jerarquía, proximidad)"></textarea></div>
+      <div class="col-md-6"><label class="small fw-bold text-idc-azul">5 · Operación paradigmática</label>
+        <textarea class="form-control" id="fi5" rows="3" placeholder="¿Qué alternativas pudieron ocupar su lugar? ¿Por qué se eligieron estos signos?"></textarea></div>
+      <div class="col-12"><label class="small fw-bold text-idc-azul">6 · Intención comunicativa</label>
+        <textarea class="form-control" id="fi6" rows="2" placeholder="¿El diseño controla la connotación intencionalmente? ¿Cómo?"></textarea></div>
+    </div>
+
+    <div class="d-flex gap-2 flex-wrap mt-4 no-print">
+      <button class="btn-idc" onclick="generarPDF()">📥 Generar PDF</button>
+      <button class="btn-amber" onclick="generarMarkdown()">📄 Generar Markdown (.md)</button>
+      <button class="btn-ghost" onclick="enviarCorreos()">📧 Enviar a miembros</button>
+    </div>
+    <div class="small text-idc-gris1 mt-2 no-print">El PDF se genera con el diálogo de impresión (Guardar como PDF). El envío usa tu cliente de correo con el informe incluido.</div>
+  </div>
+</section>
+
+<!-- ===================== SALA DE EXPOSICIÓN (C) ===================== -->
+<section class="section" id="sala">
+  <div class="panel p-4 p-md-5">
+    <span class="phase-chip mb-2">Fase C · Cierre · Puesta en común</span>
+    <h2 class="display-serif text-idc-azul">Sala de Exposición</h2>
+    <p style="color:var(--muted)">Publica tu hallazgo semiótico más revelador. La comunidad puede reaccionar. (Los aportes viven en esta sesión.)</p>
+    <div class="soft-card p-3 mb-4">
+      <input class="form-control mb-2" id="sala-autor" placeholder="Tu nombre o equipo">
+      <textarea class="form-control mb-2" id="sala-texto" rows="3" placeholder="Ej.: En el afiche PAPEL, las siluetas denotan cuatro adolescentes; connotan la exclusión y el acoso escolar…"></textarea>
+      <button class="btn-idc" onclick="publicar()">📤 Publicar hallazgo</button>
+    </div>
+    <div id="sala-lista"></div>
+  </div>
+</section>
+
+<!-- ===================== LOGROS + JUSTIFICACIÓN (C) ===================== -->
+<section class="section" id="logros">
+  <div class="panel p-4 p-md-5">
+    <span class="phase-chip mb-2">Fase C · Cierre · Recompensas y metacognición</span>
+    <h2 class="display-serif text-idc-azul">Sala de Trofeos</h2>
+    <div class="d-flex gap-4 flex-wrap align-items-center mb-4">
+      <div class="text-center"><div class="display-serif text-idc-amarillo" style="font-size:2.4rem" id="l-pts">0</div><div class="small text-idc-gris1">Puntos XP</div></div>
+      <div class="text-center"><div class="display-serif text-idc-azul" style="font-size:2.4rem" id="l-lvl">1</div><div class="small text-idc-gris1">Nivel</div></div>
+      <div class="text-center"><div class="display-serif" style="font-size:2.4rem;color:var(--ok)" id="l-badges">0</div><div class="small text-idc-gris1">Insignias</div></div>
+    </div>
+    <div class="d-flex gap-3 flex-wrap justify-content-center mb-4" id="badge-wall"></div>
+
+    <!-- Cierre metacognitivo -->
+    <div class="soft-card p-4 mb-4">
+      <h3 class="h5 serif-it text-idc-azul">🎓 Ticket de salida · Dos hallazgos y una duda</h3>
+      <textarea class="form-control mb-2" id="meta-h1" rows="1" placeholder="Hallazgo 1: hoy comprendí que…"></textarea>
+      <textarea class="form-control mb-2" id="meta-h2" rows="1" placeholder="Hallazgo 2: aplicaré esto cuando…"></textarea>
+      <textarea class="form-control mb-2" id="meta-d1" rows="1" placeholder="Mi duda / lo que quiero seguir explorando…"></textarea>
+      <button class="btn-amber" onclick="cerrarMeta()">✅ Cerrar mi misión</button>
+    </div>
+
+    <!-- Justificación docente -->
+    <details class="soft-card p-4">
+      <summary class="fw-bold text-idc-azul" style="cursor:pointer">📚 Justificación pedagógica (para el docente)</summary>
+      <div class="mt-3" style="color:var(--muted);font-size:.95rem">
+        <p>Esta actividad adopta el enfoque <b>DUA-Experiencial</b>: ofrece múltiples formas de <b>implicación</b> (misión narrativa, retos variados, recompensas),
+        <b>representación</b> (piezas visuales, definiciones interactivas, texto y color pedagógico) y <b>acción/expresión</b> (selección, anagrama, arrastre, decisión en simulador, escritura breve).</p>
+        <p>Se recorre el <b>ciclo experiencial</b> (Kolb): experiencia concreta en la Trivia y el Simulador → observación reflexiva en el feedback → conceptualización en las ventanas de refuerzo (Saussure, Barthes) → experimentación activa en la Ficha y la Sala de Exposición. La secuencia respeta el modelo <b>IUTPC</b> (Inicio, Utilidad, Transformación, Práctica, Cierre) y nunca presenta la definición antes de la experiencia.</p>
+        <p class="mb-0">El <b>error es productivo</b>: cada fallo abre un panel de cinco componentes (Pausa → Pista → Dato → Contexto → Reintento) sin castigo terminal, garantizando seguridad psicológica y refuerzo positivo constante para la memoria de largo plazo.</p>
+      </div>
+    </details>
+  </div>
+</section>
+
+</main>
+
+<!-- ===================== FOOTER ===================== -->
+<footer class="footer-idc py-4 mt-4">
+  <div class="container-xl text-center" style="max-width:1000px">
+    <div class="d-flex align-items-center justify-content-center gap-2 mb-2">
+      <span class="logo-idc" style="font-size:1.3rem;color:#f3a100">IDC</span>
+      <span class="opacity-75" style="font-size:.85rem">Instituto de Diseño y Comunicación</span>
+    </div>
+    <div class="fw-bold">Docente: Mg. Mario Quiroz Martínez &nbsp;|&nbsp; Curso: Semiótica de la Imagen · 2026 · Semana 1</div>
+    <div class="small opacity-75 mt-1">Unidad didáctica: Investigación e Innovación Tecnológica</div>
+    <div class="small opacity-50 mt-2">Semiotics PlayLab · PWA educativa · Enfoque DUA-Experiencial</div>
+  </div>
+</footer>
+
+<!-- HUD -->
+<div class="hud">
+  <div class="chip pts">⭐ <span id="hud-pts">0</span> XP</div>
+  <div class="chip lvl">🎖️ Nvl <span id="hud-lvl">1</span></div>
+</div>
+
+<!-- FEEDBACK MODAL -->
+<div class="fb-back" id="fb-back">
+  <div class="fb-card">
+    <div class="fb-head" id="fb-head"><span class="fb-emoji" id="fb-emoji">🎉</span><span id="fb-title">Título</span></div>
+    <div class="fb-body" id="fb-body"></div>
+    <div class="p-3 pt-0 text-end"><button class="btn-idc" onclick="closeFb()" id="fb-btn">Continuar</button></div>
+  </div>
+</div>
+
+<!-- Tooltip de términos -->
+<div id="term-pop" style="position:fixed;z-index:2200;max-width:280px;display:none" class="panel p-3 small"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+/* ============================================================
+   ESTADO GLOBAL (100% en memoria — sin localStorage)
+   ============================================================ */
+const STATE = {
+  pts:0, lvl:1, badges:new Set(),
+  modo:null, team:[], teamName:"", ind:{},
+  done:{quiz:false, anagrama:false, memoria:false, simulador:false, simon:false, tablero:false, ficha:false, sala:false, meta:false},
+  posts:[]
+};
+const BADGES = [
+  {id:'quiz',   icon:'🧠', name:'Ojo Analítico'},
+  {id:'anagrama',icon:'🔤', name:'Léxico de Élite'},
+  {id:'memoria',icon:'🃏', name:'Memoria Visual'},
+  {id:'simulador',icon:'🧪', name:'Director de Arte'},
+  {id:'simon',  icon:'🎨', name:'Ritmo del Signo'},
+  {id:'tablero',icon:'🏁', name:'Maratón Semiótico'},
+  {id:'ficha',  icon:'📝', name:'Analista Certificado'},
+  {id:'meta',   icon:'🎓', name:'Metacognición'}
+];
+
+function addPts(n){
+  STATE.pts += n;
+  const newLvl = Math.floor(STATE.pts/100)+1;
+  if(newLvl>STATE.lvl){ STATE.lvl=newLvl; toast(`¡Subiste al Nivel ${newLvl}! 🎖️`); }
+  refreshHUD();
+}
+function refreshHUD(){
+  hud_pts.textContent=STATE.pts; hud_lvl.textContent=STATE.lvl;
+  l_pts.textContent=STATE.pts; l_lvl.textContent=STATE.lvl; l_badges.textContent=STATE.badges.size;
+  const total=Object.keys(STATE.done).length;
+  const done=Object.values(STATE.done).filter(Boolean).length;
+  globalProg.style.width=Math.round(done/total*100)+'%';
+  renderBadges();
+}
+function earn(id){
+  if(STATE.badges.has(id)) return;
+  STATE.badges.add(id);
+  const b=BADGES.find(x=>x.id===id);
+  if(b) toast(`Insignia desbloqueada: ${b.icon} ${b.name}`);
+  refreshHUD();
+}
+function renderBadges(){
+  badge_wall.innerHTML = BADGES.map(b=>`
+    <div class="badge-idc ${STATE.badges.has(b.id)?'earned':''}">
+      <div class="badge-medal">${b.icon}</div><small>${b.name}</small>
+    </div>`).join('');
+}
+const $ = id => document.getElementById(id);
+const hud_pts=$('hud-pts'), hud_lvl=$('hud-lvl'), l_pts=$('l-pts'), l_lvl=$('l-lvl'),
+      l_badges=$('l-badges'), globalProg=$('globalProg'), badge_wall=$('badge-wall');
+
+/* ============================================================
+   NAVEGACIÓN
+   ============================================================ */
+function go(id){
+  document.querySelectorAll('.section').forEach(s=>s.classList.toggle('active', s.id===id));
+  document.querySelectorAll('.nav-pill').forEach(p=>p.classList.toggle('active', p.dataset.go===id));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+document.addEventListener('click', e=>{
+  const t=e.target.closest('[data-go]');
+  if(t){ go(t.dataset.go); }
+});
+
+/* ============================================================
+   VENTANA DE FEEDBACK (Pausa→Pista→Dato→Contexto→Reintento)
+   ============================================================ */
+let fbAfter=null;
+function feedback({ok, title, emoji, rows, btn='Continuar', after=null}){
+  fb_head.className='fb-head '+(ok?'ok':'err');
+  $('fb-emoji').textContent = emoji || (ok?'🎉':'💡');
+  $('fb-title').textContent = title || (ok?'¡Correcto!':'Aún no…');
+  $('fb-body').innerHTML = rows.map(r=>`<div class="fb-row"><span class="fb-emoji">${r.i}</span><div>${r.t}</div></div>`).join('');
+  $('fb-btn').textContent = btn;
+  fbAfter = after;
+  fb_back.classList.add('show');
+  if(ok) burst();
+}
+function closeFb(){ fb_back.classList.remove('show'); if(fbAfter){const f=fbAfter; fbAfter=null; f();} }
+const fb_back=$('fb-back'), fb_head=$('fb-head');
+fb_back.addEventListener('click',e=>{ if(e.target===fb_back) closeFb(); });
+
+function toast(msg){
+  const t=document.createElement('div');
+  t.textContent=msg;
+  t.style.cssText='position:fixed;left:50%;bottom:80px;transform:translateX(-50%);z-index:2300;background:rgba(58,53,80,.94);color:#fff;padding:.6rem 1.1rem;border-radius:999px;font-family:Lora,serif;font-weight:600;box-shadow:0 10px 30px rgba(0,0,0,.3);animation:fadein .3s';
+  document.body.appendChild(t);
+  setTimeout(()=>{t.style.transition='.5s';t.style.opacity='0';t.style.transform='translateX(-50%) translateY(10px)';},1800);
+  setTimeout(()=>t.remove(),2400);
+}
+function burst(){
+  const colors=['#f3a100','#0072b9','#cdb4db','#a2d2ff','#ffc9a9','#2f9e6b'];
+  for(let i=0;i<40;i++){
+    const c=document.createElement('div'); c.className='confetti';
+    c.style.left=Math.random()*100+'vw';
+    c.style.background=colors[i%colors.length];
+    c.style.transform=`rotate(${Math.random()*360}deg)`;
+    const dur=1.6+Math.random()*1.4;
+    c.animate([{transform:`translateY(0) rotate(0)`,opacity:1},{transform:`translateY(105vh) rotate(${720*Math.random()}deg)`,opacity:.6}],{duration:dur*1000,easing:'cubic-bezier(.2,.6,.4,1)'});
+    document.body.appendChild(c); setTimeout(()=>c.remove(),dur*1000);
+  }
+}
+
+/* ============================================================
+   TÉRMINOS (tooltip educativo)
+   ============================================================ */
+const TERMS={
+  den:'<b>Denotación</b> (Barthes): el significado literal y objetivo — lo que una cámara registraría sin interpretar.',
+  con:'<b>Connotación</b> (Barthes): el segundo nivel de sentido; valores culturales, ideológicos y emocionales asociados a la imagen.',
+  sin:'<b>Sintagma</b> (Saussure): la combinación de signos presentes que se relacionan entre sí en la composición.',
+  par:'<b>Paradigma</b> (Saussure): el conjunto de alternativas ausentes; elegir un signo implica descartar otros.'
+};
+const termPop=$('term-pop');
+document.querySelectorAll('.term-tip').forEach(el=>{
+  const show=e=>{termPop.innerHTML=TERMS[el.dataset.t]; termPop.style.display='block';
+    const r=el.getBoundingClientRect(); termPop.style.left=Math.min(r.left,window.innerWidth-300)+'px';
+    termPop.style.top=(r.bottom+8)+'px';};
+  el.addEventListener('mouseenter',show); el.addEventListener('click',show);
+  el.addEventListener('mouseleave',()=>termPop.style.display='none');
+});
+document.addEventListener('click',e=>{ if(!e.target.closest('.term-tip')) termPop.style.display='none'; });
+
+/* ============================================================
+   REGISTRO
+   ============================================================ */
+(function buildTeamRows(){
+  let h='';
+  for(let i=1;i<=4;i++){
+    h+=`<tr><td class="fw-bold text-idc-azul">${i}</td>
+      <td><input class="form-control form-control-sm" id="tn${i}" placeholder="Nombres"></td>
+      <td><input class="form-control form-control-sm" id="ta${i}" placeholder="Apellidos"></td>
+      <td><input class="form-control form-control-sm" id="te${i}" placeholder="correo@ejemplo.com"></td></tr>`;
+  }
+  $('team-rows').innerHTML=h;
+})();
+function toggleModo(modo){
+  STATE.modo=modo;
+  $('registro-grupal').style.display = modo==='grupal'?'block':'none';
+  $('registro-individual').style.display = modo==='individual'?'block':'none';
+  $('btn-grupal').disabled = modo==='grupal';
+  $('btn-individual').disabled = modo==='individual';
+  $('btn-grupal').style.opacity = modo==='grupal'?'.5':'1';
+  $('btn-individual').style.opacity = modo==='individual'?'.5':'1';
+}
+function guardarRegistro(){
+  if(!STATE.modo){ toast('Elige primero un modo: Equipo o Individual'); return; }
+  if(STATE.modo==='grupal'){
+    STATE.teamName = $('team-name').value.trim();
+    STATE.team=[];
+    for(let i=1;i<=4;i++){
+      const n=$('tn'+i).value.trim(), a=$('ta'+i).value.trim(), e=$('te'+i).value.trim();
+      if(n||a||e) STATE.team.push({n,a,e});
+    }
+    if(STATE.team.length<2){ toast('Un equipo necesita al menos 2 integrantes'); return; }
+    $('reg-status').textContent=`✅ Equipo "${STATE.teamName||'sin nombre'}" registrado con ${STATE.team.length} agentes.`;
+  }else{
+    STATE.ind={n:$('ind-nombres').value.trim(), a:$('ind-apellidos').value.trim(), e:$('ind-correo').value.trim()};
+    if(!STATE.ind.n){ toast('Ingresa al menos tu nombre'); return; }
+    $('reg-status').textContent=`✅ Agente ${STATE.ind.n} ${STATE.ind.a} listo para la misión.`;
+  }
+  addPts(10);
+  feedback({ok:true,title:'¡Misión aceptada!',emoji:'🚀',
+    rows:[{i:'🎯',t:'Tu escuadrón quedó registrado. La barra de progreso IUTPC ya corre.'},
+          {i:'➡️',t:'Siguiente parada: la <b>Trivia</b>. Descifra tu primer signo.'}],
+    after:()=>go('quiz')});
+}
+
+/* ============================================================
+   TRIVIA / QUIZ
+   ============================================================ */
+const QUIZ=[
+ {piece:'papel', q:'En el afiche <b>PAPEL</b> aparecen cuatro siluetas de adolescentes. ¿Qué corresponde al <b>nivel denotativo</b>?',
+  opts:['Cuatro figuras juveniles: tres de pie y una agachada recogiendo algo','La exclusión y el acoso escolar entre pares','La vulnerabilidad de la víctima frente al grupo'],
+  correct:0,
+  okDato:'La denotación es la primera capa: lo que la cámara ve, sin interpretar.',
+  okCtx:'Aquí: cuatro siluetas y una figura agachada. Eso es lo denotado.',
+  errPista:'No busques lo que la imagen *significa*, sino lo que *muestra* objetivamente.',
+  errDato:'La denotación se reconoce porque puede describirse sin juicios ni valores.',
+  errCtx:'"Exclusión" y "vulnerabilidad" son interpretaciones → eso es connotación.'},
+
+ {piece:'papel', q:'La escena del afiche PAPEL evoca <b>aislamiento y acoso</b>. ¿Qué operación semiótica es esto?',
+  opts:['Denotación','Connotación','Significante'],
+  correct:1,
+  okDato:'La connotación (Barthes) es el segundo nivel: valores culturales y emocionales.',
+  okCtx:'La postura agachada + el grupo alrededor connotan sumisión y bullying.',
+  errPista:'¿Es solo lo que se ve, o el sentido cultural que despierta?',
+  errDato:'Cuando la imagen "apela a emociones o ideas", operas en el nivel connotativo.',
+  errCtx:'Aislamiento y acoso no se ven literalmente: se interpretan → connotación.'},
+
+ {piece:'domino', q:'En la valla de <b>Domino\'s</b>, la relación entre la pizza gigante, el precio "S/.16.90" y el titular "SÚPER PROMO". ¿Qué operación describe cómo se combinan estos signos co-presentes?',
+  opts:['Operación paradigmática','Operación sintagmática','Nivel denotativo'],
+  correct:1,
+  okDato:'El sintagma es la combinación de los signos *presentes* en la pieza.',
+  okCtx:'Imagen + precio + titular + logo forman un sintagma visual jerarquizado.',
+  errPista:'¿Hablamos de lo que está combinado en la pieza, o de lo que se descartó?',
+  errDato:'Sintagma = eje de la combinación (lo presente). Paradigma = eje de la selección (lo ausente).',
+  errCtx:'Como los elementos conviven en la misma valla, es una relación sintagmática.'},
+
+ {piece:'domino', q:'El fondo <b>naranja intenso</b> de Domino\'s (en lugar de azul o verde). Elegir el naranja es una decisión…',
+  opts:['Sintagmática','Paradigmática','Denotativa'],
+  correct:1,
+  okDato:'El paradigma es el conjunto de alternativas ausentes; elegir implica descartar.',
+  okCtx:'Naranja se eligió frente a azul/verde por connotar apetito, calidez y urgencia.',
+  errPista:'Piensa en las opciones de color que NO se usaron.',
+  errDato:'Elegir un signo entre otros posibles del mismo tipo = operación paradigmática.',
+  errCtx:'El color presente es sintagma; la *elección* entre colores posibles es paradigma.'},
+
+ {piece:'remax', q:'En la pieza <b>RE/MAX</b>, la casa moderna con dos autos de alta gama en la cochera connota…',
+  opts:['Una vivienda de 160 m² en Los Olivos','Estatus, aspiración y éxito económico','El logo rojo, blanco y azul de la marca'],
+  correct:1,
+  okDato:'La connotación construye el "estilo de vida" que el comprador desea alcanzar.',
+  okCtx:'Los autos de lujo no se venden, pero connotan el estatus asociado al inmueble.',
+  errPista:'Distingue el dato objetivo (denotación) del valor aspiracional (connotación).',
+  errDato:'"160 m²" y "el logo" son denotativos; el *deseo de estatus* es connotativo.',
+  errCtx:'La connotación es el nivel donde la imagen vende un ideal, no solo un objeto.'},
+
+ {piece:'remax', q:'Según <b>Saussure</b>, en la palabra "VENDE" del afiche, la secuencia de letras que percibes es el…',
+  opts:['Significado','Significante','Referente'],
+  correct:1,
+  okDato:'El significante es la forma sensible del signo (imagen acústica o visual).',
+  okCtx:'"VENDE" como grafía = significante; la idea de transacción = significado.',
+  errPista:'¿Es la forma que percibes, o el concepto que evoca?',
+  errDato:'Significante = forma sensorial. Significado = concepto mental asociado.',
+  errCtx:'Lo que ves/oyes es el significante; lo que entiendes es el significado.'}
+];
+let qi=0, qAnswered=false;
+$('q-total').textContent=QUIZ.length;
+
+function adCard(piece){
+  if(piece==='papel') return `<div class="ad ad-papel"><div class="small fw-bold">¿Qué es el <span style="color:#d94e3a">BULLYING</span>? y cómo prevenirlo…</div>
+    <div style="display:flex;gap:6px;align-items:flex-end;justify-content:center;height:120px;margin:10px 0">
+      <div style="width:26px;height:96px;background:#0a3a5a;border-radius:40% 40% 0 0"></div>
+      <div style="width:24px;height:56px;background:#0a3a5a;border-radius:50% 50% 0 0;align-self:flex-end"></div>
+      <div style="width:26px;height:104px;background:#0a3a5a;border-radius:40% 40% 0 0"></div>
+      <div style="width:26px;height:112px;background:#0a3a5a;border-radius:40% 40% 0 0"></div></div>
+    <div class="text-center" style="font-family:'Playfair Display',serif;font-weight:900;font-size:2.4rem;color:#fff;text-shadow:0 2px 4px rgba(0,0,0,.2)">PAPEL</div>
+    <div class="text-center serif-it small">Inspirada en hechos reales</div></div>`;
+  if(piece==='domino') return `<div class="ad ad-domino">
+    <div style="font-family:'Playfair Display',serif;font-weight:900;font-size:1.9rem;line-height:1">SÚPER<br><span class="serif-it" style="font-weight:700">Promoción</span></div>
+    <div class="serif-it small">¡Ven por algo mejor!</div>
+    <div style="font-size:3.6rem;margin:6px 0">🍕</div>
+    <div class="fw-bold small">Pizza personal + 3 rolls + gaseosa</div>
+    <div style="font-family:'Playfair Display',serif;font-weight:900;font-size:1.8rem">S/. 16.90</div>
+    <div class="badge bg-dark mt-1">DELIVERY FREE</div></div>`;
+  return `<div class="ad ad-remax" style="padding:12px">
+    <div style="color:#d81e2c;font-family:'Playfair Display',serif;font-weight:900;font-size:1.6rem">RE/MAX</div>
+    <div style="font-size:2.6rem">🏠🚗🚙</div>
+    <div style="background:#000;color:#fff;padding:8px;border-radius:6px;margin-top:6px">
+      <div class="fw-bold">SE VENDE</div><div class="small">ÁREA: 160.00 M²</div></div>
+    <div class="small mt-1" style="color:#cdd6df">Los Olivos · financiamiento bancario</div></div>`;
+}
+function renderQuiz(){
+  qAnswered=false;
+  const item=QUIZ[qi];
+  $('q-idx').textContent=qi+1;
+  $('q-prog').style.width=Math.round((qi)/QUIZ.length*100)+'%';
+  $('quiz-area').innerHTML=`
+    <div class="row g-4 align-items-center">
+      <div class="col-sm-5">${adCard(item.piece)}</div>
+      <div class="col-sm-7">
+        <p class="fs-5 serif-it text-idc-gris1 mb-3">${item.q}</p>
+        <div id="opts"></div>
+      </div>
+    </div>`;
+  const wrap=$('opts');
+  item.opts.forEach((o,idx)=>{
+    const b=document.createElement('button');
+    b.className='opt'; b.innerHTML=o;
+    b.onclick=()=>answerQuiz(idx,b);
+    wrap.appendChild(b);
+  });
+}
+function answerQuiz(idx,btn){
+  if(qAnswered) return; qAnswered=true;
+  const item=QUIZ[qi], ok=idx===item.correct;
+  const btns=[...document.querySelectorAll('#opts .opt')];
+  btns.forEach((b,i)=>{ b.disabled=true; if(i===item.correct) b.classList.add('correct'); });
+  if(!ok) btn.classList.add('wrong');
+  if(ok){
+    addPts(15);
+    feedback({ok:true,title:'¡Análisis correcto!',emoji:'🎉',
+      rows:[{i:'🧠',t:`<b>Correcto:</b> lo lograste porque reconociste la <i>función</i> del signo en su contexto.`},
+            {i:'📖',t:item.okDato},{i:'🖼️',t:`<b>En la pieza:</b> ${item.okCtx}`}],
+      after:nextQuiz});
+  }else{
+    feedback({ok:false,title:'Aún no… buen intento',emoji:'💡',
+      rows:[{i:'⏸️',t:'<b>Pausa:</b> observa de nuevo la pieza antes de decidir.'},
+            {i:'🔎',t:`<b>Pista:</b> ${item.errPista}`},
+            {i:'📌',t:`<b>Dato clave:</b> ${item.errDato}`},
+            {i:'🎬',t:`<b>Contexto:</b> ${item.errCtx}`},
+            {i:'↩️',t:'<b>Reintento:</b> ya marcamos la respuesta correcta en verde. ¡Sigamos!'}],
+      after:nextQuiz});
+  }
+}
+function nextQuiz(){
+  qi++;
+  if(qi<QUIZ.length){ renderQuiz(); }
+  else{
+    $('quiz-area').style.display='none';
+    $('q-prog').style.width='100%';
+    STATE.done.quiz=true; earn('quiz'); refreshHUD();
+    $('quiz-end').style.display='block';
+    $('quiz-end').innerHTML=`<div class="fs-1">🏆</div>
+      <h3 class="serif-it text-idc-azul">¡Trivia superada!</h3>
+      <p style="color:var(--muted)">Dominaste denotación, connotación, sintagma, paradigma y el signo de Saussure.</p>
+      <button class="btn-idc" data-go="anagrama">Siguiente reto: Anagrama →</button>
+      <button class="btn-ghost" onclick="restartQuiz()">↺ Repetir trivia</button>`;
+  }
+}
+function restartQuiz(){ qi=0; $('quiz-area').style.display='block'; $('quiz-end').style.display='none'; renderQuiz(); }
+renderQuiz();
+
+/* ============================================================
+   ANAGRAMA CONCEPTUAL
+   ============================================================ */
+const ANAS=[
+ {w:'CONNOTACION', hint:'Segundo nivel de sentido según Barthes: valores culturales e ideológicos de la imagen.', tip:'Empieza con "CON" y termina en "CION".',
+  def:'Ideas, emociones y valores que la imagen sugiere más allá de lo literal.'},
+ {w:'SINTAGMA', hint:'Combinación de los signos presentes que se relacionan entre sí en la composición.', tip:'8 letras; eje de la combinación.',
+  def:'La cadena de signos co-presentes: imagen + texto + logo forman uno.'},
+ {w:'PARADIGMA', hint:'Conjunto de alternativas ausentes entre las que se elige un signo.', tip:'Eje de la selección; 9 letras.',
+  def:'Elegir el naranja implica descartar azul, verde… eso es paradigma.'},
+ {w:'SIGNIFICANTE', hint:'Según Saussure, la forma sensible del signo (imagen acústica o visual).', tip:'La forma, no el concepto.',
+  def:'La grafía "VENDE" o el sonido: la cara perceptible del signo.'},
+ {w:'DENOTACION', hint:'Primer nivel de sentido: lo literal, lo que la cámara registra sin interpretar.', tip:'Lo objetivo; opuesto a connotación.',
+  def:'Descripción literal de la imagen, sin juicios ni valores.'}
+];
+let aIdx=0, aSlots=[], aHintUsed=false;
+$('ana-total').textContent=ANAS.length;
+function shuffle(arr){ const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+function loadAna(){
+  const item=ANAS[aIdx];
+  $('ana-idx').textContent=aIdx+1;
+  $('ana-hint').textContent=item.hint;
+  aSlots=Array(item.w.length).fill(null);
+  aHintUsed=false;
+  renderAna();
+}
+function renderAna(){
+  const item=ANAS[aIdx];
+  $('ana-slots').innerHTML=aSlots.map((c,i)=>`<div class="slot" onclick="anaRemove(${i})">${c!==null?item.w[c]:''}</div>`).join('');
+  const usedSet=new Set(aSlots.filter(x=>x!==null));
+  if(!renderAna.order || renderAna.forWord!==item.w){
+    // fixed shuffled order of letter indices for this word
+    let idxs=item.w.split('').map((_,i)=>i);
+    renderAna.order=shuffle(idxs); renderAna.forWord=item.w;
+  }
+  $('ana-tiles').innerHTML=renderAna.order.map(oi=>
+    `<div class="tile ${usedSet.has(oi)?'used':''}" onclick="anaPlace(${oi})">${item.w[oi]}</div>`).join('');
+}
+function anaPlace(letterIdx){
+  const empty=aSlots.indexOf(null);
+  if(empty===-1) return;
+  aSlots[empty]=letterIdx;
+  renderAna();
+}
+function anaRemove(slotIdx){
+  if(aSlots[slotIdx]===null) return;
+  aSlots[slotIdx]=null;
+  renderAna();
+}
+function anaReset(){ aSlots=Array(ANAS[aIdx].w.length).fill(null); renderAna(); }
+function anaHint(){
+  aHintUsed=true;
+  toast('💡 '+ANAS[aIdx].tip);
+}
+function anaCheck(){
+  const item=ANAS[aIdx];
+  if(aSlots.includes(null)){ toast('Completa todos los espacios primero'); return; }
+  const built=aSlots.map(i=>item.w[i]).join('');
+  if(built===item.w){
+    addPts(aHintUsed?15:25);
+    feedback({ok:true,title:'¡Palabra descifrada!',emoji:'🔤',
+      rows:[{i:'✅',t:`<b>${item.w}</b> — no solo la recordaste, la reconstruiste.`},
+            {i:'📖',t:item.def},
+            {i:'💬',t:'El vocabulario técnico se fija con la práctica activa, no con la lectura pasiva.'}],
+      after:nextAna});
+  }else{
+    feedback({ok:false,title:'Casi… revisa el orden',emoji:'💡',
+      rows:[{i:'⏸️',t:'<b>Pausa:</b> compara letra por letra con la pista.'},
+            {i:'🔎',t:`<b>Pista:</b> ${item.tip}`},
+            {i:'📌',t:'<b>Dato:</b> el concepto tiene una sola grafía correcta en español.'},
+            {i:'↩️',t:'<b>Reintento:</b> usa "Reiniciar palabra" y prueba de nuevo, sin castigo.'}]});
+  }
+}
+function nextAna(){
+  aIdx++;
+  if(aIdx<ANAS.length){ loadAna(); }
+  else{
+    STATE.done.anagrama=true; earn('anagrama'); refreshHUD();
+    feedback({ok:true,title:'¡Léxico de Élite!',emoji:'🏅',
+      rows:[{i:'🎉',t:'Reconstruiste los cinco conceptos centrales de la semiótica visual.'},
+            {i:'➡️',t:'Te espera el reto de <b>Memoria</b>.'}],
+      after:()=>{aIdx=0; loadAna(); go('memoria');}});
+  }
+}
+loadAna();
+
+/* ============================================================
+   MEMORIA (parejas concepto ↔ ejemplo)
+   ============================================================ */
+const MEM_PAIRS=[
+ {k:'DEN', a:'Denotación', b:'"Un león" en un logo', exp:'Denotación = lo literal: un animal salvaje, sin interpretación.'},
+ {k:'CON', a:'Connotación', b:'Perfume = lujo y deseo', exp:'Connotación = valores culturales; el perfume evoca sofisticación.'},
+ {k:'SIN', a:'Sintagma', b:'Semáforo: rojo junto a verde', exp:'Sintagma = signos co-presentes que se relacionan en la cadena.'},
+ {k:'PAR', a:'Paradigma', b:'Elegir rojo, no azul', exp:'Paradigma = selección entre alternativas ausentes.'},
+ {k:'SFE', a:'Significante', b:'La palabra "ROJO"', exp:'Significante = la forma sensorial (la grafía o el sonido).'},
+ {k:'MIT', a:'Mito (Barthes)', b:'Soldado de Paris Match', exp:'El soldado saludando connota la grandeza del imperio: un mito.'}
+];
+let memFlip=[], memLock=false, memMatched=0, memCombo=1, memTries=0;
+function initMemory(){
+  memFlip=[]; memLock=false; memMatched=0; memCombo=1; memTries=0;
+  $('mem-pairs').textContent='0'; $('mem-combo').textContent='1'; $('mem-tries').textContent='0';
+  let cards=[];
+  MEM_PAIRS.forEach(p=>{ cards.push({k:p.k,face:p.a,type:'a',exp:p.exp}); cards.push({k:p.k,face:p.b,type:'b',exp:p.exp}); });
+  cards=shuffle(cards);
+  $('mem-grid').innerHTML=cards.map((c,i)=>`
+    <div class="mcard" data-k="${c.k}" data-i="${i}" onclick="flipCard(${i})">
+      <div class="mcard-inner">
+        <div class="mface mfront">?</div>
+        <div class="mface mback">${c.face}</div>
+      </div></div>`).join('');
+  memCards=cards;
+}
+let memCards=[];
+function flipCard(i){
+  if(memLock) return;
+  const el=document.querySelector(`.mcard[data-i="${i}"]`);
+  if(el.classList.contains('flip')||el.classList.contains('matched')) return;
+  el.classList.add('flip');
+  memFlip.push(i);
+  if(memFlip.length===2){
+    memLock=true; memTries++; $('mem-tries').textContent=memTries;
+    const [a,b]=memFlip;
+    const ca=memCards[a], cb=memCards[b];
+    if(ca.k===cb.k && ca.type!==cb.type){
+      setTimeout(()=>{
+        document.querySelector(`.mcard[data-i="${a}"]`).classList.add('matched');
+        document.querySelector(`.mcard[data-i="${b}"]`).classList.add('matched');
+        memMatched++; $('mem-pairs').textContent=memMatched;
+        addPts(10*memCombo);
+        memFlip=[]; memLock=false;
+        feedback({ok:true,title:'¡Pareja encontrada!',emoji:'🃏',
+          rows:[{i:'✅',t:`<b>${ca.k==='DEN'?'Denotación':''}</b> ${ca.exp}`},
+                {i:'🔥',t:`Combo ×${memCombo} — ganaste ${10*memCombo} XP.`}],
+          after:()=>{ memCombo++; $('mem-combo').textContent=memCombo;
+            if(memMatched===MEM_PAIRS.length){ STATE.done.memoria=true; earn('memoria'); refreshHUD();
+              setTimeout(()=>feedback({ok:true,title:'¡Memoria Visual perfecta!',emoji:'🏅',
+                rows:[{i:'🎉',t:'Emparejaste los 6 conceptos con sus ejemplos.'},
+                      {i:'➡️',t:'Prueba el <b>Simulador</b> paradigmático.'}],after:()=>go('simulador')}),400);
+            }}});
+      },550);
+    }else{
+      memCombo=1; $('mem-combo').textContent='1';
+      setTimeout(()=>{
+        document.querySelector(`.mcard[data-i="${a}"]`).classList.remove('flip');
+        document.querySelector(`.mcard[data-i="${b}"]`).classList.remove('flip');
+        memFlip=[]; memLock=false;
+      },900);
+    }
+  }
+}
+initMemory();
+
+/* ============================================================
+   SIMULADOR PARADIGMÁTICO
+   ============================================================ */
+const SIM={
+  color:[{v:'naranja',bg:'linear-gradient(155deg,#ff8a12,#ff6a00)',con:'apetito, calidez, urgencia', score:{apetito:2}},
+         {v:'azul',bg:'linear-gradient(155deg,#2b6cb0,#1a4b85)',con:'confianza y frescura, pero enfría el apetito', score:{apetito:-1}},
+         {v:'negro',bg:'linear-gradient(155deg,#1a1a1a,#333)',con:'lujo y exclusividad — poco popular para fast-food', score:{lujo:2,apetito:-1}}],
+  type:[{v:'manuscrita',con:'cercanía, artesanal, "hecho con cariño"', score:{cercania:2}},
+        {v:'de palo (bold)',con:'impacto, oferta agresiva, precio protagonista', score:{oferta:2}},
+        {v:'serif elegante',con:'tradición y estatus, ritmo pausado', score:{lujo:2,oferta:-1}}],
+  frame:[{v:'primer plano jugoso',con:'deseo inmediato, "food porn"', score:{apetito:2}},
+         {v:'plano general con contexto',con:'estilo de vida, aspiración', score:{estilo:2,apetito:-1}},
+         {v:'producto pequeño + precio grande',con:'la oferta manda sobre el producto', score:{oferta:2}}]
+};
+let simSel={color:0,type:0,frame:0};
+function buildSim(){
+  ['color','type','frame'].forEach(cat=>{
+    $('sim-'+cat).innerHTML=SIM[cat].map((o,i)=>
+      `<button class="opt ${simSel[cat]===i?'correct':''}" style="width:auto;margin:0;padding:.4rem .8rem" onclick="simPick('${cat}',${i})">${o.v}</button>`).join('');
+  });
+  const c=SIM.color[simSel.color];
+  $('sim-preview').style.background=c.bg;
+}
+function simPick(cat,i){ simSel[cat]=i; buildSim(); $('sim-read').innerHTML='Connotación actual: <b>ajústala y analiza</b>'; }
+function simEvaluar(){
+  const c=SIM.color[simSel.color], t=SIM.type[simSel.type], f=SIM.frame[simSel.frame];
+  const tally={};
+  [c,t,f].forEach(o=>{ for(const k in o.score) tally[k]=(tally[k]||0)+o.score[k]; });
+  let dom='', max=-99;
+  for(const k in tally){ if(tally[k]>max){max=tally[k];dom=k;} }
+  const map={apetito:'🍕 Deseo / apetito inmediato',oferta:'🏷️ Oferta agresiva (precio manda)',lujo:'💎 Lujo y exclusividad',cercania:'🤝 Cercanía artesanal',estilo:'🌆 Estilo de vida aspiracional'};
+  $('sim-read').innerHTML='Connotación dominante: <b>'+(map[dom]||'mixta')+'</b>';
+  addPts(20);
+  if(!STATE.done.simulador){ STATE.done.simulador=true; earn('simulador'); refreshHUD(); }
+  feedback({ok:true,title:'Decisión analizada',emoji:'🧪',
+    rows:[{i:'🎨',t:`<b>Color ${c.v}:</b> ${c.con}.`},
+          {i:'🔠',t:`<b>Tipografía ${t.v}:</b> ${t.con}.`},
+          {i:'🖼️',t:`<b>Encuadre "${f.v}":</b> ${f.con}.`},
+          {i:'🧭',t:`Cada elección es una <b>operación paradigmática</b>: al elegir descartas alternativas y desplazas la connotación hacia <b>${map[dom]||'un sentido mixto'}</b>.`},
+          {i:'❓',t:'Reflexión: ¿qué connotación buscarías para <i>tu</i> propia marca?'}]});
+}
+buildSim();
+
+/* ============================================================
+   SIMON — SECUENCIA DEL SIGNO
+   ============================================================ */
+let simonSeq=[], simonStep=0, simonRound=0, simonPlaying=false;
+const SIMON_NAMES=['Denotación','Connotación','Sintagma','Paradigma'];
+function simonStart(){
+  simonSeq=[]; simonRound=0; $('simon-msg').textContent=''; $('simon-start').textContent='▶ Reiniciar';
+  simonNext();
+}
+function simonNext(){
+  simonRound++; $('simon-round').textContent=simonRound;
+  simonSeq.push(Math.floor(Math.random()*4));
+  simonStep=0;
+  simonPlaying=true;
+  $('simon-msg').textContent='Observa la secuencia…';
+  playSimon();
+}
+function playSimon(){
+  let i=0;
+  const iv=setInterval(()=>{
+    if(i>0) lite(simonSeq[i-1]);
+    if(i>=simonSeq.length){ clearInterval(iv); simonPlaying=false; $('simon-msg').textContent='¡Tu turno! Repite la secuencia.'; return; }
+    litUp(simonSeq[i]); i++;
+  },650);
+}
+function litUp(idx){ const b=document.querySelector(`.simon-btn[data-s="${idx}"]`); b.classList.add('lit'); setTimeout(()=>b.classList.remove('lit'),400); }
+function lite(){}
+function simonTap(idx){
+  if(simonPlaying||simonSeq.length===0) return;
+  litUp(idx);
+  if(idx===simonSeq[simonStep]){
+    simonStep++;
+    if(simonStep===simonSeq.length){
+      addPts(10+simonRound*2);
+      if(simonRound>=4 && !STATE.done.simon){ STATE.done.simon=true; earn('simon'); refreshHUD(); }
+      $('simon-msg').textContent='✅ ¡Correcto! Preparando siguiente ronda…';
+      setTimeout(simonNext,900);
+    }
+  }else{
+    simonPlaying=true;
+    feedback({ok:false,title:'Secuencia rota — sin castigo',emoji:'💡',
+      rows:[{i:'⏸️',t:`<b>Pausa:</b> ibas por el paso ${simonStep+1}.`},
+            {i:'🔎',t:`<b>Pista:</b> el paso correcto era <b>${SIMON_NAMES[simonSeq[simonStep]]}</b>.`},
+            {i:'📌',t:'<b>Dato:</b> el orden Denotación → Connotación → Sintagma → Paradigma refleja el proceso de análisis.'},
+            {i:'↩️',t:`<b>Reintento:</b> llegaste a la ronda ${simonRound}. Pulsa "Reiniciar" para volver a intentarlo.`}],
+      after:()=>{ simonPlaying=false; }});
+  }
+}
+
+/* ============================================================
+   TABLERO / CARRERA
+   ============================================================ */
+const CATS=[
+ {c:'c-den',n:'Denotación'},{c:'c-con',n:'Connotación'},{c:'c-sin',n:'Sintagma'},
+ {c:'c-par',n:'Paradigma'},{c:'c-int',n:'Análisis'}];
+const BOARD_Q={
+ 'Denotación':{q:'"Describe SOLO lo que ves en un afiche de perfume."', ok:'Una botella y una modelo', opts:['Una botella y una modelo','Lujo y deseo','Estatus social'], correct:0,
+   fb:'Denotación = descripción literal, sin valores.'},
+ 'Connotación':{q:'Botella de perfume + modelo elegante evoca…', opts:['Vidrio y líquido','Lujo, deseo, estatus','Un envase de 100 ml'], correct:1,
+   fb:'Connotación = los valores culturales asociados.'},
+ 'Sintagma':{q:'La relación entre logo, eslogan e imagen en una misma pieza es…', opts:['Sintagmática','Paradigmática','Fonética'], correct:0,
+   fb:'Sintagma = combinación de signos presentes.'},
+ 'Paradigma':{q:'Elegir tipografía manuscrita en vez de bold es una decisión…', opts:['Sintagmática','Paradigmática','Denotativa'], correct:1,
+   fb:'Paradigma = selección entre alternativas ausentes.'},
+ 'Análisis':{q:'¿Qué autor propone denotación/connotación y el "mito"?', opts:['Saussure','Barthes','Peirce'], correct:1,
+   fb:'Barthes desarrolla connotación y mito; Saussure, el signo.'}
+};
+let boardPos=0, boardCells=[], boardBusy=false;
+function buildBoard(){
+  boardCells=[];
+  for(let i=0;i<19;i++){ boardCells.push(CATS[i%CATS.length]); }
+  boardCells.push({c:'c-goal',n:'Meta'});
+  $('board').innerHTML=boardCells.map((c,i)=>`<div class="cell ${c.c}" id="cell${i}">${i===19?'🏁':i+1}</div>`).join('');
+  drawPawn();
+}
+function drawPawn(){
+  document.querySelectorAll('.pawn').forEach(p=>p.remove());
+  const cell=$('cell'+boardPos); if(cell){ const p=document.createElement('div'); p.className='pawn'; p.textContent='🕵️'; cell.appendChild(p); }
+  $('board-pos').textContent=boardPos; $('board-prog').style.width=Math.round(boardPos/19*100)+'%';
+}
+function tirarDado(){
+  if(boardBusy) return;
+  if(boardPos>=19){ boardPos=0; drawPawn(); }
+  boardBusy=true;
+  const d=Math.floor(Math.random()*6)+1;
+  let n=0; const roll=setInterval(()=>{ $('dice-face').textContent='⚀⚁⚂⚃⚄⚅'[Math.floor(Math.random()*6)]; if(++n>8){clearInterval(roll); $('dice-face').textContent='⚀⚁⚂⚃⚄⚅'[d-1]; moverDado(d);} },70);
+}
+function moverDado(d){
+  boardPos=Math.min(19, boardPos+d);
+  drawPawn();
+  if(boardPos>=19){
+    boardBusy=false;
+    STATE.done.tablero=true; earn('tablero'); refreshHUD(); addPts(30);
+    feedback({ok:true,title:'¡Meta alcanzada! 🏁',emoji:'🏆',
+      rows:[{i:'🎉',t:'Completaste el recorrido semiótico: del signo al análisis integrado.'},
+            {i:'💡',t:'El diseñador no solo crea, también <b>controla el significado</b>.'},
+            {i:'➡️',t:'Documenta tu dominio en la <b>Ficha de Análisis</b>.'}],after:()=>go('ficha')});
+    return;
+  }
+  const cat=boardCells[boardPos];
+  preguntaCasilla(cat.n);
+}
+function preguntaCasilla(catName){
+  const item=BOARD_Q[catName];
+  const html=`<div class="fb-row"><span class="fb-emoji">📍</span><div>Casilla <b>${catName}</b>: ${item.q}</div></div>`+
+    item.opts.map((o,i)=>`<button class="opt" onclick="respBoard(${i},'${catName}')">${o}</button>`).join('');
+  fb_head.className='fb-head'; fb_head.style.background='linear-gradient(135deg,#6c4fc7,#0072b9)';
+  $('fb-emoji').textContent='🎲'; $('fb-title').textContent='Reto de casilla';
+  $('fb-body').innerHTML=html; $('fb-btn').style.display='none';
+  fbAfter=null; fb_back.classList.add('show');
+}
+function respBoard(i,catName){
+  const item=BOARD_Q[catName];
+  $('fb-btn').style.display='';
+  fb_head.style.background='';
+  if(i===item.correct){
+    addPts(15);
+    feedback({ok:true,title:'¡Avanzas!',emoji:'🚀',
+      rows:[{i:'✅',t:item.fb},{i:'🎯',t:`Sigues en la casilla ${boardPos+1}. Lanza de nuevo.`}],
+      after:()=>{ boardBusy=false; }});
+  }else{
+    const back=Math.max(0,boardPos-1); boardPos=back; drawPawn();
+    feedback({ok:false,title:'Retrocedes una casilla',emoji:'💡',
+      rows:[{i:'⏸️',t:'<b>Pausa:</b> repasa la categoría de la casilla.'},
+            {i:'📌',t:`<b>Dato:</b> ${item.fb}`},
+            {i:'↩️',t:'<b>Reintento:</b> vuelve a lanzar el dado con esa pista en mente.'}],
+      after:()=>{ boardBusy=false; }});
+  }
+}
+buildBoard();
+
+/* ============================================================
+   FICHA — EXPORTAR MD / PDF / EMAIL
+   ============================================================ */
+function recolectarFicha(){
+  return {
+    pieza:$('fi-pieza').value,
+    d1:$('fi1').value.trim(), d2:$('fi2').value.trim(), d3:$('fi3').value.trim(),
+    d4:$('fi4').value.trim(), d5:$('fi5').value.trim(), d6:$('fi6').value.trim()
+  };
+}
+function obtenerCorreos(){
+  if(STATE.modo==='grupal') return STATE.team.map(t=>t.e).filter(Boolean);
+  if(STATE.modo==='individual' && STATE.ind.e) return [STATE.ind.e];
+  return [];
+}
+function generarMarkdownTexto(){
+  const f=recolectarFicha();
+  let md=`# Informe Semiótico\n\n`;
+  md+=`**Curso:** Semiótica de la Imagen · 2026 · Semana 1  \n`;
+  md+=`**Docente:** Mg. Mario Quiroz Martínez  \n`;
+  md+=`**Pieza analizada:** ${f.pieza}\n\n`;
+  md+=`## Datos del ${STATE.modo==='grupal'?'Equipo':'Participante'}\n\n`;
+  if(STATE.modo==='grupal'){
+    md+=`**Equipo:** ${STATE.teamName||'—'}\n\n`;
+    md+=`| N° | Nombres | Apellidos | Correo |\n|----|---------|-----------|--------|\n`;
+    STATE.team.forEach((t,i)=>{ md+=`| ${i+1} | ${t.n||''} | ${t.a||''} | ${t.e||''} |\n`; });
+  }else if(STATE.modo==='individual'){
+    md+=`- **Nombres:** ${STATE.ind.n||''}\n- **Apellidos:** ${STATE.ind.a||''}\n- **Correo:** ${STATE.ind.e||''}\n`;
+  }else{
+    md+=`_(Sin registro previo)_\n`;
+  }
+  md+=`\n## Ficha de Análisis Semiótico Visual\n\n`;
+  md+=`### 1. Identificación del signo principal\n${f.d1||'—'}\n\n`;
+  md+=`### 2. Nivel denotativo\n${f.d2||'—'}\n\n`;
+  md+=`### 3. Nivel connotativo\n${f.d3||'—'}\n\n`;
+  md+=`### 4. Operación sintagmática\n${f.d4||'—'}\n\n`;
+  md+=`### 5. Operación paradigmática\n${f.d5||'—'}\n\n`;
+  md+=`### 6. Intención comunicativa\n${f.d6||'—'}\n\n`;
+  md+=`---\n_Generado con Semiotics PlayLab · IDC · Puntos XP: ${STATE.pts} · Nivel: ${STATE.lvl}_\n`;
+  return md;
+}
+function generarMarkdown(){
+  const md=generarMarkdownTexto();
+  const blob=new Blob([md],{type:'text/markdown;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download='informe-semiotico.md'; a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  if(!STATE.done.ficha){ STATE.done.ficha=true; earn('ficha'); refreshHUD(); addPts(20); }
+  toast('📄 Markdown generado');
+}
+function generarPDF(){
+  if(!STATE.done.ficha){ STATE.done.ficha=true; earn('ficha'); refreshHUD(); addPts(20); }
+  go('ficha');
+  setTimeout(()=>window.print(),300);
+}
+function enviarCorreos(){
+  const emails=obtenerCorreos();
+  if(emails.length===0){ toast('Registra correos en la sección Equipo primero'); go('registro'); return; }
+  const subject=encodeURIComponent('Informe Semiótico — Semana 1');
+  const body=encodeURIComponent(generarMarkdownTexto());
+  window.location.href=`mailto:${emails.join(',')}?subject=${subject}&body=${body}`;
+  toast('📧 Abriendo tu cliente de correo…');
+}
+
+/* ============================================================
+   SALA DE EXPOSICIÓN
+   ============================================================ */
+function publicar(){
+  const autor=$('sala-autor').value.trim()||'Anónimo';
+  const texto=$('sala-texto').value.trim();
+  if(texto.length<10){ toast('Escribe un hallazgo un poco más completo'); return; }
+  STATE.posts.unshift({autor,texto,likes:0,idea:0,react:{}});
+  $('sala-texto').value='';
+  if(!STATE.done.sala){ STATE.done.sala=true; refreshHUD(); addPts(15); }
+  renderSala();
+  toast('📤 ¡Hallazgo publicado!');
+}
+function reaccion(i,tipo){ STATE.posts[i][tipo]++; renderSala(); }
+function renderSala(){
+  if(STATE.posts.length===0){ $('sala-lista').innerHTML='<p class="text-center" style="color:var(--muted)">Aún no hay hallazgos. ¡Sé el primero en publicar!</p>'; return; }
+  $('sala-lista').innerHTML=STATE.posts.map((p,i)=>`
+    <div class="soft-card post p-3 mb-3">
+      <div class="d-flex justify-content-between"><b class="text-idc-azul">${escapeHtml(p.autor)}</b></div>
+      <p class="mb-2" style="color:var(--ink)">${escapeHtml(p.texto)}</p>
+      <div class="d-flex gap-2">
+        <button class="react-btn" onclick="reaccion(${i},'likes')">👍 ${p.likes}</button>
+        <button class="react-btn" onclick="reaccion(${i},'idea')">💡 ${p.idea}</button>
+      </div>
+    </div>`).join('');
+}
+function escapeHtml(s){ return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+renderSala();
+
+/* ============================================================
+   CIERRE METACOGNITIVO
+   ============================================================ */
+function cerrarMeta(){
+  const h1=$('meta-h1').value.trim(), h2=$('meta-h2').value.trim(), d1=$('meta-d1').value.trim();
+  if(!h1||!h2||!d1){ toast('Completa los dos hallazgos y la duda'); return; }
+  if(!STATE.done.meta){ STATE.done.meta=true; earn('meta'); refreshHUD(); addPts(25); }
+  feedback({ok:true,title:'¡Misión completada, Agente!',emoji:'🎓',
+    rows:[{i:'🌟',t:`Cerraste tu ciclo con metacognición. XP total: <b>${STATE.pts}</b> · Nivel <b>${STATE.lvl}</b>.`},
+          {i:'🧠',t:'Recuerda: el diseñador controla el significado eligiendo color, tipografía y composición.'},
+          {i:'🚀',t:'Ya estás listo para aplicar denotación, connotación, sintagma y paradigma en tus propios diseños.'}]});
+}
+
+/* ============================================================
+   PWA — Service Worker + Manifest (single-file)
+   ============================================================ */
+// Manifest embebido como blob (instalable sin archivo externo)
+(function(){
+  const icon = "data:image/svg+xml,"+encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0072b9"/><stop offset="1" stop-color="#3aa0e0"/></linearGradient></defs><rect width="512" height="512" rx="96" fill="url(#g)"/><text x="50%" y="54%" font-family="Georgia,serif" font-size="230" font-style="italic" font-weight="700" fill="#fff" text-anchor="middle" dominant-baseline="middle">Sp</text><circle cx="256" cy="430" r="26" fill="#f3a100"/></svg>');
+  const manifest = {
+    name:"Semiotics PlayLab · Introducción a la Semiótica",
+    short_name:"Semiotics PlayLab",
+    description:"PWA gamificada para dominar denotación, connotación, sintagma y paradigma. IDC.",
+    start_url:".", scope:".", display:"standalone",
+    background_color:"#e9dcf3", theme_color:"#0072b9", orientation:"portrait-primary",
+    icons:[{src:icon,sizes:"512x512",type:"image/svg+xml",purpose:"any maskable"},
+           {src:icon,sizes:"192x192",type:"image/svg+xml",purpose:"any"}]
+  };
+  const mBlob=new Blob([JSON.stringify(manifest)],{type:'application/manifest+json'});
+  const link=document.createElement('link'); link.rel='manifest'; link.href=URL.createObjectURL(mBlob);
+  document.head.appendChild(link);
+})();
+
+// Service worker: intenta el companion ./sw.js (cuando se despliega en hosting);
+// si no existe, cae con gracia (la app ya es 100% inline y funciona offline tras la 1ª carga).
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('sw.js').catch(()=>{ /* offline sigue funcionando: assets inline */ });
+  });
+}
+
+// Prompt de instalación
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{ e.preventDefault(); deferredPrompt=e;
+  const b=$('installBtn'); if(b){ b.style.display='inline-block'; b.onclick=async()=>{ b.style.display='none'; deferredPrompt.prompt(); deferredPrompt=null; }; }
+});
+
+/* init */
+refreshHUD();
+</script>
+</body>
+</html>
