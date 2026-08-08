@@ -57,3 +57,11 @@ acentos dorado/cobre/plata) y JavaScript organizado en módulos por responsabili
 
 > Las figuras heráldicas son SVG **estilizados y simplificados** para mantener el archivo
 > manejable como pieza única, priorizando la funcionalidad completa de la herramienta.
+
+## Referencias
+
+Los contornos de escudo y las convenciones heráldicas se refinaron tomando como **referencia
+visual** los proyectos [DrawShield](https://github.com/drawshield/Drawshield-Code) (GPLv3) y
+[heraldicon](https://heraldicon.org). Todos los `path` SVG de este proyecto son **originales**
+(coordenadas propias) — no se copió código de dichos proyectos, por lo que el laboratorio se
+mantiene bajo la licencia MIT del repositorio.
