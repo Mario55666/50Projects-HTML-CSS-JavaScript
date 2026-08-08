@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tarea · Blasón Familiar — Seis Propuestas desde la Etimología del Apellido</title>
+<meta name="description" content="Ficha docente: diseñar 6 propuestas de escudo familiar desde la etimología del apellido, con entregables en SVG, PNG y JPG, modelos 3D e infografías técnicas." />
+</head>
+<body>
+<style>
+  :root {
+    /* Pergamino · tinta sepia · pan de oro · gules (paleta heráldica, tema claro) */
+    --bg: #efe6cf;
+    --sheet: #f8f1de;
+    --sheet-2: #f1e7cd;
+    --ink: #362a18;
+    --ink-soft: #6a5a3c;
+    --ink-faint: #8c7a55;
+    --gold: #9a6a12;
+    --gilt: #c49a3f;
+    --gules: #7c241b;
+    --azur: #274a86;
+    --line: rgba(120, 92, 40, 0.26);
+    --line-strong: rgba(120, 92, 40, 0.5);
+    --shadow: 0 24px 60px rgba(60, 40, 12, 0.22);
+    --serif: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Palatino, "Hoefler Text", Georgia, serif;
+    --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --mono: ui-monospace, "SFMono-Regular", "Cascadia Code", Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14100a;
+      --sheet: #1e1810;
+      --sheet-2: #241d12;
+      --ink: #ece0c4;
+      --ink-soft: #c3b491;
+      --ink-faint: #97865f;
+      --gold: #dcae4c;
+      --gilt: #b8912f;
+      --gules: #d1685a;
+      --azur: #7ea0d8;
+      --line: rgba(200, 168, 100, 0.2);
+      --line-strong: rgba(200, 168, 100, 0.42);
+      --shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14100a;
+    --sheet: #1e1810;
+    --sheet-2: #241d12;
+    --ink: #ece0c4;
+    --ink-soft: #c3b491;
+    --ink-faint: #97865f;
+    --gold: #dcae4c;
+    --gilt: #b8912f;
+    --gules: #d1685a;
+    --azur: #7ea0d8;
+    --line: rgba(200, 168, 100, 0.2);
+    --line-strong: rgba(200, 168, 100, 0.42);
+    --shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background:
+      radial-gradient(120% 80% at 50% -10%, color-mix(in srgb, var(--bg) 82%, #fff 18%), var(--bg) 60%);
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: 17px;
+    line-height: 1.72;
+    font-variant-numeric: oldstyle-nums;
+    -webkit-font-smoothing: antialiased;
+    padding: 40px 20px 72px;
+  }
+  .hoja {
+    max-width: 812px;
+    margin: 0 auto;
+    background:
+      repeating-linear-gradient(90deg, rgba(120, 90, 40, 0.028) 0 1px, transparent 1px 6px),
+      linear-gradient(180deg, var(--sheet), var(--sheet-2));
+    border: 1px solid var(--line-strong);
+    border-top: 3px solid var(--gilt);
+    border-radius: 6px;
+    box-shadow: var(--shadow);
+    padding: clamp(28px, 5vw, 60px) clamp(22px, 5vw, 66px) 48px;
+    position: relative;
+  }
+  .hoja::before {
+    content: ""; position: absolute; left: clamp(22px, 5vw, 66px); right: clamp(22px, 5vw, 66px); top: 10px; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gilt) 12%, var(--gold) 50%, var(--gilt) 88%, transparent);
+    opacity: 0.7;
+  }
+
+  /* Cabecera / colofón */
+  .eyebrow {
+    font-family: var(--sans);
+    font-size: 0.7rem; letter-spacing: 0.28em; text-transform: uppercase;
+    color: var(--gules); font-weight: 700; text-align: center; margin-bottom: 14px;
+  }
+  h1 {
+    font-size: clamp(1.9rem, 4.6vw, 2.7rem); line-height: 1.12; text-align: center;
+    font-weight: 600; letter-spacing: 0.01em; text-wrap: balance; margin: 0 0 6px;
+    color: var(--ink);
+  }
+  h1 .flor { color: var(--gold); }
+  .subt {
+    text-align: center; font-style: italic; color: var(--ink-soft);
+    font-size: 1.06rem; margin: 0 auto 20px; max-width: 46ch; text-wrap: balance;
+  }
+  .meta {
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 10px; margin-bottom: 6px;
+  }
+  .chip {
+    font-family: var(--sans); font-size: 0.72rem; letter-spacing: 0.04em;
+    padding: 5px 11px; border-radius: 20px; border: 1px solid var(--line-strong);
+    color: var(--ink-soft); background: color-mix(in srgb, var(--gold) 8%, transparent);
+  }
+  .chip b { color: var(--ink); font-weight: 700; }
+
+  .fleuron {
+    text-align: center; color: var(--gold); font-size: 1.5rem; margin: 26px 0 10px; letter-spacing: 0.4em;
+  }
+
+  /* Intro con capitular */
+  .intro { font-size: 1.06rem; color: var(--ink); }
+  .dropcap::first-letter {
+    float: left; font-size: 4.1rem; line-height: 0.82; padding: 6px 12px 0 0; margin-top: 4px;
+    color: var(--gold); font-weight: 700;
+    background: linear-gradient(180deg, var(--gilt), var(--gold));
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+
+  /* Secciones */
+  .sec { margin-top: 34px; }
+  .sec > h2 {
+    display: flex; align-items: baseline; gap: 12px;
+    font-size: 1.28rem; font-weight: 600; font-variant: small-caps; letter-spacing: 0.04em;
+    color: var(--ink); margin: 0 0 12px; padding-bottom: 8px;
+    border-bottom: 1px solid var(--line);
+  }
+  .sec-num {
+    font-family: var(--sans); font-size: 0.82rem; font-weight: 800; letter-spacing: 0.05em;
+    color: var(--gules); border: 1px solid color-mix(in srgb, var(--gules) 45%, transparent);
+    border-radius: 5px; padding: 2px 8px; flex: none; align-self: center;
+    background: color-mix(in srgb, var(--gules) 8%, transparent);
+  }
+  .sec p { margin: 0 0 12px; }
+  .sec p:last-child { margin-bottom: 0; }
+  strong { color: var(--ink); }
+  em.term { font-style: italic; color: var(--gold); font-weight: 600; }
+
+  ul.lista { list-style: none; margin: 0; padding: 0; }
+  ul.lista > li {
+    position: relative; padding: 4px 0 4px 26px; margin-bottom: 4px;
+  }
+  ul.lista > li::before {
+    content: "\2767"; position: absolute; left: 0; top: 3px; color: var(--gilt); font-size: 0.9rem;
+  }
+
+  /* Las seis propuestas */
+  .propuestas { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 6px; }
+  .prop {
+    background: color-mix(in srgb, var(--gold) 5%, var(--sheet));
+    border: 1px solid var(--line); border-left: 3px solid var(--gilt);
+    border-radius: 6px; padding: 14px 16px;
+  }
+  .prop h3 {
+    margin: 0 0 5px; font-size: 1.02rem; font-weight: 600; color: var(--ink);
+    display: flex; align-items: center; gap: 9px;
+  }
+  .prop .rn {
+    font-family: var(--serif); font-weight: 700; color: var(--gold);
+    font-size: 1.14rem; min-width: 1.8em; text-align: center;
+    border-right: 1px solid var(--line); padding-right: 8px;
+  }
+  .prop p { font-size: 0.92rem; line-height: 1.55; color: var(--ink-soft); margin: 0; }
+
+  /* Caja de prompt */
+  .prompt-box {
+    background: color-mix(in srgb, var(--ink) 6%, var(--sheet));
+    border: 1px solid var(--line-strong); border-radius: 6px; padding: 14px 16px; margin-top: 6px;
+  }
+  .prompt-box .plabel {
+    font-family: var(--sans); font-size: 0.66rem; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--gold); font-weight: 700; margin-bottom: 8px;
+  }
+  .prompt-box pre {
+    margin: 0; white-space: pre-wrap; font-family: var(--mono); font-size: 0.78rem; line-height: 1.6;
+    color: var(--ink-soft); max-height: none;
+  }
+
+  /* Enlaces / recursos */
+  .recursos { display: grid; gap: 10px; }
+  .recurso {
+    display: flex; align-items: flex-start; gap: 12px; padding: 13px 15px;
+    background: color-mix(in srgb, var(--azur) 7%, var(--sheet)); border: 1px solid var(--line); border-radius: 6px;
+  }
+  .recurso .ic { flex: none; width: 26px; height: 26px; color: var(--gold); }
+  .recurso .ic svg { width: 100%; height: 100%; }
+  .recurso h4 { margin: 0 0 3px; font-size: 0.98rem; color: var(--ink); }
+  .recurso p { margin: 0 0 7px; font-size: 0.88rem; color: var(--ink-soft); }
+  a.enlace {
+    display: inline-flex; align-items: center; gap: 6px; font-family: var(--sans); font-size: 0.8rem; font-weight: 700;
+    color: var(--gules); text-decoration: none; border-bottom: 1px solid color-mix(in srgb, var(--gules) 40%, transparent);
+    padding-bottom: 1px; word-break: break-word;
+  }
+  a.enlace:hover { color: var(--gold); border-bottom-color: var(--gold); }
+  a.enlace:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 2px; }
+
+  /* Tablas */
+  .tabla-wrap { overflow-x: auto; margin-top: 6px; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
+  caption { text-align: left; font-style: italic; color: var(--ink-faint); font-size: 0.86rem; margin-bottom: 8px; }
+  thead th {
+    text-align: left; font-family: var(--sans); font-size: 0.68rem; letter-spacing: 0.09em; text-transform: uppercase;
+    color: var(--gold); font-weight: 800; padding: 8px 12px; border-bottom: 2px solid var(--gilt);
+  }
+  tbody td { padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; color: var(--ink-soft); }
+  tbody td strong { color: var(--ink); }
+  tbody tr:last-child td { border-bottom: none; }
+  td.fmt { font-family: var(--mono); font-size: 0.8rem; color: var(--gold); white-space: nowrap; }
+  td.num { font-variant-numeric: tabular-nums lining-nums; text-align: center; font-weight: 700; color: var(--gules); }
+  td.peso { font-variant-numeric: tabular-nums lining-nums; text-align: right; font-weight: 700; color: var(--ink); }
+
+  .nota-caja {
+    margin-top: 22px; padding: 14px 18px; border-radius: 6px;
+    background: color-mix(in srgb, var(--gules) 7%, var(--sheet));
+    border: 1px solid color-mix(in srgb, var(--gules) 30%, transparent); border-left: 3px solid var(--gules);
+    font-size: 0.92rem; color: var(--ink-soft);
+  }
+  .nota-caja b { color: var(--ink); }
+
+  .colofon {
+    margin-top: 40px; padding-top: 18px; border-top: 1px solid var(--line);
+    text-align: center; font-style: italic; color: var(--ink-faint); font-size: 0.86rem;
+  }
+  .colofon .firma { font-variant: small-caps; letter-spacing: 0.05em; color: var(--ink-soft); font-style: normal; }
+
+  @media (max-width: 620px) {
+    .propuestas { grid-template-columns: 1fr; }
+    body { padding: 20px 10px 48px; }
+  }
+  @media print {
+    body { background: #fff; color: #000; padding: 0; }
+    .hoja { box-shadow: none; border: none; max-width: none; }
+    .recurso, .prop, .prompt-box, .nota-caja { break-inside: avoid; }
+  }
+</style>
+
+<article class="hoja">
+  <p class="eyebrow">Taller de Diseño Gráfico · Unidad 1 — Fundamentos de Business Intelligence</p>
+  <h1>Blasón Familiar <span class="flor">&#10087;</span> Seis Propuestas desde la Etimología del Apellido</h1>
+  <p class="subt">De los datos de un apellido a su síntesis visual: investiga, diseña y comunica la identidad heráldica de tu linaje.</p>
+  <div class="meta">
+    <span class="chip"><b>Docente:</b> Mg. Mario Quiroz Martínez</span>
+    <span class="chip"><b>Modalidad:</b> Individual</span>
+    <span class="chip"><b>Reto en aula:</b> 90 minutos</span>
+    <span class="chip"><b>Entregables:</b> SVG · PNG · JPG</span>
+  </div>
+
+  <p class="fleuron">&#10087; &#10086; &#9753;</p>
+
+  <p class="intro dropcap">Todo apellido es un dato con historia. Antes de ser una firma, fue un lugar, un oficio, el nombre de un padre o un rasgo memorable; y a lo largo de los siglos se transformó al viajar entre lenguas, reinos y generaciones. En este encargo trabajarás como un heraldista contemporáneo: convertirás la información de tu apellido en un sistema visual coherente — un blasón — y lo llevarás desde el vector hasta el volumen 3D y la infografía técnica.</p>
+
+  <section class="sec">
+    <h2><span class="sec-num">01</span> El encargo</h2>
+    <p>Diseña <strong>seis (6) propuestas</strong> de escudo familiar basadas en <strong>tu apellido</strong>. Las seis propuestas no son variaciones estéticas de una misma idea: cada una debe explorar una <strong>faceta distinta del origen etimológico del apellido y de sus transformaciones a lo largo de la historia</strong>. Todas se diseñan en el <em class="term">Laboratorio Digital de Blasones</em>, aplicando la regla de esmaltes y documentando su blasonamiento e interpretación simbólica.</p>
+  </section>
+
+  <section class="sec">
+    <h2><span class="sec-num">02</span> Investigación etimológica previa</h2>
+    <p>Antes de dibujar, fundamenta. Redacta media página (máx.) que responda:</p>
+    <ul class="lista">
+      <li><strong>Origen del apellido:</strong> ¿es toponímico (de un lugar), patronímico (del nombre del padre), de oficio, o un apodo/rasgo?</li>
+      <li><strong>Raíz y significado literal:</strong> lengua de procedencia y qué quiere decir.</li>
+      <li><strong>Geografía:</strong> región o reino donde se documenta primero.</li>
+      <li><strong>Transformaciones:</strong> variantes gráficas y fonéticas del apellido a través del tiempo.</li>
+    </ul>
+    <p>Cita al menos <strong>dos fuentes</strong> (diccionarios onomásticos, atlas de apellidos, registros históricos). Esta investigación es el <em class="term">dataset</em> del que nacen tus seis blasones.</p>
+  </section>
+
+  <section class="sec">
+    <h2><span class="sec-num">03</span> Las seis propuestas &mdash; ejes de diversificación</h2>
+    <div class="propuestas">
+      <div class="prop"><h3><span class="rn">I</span> Raíz etimológica</h3><p>Traduce el <strong>significado literal</strong> del apellido a figuras y esmaltes (armas parlantes): si es "del río", un río; si es un oficio, su herramienta.</p></div>
+      <div class="prop"><h3><span class="rn">II</span> Origen geográfico</h3><p>Adopta la <strong>forma de escudo y las convenciones cromáticas</strong> de la tradición de origen (español, francés, alemán, italiano, suizo o inglés).</p></div>
+      <div class="prop"><h3><span class="rn">III</span> Heráldica medieval</h3><p>Versión <strong>primitiva (s. XII–XIV)</strong>: campo simple, pocas figuras, respeto estricto de la regla de esmaltes. Austeridad y contraste.</p></div>
+      <div class="prop"><h3><span class="rn">IV</span> Linaje y oficio</h3><p>Vincula el apellido a una <strong>casa, gremio o profesión</strong>: particiones que evoquen alianzas o muebles que nombren el oficio.</p></div>
+      <div class="prop"><h3><span class="rn">V</span> Esplendor barroco</h3><p>Añade <strong>ornamentos exteriores</strong>: yelmo, corona, lambrequines, soportes, cartela y filacteria con un lema propio del linaje.</p></div>
+      <div class="prop"><h3><span class="rn">VI</span> Síntesis contemporánea</h3><p>Reinterpretación <strong>minimalista y actual</strong> del apellido, legible como identidad/logotipo a cualquier escala. El puente con la comunicación visual moderna.</p></div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <h2><span class="sec-num">04</span> Diseño en el Laboratorio Digital de Blasones</h2>
+    <p>Cada propuesta debe:</p>
+    <ul class="lista">
+      <li>Respetar la <strong>regla de esmaltes</strong> (no metal sobre metal ni color sobre color); si la infringes, justifícalo.</li>
+      <li>Registrar su <strong>blasonamiento</strong> (descripción técnica automática de la herramienta).</li>
+      <li>Incluir la <strong>interpretación simbólica</strong> de tinturas y figuras.</li>
+      <li>Acompañarse de <strong>1–2 líneas de justificación etimológica</strong> que la conecten con tu investigación.</li>
+    </ul>
+    <div class="recursos" style="margin-top:12px">
+      <div class="recurso">
+        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12a2 2 0 0 0 2 2h14v-4"/><path d="M18 12a2 2 0 0 0-2 2c0 1.1.9 2 2 2h4v-4z"/></svg></span>
+        <div>
+          <h4>Herramienta de diseño</h4>
+          <p>Compón, aplica esmaltes, genera el blasonamiento y exporta a SVG/PNG.</p>
+          <a class="enlace" href="https://claude.ai/code/artifact/4ed29c7f-3afd-4bcf-891d-d58338f8c786" target="_blank" rel="noopener noreferrer">Abrir el Laboratorio Digital de Blasones &#8599;</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <h2><span class="sec-num">05</span> Del vector al modelo 3D</h2>
+    <p>Selecciona <strong>tres (3)</strong> de tus seis propuestas como finalistas. Exporta cada una como objeto vectorial (<strong>SVG</strong>) y su versión <strong>PNG</strong>, y conviértela en una <strong>imagen 3D</strong> con Neural4D · Image-to-3D.</p>
+    <div class="recursos">
+      <div class="recurso">
+        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12"/></svg></span>
+        <div>
+          <h4>Neural4D · Image to 3D Model</h4>
+          <p>Sube el vector/PNG del escudo para generar el volumen tridimensional.</p>
+          <a class="enlace" href="https://www.neural4d.com/features/image-to-3d-model?utm_source=google&utm_medium=cpc&utm_campaign=image3dmodel&utm_content=search&utm_link_id=167&gad_source=1&gad_campaignid=23919044851&gbraid=0AAAABClhXnMdlhgpCHV1PyhbpEMYUwS8e&gclid=Cj0KCQjwp9vTBhCWARIsANaUrjvrs5MCkpxTOM7t2rXMNIZ_MGPZjh6wfBBktu4nM-yb-5CPt5blSOAaAvVeEALw_wcB" target="_blank" rel="noopener noreferrer">Abrir Neural4D · Image-to-3D &#8599;</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <h2><span class="sec-num">06</span> Infografía técnica descriptiva</h2>
+    <p>Para esos mismos tres escudos, genera una <strong>infografía técnica</strong> que superponga anotaciones de dibujo técnico sobre el render, sin alterar el original. Usa este prompt de referencia:</p>
+    <div class="prompt-box">
+      <div class="plabel">Prompt · infografía técnica del blasón</div>
+      <pre>Genera una infografía del producto de la foto de referencia manteniendo exactamente el fondo original. Agrega encima un estilo de dibujo técnico en trazos blancos tipo boceto: contornos ilustrados, flechas, medidas, líneas guía, cotas y etiquetas descriptivas. Estética similar a un esquema técnico dibujado a mano, como en planos o diagramas de producto. No alterar colores, fondo ni iluminación de la imagen base: solo superponer.
+
+SITUACIÓN — Tienes una foto de referencia de un producto (tu blasón) que deseas transformar en una infografía técnica profesional, preservando por completo fondo, colores e iluminación originales.
+
+TAREA — Superponer un dibujo técnico en blanco que simule un esquema hecho a mano: contornos ilustrados, flechas de señalización, medidas y cotas, líneas guía, etiquetas de componentes (esmaltes, figuras, particiones) y anotaciones técnicas.
+
+OBJETIVO — Comunicar con claridad la estructura y el significado del blasón, manteniendo la autenticidad visual de la imagen base.
+
+KNOWLEDGE — Estética de plano de ingeniería o boceto de producto; todos los trazos en blanco o tonos claros de alto contraste; fondo e iluminación intactos; acabado limpio pero con apariencia manual; cotas legibles y bien ubicadas sin obstruir el escudo.</pre>
+    </div>
+  </section>
+
+  <section class="sec">
+    <h2><span class="sec-num">07</span> Productos entregables</h2>
+    <div class="tabla-wrap">
+      <table>
+        <caption>Todas las piezas se entregan en los formatos indicados. El SVG aplica a lo vectorial; el 3D y la infografía se entregan rasterizados.</caption>
+        <thead><tr><th>Producto</th><th>Cant.</th><th>Formatos de entrega</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Lámina de las 6 propuestas</strong><br>Contact sheet con blasonamiento e interpretación de cada una</td><td class="num">1</td><td class="fmt">PNG · JPG</td></tr>
+          <tr><td><strong>Escudos vectoriales finalistas</strong><br>Vector editable de 3 escudos</td><td class="num">3</td><td class="fmt">SVG · PNG · JPG</td></tr>
+          <tr><td><strong>Imágenes 3D</strong><br>Render Neural4D de los 3 escudos (+ modelo GLB/OBJ opcional)</td><td class="num">3</td><td class="fmt">PNG · JPG</td></tr>
+          <tr><td><strong>Infografías técnicas</strong><br>Esquema anotado de los 3 escudos</td><td class="num">3</td><td class="fmt">PNG · JPG</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="margin-top:14px"><strong>Nomenclatura de archivos:</strong> <span style="font-family:var(--mono);font-size:0.85rem;color:var(--gold)">Apellido_P0N_tipo.ext</span> &mdash; por ejemplo <span style="font-family:var(--mono);font-size:0.85rem">Quiroz_P03_vector.svg</span>, <span style="font-family:var(--mono);font-size:0.85rem">Quiroz_P03_3d.png</span>, <span style="font-family:var(--mono);font-size:0.85rem">Quiroz_P03_infografia.jpg</span>. Entrega todo comprimido en una carpeta <span style="font-family:var(--mono);font-size:0.85rem">Apellido_Blasones/</span>.</p>
+  </section>
+
+  <section class="sec">
+    <h2><span class="sec-num">08</span> Criterios de evaluación</h2>
+    <div class="tabla-wrap">
+      <table>
+        <thead><tr><th>Criterio</th><th>Qué se valora</th><th>Peso</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Rigor etimológico</strong></td><td>Investigación fundamentada y citada del origen y las transformaciones del apellido</td><td class="peso">20%</td></tr>
+          <tr><td><strong>Diversificación</strong></td><td>Las 6 propuestas exploran ejes realmente distintos, sin repetirse</td><td class="peso">15%</td></tr>
+          <tr><td><strong>Corrección heráldica</strong></td><td>Regla de esmaltes, blasonamiento correcto e interpretación coherente</td><td class="peso">20%</td></tr>
+          <tr><td><strong>Calidad gráfica</strong></td><td>Composición, jerarquía, equilibrio y acabado visual</td><td class="peso">15%</td></tr>
+          <tr><td><strong>Pipeline técnico</strong></td><td>SVG limpio, 3D bien resuelto e infografía clara y legible</td><td class="peso">20%</td></tr>
+          <tr><td><strong>Entrega completa</strong></td><td>Todos los productos, en los formatos y con la nomenclatura pedida</td><td class="peso">10%</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="nota-caja">
+    <b>Trabajo individual, narrativa de reto.</b> La sesión de 90 minutos en aula es un reto de diseño de predominio individual: cada estudiante compone, decide y sustenta su propio blasón. Colabora en la investigación si lo deseas, pero la autoría de las seis propuestas y de los entregables es personal.
+  </div>
+
+  <p class="colofon">
+    <span class="firma">Mg. Mario Quiroz Martínez</span><br>
+    Taller de Diseño Gráfico · Unidad 1: Fundamentos de Business Intelligence
+  </p>
+</article>
+
+</body>
+</html>
