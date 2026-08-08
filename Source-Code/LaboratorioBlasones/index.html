@@ -378,6 +378,39 @@ input[type="range"].control { padding: 0; background: transparent; border: none;
 @keyframes toast-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
 @keyframes toast-out { to { opacity: 0; transform: translateY(-8px); } }
 
+/* ---------- Nota flotante: vector → 3D + infografía ---------- */
+.nota-3d { position: fixed; right: 16px; bottom: 16px; z-index: 260; font-family: var(--f-ui); }
+.nota-3d-tab {
+  display: flex; align-items: center; gap: 8px; padding: 10px 15px; border-radius: 24px;
+  background: linear-gradient(180deg, var(--oro), var(--cobre)); color: var(--texto-inv);
+  font-weight: 700; font-size: 0.8rem; border: 1px solid var(--oro); box-shadow: var(--sombra);
+  transition: var(--trans);
+}
+.nota-3d-tab:hover { filter: brightness(1.08); transform: translateY(-1px); }
+.nota-3d-tab svg { width: 16px; height: 16px; }
+.nota-3d.abierta .nota-3d-tab { display: none; }
+.nota-3d-panel {
+  display: none; width: min(360px, calc(100vw - 32px)); max-height: min(72vh, 580px);
+  flex-direction: column; background: var(--panel-elev); border: 1px solid var(--panel-borde);
+  border-top: 3px solid var(--oro); border-radius: var(--r-m); box-shadow: var(--sombra); overflow: hidden;
+  animation: aparecer 0.22s ease;
+}
+.nota-3d.abierta .nota-3d-panel { display: flex; }
+.nota-3d-cab { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 11px 13px; background: var(--fondo-2); border-bottom: 1px solid var(--panel-borde); }
+.nota-3d-cab h4 { font-family: var(--f-titulo); color: var(--oro-claro); font-size: 0.92rem; display: flex; align-items: center; gap: 8px; }
+.nota-3d-cab h4 svg { width: 16px; height: 16px; }
+.nota-3d-cuerpo { padding: 13px; overflow-y: auto; }
+.nota-3d-paso { margin-bottom: 15px; }
+.nota-3d-paso:last-child { margin-bottom: 0; }
+.nota-3d-paso h5 { font-size: 0.8rem; color: var(--texto); margin-bottom: 7px; display: flex; gap: 8px; align-items: center; }
+.nota-3d-paso .num { width: 20px; height: 20px; border-radius: 50%; background: var(--oro-tenue); color: var(--oro-claro); display: grid; place-items: center; font-weight: 800; font-size: 0.72rem; flex: none; border: 1px solid rgba(212, 168, 83, 0.4); }
+.nota-3d-paso p { font-size: 0.76rem; color: var(--texto-2); line-height: 1.55; margin-bottom: 9px; }
+.nota-3d-enlace { display: inline-flex; align-items: center; gap: 7px; padding: 9px 13px; background: linear-gradient(180deg, var(--oro), var(--cobre)); color: var(--texto-inv); border-radius: var(--r-s); font-weight: 700; font-size: 0.76rem; text-decoration: none; transition: var(--trans); }
+.nota-3d-enlace:hover { filter: brightness(1.08); }
+.nota-3d-enlace svg { width: 14px; height: 14px; }
+.nota-3d-prompt { background: var(--fondo); border: 1px solid var(--panel-borde); border-radius: var(--r-s); padding: 10px 11px; font-size: 0.7rem; line-height: 1.55; color: var(--texto-2); white-space: pre-wrap; max-height: 172px; overflow-y: auto; font-family: var(--f-ui); }
+.nota-3d-copiar { margin-top: 9px; width: 100%; justify-content: center; }
+
 /* ---------- Modo didáctico: ficha imprimible ---------- */
 .modal-fondo { position: fixed; inset: 0; background: rgba(6,6,8,0.78); backdrop-filter: blur(4px); z-index: 300; display: none; align-items: center; justify-content: center; padding: 24px; }
 .modal-fondo.ver { display: flex; }
@@ -628,6 +661,73 @@ kbd { background: var(--fondo-3); border: 1px solid var(--panel-borde); border-b
 </div>
 
 <input type="file" id="inputImportar" accept="application/json,.json" style="display:none" />
+
+<!-- ============ NOTA FLOTANTE · vector → 3D + infografía técnica ============ -->
+<div class="nota-3d" id="nota3d">
+  <button class="nota-3d-tab" id="nota3dTab" title="Llevar el escudo a 3D e infografía">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12"/></svg>
+    Vector → 3D · Infografía
+  </button>
+  <div class="nota-3d-panel">
+    <div class="nota-3d-cab">
+      <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12"/></svg> Del vector a 3D + infografía</h4>
+      <button class="icono-btn" id="nota3dMin" title="Minimizar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>
+    </div>
+    <div class="nota-3d-cuerpo">
+      <div class="nota-3d-paso">
+        <h5><span class="num">1</span> Convierte el escudo en un modelo 3D</h5>
+        <p>Exporta tu escudo como <b>PNG</b> o <b>SVG</b> (botones de la cabecera) y sube ese <b>objeto vectorial</b> a <b>Neural4D · Image&nbsp;to&nbsp;3D&nbsp;Model</b> para generar la imagen en 3D.</p>
+        <a class="nota-3d-enlace" href="https://www.neural4d.com/features/image-to-3d-model?utm_source=google&utm_medium=cpc&utm_campaign=image3dmodel&utm_content=search&utm_link_id=167&gad_source=1&gad_campaignid=23919044851&gbraid=0AAAABClhXnMdlhgpCHV1PyhbpEMYUwS8e&gclid=Cj0KCQjwp9vTBhCWARIsANaUrjvrs5MCkpxTOM7t2rXMNIZ_MGPZjh6wfBBktu4nM-yb-5CPt5blSOAaAvVeEALw_wcB" target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>
+          Abrir Neural4D · Image-to-3D
+        </a>
+      </div>
+      <div class="nota-3d-paso">
+        <h5><span class="num">2</span> Genera la infografía técnica</h5>
+        <p>Usa el render/foto del escudo como referencia y aplica este prompt para obtener una infografía descriptiva:</p>
+        <div class="nota-3d-prompt" id="nota3dPrompt">Genera una infografía del producto de la foto de referencia manteniendo exactamente el fondo original. Agrega encima un estilo de dibujo técnico en trazos blancos tipo boceto: contornos ilustrados, flechas, medidas, líneas guía, cotas y etiquetas descriptivas. Estética similar a un esquema técnico dibujado a mano, como en planos o diagramas de producto. No alterar colores, fondo ni iluminación de la imagen base: solo superponer.
+
+SITUACIÓN
+Tienes una foto de referencia de un producto que deseas transformar en una infografía técnica profesional. La imagen base contiene el producto con su fondo, colores e iluminación original que deben preservarse completamente sin modificaciones.
+
+TAREA
+Superponer un estilo de dibujo técnico en blanco sobre la foto original del producto. El estilo debe simular un esquema técnico dibujado a mano con los siguientes elementos:
+• Contornos ilustrados del producto en trazo blanco
+• Flechas direccionales y de señalización
+• Medidas y cotas dimensionales
+• Líneas guía de referencia
+• Etiquetas descriptivas con nombres de componentes o características
+• Anotaciones técnicas relevantes al producto
+
+OBJETIVO
+Crear una infografía que comunique información técnica y especificaciones del producto de forma clara y profesional, manteniendo la autenticidad visual de la foto original como base, sin alterar ningún aspecto de ella.
+
+KNOWLEDGE
+• La estética debe asemejar planos técnicos, diagramas de ingeniería o bocetos profesionales de productos.
+• Todos los elementos técnicos (flechas, medidas, líneas, etiquetas) deben ser en color blanco o tonos claros que contrasten con la imagen.
+• El fondo, iluminación y paleta de colores de la foto original permanecen intactos.
+• Los trazos deben tener un acabado limpio pero con apariencia de dibujo manual, no perfectamente digital.
+• Las medidas y cotas deben ser legibles y estar correctamente posicionadas sin obstruir información crítica del producto.</div>
+        <button class="btn primario nota-3d-copiar" id="nota3dCopiar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copiar prompt</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var c = document.getElementById("nota3d");
+  document.getElementById("nota3dTab").addEventListener("click", function () { c.classList.add("abierta"); });
+  document.getElementById("nota3dMin").addEventListener("click", function () { c.classList.remove("abierta"); });
+  document.getElementById("nota3dCopiar").addEventListener("click", function () {
+    var btn = this, txt = document.getElementById("nota3dPrompt").textContent.trim();
+    var ok = function () { var o = btn.innerHTML; btn.innerHTML = "✓ Prompt copiado"; setTimeout(function () { btn.innerHTML = o; }, 1700); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(ok).catch(function () { fallback(txt); ok(); });
+    else { fallback(txt); ok(); }
+    function fallback(t) { var ta = document.createElement("textarea"); ta.value = t; ta.style.position = "fixed"; ta.style.opacity = "0"; document.body.appendChild(ta); ta.select(); try { document.execCommand("copy"); } catch (e) {} document.body.removeChild(ta); }
+  });
+})();
+</script>
 
 <script>
 "use strict";
