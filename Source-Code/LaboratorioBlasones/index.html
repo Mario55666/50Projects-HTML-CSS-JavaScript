@@ -1,0 +1,1546 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Laboratorio Digital de Blasones</title>
+<meta name="description" content="Herramienta interactiva y pedagógica de diseño heráldico: compón escudos, tinturas y figuras, genera el blasonamiento y descubre su interpretación simbólica." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,900;1,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+/* ============================================================================
+   LABORATORIO DIGITAL DE BLASONES — Sistema de diseño
+   Tema oscuro editorial · acentos dorado/cobre/plata · alto contraste
+   ========================================================================== */
+:root {
+  /* Superficies */
+  --fondo: #0d0d0f;
+  --fondo-2: #131317;
+  --fondo-3: #1a1a20;
+  --panel: #16161c;
+  --panel-borde: #26262f;
+  --panel-elev: #1e1e26;
+  --lienzo: #101015;
+  --lienzo-vinieta: #08080a;
+
+  /* Acentos heráldicos */
+  --oro: #d4a853;
+  --oro-claro: #f0cd7e;
+  --oro-tenue: rgba(212, 168, 83, 0.14);
+  --cobre: #b87333;
+  --plata: #c9ccd4;
+  --plata-tenue: rgba(201, 204, 212, 0.1);
+
+  /* Texto */
+  --texto: #ece9e2;
+  --texto-2: #b7b4ad;
+  --texto-3: #7d7a75;
+  --texto-inv: #12100b;
+
+  /* Estados */
+  --exito: #4caf7d;
+  --aviso: #e0a941;
+  --peligro: #d1584f;
+  --peligro-tenue: rgba(209, 88, 79, 0.14);
+
+  /* Métrica */
+  --r-s: 7px;
+  --r-m: 11px;
+  --r-l: 16px;
+  --sombra: 0 10px 34px rgba(0, 0, 0, 0.5);
+  --sombra-s: 0 3px 12px rgba(0, 0, 0, 0.4);
+  --anillo: 0 0 0 2px rgba(212, 168, 83, 0.55);
+  --trans: 180ms cubic-bezier(0.22, 0.61, 0.36, 1);
+
+  --f-titulo: "Playfair Display", Georgia, serif;
+  --f-ui: "Inter", system-ui, -apple-system, sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: var(--f-ui);
+  background: var(--fondo);
+  color: var(--texto);
+  font-size: 14px;
+  line-height: 1.45;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #2c2c36; border-radius: 20px; border: 2px solid var(--panel); }
+::-webkit-scrollbar-thumb:hover { background: #3a3a46; }
+button { font-family: inherit; cursor: pointer; color: inherit; }
+:focus-visible { outline: none; box-shadow: var(--anillo); border-radius: var(--r-s); }
+
+/* ---------- Estructura general ---------- */
+#app {
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+  height: 100vh;
+  height: 100dvh;
+}
+
+/* ---------- Cabecera ---------- */
+.cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 12px 22px;
+  background: linear-gradient(180deg, #17171d 0%, #101014 100%);
+  border-bottom: 1px solid var(--panel-borde);
+  flex-wrap: wrap;
+}
+.marca { display: flex; align-items: center; gap: 15px; min-width: 0; }
+.marca .sello {
+  width: 44px; height: 44px; flex: none;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #2a2a33, #121216);
+  border: 1px solid var(--oro);
+  box-shadow: inset 0 0 12px rgba(212, 168, 83, 0.25), var(--sombra-s);
+}
+.marca .sello svg { width: 26px; height: 26px; }
+.marca h1 {
+  font-family: var(--f-titulo);
+  font-weight: 900;
+  font-size: 1.28rem;
+  letter-spacing: 0.2px;
+  line-height: 1.05;
+  background: linear-gradient(92deg, var(--oro-claro), var(--oro) 55%, var(--cobre));
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.marca p { font-size: 0.74rem; color: var(--texto-3); letter-spacing: 0.5px; text-transform: uppercase; }
+.acciones-cabecera { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+/* ---------- Botones ---------- */
+.btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 8px 13px;
+  background: var(--panel-elev);
+  border: 1px solid var(--panel-borde);
+  border-radius: var(--r-s);
+  color: var(--texto-2);
+  font-size: 0.8rem; font-weight: 600;
+  transition: var(--trans);
+  white-space: nowrap;
+}
+.btn svg { width: 15px; height: 15px; }
+.btn:hover { background: var(--fondo-3); color: var(--texto); border-color: #3a3a46; transform: translateY(-1px); }
+.btn:active { transform: translateY(0); }
+.btn.primario {
+  background: linear-gradient(180deg, var(--oro), var(--cobre));
+  color: var(--texto-inv);
+  border-color: var(--oro);
+}
+.btn.primario:hover { filter: brightness(1.08); }
+.btn.fantasma { background: transparent; }
+.btn.activo { background: var(--oro-tenue); color: var(--oro-claro); border-color: rgba(212,168,83,0.5); }
+.btn.peligro:hover { background: var(--peligro-tenue); color: var(--peligro); border-color: var(--peligro); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+/* ---------- Barra de herramientas ---------- */
+.barra-herramientas {
+  display: flex; align-items: center; gap: 4px;
+  padding: 7px 16px;
+  background: var(--fondo-2);
+  border-bottom: 1px solid var(--panel-borde);
+  overflow-x: auto;
+}
+.barra-herramientas .sep { width: 1px; align-self: stretch; background: var(--panel-borde); margin: 3px 6px; flex: none; }
+.tbtn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 10px; border-radius: var(--r-s);
+  background: transparent; border: 1px solid transparent;
+  color: var(--texto-2); font-size: 0.78rem; font-weight: 600;
+  transition: var(--trans); white-space: nowrap;
+}
+.tbtn svg { width: 16px; height: 16px; }
+.tbtn:hover { background: var(--fondo-3); color: var(--texto); }
+.tbtn.activo { background: var(--oro-tenue); color: var(--oro-claro); box-shadow: inset 0 0 0 1px rgba(212,168,83,0.4); }
+.tbtn:disabled { opacity: 0.35; cursor: not-allowed; }
+.zoom-nivel { font-variant-numeric: tabular-nums; min-width: 48px; text-align: center; font-size: 0.78rem; color: var(--texto-2); font-weight: 600; }
+
+/* ---------- Área de trabajo (3 columnas) ---------- */
+.area-trabajo {
+  display: grid;
+  grid-template-columns: 268px 1fr 312px;
+  min-height: 0;
+  overflow: hidden;
+}
+.panel {
+  background: var(--panel);
+  display: flex; flex-direction: column;
+  min-height: 0;
+}
+.panel-izq { border-right: 1px solid var(--panel-borde); }
+.panel-der { border-left: 1px solid var(--panel-borde); }
+.panel-cabecera {
+  padding: 11px 14px 9px;
+  font-family: var(--f-titulo);
+  font-weight: 700; font-size: 0.92rem;
+  color: var(--oro-claro);
+  border-bottom: 1px solid var(--panel-borde);
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+}
+
+/* ---------- Pestañas ---------- */
+.pestanas { display: flex; border-bottom: 1px solid var(--panel-borde); background: var(--fondo-2); }
+.pestanas button {
+  flex: 1; padding: 9px 4px;
+  background: transparent; border: none;
+  color: var(--texto-3); font-size: 0.72rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.4px;
+  border-bottom: 2px solid transparent;
+  transition: var(--trans);
+}
+.pestanas button:hover { color: var(--texto-2); }
+.pestanas button.activo { color: var(--oro-claro); border-bottom-color: var(--oro); }
+.panel-cuerpo { flex: 1; overflow-y: auto; overflow-x: hidden; }
+.tab-panel { display: none; padding: 12px; animation: aparecer 0.25s ease; }
+.tab-panel.activo { display: block; }
+@keyframes aparecer { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+/* ---------- Biblioteca ---------- */
+.biblio-grupo { margin-bottom: 6px; border: 1px solid var(--panel-borde); border-radius: var(--r-s); overflow: hidden; }
+.biblio-titulo {
+  width: 100%; display: flex; align-items: center; justify-content: space-between;
+  padding: 9px 11px; background: var(--fondo-2);
+  font-size: 0.76rem; font-weight: 700; color: var(--texto); text-align: left;
+  border: none; transition: var(--trans);
+}
+.biblio-titulo:hover { background: var(--fondo-3); }
+.biblio-titulo .chevron { transition: transform var(--trans); color: var(--texto-3); }
+.biblio-grupo.abierto .chevron { transform: rotate(90deg); }
+.biblio-lista { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; padding: 8px; }
+.biblio-grupo:not(.abierto) .biblio-lista { display: none; }
+.pieza {
+  aspect-ratio: 1; border: 1px solid var(--panel-borde); border-radius: var(--r-s);
+  background: var(--fondo-3); display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 3px; padding: 5px 3px;
+  transition: var(--trans); cursor: grab; position: relative;
+}
+.pieza:hover { border-color: var(--oro); background: #202028; transform: translateY(-2px); box-shadow: var(--sombra-s); }
+.pieza:active { cursor: grabbing; transform: scale(0.96); }
+.pieza svg { width: 100%; height: 34px; fill: var(--plata); }
+.pieza .etq { font-size: 0.58rem; color: var(--texto-3); text-align: center; line-height: 1.1; letter-spacing: 0.2px; }
+.pieza:hover .etq { color: var(--texto-2); }
+
+/* ---------- Lienzo central ---------- */
+.lienzo-wrap { position: relative; background: radial-gradient(ellipse at 50% 40%, var(--lienzo) 0%, var(--lienzo-vinieta) 100%); overflow: hidden; }
+#lienzo { width: 100%; height: 100%; display: block; touch-action: none; }
+.lienzo-info {
+  position: absolute; left: 14px; bottom: 12px;
+  font-size: 0.7rem; color: var(--texto-3);
+  background: rgba(13,13,15,0.72); padding: 5px 10px; border-radius: 20px;
+  border: 1px solid var(--panel-borde); backdrop-filter: blur(6px);
+  pointer-events: none; font-variant-numeric: tabular-nums;
+}
+.lienzo-migas {
+  position: absolute; left: 50%; top: 12px; transform: translateX(-50%);
+  font-family: var(--f-titulo); font-style: italic; font-size: 0.82rem; color: var(--texto-3);
+  pointer-events: none; text-align: center; max-width: 70%;
+}
+.zoom-flotante {
+  position: absolute; right: 14px; bottom: 12px;
+  display: flex; flex-direction: column; gap: 5px;
+  background: rgba(19,19,23,0.86); padding: 6px; border-radius: var(--r-m);
+  border: 1px solid var(--panel-borde); backdrop-filter: blur(6px); box-shadow: var(--sombra-s);
+}
+.zoom-flotante button { width: 30px; height: 30px; display: grid; place-items: center; border-radius: var(--r-s); background: var(--panel-elev); border: 1px solid var(--panel-borde); color: var(--texto-2); transition: var(--trans); }
+.zoom-flotante button:hover { color: var(--oro-claro); border-color: var(--oro); }
+.zoom-flotante svg { width: 15px; height: 15px; }
+
+/* Manijas de selección */
+.selc-caja { fill: none; stroke: var(--oro); stroke-width: 1.4; stroke-dasharray: 5 4; pointer-events: none; opacity: 0.9; }
+.manija { fill: var(--fondo); stroke: var(--oro); stroke-width: 1.6; cursor: pointer; }
+.manija.escala { cursor: nwse-resize; }
+.manija.rotar { fill: var(--oro); cursor: grab; }
+.manija-linea { stroke: var(--oro); stroke-width: 1.2; stroke-dasharray: 3 3; pointer-events: none; }
+.etiqueta-did { pointer-events: none; }
+
+/* ---------- Panel derecho: propiedades ---------- */
+.campo { margin-bottom: 13px; }
+.campo > label { display: block; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--texto-3); font-weight: 700; margin-bottom: 5px; }
+.fila { display: flex; gap: 8px; }
+.fila .campo { flex: 1; margin-bottom: 0; }
+.control {
+  width: 100%; padding: 7px 10px;
+  background: var(--fondo-3); border: 1px solid var(--panel-borde);
+  border-radius: var(--r-s); color: var(--texto); font-size: 0.82rem;
+  transition: var(--trans); font-variant-numeric: tabular-nums;
+}
+.control:focus { border-color: var(--oro); background: var(--fondo-2); }
+select.control { cursor: pointer; }
+input[type="range"].control { padding: 0; background: transparent; border: none; height: 22px; accent-color: var(--oro); cursor: pointer; }
+.rango-fila { display: flex; align-items: center; gap: 10px; }
+.rango-fila input[type=range] { flex: 1; }
+.rango-val { min-width: 42px; text-align: right; font-size: 0.78rem; color: var(--texto-2); font-variant-numeric: tabular-nums; }
+.acciones-obj { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-top: 6px; }
+.mini-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 8px; background: var(--panel-elev); border: 1px solid var(--panel-borde);
+  border-radius: var(--r-s); color: var(--texto-2); font-size: 0.76rem; font-weight: 600;
+  transition: var(--trans);
+}
+.mini-btn:hover { background: var(--fondo-3); color: var(--texto); border-color: #3a3a46; }
+.mini-btn svg { width: 14px; height: 14px; }
+.vacio-panel { text-align: center; padding: 34px 16px; color: var(--texto-3); }
+.vacio-panel svg { width: 40px; height: 40px; opacity: 0.5; margin-bottom: 10px; }
+.vacio-panel p { font-size: 0.8rem; line-height: 1.5; }
+
+/* ---------- Capas ---------- */
+.capa {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 10px; margin-bottom: 5px;
+  background: var(--fondo-3); border: 1px solid var(--panel-borde);
+  border-radius: var(--r-s); transition: var(--trans); cursor: pointer;
+}
+.capa:hover { border-color: #3a3a46; }
+.capa.sel { border-color: var(--oro); background: var(--oro-tenue); }
+.capa .cminiatura { width: 30px; height: 30px; flex: none; border-radius: var(--r-s); background: var(--fondo); border: 1px solid var(--panel-borde); display: grid; place-items: center; overflow: hidden; }
+.capa .cminiatura svg { width: 24px; height: 24px; }
+.capa .cnombre { flex: 1; min-width: 0; font-size: 0.78rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.capa .cnombre small { display: block; color: var(--texto-3); font-weight: 400; font-size: 0.66rem; }
+.capa .cacciones { display: flex; gap: 2px; }
+.icono-btn { width: 26px; height: 26px; display: grid; place-items: center; border-radius: 5px; background: transparent; border: none; color: var(--texto-3); transition: var(--trans); }
+.icono-btn:hover { background: var(--fondo); color: var(--texto); }
+.icono-btn svg { width: 15px; height: 15px; }
+.icono-btn.on { color: var(--oro); }
+
+/* ---------- Blasón / Interpretación ---------- */
+.blason-texto {
+  font-family: var(--f-titulo); font-style: italic; font-size: 0.98rem; line-height: 1.65;
+  color: var(--texto); padding: 15px; background: var(--fondo-2);
+  border: 1px solid var(--panel-borde); border-left: 3px solid var(--oro);
+  border-radius: var(--r-s); margin-bottom: 12px;
+}
+.blason-texto .campo-t { color: var(--oro-claro); font-weight: 600; }
+.subtitulo { font-family: var(--f-titulo); font-weight: 700; font-size: 0.86rem; color: var(--oro-claro); margin: 16px 0 8px; }
+.interp-item { padding: 11px 12px; margin-bottom: 8px; background: var(--fondo-3); border: 1px solid var(--panel-borde); border-radius: var(--r-s); }
+.interp-item h4 { font-size: 0.82rem; color: var(--texto); margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+.interp-item .punto { width: 12px; height: 12px; border-radius: 3px; flex: none; border: 1px solid rgba(255,255,255,0.2); }
+.interp-item p { font-size: 0.78rem; color: var(--texto-2); line-height: 1.55; }
+.interp-item .prof { display: inline-block; margin-top: 6px; font-size: 0.68rem; color: var(--oro); font-style: italic; }
+
+/* ---------- Paleta inferior ---------- */
+.paleta {
+  display: flex; align-items: center; gap: 18px;
+  padding: 11px 20px; background: linear-gradient(0deg, #17171d, #101014);
+  border-top: 1px solid var(--panel-borde); flex-wrap: wrap;
+}
+.paleta-grupo { display: flex; align-items: center; gap: 10px; }
+.paleta-etq { font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.6px; color: var(--texto-3); font-weight: 700; }
+.esmaltes { display: flex; gap: 7px; flex-wrap: wrap; }
+.esmalte {
+  width: 30px; height: 30px; border-radius: 50%; position: relative;
+  border: 2px solid rgba(255,255,255,0.14); transition: var(--trans); cursor: pointer;
+}
+.esmalte:hover { transform: scale(1.14) translateY(-2px); box-shadow: var(--sombra-s); }
+.esmalte.sel { border-color: var(--oro); box-shadow: var(--anillo); }
+.esmalte[data-clase="metal"]::after { content: "M"; }
+.esmalte[data-clase="color"]::after { content: "C"; }
+.esmalte::after { position: absolute; inset: 0; display: grid; place-items: center; font-size: 0.5rem; font-weight: 800; color: rgba(0,0,0,0.42); }
+.esmalte[data-oscuro="1"]::after { color: rgba(255,255,255,0.5); }
+.color-custom { display: flex; align-items: center; gap: 7px; }
+.color-custom input[type="color"] { width: 34px; height: 34px; border: 1px solid var(--panel-borde); border-radius: var(--r-s); background: var(--fondo-3); cursor: pointer; padding: 2px; }
+.color-custom input[type="text"] { width: 90px; }
+.aplicar-grupo { display: flex; gap: 7px; }
+
+/* ---------- Aviso regla esmaltes ---------- */
+.aviso-esmaltes {
+  position: absolute; top: 12px; right: 14px; max-width: 300px;
+  background: var(--peligro-tenue); border: 1px solid var(--peligro);
+  color: #f2b8b3; padding: 10px 13px; border-radius: var(--r-s);
+  font-size: 0.76rem; line-height: 1.5; box-shadow: var(--sombra);
+  display: flex; gap: 9px; align-items: flex-start;
+  opacity: 0; transform: translateY(-8px); pointer-events: none; transition: var(--trans);
+}
+.aviso-esmaltes.ver { opacity: 1; transform: none; }
+.aviso-esmaltes svg { width: 17px; height: 17px; flex: none; color: var(--peligro); margin-top: 1px; }
+.aviso-esmaltes strong { color: #fff; }
+
+/* ---------- Toast ---------- */
+.toast-wrap { position: fixed; bottom: 84px; left: 50%; transform: translateX(-50%); z-index: 200; display: flex; flex-direction: column; gap: 8px; align-items: center; pointer-events: none; }
+.toast {
+  background: var(--panel-elev); border: 1px solid var(--panel-borde); border-left: 3px solid var(--oro);
+  color: var(--texto); padding: 10px 16px; border-radius: var(--r-s); font-size: 0.82rem; font-weight: 500;
+  box-shadow: var(--sombra); display: flex; align-items: center; gap: 9px;
+  animation: toast-in 0.28s ease, toast-out 0.3s ease 2.6s forwards;
+}
+.toast svg { width: 16px; height: 16px; color: var(--oro); }
+.toast.exito { border-left-color: var(--exito); } .toast.exito svg { color: var(--exito); }
+.toast.error { border-left-color: var(--peligro); } .toast.error svg { color: var(--peligro); }
+@keyframes toast-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes toast-out { to { opacity: 0; transform: translateY(-8px); } }
+
+/* ---------- Modo didáctico: ficha imprimible ---------- */
+.modal-fondo { position: fixed; inset: 0; background: rgba(6,6,8,0.78); backdrop-filter: blur(4px); z-index: 300; display: none; align-items: center; justify-content: center; padding: 24px; }
+.modal-fondo.ver { display: flex; }
+.ficha {
+  background: #faf7ef; color: #1c1913; width: min(760px, 96vw); max-height: 92vh; overflow-y: auto;
+  border-radius: var(--r-m); box-shadow: 0 30px 80px rgba(0,0,0,0.6); position: relative;
+}
+.ficha-barra { position: sticky; top: 0; display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; background: #1a1a20; }
+.ficha-barra h3 { font-family: var(--f-titulo); color: var(--oro-claro); font-size: 1rem; }
+.ficha-barra .acc { display: flex; gap: 8px; }
+.ficha-cuerpo { padding: 30px 40px 44px; }
+.ficha-cuerpo .encabezado-ficha { text-align: center; border-bottom: 2px solid #c9a24a; padding-bottom: 18px; margin-bottom: 22px; }
+.ficha-cuerpo .encabezado-ficha h2 { font-family: var(--f-titulo); font-size: 1.7rem; color: #2a230f; }
+.ficha-cuerpo .encabezado-ficha p { color: #6a5f45; font-style: italic; margin-top: 4px; }
+.ficha-escudo { display: flex; justify-content: center; margin: 10px 0 26px; }
+.ficha-escudo svg { width: 240px; height: auto; filter: drop-shadow(0 8px 18px rgba(0,0,0,0.25)); }
+.ficha-seccion { margin-bottom: 22px; }
+.ficha-seccion h4 { font-family: var(--f-titulo); font-size: 1.05rem; color: #5c3d17; border-bottom: 1px solid #ddd0b0; padding-bottom: 5px; margin-bottom: 10px; }
+.ficha-seccion p, .ficha-seccion li { font-size: 0.9rem; line-height: 1.6; color: #33301f; }
+.ficha-seccion .blz { font-family: var(--f-titulo); font-style: italic; font-size: 1.05rem; color: #2a230f; }
+.ficha-seccion ul { list-style: none; }
+.ficha-seccion li { padding: 6px 0; border-bottom: 1px dashed #e2d8bf; display: flex; gap: 10px; }
+.ficha-seccion li .cuadro { width: 15px; height: 15px; border-radius: 3px; flex: none; margin-top: 3px; border: 1px solid rgba(0,0,0,0.2); }
+.ficha-pie { text-align: center; color: #8a7d5c; font-size: 0.74rem; border-top: 1px solid #ddd0b0; padding-top: 14px; margin-top: 10px; }
+
+/* ---------- Leyenda didáctica ---------- */
+.leyenda { padding: 10px 12px; }
+.leyenda-item { display: flex; align-items: center; gap: 10px; padding: 5px 0; font-size: 0.78rem; }
+.leyenda-item .sw { width: 22px; height: 22px; border-radius: 5px; flex: none; border: 1px solid rgba(255,255,255,0.15); }
+.leyenda-item b { color: var(--texto); } .leyenda-item span { color: var(--texto-3); }
+
+.hint { font-size: 0.72rem; color: var(--texto-3); line-height: 1.5; margin-top: 4px; }
+.pill { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 0.66rem; font-weight: 700; background: var(--oro-tenue); color: var(--oro-claro); }
+kbd { background: var(--fondo-3); border: 1px solid var(--panel-borde); border-bottom-width: 2px; border-radius: 4px; padding: 1px 5px; font-size: 0.7rem; font-family: var(--f-ui); color: var(--texto-2); }
+
+/* ---------- Responsivo ---------- */
+@media (max-width: 1100px) {
+  .area-trabajo { grid-template-columns: 220px 1fr 260px; }
+}
+@media (max-width: 860px) {
+  body { overflow: auto; }
+  #app { height: auto; min-height: 100vh; }
+  .area-trabajo { grid-template-columns: 1fr; }
+  .panel-izq, .panel-der { border: none; border-top: 1px solid var(--panel-borde); max-height: 340px; }
+  .lienzo-wrap { height: 62vh; min-height: 420px; }
+  .panel-izq { order: 2; } .lienzo-wrap { order: 1; } .panel-der { order: 3; }
+}
+@media (max-width: 520px) {
+  .marca p { display: none; }
+  .btn .lbl { display: none; } .btn { padding: 8px; }
+  .paleta { gap: 10px; }
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <!-- ============ CABECERA ============ -->
+  <header class="cabecera">
+    <div class="marca">
+      <span class="sello" aria-hidden="true">
+        <svg viewBox="0 0 100 100"><path d="M20 12 H80 V52 Q80 84 50 94 Q20 84 20 52 Z" fill="none" stroke="#d4a853" stroke-width="5"/><path d="M50 26 L58 44 L50 62 L42 44 Z" fill="#d4a853"/></svg>
+      </span>
+      <div>
+        <h1>Laboratorio Digital de Blasones</h1>
+        <p>Diseño heráldico interactivo &amp; pedagógico</p>
+      </div>
+    </div>
+    <div class="acciones-cabecera">
+      <button class="btn fantasma" id="btnNuevo" title="Nuevo proyecto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg><span class="lbl">Nuevo</span></button>
+      <button class="btn fantasma" id="btnGuardar" title="Guardar en el navegador"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg><span class="lbl">Guardar</span></button>
+      <button class="btn fantasma" id="btnCargar" title="Cargar proyecto guardado"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v12a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-8l-2-3H5a2 2 0 0 0-2 2z"/></svg><span class="lbl">Cargar</span></button>
+      <button class="btn fantasma" id="btnImportar" title="Importar JSON"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M8 11l4 4 4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg><span class="lbl">Importar</span></button>
+      <button class="btn fantasma" id="btnExportJSON" title="Exportar JSON"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V9M8 13l4-4 4 4M4 7V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2"/></svg><span class="lbl">JSON</span></button>
+      <button class="btn fantasma" id="btnExportSVG" title="Exportar SVG"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 12l3 3 5-6"/></svg><span class="lbl">SVG</span></button>
+      <button class="btn primario" id="btnExportPNG" title="Exportar PNG"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span class="lbl">PNG</span></button>
+      <button class="btn" id="btnDidactico" title="Modo didáctico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2zM22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg><span class="lbl">Didáctico</span></button>
+    </div>
+  </header>
+
+  <!-- ============ BARRA DE HERRAMIENTAS ============ -->
+  <div class="barra-herramientas" role="toolbar" aria-label="Herramientas">
+    <button class="tbtn activo" data-tool="seleccionar" title="Seleccionar (V)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l7.5 18 2.5-7.5L20.5 11z"/></svg>Seleccionar</button>
+    <button class="tbtn" data-tool="mano" title="Mover lienzo (H / Espacio)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11V6a2 2 0 0 0-4 0v5M14 10V4a2 2 0 0 0-4 0v6M10 10.5V6a2 2 0 0 0-4 0v8"/><path d="M18 8a2 2 0 0 1 4 0v6a8 8 0 0 1-8 8h-2a8 8 0 0 1-7-4l-3-5a2 2 0 0 1 3.4-2L8 15"/></svg>Mano</button>
+    <span class="sep"></span>
+    <button class="tbtn" id="tbTexto" title="Añadir texto (lema)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V5h16v2M9 19h6M12 5v14"/></svg>Texto</button>
+    <button class="tbtn" id="tbDuplicar" title="Duplicar (Ctrl+D)" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Duplicar</button>
+    <button class="tbtn" id="tbEliminar" title="Eliminar (Supr)" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>Eliminar</button>
+    <span class="sep"></span>
+    <button class="tbtn" id="tbDeshacer" title="Deshacer (Ctrl+Z)" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M3 13a9 9 0 1 0 3-7L3 9"/></svg>Deshacer</button>
+    <button class="tbtn" id="tbRehacer" title="Rehacer (Ctrl+Y)" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 7v6h-6"/><path d="M21 13a9 9 0 1 1-3-7l3 3"/></svg>Rehacer</button>
+    <span class="sep"></span>
+    <button class="tbtn activo" id="tbSnap" title="Ajustar a cuadrícula"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h18v18H3zM9 3v18M15 3v18M3 9h18M3 15h18"/></svg>Snap</button>
+    <button class="tbtn activo" id="tbGrid" title="Mostrar cuadrícula"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Cuadrícula</button>
+    <button class="tbtn" id="tbCentrar" title="Centrar vista"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>Centrar</button>
+    <span class="sep"></span>
+    <button class="tbtn" id="tbZoomOut" title="Alejar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M8 11h6"/></svg></button>
+    <span class="zoom-nivel" id="zoomNivel">100%</span>
+    <button class="tbtn" id="tbZoomIn" title="Acercar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6"/></svg></button>
+    <button class="tbtn" id="tbZoomFit" title="Ajustar a la ventana"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>Ajustar</button>
+  </div>
+
+  <!-- ============ ÁREA DE TRABAJO ============ -->
+  <div class="area-trabajo">
+    <!-- Panel izquierdo: biblioteca -->
+    <aside class="panel panel-izq" aria-label="Biblioteca heráldica">
+      <div class="panel-cabecera">Biblioteca Heráldica</div>
+      <div class="pestanas" id="pestanasBiblio">
+        <button class="activo" data-cat="escudos">Escudos</button>
+        <button data-cat="particiones">Particiones</button>
+        <button data-cat="figuras">Figuras</button>
+        <button data-cat="ornamentos">Ornam.</button>
+      </div>
+      <div class="panel-cuerpo" id="biblioCuerpo"></div>
+    </aside>
+
+    <!-- Centro: mesa de trabajo -->
+    <section class="lienzo-wrap">
+      <div class="lienzo-migas" id="lienzoMigas"></div>
+      <svg id="lienzo" viewBox="0 0 600 760" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg"></svg>
+      <div class="lienzo-info" id="lienzoInfo">Arrastra una pieza desde la biblioteca</div>
+      <div class="aviso-esmaltes" id="avisoEsmaltes">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg>
+        <div id="avisoEsmaltesTxt"></div>
+      </div>
+      <div class="zoom-flotante">
+        <button id="zfIn" title="Acercar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+        <button id="zfOut" title="Alejar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14"/></svg></button>
+      </div>
+    </section>
+
+    <!-- Panel derecho: propiedades -->
+    <aside class="panel panel-der" aria-label="Propiedades del blasón">
+      <div class="pestanas" id="pestanasProp">
+        <button class="activo" data-tab="objeto">Objeto</button>
+        <button data-tab="capas">Capas</button>
+        <button data-tab="blason">Blasón</button>
+        <button data-tab="interp">Sentido</button>
+      </div>
+      <div class="panel-cuerpo">
+        <div class="tab-panel activo" id="tabObjeto"></div>
+        <div class="tab-panel" id="tabCapas"></div>
+        <div class="tab-panel" id="tabBlason"></div>
+        <div class="tab-panel" id="tabInterp"></div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- ============ PALETA CROMÁTICA ============ -->
+  <footer class="paleta">
+    <div class="paleta-grupo">
+      <span class="paleta-etq">Esmaltes</span>
+      <div class="esmaltes" id="esmaltes"></div>
+    </div>
+    <div class="paleta-grupo color-custom">
+      <span class="paleta-etq">Custom</span>
+      <input type="color" id="colorCustom" value="#d4a853" title="Color personalizado" />
+      <input type="text" class="control" id="colorHex" value="#D4A853" maxlength="7" spellcheck="false" />
+    </div>
+    <div class="paleta-grupo aplicar-grupo">
+      <button class="btn" id="aplicarRelleno"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 11l-8-8-8.6 8.6a2 2 0 0 0 0 2.8l5.2 5.2a2 2 0 0 0 2.8 0zM5 2l14 14M2 20h20"/></svg><span class="lbl">Relleno</span></button>
+      <button class="btn" id="aplicarBorde"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/></svg><span class="lbl">Borde</span></button>
+    </div>
+    <div class="paleta-grupo">
+      <span class="paleta-etq">Acabado</span>
+      <select class="control" id="acabado" style="width:130px">
+        <option value="plano">Plano</option>
+        <option value="satinado">Satinado</option>
+        <option value="metalico">Metálico</option>
+        <option value="relieve">Relieve</option>
+      </select>
+    </div>
+  </footer>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<!-- Ficha didáctica imprimible -->
+<div class="modal-fondo" id="modalFicha">
+  <div class="ficha">
+    <div class="ficha-barra">
+      <h3>Ficha de Análisis Heráldico</h3>
+      <div class="acc">
+        <button class="btn fantasma" id="fichaImprimir"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v8H6z"/></svg><span class="lbl">Imprimir</span></button>
+        <button class="btn fantasma" id="fichaCerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      </div>
+    </div>
+    <div class="ficha-cuerpo" id="fichaCuerpo"></div>
+  </div>
+</div>
+
+<input type="file" id="inputImportar" accept="application/json,.json" style="display:none" />
+
+<script>
+"use strict";
+/* ============================================================================
+ * LABORATORIO DIGITAL DE BLASONES
+ * Aplicación de un solo archivo. Motor SVG + módulos por responsabilidad.
+ * ========================================================================== */
+(function () {
+  const NS = "http://www.w3.org/2000/svg";
+  const VB = { w: 600, h: 760, cx: 300, cy: 360 };   // caja del lienzo y centro del escudo
+  const GRID = 25;
+
+  const $ = (s, c) => (c || document).querySelector(s);
+  const $$ = (s, c) => Array.from((c || document).querySelectorAll(s));
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  const uid = () => "e" + Math.random().toString(36).slice(2, 9);
+  const svgEl = (t, a) => { const e = document.createElementNS(NS, t); if (a) for (const k in a) e.setAttribute(k, a[k]); return e; };
+
+/* ==========================================================================
+ * 1 · ESMALTES HERÁLDICOS (tinturas) + regla de esmaltes
+ * ======================================================================== */
+const ESMALTES = [
+  { id: "oro",       nombre: "Oro",       de: "de oro",       hex: "#E0B848", clase: "metal", oscuro: 0, sig: "nobleza, generosidad, riqueza y constancia; la luz de la sabiduría." },
+  { id: "plata",     nombre: "Plata",     de: "de plata",     hex: "#E7E8EC", clase: "metal", oscuro: 0, sig: "pureza, integridad, humildad, elocuencia y paz." },
+  { id: "gules",     nombre: "Gules",     de: "de gules",     hex: "#B0242A", clase: "color", oscuro: 1, sig: "valor, fortaleza, audacia y amor a la patria; la sangre del honor." },
+  { id: "azur",      nombre: "Azur",      de: "de azur",      hex: "#1F4B99", clase: "color", oscuro: 1, sig: "lealtad, justicia, verdad, perseverancia y nobleza serena." },
+  { id: "sinople",   nombre: "Sinople",   de: "de sinople",   hex: "#1E7D46", clase: "color", oscuro: 1, sig: "esperanza, abundancia, libertad, cortesía y la vitalidad de la tierra." },
+  { id: "purpura",   nombre: "Púrpura",   de: "de púrpura",   hex: "#6C3483", clase: "color", oscuro: 1, sig: "soberanía, dignidad, majestad y templanza." },
+  { id: "sable",     nombre: "Sable",     de: "de sable",     hex: "#1B1B22", clase: "color", oscuro: 1, sig: "prudencia, sabiduría, firmeza y el duelo honroso." },
+  { id: "tenne",     nombre: "Tenné",     de: "de tenné",     hex: "#B4652A", clase: "color", oscuro: 0, sig: "ambición digna y honor ganado con esfuerzo propio." },
+  { id: "sanguineo", nombre: "Sanguíneo", de: "de sanguíneo", hex: "#7B241C", clase: "color", oscuro: 1, sig: "paciencia en la adversidad y victoria tras el sacrificio." },
+];
+const tinturaDe = (hex) => ESMALTES.find((e) => e.hex.toLowerCase() === String(hex || "").toLowerCase()) || null;
+
+/* ==========================================================================
+ * 2 · Generadores procedurales de patrones
+ * ======================================================================== */
+const gen = {
+  sol() {
+    const cx = 50, cy = 50, ri = 23, ro = 47, n = 12; let d = "";
+    for (let i = 0; i < n; i++) {
+      const a0 = (i / n) * 2 * Math.PI, a1 = ((i + 0.5) / n) * 2 * Math.PI, a2 = ((i + 1) / n) * 2 * Math.PI;
+      d += `M${(cx + ri * Math.cos(a0)).toFixed(1)},${(cy + ri * Math.sin(a0)).toFixed(1)} L${(cx + ro * Math.cos(a1)).toFixed(1)},${(cy + ro * Math.sin(a1)).toFixed(1)} L${(cx + ri * Math.cos(a2)).toFixed(1)},${(cy + ri * Math.sin(a2)).toFixed(1)} Z `;
+    }
+    return `<circle cx="50" cy="50" r="25"/><path d="${d}"/>`;
+  },
+  rueda() {
+    const cx = 50, cy = 50; let d = "";
+    d += `M${cx - 42},${cy} a42,42 0 1,0 84,0 a42,42 0 1,0 -84,0 Z `;
+    d += `M${cx - 31},${cy} a31,31 0 1,0 62,0 a31,31 0 1,0 -62,0 Z `;
+    for (let i = 0; i < 8; i++) {
+      const a = (i / 8) * 2 * Math.PI, pa = a + Math.PI / 2, w = 3.4;
+      const x = cx + 42 * Math.cos(a), y = cy + 42 * Math.sin(a), x2 = cx + 6 * Math.cos(a), y2 = cy + 6 * Math.sin(a);
+      const wx = w * Math.cos(pa), wy = w * Math.sin(pa);
+      d += `M${(x2 + wx).toFixed(1)},${(y2 + wy).toFixed(1)} L${(x + wx).toFixed(1)},${(y + wy).toFixed(1)} L${(x - wx).toFixed(1)},${(y - wy).toFixed(1)} L${(x2 - wx).toFixed(1)},${(y2 - wy).toFixed(1)} Z `;
+    }
+    d += `M${cx - 11},${cy} a11,11 0 1,0 22,0 a11,11 0 1,0 -22,0 Z `;
+    return `<path fill-rule="evenodd" d="${d}"/>`;
+  },
+  hojas(len, w) {
+    const cx = 50, cy = 54, rx = 38, ry = 40, n = 13; let d = "";
+    for (let side = -1; side <= 1; side += 2) {
+      for (let i = 1; i < n; i++) {
+        const t = i / n, a = Math.PI / 2 + side * (t * Math.PI * 0.92);
+        const bx = cx + rx * Math.cos(a), by = cy - ry * Math.sin(a), la = a - side * 0.55;
+        const tx = bx + len * Math.cos(la), ty = by - len * Math.sin(la);
+        const mx = (bx + tx) / 2, my = (by + ty) / 2, nx = Math.sin(la) * w, ny = Math.cos(la) * w;
+        d += `M${bx.toFixed(1)},${by.toFixed(1)} Q${(mx - nx).toFixed(1)},${(my - ny).toFixed(1)} ${tx.toFixed(1)},${ty.toFixed(1)} Q${(mx + nx).toFixed(1)},${(my + ny).toFixed(1)} ${bx.toFixed(1)},${by.toFixed(1)} Z `;
+      }
+    }
+    return `<path d="${d}"/>`;
+  },
+  barry() { let d = ""; const n = 6, h = 340 / n; for (let i = 0; i < n; i += 2) d += `M0,${(i * h).toFixed(1)} H300 V${((i + 1) * h).toFixed(1)} H0 Z `; return `<path d="${d}"/>`; },
+  ondaBanda(y0, y1) { let d = `M0,${y0.toFixed(1)}`; for (let x = 10; x <= 300; x += 10) d += ` L${x},${(y0 + Math.sin((x / 300) * Math.PI * 4) * 7).toFixed(1)}`; d += ` L300,${y1.toFixed(1)}`; for (let x = 290; x >= 0; x -= 10) d += ` L${x},${(y1 + Math.sin((x / 300) * Math.PI * 4) * 7).toFixed(1)}`; return d + " Z "; },
+  wavy() { let d = ""; const n = 6, h = 340 / n; for (let i = 0; i < n; i += 2) d += gen.ondaBanda(i * h, (i + 1) * h); return `<path d="${d}"/>`; },
+  fretty() { let d = ""; const w = 9; for (let k = -6; k <= 12; k++) { const o = k * 52; d += `M${o},0 L${o + 340},340 L${o + 340 - w * 1.4},340 L${o - w * 1.4},0 Z `; } for (let k = -6; k <= 14; k++) { const o = k * 52; d += `M${300 - o},0 L${300 - o - 340},340 L${300 - o - 340 + w * 1.4},340 L${300 - o + w * 1.4},0 Z `; } return `<path d="${d}"/>`; },
+  lozengy() { let d = ""; const w = 60, h = 70; for (let row = -1; (row * h) / 2 < 380; row++) { const y = (row * h) / 2; const off = row % 2 ? w / 2 : 0; for (let col = -1; col * w < 360; col++) { if ((row + col) & 1) continue; const x = col * w + off; d += `M${x + w / 2},${y} L${x + w},${y + h / 2} L${x + w / 2},${y + h} L${x},${y + h / 2} Z `; } } return `<path d="${d}"/>`; },
+};
+
+/* ==========================================================================
+ * 3 · BIBLIOTECA HERÁLDICA (SVG inline)
+ *  · escudos: outline en caja local 300×340
+ *  · particiones: geometría de la 2.ª tintura en caja 300×340 (recorte al escudo)
+ *  · figuras: caja 100×100 · ornamentos: caja 100×100
+ * ======================================================================== */
+const DATOS = {
+  escudos: [
+    { key: "frances",  nombre: "Francés",   path: "M40,20 H260 V150 Q260,300 150,332 Q40,300 40,150 Z" },
+    { key: "espanol",  nombre: "Español",   path: "M40,20 H260 V178 Q260,320 150,332 Q40,320 40,178 Z" },
+    { key: "ingles",   nombre: "Inglés",    path: "M42,20 H258 V250 Q258,298 210,318 Q150,338 90,318 Q42,298 42,250 Z" },
+    { key: "suizo",    nombre: "Suizo",     path: "M48,20 Q40,22 40,42 V150 Q40,290 150,332 Q260,290 260,150 V42 Q260,22 252,20 Z" },
+    { key: "italiano", nombre: "Italiano",  path: "M62,24 Q40,24 40,54 V160 Q40,300 150,332 Q260,300 260,160 V54 Q260,24 238,24 Z" },
+    { key: "aleman",   nombre: "Alemán",    path: "M40,20 H196 A16,16 0 0 0 226,20 H260 V150 Q260,300 150,332 Q40,300 40,150 Z" },
+    { key: "ovalado",  nombre: "Ovalado",   path: "M150,14 C238,14 274,84 274,176 C274,270 220,332 150,332 C80,332 26,270 26,176 C26,84 62,14 150,14 Z" },
+    { key: "cartela",  nombre: "Cartela",   path: "M74,32 Q42,30 48,70 Q22,92 42,122 Q26,176 46,216 Q40,272 92,300 Q150,338 208,300 Q260,272 254,216 Q274,176 258,122 Q278,92 252,70 Q258,30 226,32 Q150,16 74,32 Z" },
+    { key: "moderno",  nombre: "Moderno",   path: "M62,26 Q32,26 32,60 V210 Q32,252 72,290 Q150,336 228,290 Q268,252 268,210 V60 Q268,26 238,26 Z" },
+  ],
+
+  particiones: [
+    { key: "partido",    nombre: "Partido",    body: '<path d="M150,0 H300 V340 H0 V340 H150 Z"/>' , real: '<path d="M150,0 H300 V340 H150 Z"/>' },
+    { key: "cortado",    nombre: "Cortado",    real: '<path d="M0,170 H300 V340 H0 Z"/>' },
+    { key: "tronchado",  nombre: "Tronchado",  real: '<path d="M0,0 L300,340 L0,340 Z"/>' },
+    { key: "tajado",     nombre: "Tajado",     real: '<path d="M300,0 L0,340 L300,340 Z"/>' },
+    { key: "cuartelado", nombre: "Cuartelado", real: '<path d="M0,0 H150 V170 H0 Z M150,170 H300 V340 H150 Z"/>' },
+    { key: "terciado",   nombre: "Terciado",   real: '<path d="M100,0 H200 V340 H100 Z"/>' },
+    { key: "chevronado", nombre: "Chevronado", real: '<path d="M150,158 L296,320 H248 L150,214 L52,320 H4 Z"/>' },
+    { key: "gironado",   nombre: "Gironado",   real: '<path d="M150,170 L0,0 L150,0 Z M150,170 L300,0 L300,170 Z M150,170 L300,340 L150,340 Z M150,170 L0,340 L0,170 Z"/>' },
+    { key: "freteado",   nombre: "Freteado",   real: gen.fretty() },
+    { key: "losanjado",  nombre: "Losanjado",  real: gen.lozengy() },
+    { key: "ondado",     nombre: "Ondado",     real: gen.wavy() },
+    { key: "franjas",    nombre: "Franjas",    real: gen.barry() },
+  ],
+
+  figuras: [
+    { key: "leon",     nombre: "León",       art: "un",  body: '<path d="M30,92 L30,60 Q26,52 30,44 L26,36 Q30,30 36,32 L40,22 Q42,14 50,16 Q54,10 60,14 Q58,20 54,23 L58,30 Q66,28 71,34 Q75,30 79,34 Q77,41 71,41 Q75,49 68,53 L71,66 L64,66 L61,53 Q56,57 50,53 L52,92 L44,92 L44,67 Q40,65 38,60 L36,92 Z"/>' },
+    { key: "aguila",   nombre: "Águila",     art: "un",  body: '<path d="M50,14 Q46,16 46,22 L40,24 Q20,20 8,30 Q22,32 30,38 Q16,40 10,50 Q24,50 34,48 L30,60 L40,56 L42,74 L36,82 H48 L50,73 L52,82 H64 L58,74 L60,56 L70,60 L66,48 Q76,50 90,50 Q84,40 70,38 Q78,32 92,30 Q80,20 60,24 L54,22 Q54,16 50,14 Z"/>' },
+    { key: "grifo",    nombre: "Grifo",      art: "un",  body: '<path d="M28,92 L30,58 Q26,50 30,42 Q26,34 34,32 L36,24 Q40,22 43,26 Q41,18 48,17 Q46,24 44,27 L48,31 Q40,35 44,43 Q54,37 62,41 Q58,31 66,31 Q78,31 80,43 Q70,41 66,47 L73,59 L67,59 L63,48 Q56,52 50,48 L52,92 L44,92 L44,60 Q38,60 36,54 L34,92 Z"/>' },
+    { key: "dragon",   nombre: "Dragón",     art: "un",  body: '<path d="M18,86 Q30,72 28,58 Q18,52 24,44 Q30,40 34,45 L40,34 Q44,26 52,28 Q50,20 58,20 Q56,28 52,31 L58,38 Q70,34 78,44 Q68,47 64,44 L71,55 Q60,59 56,52 Q54,64 63,73 L54,75 Q48,66 48,58 Q40,66 45,82 L36,84 Q33,70 40,62 Q30,66 28,84 Z"/>' },
+    { key: "torre",    nombre: "Torre",      art: "una", body: '<path d="M28,90 V44 H26 V30 H34 V38 H42 V30 H50 V38 H58 V30 H66 V38 H74 V30 H74 V44 H72 V90 Z M44,90 V66 H56 V90 Z"/>' },
+    { key: "castillo", nombre: "Castillo",   art: "un",  body: '<path d="M8,92 V52 H14 V44 H22 V52 H30 V44 H30 V38 H26 V28 H34 V36 H42 V28 H50 V36 H58 V28 H66 V38 H62 V44 H70 V44 H70 V52 H78 V44 H86 V52 H92 V92 H58 V70 H42 V92 Z"/>' },
+    { key: "corona",   nombre: "Corona",     art: "una", body: '<path d="M18,64 H82 L86,42 L72,52 L64,38 L56,52 L50,34 L44,52 L36,38 L28,52 L14,42 Z"/><circle cx="14" cy="40" r="4"/><circle cx="86" cy="40" r="4"/><circle cx="50" cy="31" r="4.5"/><rect x="18" y="66" width="64" height="10" rx="2"/>' },
+    { key: "estrella", nombre: "Estrella",   art: "una", body: '<path d="M50,6 L61,38 95,38 68,59 78,92 50,72 22,92 32,59 5,38 39,38 Z"/>' },
+    { key: "sol",      nombre: "Sol",        art: "un",  body: gen.sol() },
+    { key: "luna",     nombre: "Luna",       art: "una", body: '<path d="M64,10 A42,42 0 1 0 64,90 A32,32 0 1 1 64,10 Z"/>' },
+    { key: "cruzlat",  nombre: "Cruz latina",art: "una", body: '<path d="M42,8 H58 V38 H88 V54 H58 V92 H42 V54 H12 V38 H42 Z"/>' },
+    { key: "cruzpat",  nombre: "Cruz paté",  art: "una", body: '<path d="M40,10 Q50,26 60,10 V40 H90 Q74,50 90,60 H60 V90 Q50,74 40,90 V60 H10 Q26,50 10,40 H40 Z"/>' },
+    { key: "flordelis",nombre: "Flor de lis",art: "una", body: '<path fill-rule="evenodd" d="M50,8 C47,20 42,26 42,34 C42,41 48,45 50,52 C52,45 58,41 58,34 C58,26 53,20 50,8 Z M42,40 C30,40 24,50 26,60 C28,70 40,72 44,64 C40,60 40,54 46,52 C44,46 44,42 42,40 Z M58,40 C70,40 76,50 74,60 C72,70 60,72 56,64 C60,60 60,54 54,52 C56,46 56,42 58,40 Z M40,58 H60 V66 H40 Z M46,66 H54 V88 L50,92 L46,88 Z"/>' },
+    { key: "llave",    nombre: "Llave",      art: "una", body: '<path fill-rule="evenodd" d="M50,10 A16,16 0 1 0 50.1,10 Z M50,20 A6,6 0 1 1 49.9,20 Z M46,40 H54 V78 H66 V86 H54 V94 H46 Z M56,58 H64 V66 H56 Z"/>' },
+    { key: "libro",    nombre: "Libro",      art: "un",  body: '<path d="M10,28 Q30,20 48,28 V80 Q30,72 10,80 Z M52,28 Q70,20 90,28 V80 Q70,72 52,80 Z M48,28 H52 V80 H48 Z"/>' },
+    { key: "espada",   nombre: "Espada",     art: "una", body: '<path d="M46,6 L54,6 L54,62 H62 V70 H54 V78 H60 V86 H40 V78 H46 V70 H38 V62 H46 Z"/>' },
+    { key: "laurel",   nombre: "Rama de laurel", art: "una", body: '<path d="M50,92 Q48,60 50,20 L46,20 Q48,58 46,92 Z"/><path d="M48,30 Q34,26 30,34 Q40,40 48,36 Z M50,30 Q64,26 68,34 Q58,40 50,36 Z M48,44 Q34,40 30,48 Q40,54 48,50 Z M50,44 Q64,40 68,48 Q58,54 50,50 Z M48,58 Q36,55 32,62 Q41,67 48,63 Z M50,58 Q62,55 66,62 Q57,67 50,63 Z M49,20 Q42,12 50,6 Q58,12 51,20 Z"/>' },
+    { key: "olivo",    nombre: "Rama de olivo", art: "una", body: '<path d="M50,92 Q49,56 50,18 L47,18 Q49,56 47,92 Z"/><path d="M48,28 Q38,22 33,28 Q40,34 48,31 Z M50,36 Q60,30 65,36 Q58,42 50,39 Z M48,46 Q39,41 34,47 Q41,52 48,49 Z M50,54 Q60,49 64,55 Q57,60 50,57 Z M48,64 Q40,60 36,66 Q42,70 48,67 Z"/><circle cx="35" cy="30" r="2.6"/><circle cx="63" cy="38" r="2.6"/><circle cx="36" cy="49" r="2.6"/><circle cx="62" cy="57" r="2.6"/>' },
+    { key: "ancla",    nombre: "Ancla",      art: "un",  body: '<path fill-rule="evenodd" d="M46,10 A6,6 0 1 1 54,10 A6,6 0 1 1 46,10 Z M46,20 H54 V40 H70 V48 H54 V78 Q70,76 78,60 L86,64 Q76,92 50,92 Q24,92 14,64 L22,60 Q30,76 46,78 V48 H30 V40 H46 Z"/>' },
+    { key: "rueda",    nombre: "Rueda",      art: "una", body: gen.rueda() },
+    { key: "antorcha", nombre: "Antorcha",   art: "una", body: '<path d="M50,6 C58,18 64,22 60,34 C68,30 66,20 60,14 C72,24 74,42 58,46 L56,50 L60,90 H40 L44,50 L42,46 C26,42 28,24 40,14 C34,20 32,30 40,34 C36,22 42,18 50,6 Z"/>' },
+    { key: "pluma",    nombre: "Pluma",      art: "una", body: '<path d="M80,12 C60,18 30,42 20,80 L27,84 Q31,74 38,68 L58,68 L52,60 L45,60 Q58,48 72,32 Q78,22 80,12 Z"/>' },
+    { key: "pergamino",nombre: "Pergamino",  art: "un",  body: '<path d="M22,26 H78 Q88,26 88,36 V72 Q88,82 78,82 H22 Q12,82 12,72 V36 Q12,26 22,26 Z"/><path d="M12,36 A4,10 0 0 1 12,26 M88,72 A4,10 0 0 1 88,82" fill="none" stroke="#000" stroke-opacity="0" /><circle cx="12" cy="31" r="6"/><circle cx="88" cy="77" r="6"/>' },
+    { key: "montana",  nombre: "Montaña",    art: "una", body: '<path d="M6,86 L32,40 L48,62 L64,28 L94,86 Z"/><path d="M28,48 L36,54 L32,58 L40,60 L32,66 Z" fill="#fff" fill-opacity="0.001"/>' },
+    { key: "rio",      nombre: "Río",        art: "un",  body: '<path d="M4,42 Q22,32 40,42 T76,42 T96,42 V58 Q78,68 60,58 T24,58 T4,58 Z"/>' },
+    { key: "arbol",    nombre: "Árbol",      art: "un",  body: '<path d="M44,60 H56 V90 H44 Z"/><path d="M50,8 C30,8 20,28 30,42 C16,45 20,62 40,60 H60 C80,62 84,45 70,42 C80,28 70,8 50,8 Z"/>' },
+    { key: "mano",     nombre: "Mano",       art: "una", body: '<path d="M34,54 V34 Q34,28 40,28 Q46,28 46,34 V26 Q46,20 52,20 Q58,20 58,26 V34 Q58,28 64,28 Q70,28 70,36 V56 Q70,80 52,88 Q34,80 34,54 Z"/>' },
+    { key: "ojo",      nombre: "Ojo",        art: "un",  body: '<path fill-rule="evenodd" d="M10,50 Q50,20 90,50 Q50,80 10,50 Z M50,38 A12,12 0 1 0 50.1,38 Z M50,44 A6,6 0 1 1 49.9,44 Z"/>' },
+    { key: "corazon",  nombre: "Corazón",    art: "un",  body: '<path d="M50,86 C18,60 10,42 21,30 C30,20 44,24 50,36 C56,24 70,20 79,30 C90,42 82,60 50,86 Z"/>' },
+  ],
+
+  ornamentos: [
+    { key: "yelmo",     nombre: "Yelmo",       dx: 300, dy: 150, w: 1.5, atras: 0, body: '<path fill-rule="evenodd" d="M26,36 Q26,20 50,20 Q82,20 82,38 V54 L46,54 V50 H62 V44 H46 V40 H62 V34 H44 Q28,36 28,48 Q30,58 44,60 Q30,62 26,46 Z"/>' },
+    { key: "coronareal",nombre: "Corona real", dx: 300, dy: 152, w: 1.35, atras: 0, body: '<path d="M16,66 H84 L88,40 L72,52 L62,36 L52,52 L50,32 L48,52 L38,36 L28,52 L12,40 Z"/><circle cx="12" cy="38" r="4.5"/><circle cx="88" cy="38" r="4.5"/><circle cx="50" cy="28" r="5"/><rect x="16" y="68" width="68" height="12" rx="3"/><circle cx="30" cy="74" r="2.4"/><circle cx="50" cy="74" r="2.4"/><circle cx="70" cy="74" r="2.4"/>' },
+    { key: "coronamural",nombre:"Corona mural",dx: 300, dy: 150, w: 1.4, atras: 0, body: '<path d="M14,64 H86 V46 H80 V38 H70 V46 H62 V38 H52 V46 H44 V38 H34 V46 H26 V38 H16 V46 H14 Z"/><path d="M22,64 V52 H30 V64 M46,64 V52 H54 V64 M66,64 V52 H74 V64" fill="none" stroke="#000" stroke-width="0"/>' },
+    { key: "manto",     nombre: "Manto",       dx: 300, dy: 360, w: 2.7, atras: 1, body: '<path d="M50,8 C18,12 6,40 10,94 L30,82 Q34,50 50,42 Q66,50 70,82 L90,94 C94,40 82,12 50,8 Z"/>' },
+    { key: "lambrequin",nombre: "Lambrequines",dx: 300, dy: 250, w: 2.4, atras: 1, body: '<path d="M50,16 C34,20 30,40 38,54 C28,50 22,60 30,70 C22,74 26,86 36,82 C40,90 50,86 48,76 C54,84 64,80 60,70 C70,72 72,60 62,56 C72,48 68,30 54,28 C60,22 56,16 50,16 Z"/>' },
+    { key: "laurelorn", nombre: "Laurel",      dx: 300, dy: 380, w: 3.0, atras: 1, body: gen.hojas(11, 3.4) },
+    { key: "olivoorn",  nombre: "Olivo",       dx: 300, dy: 380, w: 3.0, atras: 1, body: gen.hojas(8, 2.4) },
+    { key: "cinta",     nombre: "Filacteria",  dx: 300, dy: 600, w: 2.0, atras: 0, body: '<path d="M6,44 Q4,36 12,36 L30,36 L24,28 L44,38 L56,38 L76,28 L70,36 L88,36 Q96,36 94,44 L86,62 L74,52 L56,58 L44,58 L26,52 L14,62 Z"/>' },
+    { key: "medalla",   nombre: "Medalla",     dx: 300, dy: 620, w: 1.2, atras: 0, body: '<path d="M42,12 L48,32 L52,32 L58,12 Z"/><circle cx="50" cy="54" r="22"/><path d="M50,42 L54,50 L62,50 L56,56 L58,64 L50,59 L42,64 L44,56 L38,50 L46,50 Z" fill="#000" fill-opacity="0.25"/>' },
+    { key: "soporteizq",nombre: "Soporte (I)", dx: 118, dy: 400, w: 2.2, atras: 1, body: '<path d="M30,90 V50 Q26,42 32,38 Q28,30 36,30 L40,22 Q44,20 46,24 L48,34 Q60,32 62,44 L66,90 H58 L56,50 Q48,54 44,50 L46,90 Z"/>' },
+    { key: "soporteder",nombre: "Soporte (D)", dx: 482, dy: 400, w: 2.2, atras: 1, flip: 1, body: '<path d="M30,90 V50 Q26,42 32,38 Q28,30 36,30 L40,22 Q44,20 46,24 L48,34 Q60,32 62,44 L66,90 H58 L56,50 Q48,54 44,50 L46,90 Z"/>' },
+  ],
+};
+
+/* ==========================================================================
+ * 4 · SIGNIFICADOS (Intérprete simbólico)
+ * ======================================================================== */
+const SIGNIFICADOS = {
+  leon:     { s: "Coraje, realeza, fuerza soberana y guardián vigilante. Rey de los animales, encarna el mando justo.", p: "Ícono solar de la potencia dominadora." },
+  aguila:   { s: "Poder, autoridad imperial, altura de miras y perspicacia. Contempla el sol sin cegarse.", p: "Emblema del espíritu que asciende." },
+  grifo:    { s: "Vigilancia y custodia del tesoro; une la fuerza terrestre del león y el dominio celeste del águila.", p: "Síntesis de cielo y tierra." },
+  dragon:   { s: "Guardián temible, poder primordial y defensa de lo sagrado frente al caos.", p: "Umbral entre orden y abismo." },
+  torre:    { s: "Firmeza, defensa, prudencia y refugio inexpugnable del linaje.", p: "Eje vertical que ancla el honor." },
+  castillo: { s: "Grandeza, poder señorial, protección y soberanía sobre un territorio.", p: "La casa como reino." },
+  corona:   { s: "Soberanía, dignidad, victoria y legítima autoridad conferida.", p: "Círculo del mando perfecto." },
+  estrella: { s: "Guía, aspiración noble, luz en la oscuridad y destino elevado.", p: "Norte del alma." },
+  sol:      { s: "Verdad, gloria, vida y fuente de toda luz; majestad radiante.", p: "Centro que todo lo ordena." },
+  luna:     { s: "Serenidad, ciclos, intuición y perseverancia en la sombra.", p: "Espejo de lo mudable." },
+  cruzlat:  { s: "Fe, sacrificio, protección divina y compromiso espiritual.", p: "Encrucijada de lo humano y lo divino." },
+  cruzpat:  { s: "Fe militante, servicio, honor caballeresco y defensa de la causa.", p: "Voto hecho signo." },
+  flordelis:{ s: "Pureza, luz, realeza y perfección; la trinidad de fe, sabiduría y valor.", p: "Flor de la nobleza del espíritu." },
+  llave:    { s: "Custodia, autoridad delegada, conocimiento y acceso a lo reservado.", p: "Umbral que se abre o se guarda." },
+  libro:    { s: "Sabiduría, saber revelado, estudio y memoria del linaje.", p: "Palabra que perdura." },
+  espada:   { s: "Justicia, honor militar, defensa del derecho y valentía.", p: "Filo que separa lo justo de lo injusto." },
+  laurel:   { s: "Victoria, gloria, mérito reconocido y triunfo perdurable.", p: "Corona del que persevera." },
+  olivo:    { s: "Paz, concordia, prosperidad y reconciliación.", p: "Rama que reconcilia." },
+  ancla:    { s: "Esperanza firme, constancia, seguridad y salvación.", p: "Ancla del alma en la tormenta." },
+  rueda:    { s: "Fortuna, ciclo del destino, industria y movimiento perpetuo.", p: "Giro eterno del devenir." },
+  antorcha: { s: "Verdad, conocimiento que ilumina, libertad y guía.", p: "Llama que se transmite sin apagarse." },
+  pluma:    { s: "Elocuencia, saber, voluntad y disposición al servicio.", p: "Voz que se hace escritura." },
+  pergamino:{ s: "Ley, memoria, pacto y palabra dada que obliga.", p: "Testimonio del acuerdo." },
+  montana:  { s: "Firmeza, constancia, elevación espiritual y arraigo.", p: "Ascenso hacia lo alto." },
+  rio:      { s: "Vida, fecundidad, frontera y flujo que no cesa.", p: "Tiempo hecho corriente." },
+  arbol:    { s: "Vida, linaje, crecimiento y unión de raíces y cielo.", p: "Genealogía viva." },
+  mano:     { s: "Fe, sinceridad, juramento y acción justa.", p: "Compromiso hecho gesto." },
+  ojo:      { s: "Providencia, vigilancia, discernimiento y sabiduría que todo lo ve.", p: "Mirada que protege." },
+  corazon:  { s: "Amor, caridad, sinceridad y valentía del ánimo.", p: "Centro del sentir noble." },
+};
+
+/* ==========================================================================
+ * 5 · Metadatos de cajas locales y utilidades de geometría
+ * ======================================================================== */
+const CAJAS = { escudos: [300, 340], particiones: [300, 340], figuras: [100, 100], ornamentos: [100, 100], texto: [0, 0] };
+const NOMBRE_PARTICION = {
+  partido: "partido", cortado: "cortado", tronchado: "tronchado", tajado: "tajado",
+  cuartelado: "cuartelado", terciado: "terciado en palo", chevronado: "chevronado",
+  gironado: "gironado", freteado: "freteado", losanjado: "losanjeado", ondado: "ondado", franjas: "fajado",
+};
+
+/* ==========================================================================
+ * 6 · ElementoHeraldico — modelo de cada pieza
+ * ======================================================================== */
+class ElementoHeraldico {
+  constructor(d) {
+    this.id = d.id || uid();
+    this.cat = d.cat;
+    this.key = d.key || "";
+    this.nombre = d.nombre || "Elemento";
+    this.x = d.x ?? VB.cx;
+    this.y = d.y ?? VB.cy;
+    this.scale = d.scale ?? 1;
+    this.rot = d.rot ?? 0;
+    this.opacity = d.opacity ?? 1;
+    this.fill = d.fill || "#E0B848";
+    this.stroke = d.stroke || "none";
+    this.sw = d.sw ?? 0;
+    this.visible = d.visible ?? true;
+    this.locked = d.locked ?? false;
+    this.recortar = d.recortar ?? (d.cat === "figuras" || d.cat === "particiones");
+    this.flip = d.flip ?? 0;
+    this.art = d.art || "una";
+    this.texto = d.texto || "";
+  }
+  centroLocal() { const [w, h] = CAJAS[this.cat]; return this.cat === "texto" ? [0, 0] : [w / 2, h / 2]; }
+  transformStr() {
+    const [cx, cy] = this.centroLocal();
+    const sx = this.scale * (this.flip ? -1 : 1);
+    return `translate(${this.x} ${this.y}) rotate(${this.rot}) scale(${sx} ${this.scale}) translate(${-cx} ${-cy})`;
+  }
+  contenido() {
+    if (this.cat === "escudos") { const d = DATOS.escudos.find((s) => s.key === this.key); return d ? `<path d="${d.path}"/>` : ""; }
+    if (this.cat === "particiones") { const d = DATOS.particiones.find((s) => s.key === this.key); return d ? d.real : ""; }
+    if (this.cat === "figuras") { const d = DATOS.figuras.find((s) => s.key === this.key); return d ? d.body : ""; }
+    if (this.cat === "ornamentos") { const d = DATOS.ornamentos.find((s) => s.key === this.key); return d ? d.body : ""; }
+    if (this.cat === "texto") { const t = (this.texto || "").replace(/[<>&]/g, ""); return `<text x="0" y="0" text-anchor="middle" dominant-baseline="central" font-family="Playfair Display, serif" font-style="italic" font-weight="700" font-size="40">${t}</text>`; }
+    return "";
+  }
+  esCarga() { return this.cat === "figuras" || this.cat === "ornamentos" || this.cat === "texto"; }
+  toJSON() { const o = {}; for (const k of ["id", "cat", "key", "nombre", "x", "y", "scale", "rot", "opacity", "fill", "stroke", "sw", "visible", "locked", "recortar", "flip", "art", "texto"]) o[k] = this[k]; return o; }
+}
+
+/* ==========================================================================
+ * 7 · CanvasHeraldico — mesa de trabajo SVG (zoom/pan/grid/render/selección)
+ * ======================================================================== */
+class CanvasHeraldico {
+  constructor(svg) {
+    this.svg = svg;
+    this.elementos = [];
+    this.selId = null;
+    this.zoom = 1; this.panX = 0; this.panY = 0;
+    this.snap = true; this.gridOn = true; this.tool = "seleccionar";
+    this.undoPila = []; this.redoPila = [];
+    this.nodos = {};
+    this.accion = null;
+    this.didactico = false;
+    this._montar();
+    this._eventos();
+    this.centrarVista();
+  }
+  _montar() {
+    this.defs = svgEl("defs");
+    this.mundo = svgEl("g", { id: "mundo" });
+    this.capaGrid = svgEl("g", { id: "capaGrid" });
+    this.capaElem = svgEl("g", { id: "capaElem" });
+    this.capaSel = svgEl("g", { id: "capaSel" });
+    this.mundo.append(this.capaGrid, this.capaElem, this.capaSel);
+    this.svg.append(this.defs, this.mundo);
+    this._dibujarGrid();
+  }
+  _dibujarGrid() {
+    this.capaGrid.textContent = "";
+    const x0 = -400, x1 = 1000, y0 = -400, y1 = 1160;
+    for (let x = x0; x <= x1; x += GRID) this.capaGrid.append(svgEl("line", { x1: x, y1: y0, x2: x, y2: y1, stroke: x === VB.cx ? "rgba(212,168,83,.28)" : "rgba(255,255,255,.045)", "stroke-width": x === VB.cx ? 1.3 : 1, "vector-effect": "non-scaling-stroke" }));
+    for (let y = y0; y <= y1; y += GRID) this.capaGrid.append(svgEl("line", { x1: x0, y1: y, x2: x1, y2: y, stroke: y === VB.cy ? "rgba(212,168,83,.28)" : "rgba(255,255,255,.045)", "stroke-width": y === VB.cy ? 1.3 : 1, "vector-effect": "non-scaling-stroke" }));
+    this.capaGrid.style.display = this.gridOn ? "" : "none";
+  }
+  _aplicarVista() {
+    this.mundo.setAttribute("transform", `translate(${this.panX} ${this.panY}) scale(${this.zoom})`);
+    const zn = $("#zoomNivel"); if (zn) zn.textContent = Math.round(this.zoom * 100) + "%";
+  }
+  centrarVista() {
+    const r = this.svg.getBoundingClientRect();
+    const esc = Math.min(r.width / VB.w, r.height / VB.h) * 0.92 || 1;
+    this.zoom = clamp(esc, 0.2, 4);
+    this.panX = (r.width - VB.w * this.zoom) / 2;
+    this.panY = (r.height - VB.h * this.zoom) / 2;
+    this._aplicarVista();
+  }
+  fijarZoom(z, cx, cy) {
+    const r = this.svg.getBoundingClientRect();
+    cx = cx ?? r.width / 2; cy = cy ?? r.height / 2;
+    const nz = clamp(z, 0.2, 5);
+    const wx = (cx - this.panX) / this.zoom, wy = (cy - this.panY) / this.zoom;
+    this.zoom = nz; this.panX = cx - wx * nz; this.panY = cy - wy * nz;
+    this._aplicarVista();
+  }
+
+  /* ---------- coordenadas ---------- */
+  aMundo(clientX, clientY) { const p = this.svg.createSVGPoint(); p.x = clientX; p.y = clientY; return p.matrixTransform(this.mundo.getScreenCTM().inverse()); }
+
+  /* ---------- base / clip ---------- */
+  baseEscudo() { return this.elementos.find((e) => e.cat === "escudos" && e.visible); }
+  _actualizarClip() {
+    this.defs.textContent = "";
+    const base = this.baseEscudo();
+    if (!base) return;
+    const cp = svgEl("clipPath", { id: "clip-base", clipPathUnits: "userSpaceOnUse" });
+    const d = DATOS.escudos.find((s) => s.key === base.key);
+    if (d) cp.append(svgEl("path", { d: d.path, transform: base.transformStr() }));
+    this.defs.append(cp);
+  }
+
+  /* ---------- render ---------- */
+  render() {
+    this._actualizarClip();
+    this.capaElem.textContent = "";
+    this.capaSel.textContent = "";
+    this.nodos = {};
+    const base = this.baseEscudo();
+    for (const el of this.elementos) {
+      const g = svgEl("g", { class: "elem", "data-id": el.id, transform: el.transformStr() });
+      g.innerHTML = el.contenido();
+      g.setAttribute("fill", el.fill);
+      g.setAttribute("fill-rule", "evenodd");
+      g.setAttribute("stroke", el.stroke);
+      g.setAttribute("stroke-width", el.sw);
+      g.setAttribute("stroke-linejoin", "round");
+      g.setAttribute("opacity", el.visible ? el.opacity : 0);
+      g.style.cursor = el.locked ? "not-allowed" : "move";
+      if (el.locked) g.style.pointerEvents = el.cat === "escudos" ? "auto" : "auto";
+      let nodo = g;
+      if (el.recortar && base && el.id !== base.id && (el.cat === "figuras" || el.cat === "particiones")) {
+        const wrap = svgEl("g", { class: "elem-wrap", "clip-path": "url(#clip-base)" });
+        wrap.append(g); nodo = wrap;
+      }
+      this.capaElem.append(nodo);
+      this.nodos[el.id] = g;
+    }
+    if (this.didactico) this._dibujarEtiquetas();
+    this.dibujarSeleccion();
+  }
+
+  _dibujarEtiquetas() {
+    for (const el of this.elementos) {
+      if (!el.visible) continue;
+      const g = this.nodos[el.id]; if (!g) continue;
+      let bb; try { bb = g.getBBox(); } catch (e) { continue; }
+      const m = g.transform.baseVal.consolidate().matrix;
+      const p = this.svg.createSVGPoint(); p.x = bb.x + bb.width / 2; p.y = bb.y;
+      const w = p.matrixTransform(m);
+      const t = svgEl("g", { class: "etiqueta-did" });
+      const tx = svgEl("text", { x: w.x, y: w.y - 8 / this.zoom, "text-anchor": "middle", "font-size": 12 / this.zoom, fill: "#d4a853", "font-family": "Inter, sans-serif", "font-weight": 600, "vector-effect": "non-scaling-stroke" });
+      tx.textContent = el.nombre;
+      t.append(tx); this.capaSel.append(t);
+    }
+  }
+
+  /* ---------- selección + manijas ---------- */
+  seleccionar(id) { this.selId = id; this.render(); app.refrescarPaneles(); }
+  get sel() { return this.elementos.find((e) => e.id === this.selId) || null; }
+
+  dibujarSeleccion() {
+    // limpiar solo manijas previas (deja etiquetas si didáctico)
+    $$(".selc-caja, .manija, .manija-linea", this.capaSel).forEach((n) => n.remove());
+    const el = this.sel; if (!el || !el.visible) return;
+    const g = this.nodos[el.id]; if (!g) return;
+    let bb; try { bb = g.getBBox(); } catch (e) { return; }
+    const m = g.transform.baseVal.consolidate().matrix;
+    const P = (x, y) => { const p = this.svg.createSVGPoint(); p.x = x; p.y = y; return p.matrixTransform(m); };
+    const c = [P(bb.x, bb.y), P(bb.x + bb.width, bb.y), P(bb.x + bb.width, bb.y + bb.height), P(bb.x, bb.y + bb.height)];
+    const caja = svgEl("polygon", { class: "selc-caja", points: c.map((p) => `${p.x},${p.y}`).join(" "), "vector-effect": "non-scaling-stroke" });
+    this.capaSel.append(caja);
+    if (el.locked) return;
+    const r = 6 / this.zoom;
+    c.forEach((p, i) => {
+      const h = svgEl("circle", { class: "manija escala", cx: p.x, cy: p.y, r, "data-h": "escala", "vector-effect": "non-scaling-stroke" });
+      this.capaSel.append(h);
+    });
+    // manija de rotación
+    const tm = { x: (c[0].x + c[1].x) / 2, y: (c[0].y + c[1].y) / 2 };
+    let dx = tm.x - el.x, dy = tm.y - el.y; const len = Math.hypot(dx, dy) || 1; dx /= len; dy /= len;
+    const rp = { x: tm.x + dx * 26 / this.zoom, y: tm.y + dy * 26 / this.zoom };
+    this.capaSel.append(svgEl("line", { class: "manija-linea", x1: tm.x, y1: tm.y, x2: rp.x, y2: rp.y, "vector-effect": "non-scaling-stroke" }));
+    this.capaSel.append(svgEl("circle", { class: "manija rotar", cx: rp.x, cy: rp.y, r: r * 1.1, "data-h": "rotar", "vector-effect": "non-scaling-stroke" }));
+  }
+
+  /* ---------- eventos de puntero ---------- */
+  _eventos() {
+    this.svg.addEventListener("pointerdown", (e) => this._onDown(e));
+    window.addEventListener("pointermove", (e) => this._onMove(e));
+    window.addEventListener("pointerup", (e) => this._onUp(e));
+    this.svg.addEventListener("wheel", (e) => { e.preventDefault(); this.fijarZoom(this.zoom * (e.deltaY < 0 ? 1.12 : 0.89), e.clientX - this.svg.getBoundingClientRect().left, e.clientY - this.svg.getBoundingClientRect().top); }, { passive: false });
+  }
+  _onDown(e) {
+    if (e.button === 1 || this.tool === "mano" || app.espacio) { this.accion = { tipo: "pan", sx: e.clientX, sy: e.clientY, px: this.panX, py: this.panY }; this.svg.setPointerCapture(e.pointerId); return; }
+    const manija = e.target.closest(".manija");
+    if (manija && this.sel) { this._iniciarManija(manija.dataset.h, e); this.svg.setPointerCapture(e.pointerId); return; }
+    const g = e.target.closest(".elem");
+    if (g) {
+      const el = this.elementos.find((x) => x.id === g.dataset.id);
+      if (el) {
+        this.seleccionar(el.id);
+        if (!el.locked) { const w = this.aMundo(e.clientX, e.clientY); this.accion = { tipo: "drag", el, ox: w.x - el.x, oy: w.y - el.y, movido: false }; this.svg.setPointerCapture(e.pointerId); }
+      }
+      return;
+    }
+    // vacío
+    if (this.selId) { this.selId = null; this.render(); app.refrescarPaneles(); }
+  }
+  _iniciarManija(tipo, e) {
+    const el = this.sel; const w = this.aMundo(e.clientX, e.clientY);
+    if (tipo === "escala") { const d0 = Math.hypot(w.x - el.x, w.y - el.y) || 1; this.accion = { tipo: "escala", el, s0: el.scale, d0, movido: false }; }
+    else { const a0 = Math.atan2(w.y - el.y, w.x - el.x) * 180 / Math.PI; this.accion = { tipo: "rotar", el, r0: el.rot, a0, movido: false }; }
+  }
+  _onMove(e) {
+    const a = this.accion; if (!a) return;
+    if (a.tipo === "pan") { this.panX = a.px + (e.clientX - a.sx); this.panY = a.py + (e.clientY - a.sy); this._aplicarVista(); return; }
+    if (!a.movido) { a.movido = true; this.pushHistory(); }
+    const w = this.aMundo(e.clientX, e.clientY);
+    if (a.tipo === "drag") {
+      let nx = w.x - a.ox, ny = w.y - a.oy;
+      if (this.snap && !e.altKey) { nx = Math.round(nx / GRID) * GRID; ny = Math.round(ny / GRID) * GRID; }
+      a.el.x = nx; a.el.y = ny;
+    } else if (a.tipo === "escala") {
+      const d = Math.hypot(w.x - a.el.x, w.y - a.el.y);
+      a.el.scale = clamp(a.s0 * (d / a.d0), 0.08, 8);
+    } else if (a.tipo === "rotar") {
+      const ang = Math.atan2(w.y - a.el.y, w.x - a.el.x) * 180 / Math.PI;
+      let r = a.r0 + (ang - a.a0);
+      if (this.snap && !e.altKey) r = Math.round(r / 15) * 15;
+      a.el.rot = Math.round(r);
+    }
+    this._actualizarNodo(a.el);
+    this.dibujarSeleccion();
+    if (a.el === this.baseEscudo()) this._actualizarClip();
+    app.actualizarCampos();
+  }
+  _actualizarNodo(el) { const g = this.nodos[el.id]; if (g) g.setAttribute("transform", el.transformStr()); }
+  _onUp(e) {
+    const a = this.accion; this.accion = null;
+    try { this.svg.releasePointerCapture(e.pointerId); } catch (_) {}
+    if (a && a.movido && a.tipo !== "pan") { app.postCambio(false); }
+  }
+
+  /* ---------- historial ---------- */
+  pushHistory() { this.undoPila.push(JSON.stringify(this.elementos.map((e) => e.toJSON()))); if (this.undoPila.length > 80) this.undoPila.shift(); this.redoPila.length = 0; app.actualizarHistorialBtns(); }
+  deshacer() { if (!this.undoPila.length) return; this.redoPila.push(JSON.stringify(this.elementos.map((e) => e.toJSON()))); this._cargarArr(JSON.parse(this.undoPila.pop())); app.postCambio(); }
+  rehacer() { if (!this.redoPila.length) return; this.undoPila.push(JSON.stringify(this.elementos.map((e) => e.toJSON()))); this._cargarArr(JSON.parse(this.redoPila.pop())); app.postCambio(); }
+  _cargarArr(arr) { this.elementos = arr.map((d) => new ElementoHeraldico(d)); if (!this.elementos.find((e) => e.id === this.selId)) this.selId = null; }
+
+  /* ---------- API de composición ---------- */
+  _indiceInsercion(cat, atras) {
+    if (atras) return 0;
+    if (cat === "escudos" || cat === "particiones") { const i = this.elementos.findIndex((e) => e.esCarga() || (e.cat === "ornamentos")); return i === -1 ? this.elementos.length : i; }
+    return this.elementos.length;
+  }
+  añadir(cat, key, opts = {}) {
+    this.pushHistory();
+    const meta = DATOS[cat] ? DATOS[cat].find((x) => x.key === key) : null;
+    const base = this.baseEscudo();
+    const d = { cat, key, nombre: meta ? meta.nombre : (cat === "texto" ? "Lema" : "Elemento") };
+    if (cat === "escudos") { d.x = VB.cx; d.y = VB.cy; d.scale = 1.35; d.fill = ESMALTES[3].hex; d.stroke = ESMALTES[0].hex; d.sw = 3; }
+    else if (cat === "particiones") { d.x = base ? base.x : VB.cx; d.y = base ? base.y : VB.cy; d.scale = base ? base.scale : 1.35; d.fill = ESMALTES[1].hex; }
+    else if (cat === "figuras") { d.x = base ? base.x : VB.cx; d.y = (base ? base.y : VB.cy); d.scale = 1.1; d.fill = ESMALTES[0].hex; d.art = meta ? meta.art : "una"; }
+    else if (cat === "ornamentos") { d.x = meta.dx; d.y = meta.dy; d.scale = meta.w; d.fill = ESMALTES[0].hex; d.stroke = "#0d0d0f"; d.sw = 1; d.flip = meta.flip || 0; }
+    else if (cat === "texto") { d.x = VB.cx; d.y = 660; d.scale = 1; d.fill = ESMALTES[0].hex; d.texto = opts.texto || "LEMA"; }
+    Object.assign(d, opts);
+    const el = new ElementoHeraldico(d);
+    const idx = this._indiceInsercion(cat, meta && meta.atras);
+    this.elementos.splice(idx, 0, el);
+    this.selId = el.id;
+    app.postCambio();
+    return el;
+  }
+  eliminar(id) { const i = this.elementos.findIndex((e) => e.id === id); if (i < 0) return; this.pushHistory(); this.elementos.splice(i, 1); if (this.selId === id) this.selId = null; app.postCambio(); }
+  duplicar(id) { const el = this.elementos.find((e) => e.id === id); if (!el) return; this.pushHistory(); const cp = new ElementoHeraldico(Object.assign(el.toJSON(), { id: uid(), x: el.x + 24, y: el.y + 24 })); this.elementos.push(cp); this.selId = cp.id; app.postCambio(); }
+  reordenar(id, dir) { const i = this.elementos.findIndex((e) => e.id === id); const j = i + dir; if (i < 0 || j < 0 || j >= this.elementos.length) return; this.pushHistory(); const t = this.elementos[i]; this.elementos[i] = this.elementos[j]; this.elementos[j] = t; app.postCambio(); }
+  limpiar() { this.pushHistory(); this.elementos = []; this.selId = null; app.postCambio(); }
+}
+
+/* ==========================================================================
+ * 8 · BibliotecaHeraldica — panel izquierdo
+ * ======================================================================== */
+class BibliotecaHeraldica {
+  constructor(canvas) { this.c = canvas; this.cat = "escudos"; this.cont = $("#biblioCuerpo"); this._pestanas(); this.render(); }
+  _pestanas() { $$("#pestanasBiblio button").forEach((b) => b.onclick = () => { $$("#pestanasBiblio button").forEach((x) => x.classList.remove("activo")); b.classList.add("activo"); this.cat = b.dataset.cat; this.render(); }); }
+  _mini(cat, item) {
+    if (cat === "escudos") return `<svg viewBox="0 0 300 340"><path d="${item.path}"/></svg>`;
+    if (cat === "particiones") return `<svg viewBox="0 0 300 340"><path d="M40,20 H260 V150 Q260,300 150,332 Q40,300 40,150 Z" fill="rgba(255,255,255,.08)"/>${item.real}</svg>`;
+    return `<svg viewBox="0 0 100 100">${item.body}</svg>`;
+  }
+  render() {
+    const items = DATOS[this.cat];
+    const grupos = { escudos: "Formas de escudo", particiones: "Particiones del campo", figuras: "Figuras y muebles", ornamentos: "Ornamentos exteriores" };
+    let html = `<div class="tab-panel activo"><div class="biblio-grupo abierto"><button class="biblio-titulo">${grupos[this.cat]} <span class="chevron">›</span></button><div class="biblio-lista">`;
+    for (const it of items) html += `<button class="pieza" data-cat="${this.cat}" data-key="${it.key}" title="${it.nombre}" draggable="false">${this._mini(this.cat, it)}<span class="etq">${it.nombre}</span></button>`;
+    html += `</div></div><p class="hint" style="padding:6px 4px">Haz clic para añadir al centro del escudo, o arrastra a una posición concreta.</p></div>`;
+    this.cont.innerHTML = html;
+    $(".biblio-titulo", this.cont).onclick = (e) => e.currentTarget.parentElement.classList.toggle("abierto");
+    $$(".pieza", this.cont).forEach((p) => {
+      p.addEventListener("pointerdown", (e) => app.arrastre.desdeBiblioteca(e, p.dataset.cat, p.dataset.key));
+    });
+  }
+}
+
+/* ==========================================================================
+ * 9 · SistemaArrastre — arrastrar desde biblioteca al lienzo
+ * ======================================================================== */
+class SistemaArrastre {
+  constructor(canvas) { this.c = canvas; }
+  desdeBiblioteca(e, cat, key) {
+    e.preventDefault();
+    const inicio = { x: e.clientX, y: e.clientY };
+    let arrastrando = false, fantasma = null;
+    const mover = (ev) => {
+      if (!arrastrando && Math.hypot(ev.clientX - inicio.x, ev.clientY - inicio.y) > 8) {
+        arrastrando = true;
+        fantasma = document.createElement("div");
+        fantasma.style.cssText = "position:fixed;z-index:999;pointer-events:none;width:56px;height:56px;opacity:.85;filter:drop-shadow(0 4px 8px rgba(0,0,0,.5))";
+        const it = DATOS[cat].find((x) => x.key === key);
+        fantasma.innerHTML = cat === "escudos" ? `<svg viewBox="0 0 300 340" style="fill:#d4a853"><path d="${it.path}"/></svg>` : `<svg viewBox="0 0 100 100" style="fill:#d4a853">${cat === "particiones" ? it.real : it.body}</svg>`;
+        document.body.append(fantasma);
+      }
+      if (fantasma) { fantasma.style.left = ev.clientX - 28 + "px"; fantasma.style.top = ev.clientY - 28 + "px"; }
+    };
+    const soltar = (ev) => {
+      window.removeEventListener("pointermove", mover); window.removeEventListener("pointerup", soltar);
+      if (fantasma) fantasma.remove();
+      const r = this.c.svg.getBoundingClientRect();
+      if (!arrastrando) {
+        // toque simple: añadir al centro del escudo
+        this.c.añadir(cat, key);
+      } else if (ev.clientX >= r.left && ev.clientX <= r.right && ev.clientY >= r.top && ev.clientY <= r.bottom) {
+        const w = this.c.aMundo(ev.clientX, ev.clientY);
+        let nx = w.x, ny = w.y;
+        if (this.c.snap) { nx = Math.round(nx / GRID) * GRID; ny = Math.round(ny / GRID) * GRID; }
+        this.c.añadir(cat, key, { x: nx, y: ny });
+      }
+    };
+    window.addEventListener("pointermove", mover); window.addEventListener("pointerup", soltar);
+  }
+}
+
+/* ==========================================================================
+ * 10 · PaletaEsmaltes — colores + regla de esmaltes
+ * ======================================================================== */
+class PaletaEsmaltes {
+  constructor(canvas) {
+    this.c = canvas; this.color = ESMALTES[0].hex;
+    this._render(); this._eventos();
+  }
+  _render() {
+    const cont = $("#esmaltes"); cont.innerHTML = "";
+    ESMALTES.forEach((es) => {
+      const b = document.createElement("button");
+      b.className = "esmalte" + (es.hex === this.color ? " sel" : "");
+      b.style.background = es.hex; b.dataset.clase = es.clase; b.dataset.oscuro = es.oscuro; b.dataset.hex = es.hex;
+      b.title = `${es.nombre} — ${es.clase} · ${es.sig}`;
+      b.onclick = () => this.elegir(es.hex);
+      cont.append(b);
+    });
+  }
+  elegir(hex) { this.color = hex; $("#colorCustom").value = hex; $("#colorHex").value = hex.toUpperCase(); $$("#esmaltes .esmalte").forEach((e) => e.classList.toggle("sel", e.dataset.hex.toLowerCase() === hex.toLowerCase())); }
+  _eventos() {
+    $("#colorCustom").oninput = (e) => this.elegir(e.target.value);
+    $("#colorHex").onchange = (e) => { let v = e.target.value.trim(); if (!/^#/.test(v)) v = "#" + v; if (/^#[0-9a-fA-F]{6}$/.test(v)) this.elegir(v); else e.target.value = this.color.toUpperCase(); };
+    $("#aplicarRelleno").onclick = () => this.aplicar("fill");
+    $("#aplicarBorde").onclick = () => this.aplicar("stroke");
+    $("#acabado").onchange = (e) => this.acabado(e.target.value);
+  }
+  aplicar(prop) {
+    const el = this.c.sel; if (!el) { app.toast("Selecciona un elemento primero", "error"); return; }
+    this.c.pushHistory();
+    if (prop === "fill") el.fill = this.color;
+    else { el.stroke = this.color; if (el.sw < 1) el.sw = 3; }
+    app.postCambio();
+    if (prop === "fill") this.verificarRegla(el);
+  }
+  acabado(tipo) {
+    const el = this.c.sel; if (!el) return;
+    // el acabado ajusta el borde para simular textura
+    this.c.pushHistory();
+    if (tipo === "plano") { el.stroke = "none"; el.sw = 0; }
+    else if (tipo === "satinado") { el.stroke = "rgba(255,255,255,.35)"; el.sw = 1.5; }
+    else if (tipo === "metalico") { el.stroke = "#fff"; el.sw = 2; }
+    else if (tipo === "relieve") { el.stroke = "#000"; el.sw = 2.5; }
+    app.postCambio();
+  }
+  verificarRegla(el) {
+    const av = $("#avisoEsmaltes"), txt = $("#avisoEsmaltesTxt");
+    if (!el.esCarga() && el.cat !== "particiones") { av.classList.remove("ver"); return; }
+    const base = this.c.baseEscudo(); if (!base) { av.classList.remove("ver"); return; }
+    const tc = tinturaDe(el.fill), tf = tinturaDe(base.fill);
+    if (tc && tf && tc.clase === tf.clase) {
+      txt.innerHTML = `<strong>Regla de esmaltes:</strong> se ha puesto ${tc.clase === "metal" ? "metal sobre metal" : "color sobre color"} (${tc.nombre} sobre ${tf.nombre}). La heráldica clásica lo evita para garantizar el contraste.`;
+      av.classList.add("ver");
+      clearTimeout(this._t); this._t = setTimeout(() => av.classList.remove("ver"), 5200);
+    } else av.classList.remove("ver");
+  }
+}
+
+/* ==========================================================================
+ * 11 · GestorCapas — pestaña Capas
+ * ======================================================================== */
+class GestorCapas {
+  constructor(canvas) { this.c = canvas; }
+  icono(n) {
+    const I = {
+      ojo: '<path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/>',
+      ojoff: '<path d="M17.94 17.94A10 10 0 0 1 12 20c-7 0-11-8-11-8a18 18 0 0 1 5-6M9.9 4.24A9 9 0 0 1 12 4c7 0 11 8 11 8a18 18 0 0 1-2.16 3.19M1 1l22 22"/>',
+      candado: '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+      abierto: '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8-1"/>',
+      arriba: '<path d="M12 19V5M5 12l7-7 7 7"/>',
+      abajo: '<path d="M12 5v14M5 12l7 7 7-7"/>',
+    };
+    return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${I[n]}</svg>`;
+  }
+  render() {
+    const cont = $("#tabCapas");
+    if (!this.c.elementos.length) { cont.innerHTML = app.vacio("No hay capas todavía", "Añade escudos y figuras desde la biblioteca."); return; }
+    let html = `<p class="hint" style="margin-bottom:8px">De arriba (frente) a abajo (fondo). Arrastra elementos en el lienzo; usa las flechas para reordenar.</p>`;
+    for (let i = this.c.elementos.length - 1; i >= 0; i--) {
+      const el = this.c.elementos[i];
+      const mini = el.cat === "texto" ? `<span style="font-family:var(--f-titulo);color:${el.fill};font-size:14px">A</span>` : `<svg viewBox="0 0 ${CAJAS[el.cat][0]} ${CAJAS[el.cat][1]}" style="fill:${el.fill}">${el.contenido()}</svg>`;
+      html += `<div class="capa ${el.id === this.c.selId ? "sel" : ""}" data-id="${el.id}">
+        <div class="cminiatura">${mini}</div>
+        <div class="cnombre">${el.nombre}<small>${el.cat}${el.locked ? " · bloqueado" : ""}</small></div>
+        <div class="cacciones">
+          <button class="icono-btn ${el.visible ? "on" : ""}" data-a="ver" title="Visibilidad">${this.icono(el.visible ? "ojo" : "ojoff")}</button>
+          <button class="icono-btn ${el.locked ? "on" : ""}" data-a="lock" title="Bloquear">${this.icono(el.locked ? "candado" : "abierto")}</button>
+          <button class="icono-btn" data-a="up" title="Subir">${this.icono("arriba")}</button>
+          <button class="icono-btn" data-a="down" title="Bajar">${this.icono("abajo")}</button>
+        </div></div>`;
+    }
+    cont.innerHTML = html;
+    $$(".capa", cont).forEach((row) => {
+      const id = row.dataset.id;
+      row.addEventListener("click", (e) => { if (e.target.closest("[data-a]")) return; this.c.seleccionar(id); });
+      $$("[data-a]", row).forEach((b) => b.onclick = (e) => {
+        e.stopPropagation(); const el = this.c.elementos.find((x) => x.id === id); const a = b.dataset.a;
+        if (a === "ver") { this.c.pushHistory(); el.visible = !el.visible; app.postCambio(); }
+        else if (a === "lock") { this.c.pushHistory(); el.locked = !el.locked; app.postCambio(); }
+        else if (a === "up") this.c.reordenar(id, 1);
+        else if (a === "down") this.c.reordenar(id, -1);
+      });
+    });
+  }
+}
+
+/* ==========================================================================
+ * 12 · GeneradorBlasonamiento
+ * ======================================================================== */
+class GeneradorBlasonamiento {
+  constructor(canvas) { this.c = canvas; }
+  _pos(el) {
+    const dx = el.x - VB.cx, dy = el.y - VB.cy, t = [];
+    if (dy < -75) t.push("en el jefe"); else if (dy > 95) t.push("en la punta");
+    if (dx < -65) t.push("a la diestra"); else if (dx > 65) t.push("a la siniestra");
+    return t.length ? " " + t.join(", ") : "";
+  }
+  _t(hex) { const t = tinturaDe(hex); return t ? t.de : "de un color propio"; }
+  generar() {
+    const base = this.c.baseEscudo();
+    if (!base) return { texto: "El escudo aún no ha sido definido. Añade una forma de escudo para comenzar.", html: "El escudo aún no ha sido definido. Añade una forma de escudo para comenzar." };
+    const B = (s) => `<b class="campo-t">${s}</b>`;
+    const part = this.c.elementos.find((e) => e.cat === "particiones" && e.visible);
+    const campoT = this._t(base.fill);
+    let texto, html;
+    if (part) {
+      const pn = NOMBRE_PARTICION[part.key] || part.key;
+      texto = `Escudo ${pn}, ${campoT} y ${this._t(part.fill)}`;
+      html = `Escudo ${B(pn)}, ${campoT} y ${this._t(part.fill)}`;
+    } else {
+      texto = `En campo ${campoT}`;
+      html = `En campo ${B(campoT)}`;
+    }
+    const cargas = this.c.elementos.filter((e) => e.cat === "figuras" && e.visible);
+    if (cargas.length) {
+      texto += ", " + cargas.map((c) => `${c.art} ${c.nombre.toLowerCase()} ${this._t(c.fill)}${this._pos(c)}`).join("; ");
+      html += ", " + cargas.map((c) => `${c.art} ${B(c.nombre.toLowerCase())} ${this._t(c.fill)}${this._pos(c)}`).join("; ");
+    }
+    const lemas = this.c.elementos.filter((e) => e.cat === "texto" && e.visible && e.texto);
+    if (lemas.length) { const l = `. Con el lema «${lemas.map((x) => x.texto).join(" · ")}»`; texto += l; html += l; }
+    const orn = this.c.elementos.filter((e) => e.cat === "ornamentos" && e.visible);
+    if (orn.length) { const o = `. Ornado exteriormente con ${orn.map((x) => x.nombre.toLowerCase()).join(", ")}`; texto += o; html += o; }
+    texto += "."; html += ".";
+    return { texto, html };
+  }
+  render() {
+    const cont = $("#tabBlason"); const r = this.generar();
+    cont.innerHTML = `<div class="subtitulo" style="margin-top:0">Blasonamiento automático</div>
+      <div class="blason-texto">${r.html || r.texto}</div>
+      <p class="hint">El <b>blasonamiento</b> es la descripción técnica del escudo con el lenguaje heráldico. Se genera al vuelo a partir de tu composición. El orden de lectura es: campo, particiones, figuras (muebles) y ornamentos.</p>
+      <button class="btn fantasma" id="copiarBlason" style="margin-top:10px;width:100%;justify-content:center"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copiar descripción</button>`;
+    $("#copiarBlason").onclick = () => { navigator.clipboard && navigator.clipboard.writeText(r.texto); app.toast("Blasonamiento copiado", "exito"); };
+  }
+}
+
+/* ==========================================================================
+ * 13 · InterpreteSimbolico
+ * ======================================================================== */
+class InterpreteSimbolico {
+  constructor(canvas) { this.c = canvas; }
+  items() {
+    const out = [];
+    const base = this.c.baseEscudo();
+    if (base) { const t = tinturaDe(base.fill); if (t) out.push({ color: t.hex, titulo: `Campo ${t.nombre}`, texto: t.sig, prof: "Tintura del campo" }); }
+    const part = this.c.elementos.find((e) => e.cat === "particiones" && e.visible);
+    if (part) { const t = tinturaDe(part.fill); out.push({ color: part.fill, titulo: NOMBRE_PARTICION[part.key] || part.key, texto: "La partición del campo divide el escudo, a menudo para conmemorar alianzas, uniones de linajes o dominios.", prof: "Estructura del campo" }); }
+    this.c.elementos.filter((e) => e.cat === "figuras" && e.visible).forEach((f) => { const s = SIGNIFICADOS[f.key]; if (s) out.push({ color: f.fill, titulo: f.nombre, texto: s.s, prof: s.p }); });
+    return out;
+  }
+  render() {
+    const cont = $("#tabInterp"); const its = this.items();
+    if (!its.length) { cont.innerHTML = app.vacio("Sin elementos que interpretar", "Añade un escudo y figuras para descubrir su lectura simbólica."); return; }
+    let html = `<div class="subtitulo" style="margin-top:0">Lectura simbólica</div>`;
+    for (const it of its) html += `<div class="interp-item"><h4><span class="punto" style="background:${it.color}"></span>${it.titulo}</h4><p>${it.texto}</p><span class="prof">◆ ${it.prof}</span></div>`;
+    html += `<p class="hint" style="margin-top:10px">La semiótica heráldica combina el sentido de las <b>tinturas</b> con el de las <b>figuras</b>: un mismo mueble cambia de matiz según el esmalte que lo viste y su posición en el campo.</p>`;
+    cont.innerHTML = html;
+  }
+}
+
+/* ==========================================================================
+ * 14 · GestorProyecto — guardar/cargar/exportar
+ * ======================================================================== */
+class GestorProyecto {
+  constructor(canvas) { this.c = canvas; this.LS = "lab-blasones-proyecto-v1"; }
+  serializar() { return { v: 1, fecha: Date.now(), vista: { zoom: this.c.zoom, panX: this.c.panX, panY: this.c.panY }, elementos: this.c.elementos.map((e) => e.toJSON()) }; }
+  cargarDatos(data) {
+    if (!data || !Array.isArray(data.elementos)) throw new Error("Formato inválido");
+    this.c.elementos = data.elementos.map((d) => new ElementoHeraldico(d));
+    this.c.selId = null; this.c.undoPila = []; this.c.redoPila = [];
+    if (data.vista) { this.c.zoom = data.vista.zoom || 1; this.c.panX = data.vista.panX || 0; this.c.panY = data.vista.panY || 0; this.c._aplicarVista(); }
+    app.postCambio();
+  }
+  guardarLocal() { try { localStorage.setItem(this.LS, JSON.stringify(this.serializar())); app.toast("Proyecto guardado en el navegador", "exito"); } catch (e) { app.toast("No se pudo guardar", "error"); } }
+  autoguardar() { try { localStorage.setItem(this.LS, JSON.stringify(this.serializar())); } catch (e) {} }
+  cargarLocal() { try { const raw = localStorage.getItem(this.LS); if (!raw) { app.toast("No hay proyecto guardado", "error"); return; } this.cargarDatos(JSON.parse(raw)); app.toast("Proyecto cargado", "exito"); } catch (e) { app.toast("Error al cargar", "error"); } }
+  cargarSilencioso() { try { const raw = localStorage.getItem(this.LS); if (raw) { this.cargarDatos(JSON.parse(raw)); return true; } } catch (e) {} return false; }
+  exportarJSON() { const blob = new Blob([JSON.stringify(this.serializar(), null, 2)], { type: "application/json" }); this._descargar(blob, "blason.json"); app.toast("JSON exportado", "exito"); }
+  importarJSON(file) { const fr = new FileReader(); fr.onload = () => { try { this.cargarDatos(JSON.parse(fr.result)); app.toast("Proyecto importado", "exito"); } catch (e) { app.toast("Archivo no válido", "error"); } }; fr.readAsText(file); }
+  _svgLimpio() {
+    const s = svgEl("svg", { xmlns: NS, viewBox: `0 0 ${VB.w} ${VB.h}`, width: VB.w, height: VB.h });
+    s.append(this.c.defs.cloneNode(true));
+    s.append(this.c.capaElem.cloneNode(true));
+    return s;
+  }
+  exportarSVG() { const s = this._svgLimpio(); const str = new XMLSerializer().serializeToString(s); const blob = new Blob(['<?xml version="1.0" encoding="UTF-8"?>\n' + str], { type: "image/svg+xml" }); this._descargar(blob, "blason.svg"); app.toast("SVG exportado", "exito"); }
+  exportarPNG() {
+    const esc = 2.4; const s = this._svgLimpio(); s.setAttribute("width", VB.w * esc); s.setAttribute("height", VB.h * esc);
+    const str = new XMLSerializer().serializeToString(s);
+    const img = new Image();
+    img.onload = () => {
+      const cv = document.createElement("canvas"); cv.width = VB.w * esc; cv.height = VB.h * esc;
+      const ctx = cv.getContext("2d"); ctx.drawImage(img, 0, 0);
+      cv.toBlob((b) => { this._descargar(b, "blason.png"); app.toast("PNG exportado", "exito"); }, "image/png");
+    };
+    img.onerror = () => app.toast("Error al generar PNG", "error");
+    img.src = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(str)));
+  }
+  _descargar(blob, nombre) { const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = nombre; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 3000); }
+}
+
+/* ==========================================================================
+ * 15 · ModoDidactico — etiquetas, ficha imprimible y leyenda
+ * ======================================================================== */
+class ModoDidactico {
+  constructor(canvas) { this.c = canvas; }
+  alternar() {
+    this.c.didactico = !this.c.didactico;
+    $("#btnDidactico").classList.toggle("activo", this.c.didactico);
+    this.c.render();
+    app.toast(this.c.didactico ? "Modo didáctico activado" : "Modo didáctico desactivado", "exito");
+  }
+  abrirFicha() {
+    const b = app.blason.generar();
+    const its = app.interprete.items();
+    const base = this.c.baseEscudo();
+    const escudoSVG = base ? `<svg viewBox="0 0 600 760">${this._svgFicha()}</svg>` : "<p style='color:#8a7d5c'>Escudo no definido</p>";
+    const esmaltesUsados = [...new Set(this.c.elementos.filter((e) => e.visible).map((e) => e.fill))].map((h) => tinturaDe(h)).filter(Boolean);
+    $("#fichaCuerpo").innerHTML = `
+      <div class="encabezado-ficha"><h2>Blasón Heráldico</h2><p>Ficha de análisis · Laboratorio Digital de Blasones</p></div>
+      <div class="ficha-escudo">${escudoSVG}</div>
+      <div class="ficha-seccion"><h4>Blasonamiento</h4><p class="blz">${b.texto}</p></div>
+      <div class="ficha-seccion"><h4>Esmaltes empleados</h4><ul>${esmaltesUsados.map((t) => `<li><span class="cuadro" style="background:${t.hex}"></span><span><b>${t.nombre}</b> (${t.clase}) — ${t.sig}</span></li>`).join("") || "<li>—</li>"}</ul></div>
+      <div class="ficha-seccion"><h4>Interpretación simbólica</h4><ul>${its.map((i) => `<li><span class="cuadro" style="background:${i.color}"></span><span><b>${i.titulo}</b> — ${i.texto}</span></li>`).join("") || "<li>—</li>"}</ul></div>
+      <div class="ficha-pie">Documento generado el ${new Date().toLocaleDateString("es-ES", { day: "numeric", month: "long", year: "numeric" })} · Herramienta educativa de heráldica</div>`;
+    $("#modalFicha").classList.add("ver");
+  }
+  _svgFicha() { const clon = this.c.capaElem.cloneNode(true); const wrap = svgEl("g"); wrap.append(this.c.defs.cloneNode(true), clon); return wrap.innerHTML; }
+  cerrarFicha() { $("#modalFicha").classList.remove("ver"); }
+}
+
+/* ==========================================================================
+ * 16 · App — orquestador y paneles
+ * ======================================================================== */
+const app = {
+  iniciar() {
+    this.canvas = new CanvasHeraldico($("#lienzo"));
+    this.arrastre = new SistemaArrastre(this.canvas);
+    this.biblio = new BibliotecaHeraldica(this.canvas);
+    this.paleta = new PaletaEsmaltes(this.canvas);
+    this.capas = new GestorCapas(this.canvas);
+    this.blason = new GeneradorBlasonamiento(this.canvas);
+    this.interprete = new InterpreteSimbolico(this.canvas);
+    this.proyecto = new GestorProyecto(this.canvas);
+    this.didactico = new ModoDidactico(this.canvas);
+    this.espacio = false;
+    this._pestanasProp();
+    this._barra();
+    this._cabecera();
+    this._teclado();
+    if (!this.proyecto.cargarSilencioso()) this.canvas.añadir("escudos", "frances");
+    this.refrescarPaneles();
+    window.addEventListener("resize", () => { clearTimeout(this._rz); this._rz = setTimeout(() => this.canvas._aplicarVista(), 120); });
+  },
+
+  /* ---- utilidades UI ---- */
+  vacio(t, s) { return `<div class="vacio-panel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 3 4 7v6c0 5 8 8 8 8s8-3 8-8V7z"/></svg><p><b>${t}</b><br>${s}</p></div>`; },
+  toast(msg, tipo) {
+    const t = document.createElement("div"); t.className = "toast " + (tipo || "");
+    const ico = tipo === "error" ? '<path d="M12 8v4M12 16h.01"/><circle cx="12" cy="12" r="10"/>' : tipo === "exito" ? '<path d="M20 6L9 17l-5-5"/>' : '<circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>';
+    t.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ico}</svg>${msg}`;
+    $("#toastWrap").append(t); setTimeout(() => t.remove(), 3000);
+  },
+
+  /* ---- ciclo de actualización ---- */
+  postCambio(rerender = true) { if (rerender) this.canvas.render(); this.refrescarPaneles(); this.actualizarHistorialBtns(); this.proyecto && this.proyecto.autoguardar(); },
+  refrescarPaneles() {
+    this.panelObjeto(); this.capas.render(); this.blason.render(); this.interprete.render();
+    this.actualizarMigas(); this.actualizarBarraSel();
+    const info = $("#lienzoInfo"); const n = this.canvas.elementos.length;
+    info.textContent = n ? `${n} elemento${n > 1 ? "s" : ""} · ${this.canvas.sel ? this.canvas.sel.nombre : "nada seleccionado"}` : "Arrastra una pieza desde la biblioteca";
+  },
+  actualizarMigas() { const b = this.blason.generar(); $("#lienzoMigas").textContent = b.texto.length > 120 ? b.texto.slice(0, 118) + "…" : (this.canvas.baseEscudo() ? b.texto : ""); },
+  actualizarBarraSel() { const has = !!this.canvas.sel; ["tbDuplicar", "tbEliminar"].forEach((id) => $("#" + id).disabled = !has); },
+  actualizarHistorialBtns() { $("#tbDeshacer").disabled = !this.canvas.undoPila.length; $("#tbRehacer").disabled = !this.canvas.redoPila.length; },
+
+  /* ---- pestañas panel derecho ---- */
+  _pestanasProp() { $$("#pestanasProp button").forEach((b) => b.onclick = () => { $$("#pestanasProp button").forEach((x) => x.classList.remove("activo")); b.classList.add("activo"); $$(".panel-der .tab-panel").forEach((p) => p.classList.remove("activo")); $("#tab" + b.dataset.tab[0].toUpperCase() + b.dataset.tab.slice(1)).classList.add("activo"); }); },
+
+  /* ---- panel Objeto ---- */
+  panelObjeto() {
+    const cont = $("#tabObjeto"); const el = this.canvas.sel;
+    if (!el) { cont.innerHTML = this.vacio("Ningún objeto seleccionado", "Haz clic en un elemento del escudo para editar sus propiedades."); return; }
+    const esTexto = el.cat === "texto";
+    cont.innerHTML = `
+      <div class="campo"><label>Nombre</label><input class="control" id="pNombre" value="${el.nombre.replace(/"/g, "&quot;")}"></div>
+      ${esTexto ? `<div class="campo"><label>Texto del lema</label><input class="control" id="pTexto" value="${(el.texto || "").replace(/"/g, "&quot;")}"></div>` : ""}
+      <div class="fila">
+        <div class="campo"><label>Posición X</label><input class="control" type="number" id="pX" value="${Math.round(el.x)}"></div>
+        <div class="campo"><label>Posición Y</label><input class="control" type="number" id="pY" value="${Math.round(el.y)}"></div>
+      </div>
+      <div class="campo"><label>Tamaño</label><div class="rango-fila"><input type="range" class="control" id="pScale" min="8" max="400" value="${Math.round(el.scale * 100)}"><span class="rango-val" id="pScaleV">${Math.round(el.scale * 100)}%</span></div></div>
+      <div class="campo"><label>Rotación</label><div class="rango-fila"><input type="range" class="control" id="pRot" min="-180" max="180" value="${el.rot}"><span class="rango-val" id="pRotV">${el.rot}°</span></div></div>
+      <div class="campo"><label>Opacidad</label><div class="rango-fila"><input type="range" class="control" id="pOp" min="10" max="100" value="${Math.round(el.opacity * 100)}"><span class="rango-val" id="pOpV">${Math.round(el.opacity * 100)}%</span></div></div>
+      <div class="fila">
+        <div class="campo"><label>Relleno</label><input type="color" class="control" style="height:34px;padding:2px" id="pFill" value="${/^#[0-9a-f]{6}$/i.test(el.fill) ? el.fill : "#000000"}"></div>
+        <div class="campo"><label>Grosor borde</label><input class="control" type="number" min="0" max="20" step="0.5" id="pSw" value="${el.sw}"></div>
+      </div>
+      ${(el.cat === "figuras" || el.cat === "particiones") ? `<div class="campo"><label><input type="checkbox" id="pClip" ${el.recortar ? "checked" : ""}> Recortar al contorno del escudo</label></div>` : ""}
+      ${el.cat === "ornamentos" ? `<div class="campo"><label><input type="checkbox" id="pFlip" ${el.flip ? "checked" : ""}> Reflejar horizontalmente</label></div>` : ""}
+      <div class="acciones-obj">
+        <button class="mini-btn" id="pAtras" title="Enviar atrás"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7 7 7-7"/></svg>Atrás</button>
+        <button class="mini-btn" id="pFrente" title="Traer al frente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12l7-7 7 7"/></svg>Frente</button>
+        <button class="mini-btn" id="pDup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Duplicar</button>
+        <button class="mini-btn" id="pDel" style="color:var(--peligro)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>Eliminar</button>
+      </div>`;
+    this._enlazarObjeto(el);
+  },
+  _enlazarObjeto(el) {
+    const c = this.canvas;
+    const H = () => c.pushHistory();
+    const set = (fn) => { H(); fn(); this.postCambio(); };
+    const live = (fn) => { fn(); c._actualizarNodo(el); c.dibujarSeleccion(); if (el === c.baseEscudo()) c._actualizarClip(); };
+    const bind = (id, ev, fn) => { const n = $("#" + id); if (n) n.addEventListener(ev, fn); };
+    bind("pNombre", "change", (e) => set(() => el.nombre = e.target.value));
+    bind("pTexto", "input", (e) => { el.texto = e.target.value; live(() => {}); c.render(); c.dibujarSeleccion(); });
+    bind("pTexto", "change", () => { H(); this.postCambio(); });
+    bind("pX", "input", (e) => { H(); live(() => el.x = +e.target.value); });
+    bind("pY", "input", (e) => { H(); live(() => el.y = +e.target.value); });
+    bind("pScale", "input", (e) => { $("#pScaleV").textContent = e.target.value + "%"; live(() => el.scale = +e.target.value / 100); });
+    bind("pScale", "change", H);
+    bind("pRot", "input", (e) => { $("#pRotV").textContent = e.target.value + "°"; live(() => el.rot = +e.target.value); });
+    bind("pRot", "change", H);
+    bind("pOp", "input", (e) => { $("#pOpV").textContent = e.target.value + "%"; el.opacity = +e.target.value / 100; c._actualizarNodo(el); const g = c.nodos[el.id]; if (g) g.setAttribute("opacity", el.opacity); });
+    bind("pOp", "change", () => { H(); this.postCambio(); });
+    bind("pFill", "input", (e) => { el.fill = e.target.value; const g = c.nodos[el.id]; if (g) g.setAttribute("fill", el.fill); if (el === c.baseEscudo()) c._actualizarClip(); });
+    bind("pFill", "change", () => { H(); this.postCambio(); this.paleta.verificarRegla(el); });
+    bind("pSw", "change", (e) => set(() => el.sw = +e.target.value));
+    bind("pClip", "change", (e) => set(() => el.recortar = e.target.checked));
+    bind("pFlip", "change", (e) => set(() => el.flip = e.target.checked ? 1 : 0));
+    bind("pAtras", "click", () => c.reordenar(el.id, -1));
+    bind("pFrente", "click", () => c.reordenar(el.id, 1));
+    bind("pDup", "click", () => c.duplicar(el.id));
+    bind("pDel", "click", () => c.eliminar(el.id));
+  },
+  actualizarCampos() {
+    const el = this.canvas.sel; if (!el) return;
+    const s = (id, v) => { const n = $("#" + id); if (n && document.activeElement !== n) n.value = v; };
+    s("pX", Math.round(el.x)); s("pY", Math.round(el.y));
+    const ps = $("#pScale"); if (ps) { ps.value = Math.round(el.scale * 100); $("#pScaleV").textContent = Math.round(el.scale * 100) + "%"; }
+    const pr = $("#pRot"); if (pr) { pr.value = el.rot; $("#pRotV").textContent = el.rot + "°"; }
+  },
+
+  /* ---- barra de herramientas ---- */
+  _barra() {
+    const c = this.canvas;
+    $$('.tbtn[data-tool]').forEach((b) => b.onclick = () => { $$('.tbtn[data-tool]').forEach((x) => x.classList.remove("activo")); b.classList.add("activo"); c.tool = b.dataset.tool; $("#lienzo").style.cursor = c.tool === "mano" ? "grab" : "default"; });
+    $("#tbTexto").onclick = () => { const t = prompt("Texto del lema:", "PLVS VLTRA"); if (t !== null) c.añadir("texto", "", { texto: t || "LEMA" }); };
+    $("#tbDuplicar").onclick = () => c.sel && c.duplicar(c.selId);
+    $("#tbEliminar").onclick = () => c.sel && c.eliminar(c.selId);
+    $("#tbDeshacer").onclick = () => c.deshacer();
+    $("#tbRehacer").onclick = () => c.rehacer();
+    $("#tbSnap").onclick = () => { c.snap = !c.snap; $("#tbSnap").classList.toggle("activo", c.snap); };
+    $("#tbGrid").onclick = () => { c.gridOn = !c.gridOn; $("#tbGrid").classList.toggle("activo", c.gridOn); c.capaGrid.style.display = c.gridOn ? "" : "none"; };
+    $("#tbCentrar").onclick = () => c.centrarVista();
+    $("#tbZoomIn").onclick = $("#zfIn").onclick = () => c.fijarZoom(c.zoom * 1.15);
+    $("#tbZoomOut").onclick = $("#zfOut").onclick = () => c.fijarZoom(c.zoom * 0.87);
+    $("#tbZoomFit").onclick = () => c.centrarVista();
+  },
+
+  /* ---- cabecera ---- */
+  _cabecera() {
+    $("#btnNuevo").onclick = () => { if (confirm("¿Comenzar un escudo nuevo? Se perderá lo no exportado.")) { this.canvas.limpiar(); this.canvas.añadir("escudos", "frances"); } };
+    $("#btnGuardar").onclick = () => this.proyecto.guardarLocal();
+    $("#btnCargar").onclick = () => this.proyecto.cargarLocal();
+    $("#btnExportJSON").onclick = () => this.proyecto.exportarJSON();
+    $("#btnImportar").onclick = () => $("#inputImportar").click();
+    $("#inputImportar").onchange = (e) => { if (e.target.files[0]) this.proyecto.importarJSON(e.target.files[0]); e.target.value = ""; };
+    $("#btnExportSVG").onclick = () => this.proyecto.exportarSVG();
+    $("#btnExportPNG").onclick = () => this.proyecto.exportarPNG();
+    $("#btnDidactico").onclick = () => this.didactico.alternar();
+    $("#fichaCerrar").onclick = () => this.didactico.cerrarFicha();
+    $("#modalFicha").onclick = (e) => { if (e.target === $("#modalFicha")) this.didactico.cerrarFicha(); };
+    $("#fichaImprimir").onclick = () => window.print();
+    // botón didáctico abre además la ficha con doble clic
+    $("#btnDidactico").ondblclick = () => this.didactico.abrirFicha();
+  },
+
+  /* ---- teclado ---- */
+  _teclado() {
+    const c = this.canvas;
+    window.addEventListener("keydown", (e) => {
+      if (/input|textarea|select/i.test(e.target.tagName)) return;
+      if (e.code === "Space") { this.espacio = true; $("#lienzo").style.cursor = "grab"; }
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") { e.preventDefault(); e.shiftKey ? c.rehacer() : c.deshacer(); }
+      else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "y") { e.preventDefault(); c.rehacer(); }
+      else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "d") { e.preventDefault(); c.sel && c.duplicar(c.selId); }
+      else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") { e.preventDefault(); this.proyecto.guardarLocal(); }
+      else if ((e.key === "Delete" || e.key === "Backspace") && c.sel) { e.preventDefault(); c.eliminar(c.selId); }
+      else if (e.key === "v" || e.key === "V") { $('.tbtn[data-tool="seleccionar"]').click(); }
+      else if (e.key === "h" || e.key === "H") { $('.tbtn[data-tool="mano"]').click(); }
+      else if (c.sel && !c.sel.locked && ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) {
+        e.preventDefault(); c.pushHistory(); const d = e.shiftKey ? GRID : 1;
+        if (e.key === "ArrowUp") c.sel.y -= d; if (e.key === "ArrowDown") c.sel.y += d;
+        if (e.key === "ArrowLeft") c.sel.x -= d; if (e.key === "ArrowRight") c.sel.x += d;
+        c._actualizarNodo(c.sel); c.dibujarSeleccion(); if (c.sel === c.baseEscudo()) c._actualizarClip(); this.actualizarCampos();
+      }
+    });
+    window.addEventListener("keyup", (e) => { if (e.code === "Space") { this.espacio = false; $("#lienzo").style.cursor = c.tool === "mano" ? "grab" : "default"; } });
+  },
+};
+
+document.addEventListener("DOMContentLoaded", () => app.iniciar());
+})();
+</script>
+</body>
+</html>
