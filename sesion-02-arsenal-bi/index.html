@@ -240,8 +240,27 @@ textarea.inp{min-height:80px;resize:vertical} select.inp{cursor:pointer}
 /* ---------- Reporte imprimible (oculto en pantalla) ---------- */
 #printReport{display:none}
 
+/* ---------- Mini-juego físico (Radar de características) ---------- */
+.game{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:.7rem;margin:.7rem 0}
+.game-hud{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem;margin-bottom:.5rem}
+.game-hud .score{font-weight:800;color:var(--gold);white-space:nowrap}
+.game-canvas-wrap{position:relative;width:100%;border-radius:10px;overflow:hidden;border:1px solid var(--line);
+  background:radial-gradient(circle at 50% 50%,rgba(0,229,255,.06),transparent 70%)}
+canvas.game-canvas{display:block;width:100%;height:300px;touch-action:manipulation;cursor:crosshair}
+.game-fb{min-height:1.4em;margin-top:.5rem;font-size:.88rem}
+.game-fb.ok{color:#9be9bd}.game-fb.no{color:#ffc2c2}
+.a11y-list{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.5rem}
+.a11y-list button{background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:999px;
+  padding:.35rem .7rem;cursor:pointer;font-family:inherit;font-size:.85rem;transition:.15s}
+.a11y-list button:hover{border-color:var(--amber)}
+.a11y-list button.caught{border-color:var(--green);color:var(--green);text-decoration:line-through;opacity:.6;pointer-events:none}
+.a11y-list button.trap-hit{border-color:var(--alert);color:var(--alert)}
+
 /* ---------- Movimiento reducido ---------- */
-@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+@media (prefers-reduced-motion:reduce){
+  canvas.game-canvas{cursor:pointer}
+  *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+}
 
 /* ---------- Impresión / PDF ---------- */
 @media print{
@@ -456,12 +475,31 @@ textarea.inp{min-height:80px;resize:vertical} select.inp{cursor:pointer}
         <div class="metric"><b>💰</b><small>Financiero</small></div>
         <div class="metric"><b>🚚</b><small>Logístico</small></div>
       </div>
-      <p class="small muted" style="margin:.2rem 0">Palabras clave del campo (tu “nube de palabras”): rapidez · gráficos · conexión a datos · facilidad de uso · costo · actualización · seguridad · colaboración.</p>
-      <div class="pool" aria-hidden="true">
-        <span class="chip">rapidez</span><span class="chip">gráficos</span><span class="chip">conexión</span><span class="chip">facilidad</span>
-        <span class="chip">costo</span><span class="chip">actualización</span><span class="chip">seguridad</span><span class="chip">colaboración</span>
+      <p class="small muted" style="margin:.2rem 0">Antes de escribir, <strong>juega</strong>: en el radar flotan términos con física propia. Captura solo las <strong>características reales</strong> de una herramienta de BI.</p>
+
+      <!-- ===== Mini-juego físico: Radar de características ===== -->
+      <div class="game" id="radarGame">
+        <div class="game-hud">
+          <span class="small"><b>🎯 Radar de características</b> — toca/haz clic en las <b>8 características reales</b> de una herramienta de BI y evita los distractores (moda, fama, apariencia).</span>
+          <span class="score">Capturadas: <span id="gameScore">0</span>/8</span>
+        </div>
+        <div class="game-canvas-wrap">
+          <canvas id="gameCanvas" class="game-canvas" role="img"
+            aria-label="Juego con física: burbujas con términos rebotan por la pantalla; captura las características reales de una herramienta de BI y evita los distractores."></canvas>
+        </div>
+        <div class="btn-row">
+          <button type="button" class="btn cyan sm" id="gameStartBtn" onclick="toggleGame()">▶️ Iniciar juego</button>
+          <button type="button" class="btn ghost sm" onclick="resetRadarGame()">🔁 Reiniciar</button>
+        </div>
+        <div class="game-fb" id="gameFb" role="status" aria-live="polite"></div>
+        <details style="margin-top:.5rem">
+          <summary style="cursor:pointer;font-weight:700;color:var(--cyan)">♿ Modo accesible (sin movimiento, con teclado)</summary>
+          <p class="small muted" style="margin:.3rem 0">Activa cada término con Enter o Espacio; captura las 8 características reales.</p>
+          <div class="a11y-list" id="a11yList"></div>
+        </details>
       </div>
-      <label for="n1open"><strong>¿Qué características esperarías tú?</strong> Escribe 3 o 4 con tus palabras:</label>
+
+      <label for="n1open"><strong>Tras jugar, ¿qué características esperarías tú?</strong> Escribe 3 o 4 con tus palabras:</label>
       <textarea class="inp" id="n1open" placeholder="Esperaría que la herramienta sea… porque…"></textarea>
     </div>
 
@@ -1048,6 +1086,7 @@ let state={
   answers:{},            // qid -> {label, chosen, ok, fund}
   assoc:{},              // groupKey -> {label, ok:bool}
   dndDone:false,
+  gameCaught:{},         // término válido capturado en el mini-juego
   fields:{}, likert:{}, self:{}
 };
 
@@ -1475,11 +1514,153 @@ function loadProgress(){
 }
 function resetProgress(){ if(!confirm('¿Reiniciar toda la misión? Se borrará tu avance en este dispositivo. No se puede deshacer.'))return; store.clear(); location.reload(); }
 
+/* ============================================================
+   MINI-JUEGO FÍSICO · "Radar de características"
+   Física estilo game/animation: cada término es una partícula con
+   vector de velocidad que rebota elásticamente contra las paredes
+   (Physics for JavaScript Games). Captura las 8 características reales.
+   ============================================================ */
+const GAME_VALID=[
+  {t:'rapidez',           f:'respuestas en minutos, no en días.'},
+  {t:'gráficos',          f:'ver patrones que una tabla oculta.'},
+  {t:'conexión a datos',  f:'unir Excel, CRM y bases sin copiar a mano.'},
+  {t:'facilidad de uso',  f:'que el equipo la use sin programar.'},
+  {t:'costo',             f:'licencias sostenibles para el presupuesto.'},
+  {t:'actualización',     f:'datos frescos, no una foto del mes pasado.'},
+  {t:'seguridad',         f:'roles y permisos para datos sensibles.'},
+  {t:'colaboración',      f:'compartir tableros y decidir en equipo.'}
+];
+const GAME_TRAPS=['color del logo','número de seguidores','cantidad de anuncios','moda del momento'];
+const PALETTE=['#00e5ff','#ffd600','#00ff9d','#b829dd','#2a6cff'];
+let gCanvas,gCtx,gW=0,gH=300,gDPR=1,gBubbles=[],gRAF=null,gRunning=false;
+const gReduced = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+function initRadarGame(){
+  gCanvas=$('gameCanvas'); if(!gCanvas) return;
+  gCtx=gCanvas.getContext('2d');
+  buildBubbles();
+  sizeGame();
+  layoutGrid();               // posición ordenada inicial (y para modo estático)
+  window.addEventListener('resize',()=>{ sizeGame(); if(!gRunning) layoutGrid(); drawGame(); });
+  gCanvas.addEventListener('click',e=>{ const r=gCanvas.getBoundingClientRect(); hitTest(e.clientX-r.left, e.clientY-r.top); });
+  gCanvas.addEventListener('touchstart',e=>{ if(e.touches[0]){ const r=gCanvas.getBoundingClientRect(); hitTest(e.touches[0].clientX-r.left, e.touches[0].clientY-r.top);} },{passive:true});
+  buildA11yList();
+  updateGameScore();
+  drawGame();
+  if(gReduced){ const b=$('gameStartBtn'); if(b){ b.textContent='🔎 Modo estático (toca los términos)'; b.disabled=true; } }
+}
+function buildBubbles(){
+  const all=[...GAME_VALID.map(v=>({label:v.t,valid:true,f:v.f})), ...GAME_TRAPS.map(t=>({label:t,valid:false}))];
+  for(let i=all.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [all[i],all[j]]=[all[j],all[i]]; }
+  gBubbles=all.map((o,i)=>({label:o.label, valid:o.valid, f:o.f||'',
+    x:60,y:60, vx:(Math.random()*2-1)*1.3||1, vy:(Math.random()*2-1)*1.3||1,
+    r:30, color:o.valid?PALETTE[i%PALETTE.length]:'#5b6472',
+    caught:!!(state.gameCaught&&state.gameCaught[o.label]), flash:0}));
+}
+function sizeGame(){
+  if(!gCanvas) return;
+  gDPR=Math.min(window.devicePixelRatio||1,2);
+  gW=gCanvas.parentElement.clientWidth||320; gH=300;
+  gCanvas.width=gW*gDPR; gCanvas.height=gH*gDPR; gCanvas.style.height=gH+'px';
+  gCtx.setTransform(gDPR,0,0,gDPR,0,0);
+  gCtx.font='600 12px system-ui,sans-serif';
+  gBubbles.forEach(b=>{ b.r=Math.max(24, Math.min(gW/4, gCtx.measureText(b.label).width/2+14)); });
+}
+function layoutGrid(){
+  // acomoda las burbujas en filas para el fotograma inicial / estático
+  const cols=Math.max(2,Math.floor(gW/130)), gapY=gH/(Math.ceil(gBubbles.length/cols)+1);
+  gBubbles.forEach((b,i)=>{ const c=i%cols, row=Math.floor(i/cols);
+    b.x=(gW/(cols+1))*(c+1); b.y=gapY*(row+1);
+    b.x=Math.min(Math.max(b.r,b.x),gW-b.r); b.y=Math.min(Math.max(b.r,b.y),gH-b.r); });
+}
+function drawGame(){
+  if(!gCtx) return;
+  gCtx.clearRect(0,0,gW,gH);
+  gBubbles.forEach(b=>{
+    gCtx.beginPath(); gCtx.arc(b.x,b.y,b.r,0,Math.PI*2);
+    if(b.caught){ gCtx.fillStyle='rgba(0,255,157,.14)'; gCtx.strokeStyle='#00ff9d'; }
+    else if(b.flash>0){ gCtx.fillStyle='rgba(255,32,56,.20)'; gCtx.strokeStyle='#ff2038'; }
+    else { gCtx.fillStyle=b.color+'22'; gCtx.strokeStyle=b.color; }
+    gCtx.lineWidth=2; gCtx.fill(); gCtx.stroke();
+    gCtx.fillStyle=b.caught?'#9be9bd':'#e6e8f2'; gCtx.textAlign='center'; gCtx.textBaseline='middle';
+    gCtx.font='600 12px system-ui,sans-serif';
+    gCtx.fillText((b.caught?'✓ ':'')+b.label, b.x, b.y);
+  });
+}
+function stepGame(){
+  gBubbles.forEach(b=>{
+    if(b.flash>0) b.flash--;
+    if(b.caught) return;              // capturadas quedan quietas
+    b.x+=b.vx; b.y+=b.vy;
+    if(b.x-b.r<0){ b.x=b.r; b.vx=Math.abs(b.vx); }        // rebote elástico
+    if(b.x+b.r>gW){ b.x=gW-b.r; b.vx=-Math.abs(b.vx); }
+    if(b.y-b.r<0){ b.y=b.r; b.vy=Math.abs(b.vy); }
+    if(b.y+b.r>gH){ b.y=gH-b.r; b.vy=-Math.abs(b.vy); }
+  });
+  drawGame();
+  gRAF=requestAnimationFrame(stepGame);
+}
+function toggleGame(){
+  if(gReduced) return;
+  const btn=$('gameStartBtn');
+  if(gRunning){ cancelAnimationFrame(gRAF); gRunning=false; if(btn)btn.textContent='▶️ Reanudar'; }
+  else { gRunning=true; if(btn)btn.textContent='⏸️ Pausar'; gRAF=requestAnimationFrame(stepGame); }
+}
+function hitTest(px,py){
+  let best=null,bd=1e9;
+  gBubbles.forEach(b=>{ if(b.caught) return; const d=Math.hypot(px-b.x,py-b.y); if(d<b.r&&d<bd){bd=d;best=b;} });
+  if(best) captureTerm(best);
+}
+function captureTerm(b){
+  const fb=$('gameFb');
+  if(b.valid){
+    b.caught=true; state.gameCaught[b.label]=true;
+    const btn=document.querySelector('.a11y-list button[data-label="'+cssq(b.label)+'"]'); if(btn) btn.classList.add('caught');
+    fb.className='game-fb ok'; fb.innerHTML='✓ <b>'+b.label+'</b>: sirve para '+ (b.f||'') ;
+    updateGameScore(); drawGame(); checkGameWin(); saveProgress(false);
+  } else {
+    b.flash=30;
+    // "empujón" físico al distractor (más energía)
+    b.vx*=1.6; b.vy*=1.6;
+    const btn=document.querySelector('.a11y-list button[data-label="'+cssq(b.label)+'"]'); if(btn){ btn.classList.add('trap-hit'); setTimeout(()=>btn.classList.remove('trap-hit'),600); }
+    fb.className='game-fb no'; fb.innerHTML='✗ <b>'+b.label+'</b> no describe la calidad de una herramienta de BI: es apariencia o moda, no criterio de decisión. ¡Sigue!';
+    drawGame();
+  }
+}
+function updateGameScore(){ const n=Object.keys(state.gameCaught||{}).length; const el=$('gameScore'); if(el) el.textContent=n; }
+function checkGameWin(){
+  if(Object.keys(state.gameCaught).length>=GAME_VALID.length && !state._gameWin){
+    state._gameWin=true;
+    if(gRunning) toggleGame();
+    const fb=$('gameFb'); fb.className='game-fb ok';
+    fb.innerHTML='🏆 <b>¡Radar completo!</b> Identificaste las 8 características que hacen útil una herramienta de BI. Esos son los criterios que usarás para elegir.';
+    addXP(40,'Radar de características');
+  }
+}
+function buildA11yList(){
+  const box=$('a11yList'); if(!box) return; box.innerHTML='';
+  gBubbles.forEach(b=>{
+    const btn=document.createElement('button'); btn.type='button'; btn.textContent=b.label; btn.dataset.label=b.label;
+    btn.setAttribute('aria-label',(b.valid?'Característica: ':'Distractor: ')+b.label);
+    if(b.caught) btn.classList.add('caught');
+    btn.addEventListener('click',()=>{ const target=gBubbles.find(x=>x.label===b.label); if(target) captureTerm(target); });
+    box.appendChild(btn);
+  });
+}
+function cssq(s){ return String(s).replace(/"/g,'\\"'); }
+function resetRadarGame(){
+  state.gameCaught={}; state._gameWin=false;
+  if(gRunning) toggleGame();
+  buildBubbles(); sizeGame(); layoutGrid(); buildA11yList(); updateGameScore();
+  const fb=$('gameFb'); if(fb){ fb.className='game-fb'; fb.textContent=''; }
+  drawGame(); saveProgress(false);
+}
+
 /* ---------- Init ---------- */
 document.addEventListener('DOMContentLoaded',()=>{
   initDnd(); initSelfEval(); renderRoster();
   document.querySelectorAll('.inp').forEach(el=>el.addEventListener('change',()=>saveProgress(false)));
-  loadProgress(); refreshProgress(); unlock(1);
+  loadProgress(); initRadarGame(); refreshProgress(); unlock(1);
 });
 </script>
 </body>
