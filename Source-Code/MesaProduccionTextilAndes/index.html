@@ -130,9 +130,22 @@
   .node-panel .np-close:hover{background:rgba(224,86,58,.2);border-color:var(--error)}
   .node-panel .np-body{font-size:.88rem;line-height:1.55;color:#d7deff}
   .node-panel .np-body strong{color:var(--idc-amarillo)}
-  .node-panel .np-tag{display:inline-block;margin-top:.6rem;font-size:.68rem;font-weight:700;
+  .node-panel .np-tags{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.6rem}
+  .node-panel .np-tag{display:inline-block;font-size:.68rem;font-weight:700;
     letter-spacing:.4px;padding:.2rem .55rem;border-radius:999px;background:rgba(37,211,211,.14);
     color:var(--cian);border:1px solid rgba(37,211,211,.4)}
+
+  /* ---- Pop-up emergente al pasar el cursor sobre un nodo (mapa 3D) ---- */
+  .node-hover-tip{position:absolute;z-index:7;max-width:240px;pointer-events:none;
+    background:rgba(6,10,24,.95);color:#f2f5ff;border-radius:10px;padding:.5rem .65rem;
+    font-size:.76rem;line-height:1.4;border:1px solid rgba(255,255,255,.22);
+    box-shadow:0 10px 28px rgba(0,0,0,.5);opacity:0;transform:translate(-50%,-4px);
+    transition:opacity .15s,transform .15s;display:none}
+  .node-hover-tip.visible{display:block;opacity:1;transform:translate(-50%,-10px)}
+  .node-hover-tip strong{display:block;font-family:'Rajdhani';font-weight:700;font-size:.86rem;
+    margin-bottom:.15rem;color:#fff}
+  .node-hover-tip .nht-fase{display:inline-block;font-size:.65rem;font-weight:700;
+    letter-spacing:.3px;color:#cfe9ff;opacity:.9}
 
   /* ---- HUD flotante ---- */
   #hud{
@@ -201,12 +214,31 @@
   .opcion-btn.ok{border-color:var(--exito);background:rgba(63,181,107,.2)}
   .opcion-btn.no{border-color:var(--error);background:rgba(224,86,58,.18)}
 
-  .feedback{border-radius:12px;padding:.9rem 1rem;margin-top:.4rem;font-size:.95rem;line-height:1.5}
+  .feedback{border-radius:12px;padding:.9rem 1rem;margin-top:.4rem;font-size:.95rem;line-height:1.5;color:#eef2ff}
   .feedback.ok{background:rgba(63,181,107,.14);border:1px solid rgba(63,181,107,.5)}
   .feedback.err{background:rgba(224,86,58,.12);border:1px solid rgba(224,86,58,.5)}
   .feedback ul{margin:.4rem 0 0;padding-left:1.1rem}
   .dato-extra{margin-top:.5rem;font-size:.85rem;color:var(--idc-amarillo);
     background:rgba(243,161,0,.1);border-left:3px solid var(--idc-amarillo);padding:.5rem .7rem;border-radius:6px}
+  .aporte-fase{margin-top:.5rem;font-size:.85rem;color:#cfe9ff;
+    background:rgba(37,211,211,.08);border-left:3px solid var(--cian);padding:.5rem .7rem;border-radius:6px}
+
+  /* ---- Badge de fase (instrucción → interacción → respuesta → retroalimentación → fase) ---- */
+  .fase-badge{display:inline-flex;align-items:center;gap:.4rem;font-size:.74rem;font-weight:700;
+    letter-spacing:.2px;padding:.28rem .65rem;border-radius:999px;background:rgba(255,255,255,.06);
+    color:#eef2ff;border:1px solid rgba(255,255,255,.2)}
+  .fase-badge .fdot{width:9px;height:9px;border-radius:50%;flex:0 0 auto}
+  .fase-intro{font-size:.85rem;line-height:1.55;color:#d7deff;background:rgba(0,114,185,.12);
+    border:1px solid rgba(0,114,185,.4);border-radius:10px;padding:.7rem .9rem;margin-bottom:.8rem}
+  .fase-intro strong{color:var(--idc-amarillo)}
+
+  /* ---- Ayuda contextual (pista previa a responder) ---- */
+  .hint-toggle{background:transparent;border:1px dashed rgba(37,211,211,.5);color:var(--cian);
+    font-size:.82rem;font-weight:600;border-radius:10px;padding:.4rem .75rem;cursor:pointer}
+  .hint-toggle:hover{background:rgba(37,211,211,.1)}
+  .hint-box{display:none;margin-top:.5rem;font-size:.85rem;line-height:1.5;color:#eef2ff;
+    background:rgba(243,161,0,.1);border:1px solid rgba(243,161,0,.4);border-radius:10px;padding:.6rem .8rem}
+  .hint-box.visible{display:block}
 
   .form-control,.form-select{background:#0e1733;border:1px solid rgba(255,255,255,.16);color:#fff}
   .form-control:focus,.form-select:focus{background:#0e1733;color:#fff;border-color:var(--cian);
@@ -268,9 +300,12 @@
   }
 
   @media print{
-    body{background:#fff;color:#000}
+    body{background:#fff}
     #hud,#loader,.navbar-andes,#escena,.no-print,.escena-hint{display:none!important}
-    .glass{border:1px solid #ccc;background:#fff}
+    /* Contraste para impresión: fondo blanco exige texto oscuro en todos los bloques visibles */
+    *{color:#000!important;text-shadow:none!important}
+    .glass,.accordion-item,.accordion-body,.accordion-button,table.mini{background:#fff!important;border-color:#ccc!important}
+    a{text-decoration:underline}
   }
 </style>
 </head>
@@ -422,8 +457,12 @@
           <button class="np-close" id="npClose" type="button" aria-label="Cerrar detalle">✕</button>
         </div>
         <div class="np-body" id="npBody">Descripción…</div>
-        <span class="np-tag" id="npTag">PASO</span>
+        <div class="np-tags">
+          <span class="np-tag" id="npTag">PASO</span>
+          <span class="np-tag" id="npFase">FASE</span>
+        </div>
       </aside>
+      <div id="nodeHoverTip" class="node-hover-tip" role="tooltip"></div>
     </div>
   </div>
 </section>
@@ -519,12 +558,18 @@
         <button type="button" class="btn-close-big" data-bs-dismiss="modal" aria-label="Cerrar">✕</button>
       </div>
       <div class="modal-body">
-        <div class="d-flex justify-content-between mb-2" style="font-size:.85rem;color:#aeb9e6">
-          <span id="pregContador">Pregunta 1</span>
-          <span id="pregScore">Aciertos: 0</span>
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+          <span id="pregContador" style="font-size:.85rem;color:#cfd8ff">Pregunta 1</span>
+          <span id="pregFaseBadge" class="fase-badge"><span class="fdot"></span><span id="pregFaseTxt">Fase</span></span>
+          <span id="pregScore" style="font-size:.85rem;color:#cfd8ff">Aciertos: 0</span>
         </div>
-        <h5 id="pregTexto" class="mb-3"></h5>
-        <div id="pregOpciones"></div>
+        <p style="font-size:.8rem;color:#aeb9e6;margin-bottom:.4rem">
+          Instrucción: elige la opción que respeta únicamente lo que dice el dossier del caso Textil Andes.
+        </p>
+        <h5 id="pregTexto" class="mb-2"></h5>
+        <button id="pregHintBtn" class="hint-toggle mb-2" type="button" aria-expanded="false">💡 Ver ayuda antes de responder</button>
+        <div id="pregHintBox" class="hint-box" role="note"></div>
+        <div id="pregOpciones" class="mt-2"></div>
         <div id="pregFeedback"></div>
       </div>
       <div class="modal-footer">
@@ -543,7 +588,13 @@
         <button type="button" class="btn-close-big" data-bs-dismiss="modal" aria-label="Cerrar">✕</button>
       </div>
       <div class="modal-body">
-        <p style="font-size:.85rem;color:#aeb9e6" id="adivContador"></p>
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-1">
+          <span id="adivContador" style="font-size:.85rem;color:#cfd8ff"></span>
+          <span id="adivFaseBadge" class="fase-badge"><span class="fdot"></span><span id="adivFaseTxt">Fase</span></span>
+        </div>
+        <p style="font-size:.8rem;color:#aeb9e6;margin-bottom:.4rem">
+          Instrucción: identifica el término técnico. Si lo necesitas, pulsa 💡 Pista antes de escribir tu respuesta.
+        </p>
         <p id="adivTexto" style="font-size:1.15rem;line-height:1.55"></p>
         <label class="form-label small">Tu respuesta</label>
         <input id="adivInput" class="form-control form-control-lg" autocomplete="off" placeholder="Escribe el concepto…" aria-label="Respuesta de la adivinanza">
@@ -567,7 +618,14 @@
         <button type="button" class="btn-close-big" data-bs-dismiss="modal" aria-label="Cerrar">✕</button>
       </div>
       <div class="modal-body text-center">
-        <p style="color:#cfd8ff">Toca las tarjetas en el <strong>orden lógico correcto</strong> del flujo de producción. Tienes <strong>15 segundos</strong> desde el primer toque.</p>
+        <div class="d-flex justify-content-center mb-2">
+          <span class="fase-badge"><span class="fdot" style="background:#c65d3a"></span>Fase: Producción y logística (Taller)</span>
+        </div>
+        <p style="color:#cfd8ff">Instrucción: toca las tarjetas en el <strong>orden lógico correcto</strong> del flujo de producción. Tienes <strong>15 segundos</strong> desde el primer toque.</p>
+        <button id="retoHintBtn" class="hint-toggle mb-2" type="button" aria-expanded="false">💡 Ver ayuda antes de empezar</button>
+        <div id="retoHintBox" class="hint-box text-start" role="note">
+          Pista: nadie estampa sin que el diseño esté aprobado; nadie dobla una prenda húmeda; y solo se publica cuando el producto físico ya existe. Piensa en 3 grandes bloques: <strong>aprobar → producir → comunicar</strong>.
+        </div>
         <div class="timer-ring mb-1" id="retoTimer">⏱️ 15.0 s</div>
         <div class="reto-cards" id="retoCards"></div>
         <div id="retoFeedback"></div>
@@ -596,7 +654,13 @@
         <div class="tab-content">
           <!-- Anagramas -->
           <div class="tab-pane fade show active" id="paneAnag" role="tabpanel">
-            <p style="font-size:.85rem;color:#aeb9e6" id="anagContador"></p>
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-1">
+              <span id="anagContador" style="font-size:.85rem;color:#cfd8ff"></span>
+              <span id="anagFaseBadge" class="fase-badge"><span class="fdot"></span><span id="anagFaseTxt">Fase</span></span>
+            </div>
+            <p style="font-size:.8rem;color:#aeb9e6;margin-bottom:.3rem">
+              Instrucción: reordena las letras. Cada palabra que resuelvas se convierte en una palabra clave lista para usar en el Generador de prompts (pestaña 2).
+            </p>
             <p style="color:#cfd8ff">Ordena las letras. Pista: <span id="anagPista" class="text-idc-amarillo"></span></p>
             <div class="anag-slot" id="anagSlot"></div>
             <input id="anagInput" class="form-control form-control-lg mb-2" autocomplete="off" placeholder="Escribe la palabra…" aria-label="Respuesta del anagrama">
@@ -613,6 +677,17 @@
           </div>
           <!-- Prompt -->
           <div class="tab-pane fade" id="panePrompt" role="tabpanel">
+            <div class="fase-intro">
+              <span class="fase-badge mb-2"><span class="fdot" style="background:#0072b9"></span>Fase: Diseño → Publicación</span>
+              <p class="mb-0 mt-2">
+                🎯 <strong>Propósito:</strong> este generador no es un ejercicio aislado. El prompt que compongas aquí
+                es el insumo visual que el Equipo B (Arte) entrega al Equipo C (Publicación) para producir el arte
+                digital de Instagram del caso Textil Andes — el mismo problema de la <strong>Pregunta 2</strong>
+                (adaptar 2 tintas a un arte con degradados). Las palabras clave que elijas (desbloqueadas en la
+                pestaña Anagramas) son literalmente los términos que documentarías en el dossier de arte antes de
+                enviarlo a producción.
+              </p>
+            </div>
             <div class="row g-2 mb-2">
               <div class="col-md-4">
                 <label class="form-label small">Estilo</label>
@@ -644,6 +719,7 @@
             <button id="btnGenerarPrompt" class="btn btn-amarillo mb-3" type="button">⚙️ Generar prompt</button>
             <div class="prompt-out" id="promptOut">El prompt aparecerá aquí…</div>
             <button id="btnCopiarPrompt" class="btn btn-cian mt-2 d-none" type="button">📋 Copiar</button>
+            <div id="promptAporte" class="aporte-fase" style="display:none"></div>
           </div>
         </div>
       </div>
@@ -677,34 +753,42 @@ try {
   const width = cont.clientWidth || wrap.clientWidth;
   const height = cont.clientHeight || wrap.clientHeight;
 
+  /* ---- Fases del proceso: cada nodo pertenece a una y se explica en el pop-up/panel ---- */
+  const FASE_INFO = {
+    analisis:    { label:'Fase: Análisis del dossier',            color:0x25d3d3 },
+    produccion:  { label:'Fase: Producción y logística (Taller)', color:0xc65d3a },
+    diseno:      { label:'Fase: Diseño y serigrafía (Arte)',       color:0xe0a83e },
+    publicacion: { label:'Fase: Publicación y aprobación (CM)',    color:0x0072b9 }
+  };
+
   /* ---- Datos del flujo: cómo se llega del dossier a las 3 preguntas críticas ---- */
   const nodeData = [
-    { id:'inicio', name:'Recepción y observación', type:'start', pos:[-8,0.5,0], color:0x25d3d3,
-      desc:'Recepción del dossier físico del caso Textil Andes. Se segmenta el contenido en tres bloques: Briefing, Referencias visuales y Requerimiento técnico, sin mezclar conceptos.' },
-    { id:'extraccion', name:'Extracción de datos duros', type:'process', pos:[-5,0.5,0], color:0x0072b9,
-      desc:'Se aíslan los datos numéricos y técnicos (plazos, tintas, cantidades). Es el insumo principal para detectar los vacíos de información.' },
-    { id:'deteccion', name:'Detección de cuellos de botella', type:'process', pos:[-2,0.5,0], color:0x0072b9,
-      desc:'Núcleo del análisis. Si no aparecen vacíos a simple vista, el flujo obliga a una relectura para no dar por sentada la información del dossier.' },
-    { id:'decision_vacios', name:'¿Hay vacíos?', type:'decision', pos:[0.5,0.5,-1.8], color:0xf3a100,
-      desc:'Punto de decisión: si se identifican vacíos o cuellos de botella, se formulan las preguntas críticas. Si no, se fuerza una relectura del dossier.' },
-    { id:'pregunta1', name:'Pregunta 1 · Secado vs. empaquetado', type:'process', pos:[3,0.5,1.5], color:0xc65d3a,
-      desc:'Área Taller / Logística. ¿Cómo sincronizar el secado de la tinta con el empaquetado, si el dossier no especifica una cámara de secado rápido? Resolver la Pregunta 1 del HUD ilumina este nodo en verde.', reward:'pregunta1' },
-    { id:'pregunta2', name:'Pregunta 2 · Adaptación del arte', type:'process', pos:[5.5,0.5,1.5], color:0xe0a83e,
-      desc:'Área Dirección de Arte / Serigrafía. ¿Cómo trasladar degradados y texturas del moodboard a solo 2 tintas planas sin perder la esencia andina en Instagram? Las Adivinanzas textiles del HUD iluminan este nodo.', reward:'pregunta2' },
-    { id:'pregunta3', name:'Pregunta 3 · Aprobación y publicación', type:'process', pos:[8,0.5,1.5], color:0x0072b9,
-      desc:'Área Community Management / Producción Audiovisual. ¿Quién valida el arte final y qué protocolo seguir si la sesión de fotos se retrasa por falta de luz natural? El monitor 3D junto a este nodo muestra el prompt generado en el HUD.', reward:'pregunta3' },
-    { id:'relectura', name:'Relectura forzada', type:'process', pos:[0,0.5,-3.5], color:0x8a6bd6,
-      desc:'El estudiante revisa nuevamente el dossier en busca de sutilezas ocultas antes de retomar la detección de cuellos de botella.' },
-    { id:'trasladar', name:'Trasladar al cuaderno', type:'process', pos:[10,0.5,0], color:0x0072b9,
-      desc:'Las tres preguntas se escriben en el cuaderno físico con letra clara y estructurada, listas para la mesa de producción.' },
-    { id:'validacion', name:'Validación ética', type:'decision', pos:[12.5,0.5,-1.8], color:0xf3a100,
-      desc:'Se verifica que no se haya consultado ningún material adicional. Si se rompió la regla, la pregunta se reformula usando solo la memoria del dossier leído.' },
-    { id:'reformular', name:'Reformular pregunta', type:'process', pos:[12.5,0.5,-4], color:0x8a6bd6,
-      desc:'Si hubo consulta externa, se descarta esa pregunta y se reformula solo con lo leído en el dossier. Vuelve al paso "Trasladar al cuaderno".' },
-    { id:'cierre', name:'Cierre de etapa', type:'end', pos:[15,0.5,0], color:0x3fb56b,
-      desc:'Las tres preguntas quedan registradas como hoja de ruta. Se da por concluida la fase analítica del caso.' },
-    { id:'final', name:'Listo para la mesa de producción', type:'end', pos:[17.5,0.5,0], color:0x3fb56b,
-      desc:'Procedimiento finalizado: el equipo está preparado para negociar taller, diseño y redes en la Mesa de Producción Textil Andes.' }
+    { id:'inicio', name:'Recepción y observación', type:'start', pos:[-8,0.5,0], color:0x25d3d3, fase:'analisis',
+      desc:'Recepción del dossier físico del caso Textil Andes. Se segmenta el contenido en tres bloques: Briefing, Referencias visuales y Requerimiento técnico, sin mezclar conceptos. Este primer paso alimenta directamente la Fase de Análisis: sin él no se detectan los vacíos que dan origen a las 3 preguntas.' },
+    { id:'extraccion', name:'Extracción de datos duros', type:'process', pos:[-5,0.5,0], color:0x0072b9, fase:'analisis',
+      desc:'Se aíslan los datos numéricos y técnicos (plazos, tintas, cantidades). Es el insumo principal para detectar los vacíos de información en la Fase de Análisis del dossier.' },
+    { id:'deteccion', name:'Detección de cuellos de botella', type:'process', pos:[-2,0.5,0], color:0x0072b9, fase:'analisis',
+      desc:'Núcleo del análisis. Si no aparecen vacíos a simple vista, el flujo obliga a una relectura para no dar por sentada la información del dossier. Es la bisagra que conecta la Fase de Análisis con las 3 preguntas críticas.' },
+    { id:'decision_vacios', name:'¿Hay vacíos?', type:'decision', pos:[0.5,0.5,-1.8], color:0xf3a100, fase:'analisis',
+      desc:'Punto de decisión de la Fase de Análisis: si se identifican vacíos o cuellos de botella, se formulan las preguntas críticas de Producción, Diseño y Publicación. Si no, se fuerza una relectura del dossier.' },
+    { id:'pregunta1', name:'Pregunta 1 · Secado vs. empaquetado', type:'process', pos:[3,0.5,1.5], color:0xc65d3a, fase:'produccion',
+      desc:'Fase de Producción y Logística (Taller). ¿Cómo sincronizar el secado de la tinta con el empaquetado, si el dossier no especifica una cámara de secado rápido? Resolver la Pregunta 1 en el panel de retos ilumina este nodo en verde: tu respuesta correcta confirma la estrategia de lotes desfasados que usará el Equipo A.', reward:'pregunta1' },
+    { id:'pregunta2', name:'Pregunta 2 · Adaptación del arte', type:'process', pos:[5.5,0.5,1.5], color:0xe0a83e, fase:'diseno',
+      desc:'Fase de Diseño y Serigrafía (Arte). ¿Cómo trasladar degradados y texturas del moodboard a solo 2 tintas planas sin perder la esencia andina en Instagram? Las Adivinanzas textiles del panel de retos iluminan este nodo: cada vocablo correcto aporta el lenguaje técnico que el Equipo B necesita para justificar su adaptación.', reward:'pregunta2' },
+    { id:'pregunta3', name:'Pregunta 3 · Aprobación y publicación', type:'process', pos:[8,0.5,1.5], color:0x0072b9, fase:'publicacion',
+      desc:'Fase de Publicación y Aprobación (Community Management). ¿Quién valida el arte final y qué protocolo seguir si la sesión de fotos se retrasa por falta de luz natural? El monitor 3D junto a este nodo muestra el prompt de IA generado en el panel de retos: ese prompt es el insumo visual que el Equipo C usará para publicar en Instagram.', reward:'pregunta3' },
+    { id:'relectura', name:'Relectura forzada', type:'process', pos:[0,0.5,-3.5], color:0x8a6bd6, fase:'analisis',
+      desc:'El estudiante revisa nuevamente el dossier en busca de sutilezas ocultas antes de retomar la detección de cuellos de botella. Refuerzo dentro de la Fase de Análisis.' },
+    { id:'trasladar', name:'Trasladar al cuaderno', type:'process', pos:[10,0.5,0], color:0x0072b9, fase:'analisis',
+      desc:'Las tres preguntas se escriben en el cuaderno físico con letra clara y estructurada, listas para la mesa de producción. Cierra la Fase de Análisis y habilita el trabajo en equipo.' },
+    { id:'validacion', name:'Validación ética', type:'decision', pos:[12.5,0.5,-1.8], color:0xf3a100, fase:'analisis',
+      desc:'Se verifica que no se haya consultado ningún material adicional. Si se rompió la regla, la pregunta se reformula usando solo la memoria del dossier leído. Control de calidad de la Fase de Análisis.' },
+    { id:'reformular', name:'Reformular pregunta', type:'process', pos:[12.5,0.5,-4], color:0x8a6bd6, fase:'analisis',
+      desc:'Si hubo consulta externa, se descarta esa pregunta y se reformula solo con lo leído en el dossier. Vuelve al paso "Trasladar al cuaderno", dentro de la Fase de Análisis.' },
+    { id:'cierre', name:'Cierre de etapa', type:'end', pos:[15,0.5,0], color:0x3fb56b, fase:'analisis',
+      desc:'Las tres preguntas quedan registradas como hoja de ruta. Se da por concluida la Fase de Análisis del caso.' },
+    { id:'final', name:'Listo para la mesa de producción', type:'end', pos:[17.5,0.5,0], color:0x3fb56b, fase:'analisis',
+      desc:'Procedimiento finalizado: el equipo está preparado para negociar Taller (Producción), Diseño y Publicación en la Mesa de Producción Textil Andes.' }
   ];
   const connections = [
     ['inicio','extraccion'], ['extraccion','deteccion'], ['deteccion','decision_vacios'],
@@ -866,6 +950,7 @@ try {
   const panelTitle = document.getElementById('npTitle');
   const panelBody = document.getElementById('npBody');
   const panelTag = document.getElementById('npTag');
+  const panelFase = document.getElementById('npFase');
   const panelClose = document.getElementById('npClose');
   let selectedId = null;
   const TYPE_LABEL = { start:'INICIO', process:'PROCESO', decision:'DECISIÓN', end:'FIN' };
@@ -878,6 +963,7 @@ try {
     panelTitle.textContent = n.data.name;
     panelBody.textContent = n.data.desc;
     panelTag.textContent = TYPE_LABEL[n.data.type] || 'PASO';
+    panelFase.textContent = (FASE_INFO[n.data.fase] && FASE_INFO[n.data.fase].label) || 'Fase';
     panel.classList.add('visible');
   }
   function closePanel(){
@@ -888,7 +974,21 @@ try {
   panelClose.addEventListener('click', closePanel);
   document.addEventListener('keydown', e=>{ if(e.key==='Escape') closePanel(); });
 
-  // Clic (ignora arrastres largos, propios de OrbitControls)
+  /* ---- Pop-up emergente al pasar el cursor (hover) sobre un nodo ---- */
+  const hoverTip = document.getElementById('nodeHoverTip');
+  let hoveredId = null;
+  function showHoverTip(n, x, y){
+    if(hoveredId !== n.data.id){
+      hoveredId = n.data.id;
+      const fase = FASE_INFO[n.data.fase];
+      hoverTip.innerHTML = '<strong>'+n.data.name+'</strong><span class="nht-fase">'+(fase?fase.label:'Fase')+'</span>';
+    }
+    hoverTip.style.left = x+'px'; hoverTip.style.top = y+'px';
+    hoverTip.classList.add('visible');
+  }
+  function hideHoverTip(){ hoveredId = null; hoverTip.classList.remove('visible'); }
+
+  // Clic y hover comparten el raycaster (ignora arrastres largos, propios de OrbitControls)
   const raycaster = new THREE.Raycaster();
   const pointer = new THREE.Vector2();
   let downPos = null;
@@ -905,6 +1005,23 @@ try {
     const hit = raycaster.intersectObjects(nodeMeshes)[0];
     if(hit) selectNode(hit.object.userData.nodeId);
   });
+  renderer.domElement.addEventListener('pointermove', e=>{
+    if(downPos && e.buttons>0) { hideHoverTip(); return; } // orbitando: no mostrar pop-up
+    const rect = renderer.domElement.getBoundingClientRect();
+    pointer.x = ((e.clientX-rect.left)/rect.width)*2-1;
+    pointer.y = -((e.clientY-rect.top)/rect.height)*2+1;
+    raycaster.setFromCamera(pointer, camera);
+    const hit = raycaster.intersectObjects(nodeMeshes)[0];
+    if(hit){
+      const n = nodeMap[hit.object.userData.nodeId];
+      showHoverTip(n, e.clientX-rect.left, e.clientY-rect.top);
+      renderer.domElement.style.cursor = 'pointer';
+    } else {
+      hideHoverTip();
+      renderer.domElement.style.cursor = '';
+    }
+  });
+  renderer.domElement.addEventListener('pointerleave', hideHoverTip);
 
   /* ---- Resize ---- */
   window.addEventListener('resize', ()=>{
@@ -982,6 +1099,20 @@ try {
   /* ---- anime.js opcional ---- */
   const A = window.anime || null;
 
+  /* ---- Fases del proceso (comparten color/etiqueta con el mapa 3D) ---- */
+  const FASES = {
+    analisis:    { label:'Fase: Análisis del dossier',            color:'#25d3d3' },
+    produccion:  { label:'Fase: Producción y logística (Taller)', color:'#c65d3a' },
+    diseno:      { label:'Fase: Diseño y serigrafía (Arte)',       color:'#e0a83e' },
+    publicacion: { label:'Fase: Publicación y aprobación (CM)',    color:'#0072b9' }
+  };
+  function pintarFase(badgeEl, txtEl, faseKey){
+    const f = FASES[faseKey] || { label:'Fase', color:'#8ea0c9' };
+    if(txtEl) txtEl.textContent = f.label; else badgeEl.textContent = f.label;
+    const dot = badgeEl.querySelector('.fdot'); if(dot) dot.style.background = f.color;
+    badgeEl.style.borderColor = f.color+'80';
+  }
+
   /* ============ ESTADO GLOBAL ============ */
   const estado = {
     tools:{ preguntas:false, adivinanzas:false, retos:false, generador:false },
@@ -1031,46 +1162,76 @@ try {
 
   /* ============ 1) PREGUNTAS DINÁMICAS ============ */
   const PREGUNTAS = [
-    { zona:'taller', txt:'Para el cuello de botella entre secado y empaquetado de 500 polos, ¿qué estrategia respeta el dossier?',
+    { zona:'taller', fase:'produccion',
+      txt:'Para el cuello de botella entre secado y empaquetado de 500 polos, ¿qué estrategia respeta el dossier?',
       op:['Empaquetar todos los polos apenas se estampen','Estampar y empaquetar por lotes desfasados (mientras el lote 1 seca, se estampa el 2)','Usar la cámara de secado industrial del taller','Subir la temperatura del cuarto para secar más rápido'],
       ok:1, exp:'El dossier no menciona ninguna cámara de secado; inventarla rompe la regla. La solución válida es el trabajo por lotes desfasados.',
-      dato:'El secado/curado en serigrafía textil requiere aproximadamente 4 horas a 25 °C antes de manipular la prenda.' },
-    { txt:'¿Qué técnica permite simular degradados usando solo 2 tintas planas en serigrafía?',
+      dato:'El secado/curado en serigrafía textil requiere aproximadamente 4 horas a 25 °C antes de manipular la prenda.',
+      pista:'Piensa en trabajar por partes: mientras una parte del pedido está en una etapa, otra parte puede avanzar en la etapa anterior o siguiente, sin inventar máquinas que el dossier no menciona.',
+      aporte:'Esta respuesta define la estrategia del Equipo A (Gerencia de Taller/Logística): resolverla bien es lo que ilumina el nodo "Pregunta 1" del mapa 3D y habilita el Plan B de entrega escalonada.' },
+    { fase:'diseno',
+      txt:'¿Qué técnica permite simular degradados usando solo 2 tintas planas en serigrafía?',
       op:['Cuatricromía','Halftone (trama de puntos)','Offset','Sublimación'],
       ok:1, exp:'El halftone mezcla puntos de distinto tamaño y engaña al ojo, creando la ilusión de degradado con pocas tintas.',
-      dato:'La ampliación del punto al imprimir se llama ganancia de punto (TVI) y se compensa reduciendo el porcentaje de trama.' },
-    { txt:'Ante un retraso por falta de luz natural en la sesión de fotos, ¿qué acción cumple el compromiso con el cliente?',
+      dato:'La ampliación del punto al imprimir se llama ganancia de punto (TVI) y se compensa reduciendo el porcentaje de trama.',
+      pista:'No pienses en agregar más tintas: piensa en cómo variar el tamaño de un punto repetido para engañar al ojo.',
+      aporte:'Esta es la solución técnica que el Equipo B (Dirección de Arte) necesita documentar en el dossier antes de generar el arte digital de Instagram (ver el Generador de prompts).' },
+    { fase:'publicacion',
+      txt:'Ante un retraso por falta de luz natural en la sesión de fotos, ¿qué acción cumple el compromiso con el cliente?',
       op:['Cancelar la publicación hasta tener la foto perfecta','Publicar un "Reel de making-of" a la hora pactada y subir la foto final después','Publicar una imagen de stock genérica','Editar la foto con IA sin avisar al cliente'],
       ok:1, exp:'Mantiene la cita con la audiencia y transparenta el proceso, sin romper la calidad ni el acuerdo.',
-      dato:'El kit de luces LED portátiles funciona como Plan B ante días nublados.' },
-    { txt:'¿Cuál es el indicador de éxito de un secado correcto de la tinta?',
+      dato:'El kit de luces LED portátiles funciona como Plan B ante días nublados.',
+      pista:'La regla de oro del Equipo C es cumplir la hora pactada con la audiencia, aunque el contenido final llegue después.',
+      aporte:'Define el protocolo de contingencia del Equipo C (Community Management) para la Pregunta 3: qué publicar cuando algo se atrasa, sin romper el cronograma.' },
+    { fase:'produccion',
+      txt:'¿Cuál es el indicador de éxito de un secado correcto de la tinta?',
       op:['La tinta brilla al sol','No transfiere al frotarla con un paño blanco seco','Huele a solvente','El polo pesa más'],
       ok:1, exp:'La prueba del paño blanco es el control de calidad estándar del curado.',
-      dato:'Un curado incompleto provoca que la tinta se agriete o se despinte en el primer lavado.' },
-    { txt:'En el arte de Instagram, ¿qué mantiene la coherencia con el estampado de 2 tintas?',
+      dato:'Un curado incompleto provoca que la tinta se agriete o se despinte en el primer lavado.',
+      pista:'Piensa en una prueba física, rápida y sin instrumentos: ¿qué le harías a la prenda con un objeto simple para comprobar que ya no mancha?',
+      aporte:'Este es el "indicador de éxito" que el dossier exige documentar junto a la solución de la Pregunta 1 (Producción y Logística).' },
+    { fase:'diseno',
+      txt:'En el arte de Instagram, ¿qué mantiene la coherencia con el estampado de 2 tintas?',
       op:['Usar solo blanco y negro','Conservar la ilustración vectorial base del polo como elemento conector','Cambiar por completo el estilo','Copiar el moodboard tal cual'],
       ok:1, exp:'El vector base del polo actúa como hilo conductor entre la prenda física y la pieza digital.',
-      dato:'La coherencia visual entre soportes refuerza el reconocimiento de marca.' },
-    { txt:'En el flujo de aprobación propuesto por el Equipo C, ¿cuál es el orden correcto?',
+      dato:'La coherencia visual entre soportes refuerza el reconocimiento de marca.',
+      pista:'No se trata de igualar colores al 100%, sino de mantener un elemento gráfico reconocible entre la prenda física y el post digital.',
+      aporte:'Justifica por qué el Generador de prompts (pestaña 2) mantiene siempre "geometric andean halftone print" como base del prompt, sea cual sea el estilo elegido.' },
+    { fase:'publicacion',
+      txt:'En el flujo de aprobación propuesto por el Equipo C, ¿cuál es el orden correcto?',
       op:['Cliente → Diseñador → Community Manager','Diseñador → Community Manager → Cliente','Community Manager → Cliente → Diseñador','Diseñador → Cliente → Community Manager'],
       ok:1, exp:'El diseñador produce, el CM revisa formato/copy y el cliente da el visto bueno final antes de las 10 a.m.',
-      dato:'Fijar una hora límite (10 a.m.) evita que la aprobación se dilate y frene la publicación.' },
-    { txt:'Plan B si el cliente no responde la aprobación a tiempo:',
+      dato:'Fijar una hora límite (10 a.m.) evita que la aprobación se dilate y frene la publicación.',
+      pista:'El contenido siempre pasa primero por quien lo crea, luego por quien lo va a publicar, y al final por quien paga.',
+      aporte:'Este orden es el protocolo de 3 aprobaciones que resuelve la Pregunta 3 y evita que la publicación se frene por falta de autorización.' },
+    { fase:'publicacion',
+      txt:'Plan B si el cliente no responde la aprobación a tiempo:',
       op:['Publicar sin avisar','Publicar con disclaimer "Últimos ajustes en proceso" y actualizar 2 h después','Suspender el proyecto','Cambiar de cliente'],
       ok:1, exp:'Da autonomía controlada al CM sin romper el compromiso de publicación.',
-      dato:'Un disclaimer honesto sostiene la expectativa de la audiencia sin dañar la marca.' },
-    { txt:'¿Qué es un "moodboard" en este contexto?',
+      dato:'Un disclaimer honesto sostiene la expectativa de la audiencia sin dañar la marca.',
+      pista:'La opción correcta permite publicar sin mentir ni improvisar: se avisa que aún falta un ajuste.',
+      aporte:'Es el "Plan B" que el dossier exige documentar junto a la solución de la Pregunta 3, para que el cronograma no dependa 100% de la respuesta del cliente.' },
+    { fase:'diseno',
+      txt:'¿Qué es un "moodboard" en este contexto?',
       op:['Un cronograma de entregas','Un tablero visual de referencias de estilo, color y textura','Una máquina de estampar','Un tipo de tinta plastisol'],
       ok:1, exp:'Es la referencia visual que alinea al equipo sobre la estética andina buscada.',
-      dato:'El moodboard se define antes del arte final para evitar reprocesos.' },
-    { txt:'La entrega escalonada (250 polos en la mañana y 250 en la tarde) sirve principalmente para:',
+      dato:'El moodboard se define antes del arte final para evitar reprocesos.',
+      pista:'Es algo que se mira, no que se calienta ni se programa: un tablero de referencias visuales.',
+      aporte:'El moodboard es el punto de partida de la Fase de Diseño: por eso el selector "Color" del Generador de prompts ofrece la "Paleta Tierra" que resume ese moodboard.' },
+    { fase:'produccion',
+      txt:'La entrega escalonada (250 polos en la mañana y 250 en la tarde) sirve principalmente para:',
       op:['Cobrar más','Ganar horas de secado natural sin incumplir el plazo','Reducir la calidad','Usar menos tinta'],
       ok:1, exp:'Convierte una restricción logística (secado) en un acuerdo comercial viable.',
-      dato:'Negociar el plazo es una habilidad blanda tan valiosa como la técnica.' },
-    { txt:'¿Qué habilidad blanda entrena principalmente esta dinámica?',
+      dato:'Negociar el plazo es una habilidad blanda tan valiosa como la técnica.',
+      pista:'No cambia cuánta tinta se usa; cambia cuándo se entrega cada mitad del pedido para ganar tiempo de secado.',
+      aporte:'Es el Plan B de la Pregunta 1: convierte el cuello de botella del secado en un acuerdo de entrega negociado con el cliente.' },
+    { fase:'analisis',
+      txt:'¿Qué habilidad blanda entrena principalmente esta dinámica?',
       op:['Mecanografía','Toma de decisiones bajo incertidumbre','Contabilidad de costos','Programación web'],
       ok:1, exp:'El caso obliga a decidir con información incompleta, integrando negociación, creatividad y logística.',
-      dato:'Decidir bajo incertidumbre es el núcleo de una "Experiencia Curricular" aplicada.' }
+      dato:'Decidir bajo incertidumbre es el núcleo de una "Experiencia Curricular" aplicada.',
+      pista:'Piensa en lo que hiciste en cada pregunta anterior: nunca tuviste el 100% de la información del dossier.',
+      aporte:'Cierra la Fase de Análisis: resume por qué formular las 3 preguntas críticas —y no adivinar datos— es la habilidad central de todo el proceso.' }
   ];
   let pregActual=null, pregIndex=0;
   function cargarPregunta(){
@@ -1080,6 +1241,9 @@ try {
     $('#pregContador').textContent='Pregunta '+pregIndex;
     $('#pregScore').textContent='Aciertos: '+estado.aciertosPreg;
     $('#pregTexto').textContent=pregActual.txt;
+    pintarFase($('#pregFaseBadge'), $('#pregFaseTxt'), pregActual.fase);
+    $('#pregHintBox').classList.remove('visible'); $('#pregHintBox').textContent='💡 '+pregActual.pista;
+    $('#pregHintBtn').setAttribute('aria-expanded','false');
     const cont=$('#pregOpciones'); cont.innerHTML='';
     pregActual.op.forEach((o,i)=>{
       const b=document.createElement('button');
@@ -1088,22 +1252,28 @@ try {
       cont.appendChild(b);
     });
   }
+  $('#pregHintBtn').addEventListener('click',function(){
+    const box=$('#pregHintBox'); const open=box.classList.toggle('visible');
+    this.setAttribute('aria-expanded', open?'true':'false');
+  });
   function responderPreg(i,btn){
     const opciones=$$('#pregOpciones .opcion-btn'); opciones.forEach(b=>b.disabled=true);
     const correcto = i===pregActual.ok;
     if(correcto){
       btn.classList.add('ok'); estado.aciertosPreg++;
       $('#pregScore').textContent='Aciertos: '+estado.aciertosPreg;
-      $('#pregFeedback').innerHTML='<div class="feedback ok"><strong>✓ Correcto.</strong> '+pregActual.exp+
+      $('#pregFeedback').innerHTML='<div class="feedback ok"><strong>✓ Correcto — '+FASES[pregActual.fase].label+'.</strong> '+pregActual.exp+
+        '<div class="aporte-fase">🧩 Cómo contribuye: '+pregActual.aporte+'</div>'+
         '<div class="dato-extra">💡 Dato extra: '+pregActual.dato+'</div></div>';
       if(pregActual.zona==='taller'){ estado.p1correcta=true; map()&&map().flashTaller(); toast('🟩 El Taller brilla en verde: resolviste la Pregunta 1.'); }
     } else {
       btn.classList.add('no'); opciones[pregActual.ok].classList.add('ok');
-      $('#pregFeedback').innerHTML='<div class="feedback err"><strong>✗ Aún no.</strong>'+
-        '<ul><li><strong>Pista:</strong> observa qué cambia en la situación del caso.</li>'+
+      $('#pregFeedback').innerHTML='<div class="feedback err"><strong>✗ Aún no — '+FASES[pregActual.fase].label+'.</strong>'+
+        '<ul><li><strong>Pista:</strong> '+pregActual.pista+'</li>'+
         '<li><strong>Dato clave:</strong> '+pregActual.exp+'</li>'+
         '<li><strong>Contexto:</strong> en producción gráfica esto define si el proyecto se entrega a tiempo y con calidad.</li>'+
         '<li><strong>Reintento:</strong> la opción resaltada en verde es la correcta; sigue con la próxima pregunta.</li></ul>'+
+        '<div class="aporte-fase">🧩 Por qué importa: '+pregActual.aporte+'</div>'+
         '<div class="dato-extra">💡 Dato extra: '+pregActual.dato+'</div></div>';
       if(pregActual.zona==='taller') toast('💡 Visita la zona del Taller en el mapa para buscar pistas.');
     }
@@ -1116,32 +1286,39 @@ try {
   const ADIVINANZAS = [
     { txt:'Vengo del telar antiguo, mi geometría es un legado. En el polo me estampo, pero en el brief soy boceto. ¿Qué soy?',
       keys:['motivo andino','patron geometrico','patrón geométrico','patron andino','patrón andino','motivo'],
-      concepto:'Motivo andino / patrón geométrico', pista:'Es el dibujo que da identidad cultural al estampado.',
-      dato:'Los patrones geométricos andinos suelen basarse en simetría y repetición modular.' },
+      concepto:'Motivo andino / patrón geométrico', fase:'diseno', pista:'Es el dibujo que da identidad cultural al estampado.',
+      dato:'Los patrones geométricos andinos suelen basarse en simetría y repetición modular.',
+      aporte:'Es el punto de partida del moodboard: sin este motivo definido, el Equipo B no puede resolver la Pregunta 2 (adaptación del arte).' },
     { txt:'Malla tensada y emulsión al sol; por mis poros pasa el color hacia la tela. ¿Qué técnica soy?',
       keys:['serigrafia','serigrafía','silkscreen','estampado serigrafico','estampado serigráfico'],
-      concepto:'Serigrafía', pista:'Técnica de estampado por malla y tinta.',
-      dato:'Cada color plano requiere una malla y un paso de impresión distinto.' },
+      concepto:'Serigrafía', fase:'produccion', pista:'Técnica de estampado por malla y tinta.',
+      dato:'Cada color plano requiere una malla y un paso de impresión distinto.',
+      aporte:'Es la técnica física que ejecuta el Equipo A en el Taller: conocerla explica por qué el secado (Pregunta 1) es un paso obligatorio entre color y color.' },
     { txt:'Líquido sensible a la luz; dibujo tu imagen sobre la malla. Sin mí no hay estampa. ¿Qué soy?',
       keys:['emulsion','emulsión','emulsion fotosensible','emulsión fotosensible'],
-      concepto:'Emulsión fotosensible', pista:'Se endurece con la luz y crea el esténcil.',
-      dato:'La zona no expuesta se lava y deja pasar la tinta.' },
+      concepto:'Emulsión fotosensible', fase:'produccion', pista:'Se endurece con la luz y crea el esténcil.',
+      dato:'La zona no expuesta se lava y deja pasar la tinta.',
+      aporte:'Es un insumo técnico del Taller (Producción): forma parte del proceso que hay que respetar sin inventar equipos que el dossier no menciona.' },
     { txt:'Barra de goma dura que empuja la tinta a través de la malla. ¿Cómo me llaman?',
       keys:['rasero','racle','squeegee','rasqueta'],
-      concepto:'Rasero (squeegee)', pista:'Herramienta que arrastra la tinta.',
-      dato:'El ángulo y la presión del rasero afectan la carga de tinta y la nitidez.' },
+      concepto:'Rasero (squeegee)', fase:'produccion', pista:'Herramienta que arrastra la tinta.',
+      dato:'El ángulo y la presión del rasero afectan la carga de tinta y la nitidez.',
+      aporte:'Otra herramienta del Taller: cuanta más tinta cargue, más tiempo de secado necesitará la prenda (relación directa con la Pregunta 1).' },
     { txt:'Muchos puntos pequeños fingen un degradado con solo dos tintas. ¿Qué trama soy?',
       keys:['halftone','trama de puntos','semitono','medio tono','tramado'],
-      concepto:'Halftone / trama de puntos', pista:'Resuelve la Pregunta 2 del caso.',
-      dato:'Variando el tamaño del punto se simula el tono continuo.' },
+      concepto:'Halftone / trama de puntos', fase:'diseno', pista:'Resuelve la Pregunta 2 del caso.',
+      dato:'Variando el tamaño del punto se simula el tono continuo.',
+      aporte:'Es literalmente la respuesta técnica de la Pregunta 2: el Equipo B la usa para justificar cómo simular degradados con solo 2 tintas.' },
     { txt:'Estructura donde reposan los polos recién estampados para secar sin tocarse. ¿Qué soy?',
       keys:['rack','estante de secado','perchero','rack de secado'],
-      concepto:'Rack de secado', pista:'Evita que las prendas húmedas se manchen entre sí.',
-      dato:'Un rack aumenta la capacidad de secado sin ocupar más piso.' },
+      concepto:'Rack de secado', fase:'produccion', pista:'Evita que las prendas húmedas se manchen entre sí.',
+      dato:'Un rack aumenta la capacidad de secado sin ocupar más piso.',
+      aporte:'Se relaciona directamente con el cuello de botella de la Pregunta 1: es donde ocurre el secado por lotes desfasados del Equipo A.' },
     { txt:'Tierra, ocre, mostaza y teja: familia de tonos que evoca los Andes. ¿Qué soy?',
       keys:['paleta tierra','paleta de color tierra','colores tierra','paleta de tierra','paleta terrosa'],
-      concepto:'Paleta de color tierra', pista:'Conjunto cromático del moodboard andino.',
-      dato:'Las paletas tierra transmiten calidez, artesanía y origen local.' }
+      concepto:'Paleta de color tierra', fase:'diseno', pista:'Conjunto cromático del moodboard andino.',
+      dato:'Las paletas tierra transmiten calidez, artesanía y origen local.',
+      aporte:'Es la paleta que usarás en el Generador de prompts (selector "Color") para producir el arte digital de Instagram del Equipo B.' }
   ];
   let adivActual=null, adivIdx=0;
   function normaliza(s){ return (s||'').toLowerCase().trim()
@@ -1152,6 +1329,7 @@ try {
     adivActual = ADIVINANZAS[adivIdx % ADIVINANZAS.length]; adivIdx++;
     $('#adivContador').textContent='Adivinanza '+adivIdx;
     $('#adivTexto').textContent=adivActual.txt;
+    pintarFase($('#adivFaseBadge'), $('#adivFaseTxt'), adivActual.fase);
     setTimeout(()=>$('#adivInput').focus(),300);
   }
   function comprobarAdiv(){
@@ -1160,14 +1338,15 @@ try {
     const acierto = adivActual.keys.some(k=>{ const nk=normaliza(k); return val===nk || val.includes(nk) || nk.includes(val)&&val.length>=4; });
     if(acierto){
       $('#adivInput').disabled=true; $('#adivResolver').classList.add('d-none'); $('#adivSiguiente').classList.remove('d-none');
-      $('#adivFeedback').innerHTML='<div class="feedback ok"><strong>✓ ¡Exacto!</strong> Es la <strong>'+adivActual.concepto+
-        '</strong>. '+adivActual.dato+'</div>';
+      $('#adivFeedback').innerHTML='<div class="feedback ok"><strong>✓ ¡Exacto — '+FASES[adivActual.fase].label+'.</strong> Es la <strong>'+adivActual.concepto+
+        '</strong>. '+adivActual.dato+
+        '<div class="aporte-fase">🧩 Cómo contribuye: '+adivActual.aporte+'</div></div>';
       if(!estado.comodin){ estado.comodin=true; setComodin('🎟️ Comodín desbloqueado: -3 s en el reto del Taller.'); }
-      map()&&map().resolveEstudio();
+      if(adivActual.fase==='produccion'){ map()&&map().flashTaller(); toast('🟩 El nodo de Producción se refuerza en el mapa 3D.'); }
+      else { map()&&map().resolveEstudio(); toast('🪞 El nodo de Diseño cambió de color en el mapa 3D.'); }
       completar('adivinanzas');
-      toast('🪞 El espejo del Estudio cambió de color.');
     } else {
-      $('#adivFeedback').innerHTML='<div class="feedback err"><strong>✗ Aún no.</strong>'+
+      $('#adivFeedback').innerHTML='<div class="feedback err"><strong>✗ Aún no — '+FASES[adivActual.fase].label+'.</strong>'+
         '<ul><li><strong>Pista:</strong> '+adivActual.pista+'</li>'+
         '<li><strong>Dato clave:</strong> el término pertenece al vocabulario de serigrafía o del moodboard andino.</li>'+
         '<li><strong>Contexto:</strong> este concepto aparece en el flujo real del caso Textil Andes.</li>'+
@@ -1215,7 +1394,7 @@ try {
     if(retoSel.length===FLUJO.length) verificarReto();
   }
   function tiempoAgotado(){
-    $('#retoFeedback').innerHTML='<div class="feedback err"><strong>✗ Se acabó el tiempo.</strong>'+
+    $('#retoFeedback').innerHTML='<div class="feedback err"><strong>✗ Se acabó el tiempo — Fase: Producción y logística (Taller).</strong>'+
       '<ul><li><strong>Pista:</strong> primero se aprueba, luego se produce y al final se publica.</li>'+
       '<li><strong>Contexto:</strong> el orden evita reprocesos y respeta el secado antes del doblado.</li>'+
       '<li><strong>Reintento:</strong> pulsa ↺ Reiniciar y prueba de nuevo, sin prisa por tocar al azar.</li></ul></div>';
@@ -1226,30 +1405,42 @@ try {
     const perfecto = orden.every((t,i)=>t===FLUJO[i]);
     if(perfecto){
       retoSel.forEach(c=>c.classList.add('ok'));
-      $('#retoFeedback').innerHTML='<div class="feedback ok"><strong>✓ ¡Secuencia perfecta!</strong> '+
+      $('#retoFeedback').innerHTML='<div class="feedback ok"><strong>✓ ¡Secuencia perfecta — Fase: Producción y logística (Taller)!</strong> '+
         'Aprobar → Preparar tinta → Secar → Doblar → Publicar. Has activado el <strong>Plan B</strong> de entregas escalonadas.'+
-        '<div class="dato-extra">🏆 Trofeo desplegado sobre la zona de Oficina.</div></div>';
+        '<div class="aporte-fase">🧩 Cómo contribuye: este orden evita reprocesos y respeta el tiempo de curado de la tinta antes de manipular la prenda; es la misma lógica que resuelve la Pregunta 1 del caso.</div>'+
+        '<div class="dato-extra">🏆 Trofeo desplegado sobre el nodo final del mapa 3D.</div></div>';
       estado.planB=true; setComodin('✅ Plan B activo: entregas escalonadas (250 AM / 250 PM).');
-      map()&&map().showTrophy(); completar('retos');
+      map()&&map().showTrophy(); map()&&map().flashTaller(); completar('retos');
     } else {
       retoSel.forEach((c,i)=>c.classList.add(c.dataset.txt===FLUJO[i]?'ok':'no'));
-      $('#retoFeedback').innerHTML='<div class="feedback err"><strong>✗ Casi.</strong>'+
+      $('#retoFeedback').innerHTML='<div class="feedback err"><strong>✗ Casi — Fase: Producción y logística (Taller).</strong>'+
         '<ul><li><strong>Pista:</strong> ¿se puede doblar un polo antes de que la tinta seque?</li>'+
         '<li><strong>Dato clave:</strong> el orden lógico es Aprobar diseño → Preparar tinta → Secar al ambiente → Doblar polo → Publicar en IG.</li>'+
-        '<li><strong>Reintento:</strong> pulsa ↺ Reiniciar para intentarlo otra vez.</li></ul></div>';
+        '<li><strong>Reintento:</strong> pulsa ↺ Reiniciar para intentarlo otra vez.</li></ul>'+
+        '<div class="aporte-fase">🧩 Por qué importa: este orden es el que evita el cuello de botella de secado/empaquetado de la Pregunta 1.</div></div>';
     }
   }
   $('#retoVerificar').addEventListener('click',()=>{ if(retoSel.length===0){toast('Selecciona las tarjetas en orden.');return;} verificarReto(); });
   $('#retoReset').addEventListener('click',iniciarReto);
+  $('#retoHintBtn').addEventListener('click',function(){
+    const box=$('#retoHintBox'); const open=box.classList.toggle('visible');
+    this.setAttribute('aria-expanded', open?'true':'false');
+  });
 
   /* ============ 4) GENERADOR: ANAGRAMAS + PROMPTS ============ */
   const ANAGRAMAS = [
-    { palabra:'TEXTURA', pista:'Cualidad de superficie de la tela.', key:'Textura' },
-    { palabra:'PALETA', pista:'Conjunto de colores del proyecto.', key:'Paleta' },
-    { palabra:'ANDINO', pista:'Origen cultural del motivo.', key:'Andino' },
-    { palabra:'HALFTONE', pista:'Trama que simula degradados con 2 tintas.', key:'Halftone' },
-    { palabra:'VECTORIAL', pista:'Tipo de ilustración que no pixela al escalar.', key:'Vectorial' },
-    { palabra:'SERIGRAFIA', pista:'Técnica de estampado del caso.', key:'Serigrafía' }
+    { palabra:'TEXTURA', fase:'diseno', pista:'Cualidad de superficie de la tela.', key:'Textura',
+      aporte:'Describe la materialidad del moodboard: al generar el prompt, esta palabra clave pide "detailed fabric texture" en el arte digital.' },
+    { palabra:'PALETA', fase:'diseno', pista:'Conjunto de colores del proyecto.', key:'Paleta',
+      aporte:'Define el rango cromático que el Equipo B documenta antes de pasar al selector "Color" del Generador de prompts.' },
+    { palabra:'ANDINO', fase:'analisis', pista:'Origen cultural del motivo.', key:'Andino',
+      aporte:'Es la identidad que atraviesa todo el dossier: sin ella, ni el estampado ni el prompt de IA representarían el caso Textil Andes.' },
+    { palabra:'HALFTONE', fase:'diseno', pista:'Trama que simula degradados con 2 tintas.', key:'Halftone',
+      aporte:'Es la solución de la Pregunta 2: por eso el Generador siempre incluye "geometric andean halftone print" en el prompt, sin importar el estilo elegido.' },
+    { palabra:'VECTORIAL', fase:'diseno', pista:'Tipo de ilustración que no pixela al escalar.', key:'Vectorial',
+      aporte:'Es el elemento conector entre la prenda física y el arte digital: al usarla en el prompt, pides "clean vector shapes" para mantener esa coherencia.' },
+    { palabra:'SERIGRAFIA', fase:'produccion', pista:'Técnica de estampado del caso.', key:'Serigrafía',
+      aporte:'Ancla el prompt a la técnica física real del Taller ("screen-print aesthetic"), para que el arte digital no se aleje de lo que se puede producir.' }
   ];
   let anagActual=null, anagIdx=0, anagIntentos=3;
   function scramble(w){ let a=w.split(''); let s;
@@ -1263,6 +1454,7 @@ try {
     $('#anagContador').textContent='Anagrama '+anagIdx;
     $('#anagPista').textContent=anagActual.pista;
     $('#anagSlot').textContent=scramble(anagActual.palabra);
+    pintarFase($('#anagFaseBadge'), $('#anagFaseTxt'), anagActual.fase);
     renderKeywords();
   }
   function comprobarAnag(){
@@ -1271,8 +1463,8 @@ try {
     if(val===normaliza(anagActual.palabra)){
       $('#anagInput').disabled=true; $('#anagResolver').classList.add('d-none'); $('#anagSiguiente').classList.remove('d-none');
       estado.keywords.add(anagActual.key);
-      $('#anagFeedback').innerHTML='<div class="feedback ok"><strong>✓ ¡Resuelto!</strong> Palabra clave desbloqueada: <strong>'+
-        anagActual.key+'</strong>. Úsala en el generador de prompts.</div>';
+      $('#anagFeedback').innerHTML='<div class="feedback ok"><strong>✓ ¡Resuelto — '+FASES[anagActual.fase].label+'.</strong> Palabra clave desbloqueada: <strong>'+
+        anagActual.key+'</strong>.<div class="aporte-fase">🧩 Cómo contribuye: '+anagActual.aporte+'</div></div>';
       renderKeywords(); renderChips(); completar('generador');
       toast('🔑 Palabra clave desbloqueada: '+anagActual.key);
     } else {
@@ -1320,6 +1512,7 @@ try {
   const MAP_ESTILO={ product:'studio lighting product photography of a white polo shirt', vector:'flat vector illustration of a white polo shirt', woven:'macro shot of hand-woven andean textile fabric' };
   const MAP_COLOR={ earth:'terracotta, ochre and mustard earth-tone palette', vibrant:'vibrant andean colors (magenta, teal, gold)', mono:'monochromatic tonal palette' };
   const KW_EN={ 'Textura':'detailed fabric texture','Paleta':'cohesive color palette','Andino':'geometric andean motif','Halftone':'halftone dot pattern','Vectorial':'clean vector shapes','Serigrafía':'screen-print aesthetic','Luz de estudio':'soft studio light','Sombras suaves':'soft shadows','Alto detalle':'highly detailed, 8k','Minimalista':'minimal background','Tejido artesanal':'artisanal woven look' };
+  const FORMATO_USO = { '1:1':'un post cuadrado de feed de Instagram', '9:16':'una historia o Reel vertical', '16:9':'una pieza horizontal para web o banner' };
   function generarPrompt(){
     const estilo=MAP_ESTILO[$('#selEstilo').value];
     const color=MAP_COLOR[$('#selColor').value];
@@ -1333,7 +1526,12 @@ try {
     $('#btnCopiarPrompt').classList.remove('d-none');
     map()&&map().updateOfficeScreen(prompt);
     completar('generador');
-    toast('🖥️ El monitor de la Oficina muestra tu prompt.');
+    toast('🖥️ El monitor 3D junto a la Pregunta 3 muestra tu prompt.');
+    const aporteEl=$('#promptAporte'); aporteEl.style.display='block';
+    aporteEl.innerHTML='🧩 <strong>Cómo se integra al dossier:</strong> este prompt está listo para copiarse en Midjourney o '+
+      'Stable Diffusion y producir '+(FORMATO_USO[fmt]||'una pieza gráfica')+'. Pertenece a la Fase de Diseño (adaptación del '+
+      'moodboard con las palabras clave que elegiste) y se entrega en la Fase de Publicación (Pregunta 3), donde el '+
+      'Equipo C lo usa como base del arte digital de Instagram.';
     return prompt;
   }
   $('#btnGenerarPrompt').addEventListener('click',generarPrompt);
