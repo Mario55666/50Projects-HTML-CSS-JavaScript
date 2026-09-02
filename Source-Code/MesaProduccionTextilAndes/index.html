@@ -1,0 +1,1393 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mesa de Producción Textil Andes</title>
+<meta name="description" content="Centro de aprendizaje inmersivo 3D para resolver cuellos de botella en producción gráfica textil. Dinámica gamificada DUA-Experiencial.">
+<meta name="theme-color" content="#0072b9">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Textil Andes">
+
+<!-- Bootstrap 5 -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --idc-amarillo:#f3a100;
+    --idc-azul:#0072b9;
+    --idc-gris1:#555553;
+    --idc-gris2:#545452;
+    --andes-terracota:#c65d3a;
+    --andes-mostaza:#e0a83e;
+    --cian:#25d3d3;
+    --noche:#0a1028;
+    --noche-2:#0f1730;
+    --panel:rgba(10,10,20,0.85);
+    --exito:#3fb56b;
+    --error:#e0563a;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    background:
+      radial-gradient(1200px 700px at 80% -10%, rgba(0,114,185,.28), transparent 60%),
+      radial-gradient(900px 600px at -10% 20%, rgba(243,161,0,.16), transparent 55%),
+      linear-gradient(180deg,#070b1c 0%, #0a1028 40%, #0c1226 100%);
+    color:#eef2ff;
+    min-height:100vh;
+    overflow-x:hidden;
+  }
+  h1,h2,h3,h4,.font-title{font-family:'Rajdhani','Inter',sans-serif;letter-spacing:.5px}
+  a{color:var(--cian)}
+  .text-idc-amarillo{color:var(--idc-amarillo)!important}
+  .text-cian{color:var(--cian)!important}
+
+  /* ---- Loader ---- */
+  #loader{
+    position:fixed;inset:0;z-index:3000;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:1rem;background:#070b1c;
+    transition:opacity .6s ease;
+  }
+  #loader.hide{opacity:0;pointer-events:none}
+  .loader-ring{width:64px;height:64px;border-radius:50%;
+    border:5px solid rgba(255,255,255,.12);border-top-color:var(--idc-amarillo);
+    animation:spin 1s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* ---- Logo IDC ---- */
+  .logo-idc{display:inline-flex;align-items:center;gap:.55rem;font-family:'Rajdhani';font-weight:700}
+  .logo-mark{width:38px;height:38px;border-radius:9px;display:grid;place-items:center;
+    background:linear-gradient(135deg,var(--idc-azul),#004e80);color:#fff;font-weight:700;
+    box-shadow:0 4px 14px rgba(0,114,185,.45);border:1px solid rgba(255,255,255,.18)}
+  .logo-mark small{font-size:.62rem;line-height:1}
+
+  /* ---- Navbar ---- */
+  .navbar-andes{background:rgba(7,11,28,.82);backdrop-filter:blur(10px);
+    border-bottom:1px solid rgba(255,255,255,.08)}
+
+  /* ---- Hero / secciones ---- */
+  .section-pad{padding:clamp(2rem,5vw,4rem) 0}
+  .glass{background:rgba(15,23,48,.72);border:1px solid rgba(255,255,255,.08);
+    border-radius:18px;backdrop-filter:blur(6px)}
+  .pill{display:inline-block;padding:.28rem .8rem;border-radius:999px;font-size:.8rem;
+    font-weight:600;background:rgba(37,211,211,.14);color:var(--cian);
+    border:1px solid rgba(37,211,211,.35)}
+  .kbd{background:#111a33;border:1px solid rgba(255,255,255,.15);border-radius:6px;
+    padding:.05rem .4rem;font-size:.8rem;font-family:monospace}
+
+  .accordion-button{background:rgba(15,23,48,.85);color:#eef2ff;font-family:'Rajdhani';font-weight:600}
+  .accordion-button:not(.collapsed){background:rgba(0,114,185,.22);color:#fff;box-shadow:none}
+  .accordion-button:focus{box-shadow:0 0 0 .2rem rgba(37,211,211,.35)}
+  .accordion-body{background:rgba(10,16,40,.7);color:#d7deff}
+  .accordion-item{background:transparent;border-color:rgba(255,255,255,.08)}
+  .accordion-button::after{filter:invert(1)}
+  table.mini td,table.mini th{color:#dfe6ff;border-color:rgba(255,255,255,.12)}
+
+  /* ---- Mapa 3D ---- */
+  #escena{position:relative;width:100%;height:78vh;min-height:520px;border-radius:20px;
+    overflow:hidden;border:1px solid rgba(37,211,211,.25);
+    box-shadow:0 20px 60px rgba(0,0,0,.5), inset 0 0 90px rgba(0,114,185,.12);
+    background:linear-gradient(180deg,#060a18,#0a1230)}
+  .full-container{position:absolute;inset:0}
+  .full-container canvas{display:block;width:100%!important;height:100%!important}
+  .escena-hint{position:absolute;top:12px;left:14px;z-index:5;font-size:.78rem;
+    color:#aeb9e6;background:rgba(7,11,28,.6);padding:.3rem .6rem;border-radius:8px;
+    border:1px solid rgba(255,255,255,.1);pointer-events:none}
+  .zona-legend{position:absolute;top:12px;right:14px;z-index:5;display:flex;gap:.4rem;flex-wrap:wrap;
+    justify-content:flex-end;max-width:60%}
+  .zona-tag{font-size:.72rem;padding:.22rem .5rem;border-radius:999px;background:rgba(7,11,28,.65);
+    border:1px solid rgba(255,255,255,.14);display:flex;align-items:center;gap:.35rem}
+  .zdot{width:9px;height:9px;border-radius:50%;display:inline-block}
+
+  /* ---- HUD flotante ---- */
+  #hud{
+    position:fixed;left:16px;bottom:16px;z-index:1200;width:min(360px,calc(100vw - 32px));
+    background:var(--panel);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    border:1px solid rgba(37,211,211,.3);border-radius:18px;
+    box-shadow:0 18px 50px rgba(0,0,0,.55);padding:14px;pointer-events:auto;
+    transition:transform .35s cubic-bezier(.22,1,.36,1), opacity .3s;
+  }
+  #hud.min{transform:translateY(calc(100% - 54px))}
+  .hud-head{display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin-bottom:.5rem}
+  .hud-title{font-family:'Rajdhani';font-weight:700;font-size:1.05rem;display:flex;align-items:center;gap:.45rem}
+  .hud-min-btn{background:transparent;border:1px solid rgba(255,255,255,.2);color:#fff;
+    width:34px;height:30px;border-radius:8px;cursor:pointer;font-size:1rem;line-height:1}
+  .hud-min-btn:hover{background:rgba(255,255,255,.12)}
+  .progress-wrap{margin-bottom:.7rem}
+  .progress-label{font-size:.78rem;color:#cfd8ff;margin-bottom:.25rem;display:flex;justify-content:space-between}
+  .progress-track{height:12px;background:rgba(255,255,255,.1);border-radius:999px;overflow:hidden;
+    border:1px solid rgba(255,255,255,.12)}
+  .progress-fill{height:100%;width:0%;border-radius:999px;
+    background:linear-gradient(90deg,var(--idc-amarillo),var(--cian));
+    transition:width .6s cubic-bezier(.22,1,.36,1)}
+  .hud-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .hud-btn{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.28rem;
+    padding:.75rem .5rem;border-radius:14px;cursor:pointer;text-align:center;
+    background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);
+    color:#fff;font-size:1.2rem;font-weight:600;min-height:84px;
+    transition:transform .18s, background .2s, border-color .2s, box-shadow .2s;
+  }
+  .hud-btn .ico{font-size:1.7rem;line-height:1}
+  .hud-btn .lbl{font-size:.9rem;font-weight:600;letter-spacing:.2px}
+  .hud-btn small.badge-done{position:absolute}
+  .hud-btn:hover,.hud-btn:focus-visible{transform:translateY(-3px);
+    border-color:var(--idc-amarillo);box-shadow:0 8px 22px rgba(243,161,0,.28);outline:none;
+    background:rgba(243,161,0,.12)}
+  .hud-btn.done{border-color:var(--exito);background:rgba(63,181,107,.16)}
+  .hud-btn .check{color:var(--exito);font-size:.78rem;font-weight:700}
+  .hud-comodin{margin-top:.6rem;font-size:.78rem;color:var(--idc-amarillo);
+    display:flex;align-items:center;gap:.4rem;min-height:1.1rem}
+
+  /* Tooltip propio (además de aria) */
+  .tip{position:relative}
+  .tip::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 8px);left:50%;
+    transform:translateX(-50%) translateY(4px);background:#0b1226;color:#dfe6ff;
+    border:1px solid rgba(37,211,211,.35);padding:.35rem .55rem;border-radius:8px;
+    font-size:.72rem;white-space:nowrap;opacity:0;pointer-events:none;transition:.2s;z-index:20;
+    max-width:220px;white-space:normal;width:max-content}
+  .tip:hover::after,.tip:focus-visible::after{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  /* ---- Modales feature ---- */
+  .modal-content{background:linear-gradient(180deg,#0d1430,#0a1028);color:#eef2ff;
+    border:1px solid rgba(37,211,211,.3);border-radius:18px}
+  .modal-header{border-bottom:1px solid rgba(255,255,255,.1)}
+  .modal-footer{border-top:1px solid rgba(255,255,255,.1)}
+  .modal-title{font-family:'Rajdhani';font-weight:700}
+  .btn-close-big{background:transparent;border:1px solid rgba(255,255,255,.25);color:#fff;
+    width:42px;height:38px;border-radius:10px;font-size:1.2rem;line-height:1;cursor:pointer}
+  .btn-close-big:hover{background:rgba(224,86,58,.2);border-color:var(--error)}
+
+  .opcion-btn{display:block;width:100%;text-align:left;margin-bottom:.6rem;padding:.8rem 1rem;
+    border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.15);
+    color:#eef2ff;font-size:1.02rem;cursor:pointer;transition:.15s}
+  .opcion-btn:hover{border-color:var(--cian);background:rgba(37,211,211,.1)}
+  .opcion-btn:disabled{cursor:default;opacity:.9}
+  .opcion-btn.ok{border-color:var(--exito);background:rgba(63,181,107,.2)}
+  .opcion-btn.no{border-color:var(--error);background:rgba(224,86,58,.18)}
+
+  .feedback{border-radius:12px;padding:.9rem 1rem;margin-top:.4rem;font-size:.95rem;line-height:1.5}
+  .feedback.ok{background:rgba(63,181,107,.14);border:1px solid rgba(63,181,107,.5)}
+  .feedback.err{background:rgba(224,86,58,.12);border:1px solid rgba(224,86,58,.5)}
+  .feedback ul{margin:.4rem 0 0;padding-left:1.1rem}
+  .dato-extra{margin-top:.5rem;font-size:.85rem;color:var(--idc-amarillo);
+    background:rgba(243,161,0,.1);border-left:3px solid var(--idc-amarillo);padding:.5rem .7rem;border-radius:6px}
+
+  .form-control,.form-select{background:#0e1733;border:1px solid rgba(255,255,255,.16);color:#fff}
+  .form-control:focus,.form-select:focus{background:#0e1733;color:#fff;border-color:var(--cian);
+    box-shadow:0 0 0 .2rem rgba(37,211,211,.25)}
+  .form-control::placeholder{color:#8ea0c9}
+  .form-select option{background:#0e1733;color:#fff}
+
+  /* Reto cartas */
+  .reto-cards{display:flex;flex-wrap:wrap;gap:.6rem;justify-content:center;margin:1rem 0}
+  .reto-card{position:relative;padding:.85rem 1rem;border-radius:12px;cursor:pointer;
+    background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.18);
+    font-weight:600;min-width:140px;text-align:center;transition:.15s;user-select:none}
+  .reto-card:hover{border-color:var(--cian)}
+  .reto-card.sel{border-color:var(--idc-amarillo);background:rgba(243,161,0,.16)}
+  .reto-card .num{position:absolute;top:-10px;left:-10px;width:26px;height:26px;border-radius:50%;
+    background:var(--idc-amarillo);color:#111;font-weight:800;display:grid;place-items:center;font-size:.85rem}
+  .reto-card.ok{border-color:var(--exito);background:rgba(63,181,107,.2)}
+  .reto-card.no{border-color:var(--error);background:rgba(224,86,58,.2)}
+  .timer-ring{font-family:'Rajdhani';font-weight:700;font-size:1.4rem}
+
+  .chip{display:inline-flex;align-items:center;gap:.35rem;padding:.32rem .7rem;border-radius:999px;
+    background:rgba(37,211,211,.12);border:1px solid rgba(37,211,211,.4);color:#dffbfb;
+    font-size:.82rem;margin:.2rem;cursor:pointer;user-select:none}
+  .chip.off{opacity:.4;filter:grayscale(.6)}
+  .chip.locked{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.15);color:#8ea0c9;cursor:not-allowed}
+  .chip.sel{background:rgba(243,161,0,.2);border-color:var(--idc-amarillo);color:#fff}
+
+  .prompt-out{background:#06111f;border:1px solid rgba(37,211,211,.35);border-radius:12px;
+    padding:1rem;font-family:'Inter';font-size:.95rem;line-height:1.55;color:#dffbfb;white-space:pre-wrap}
+
+  .anag-slot{font-family:'Rajdhani';font-weight:700;font-size:1.8rem;letter-spacing:.35rem;
+    text-align:center;background:rgba(0,114,185,.12);border:1px dashed rgba(37,211,211,.5);
+    border-radius:12px;padding:.7rem;margin-bottom:.7rem}
+
+  /* Registro */
+  .modo-btn{border-radius:12px;font-weight:600}
+  .btn-idc{background:var(--idc-azul);border:none;color:#fff;font-weight:600}
+  .btn-idc:hover{background:#005a94;color:#fff}
+  .btn-amarillo{background:var(--idc-amarillo);border:none;color:#171717;font-weight:700}
+  .btn-amarillo:hover{background:#d98f00;color:#171717}
+  .btn-cian{background:var(--cian);border:none;color:#04252a;font-weight:700}
+  .btn-cian:hover{background:#17b6b6;color:#04252a}
+
+  footer.inst{border-top:1px solid rgba(255,255,255,.1);background:rgba(7,11,28,.7);
+    padding:1.4rem 0;color:#b9c3ea;font-size:.9rem}
+
+  .toast-fixed{position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-20px);
+    z-index:3500;background:#0d1430;border:1px solid var(--cian);color:#eef2ff;
+    padding:.7rem 1.1rem;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.5);
+    opacity:0;pointer-events:none;transition:.35s;font-weight:600}
+  .toast-fixed.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  @media (max-width:576px){
+    #hud{left:8px;right:8px;bottom:8px;width:auto;padding:11px}
+    .hud-btn{min-height:76px;font-size:1.1rem}
+    #escena{height:66vh;min-height:420px}
+    .zona-legend{display:none}
+  }
+
+  @media print{
+    body{background:#fff;color:#000}
+    #hud,#loader,.navbar-andes,#escena,.no-print,.escena-hint{display:none!important}
+    .glass{border:1px solid #ccc;background:#fff}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ LOADER ============ -->
+<div id="loader" role="status" aria-live="polite">
+  <div class="loader-ring"></div>
+  <div class="font-title" style="font-size:1.2rem">Cargando Mesa de Producción Textil Andes…</div>
+  <div style="font-size:.82rem;color:#8ea0c9">Preparando el mapa 3D y el panel de retos</div>
+</div>
+
+<!-- ============ TOAST ============ -->
+<div id="toast" class="toast-fixed" role="status" aria-live="polite"></div>
+
+<!-- ============ NAVBAR ============ -->
+<nav class="navbar navbar-expand-lg navbar-andes sticky-top">
+  <div class="container-fluid px-3 px-lg-4">
+    <span class="navbar-brand logo-idc mb-0">
+      <span class="logo-mark">IDC<small></small></span>
+      <span>Textil <span class="text-idc-amarillo">Andes</span></span>
+    </span>
+    <div class="ms-auto d-flex gap-2">
+      <button id="btnInstall" class="btn btn-sm btn-amarillo d-none" type="button">⬇️ Instalar app</button>
+      <a href="#registro" class="btn btn-sm btn-outline-light">Registro de equipo</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ============ HERO / INTRO ============ -->
+<header class="section-pad">
+  <div class="container">
+    <div class="row align-items-center g-4">
+      <div class="col-lg-7">
+        <span class="pill">Dinámica gamificada · DUA-Experiencial</span>
+        <h1 class="mt-3" style="font-size:clamp(2rem,5vw,3.2rem);line-height:1.05">
+          Mesa de Producción <span class="text-idc-amarillo">Textil Andes</span><br>
+          <span class="text-cian" style="font-size:.62em">Resolviendo cuellos de botella</span>
+        </h1>
+        <p class="mt-3" style="max-width:60ch;color:#cfd8ff">
+          Centro de aprendizaje inmersivo para resolver, mediante negociación, planificación
+          estratégica y creatividad técnica, los <strong>3 vacíos de información</strong> del briefing
+          del caso <em>Textil Andes</em>. Explora el mapa 3D del flujo de producción (Taller, Estudio y
+          Oficina) y usa el panel de retos para desbloquear el render final.
+        </p>
+        <div class="d-flex flex-wrap gap-2 mt-3">
+          <a href="#mapa" class="btn btn-cian">🗺️ Entrar al mapa 3D</a>
+          <a href="#dossier" class="btn btn-outline-light">📚 Ver dossier del caso</a>
+        </div>
+      </div>
+      <div class="col-lg-5">
+        <div class="glass p-4">
+          <h4 class="mb-3">🎯 Las 3 preguntas críticas</h4>
+          <ol class="mb-0" style="color:#d7deff;line-height:1.6">
+            <li><strong>Secado vs. Empaquetado:</strong> ¿cómo evitar el cuello de botella al secar y empaquetar 500 polos?</li>
+            <li><strong>Adaptación del arte:</strong> ¿cómo llevar 2 tintas planas a un arte con degradados para Instagram?</li>
+            <li><strong>Aprobación y luz natural:</strong> ¿qué protocolo usar ante el retraso de la sesión de fotos?</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ============ DOSSIER / DINÁMICA ============ -->
+<section id="dossier" class="section-pad">
+  <div class="container">
+    <h2 class="mb-1">📚 Dossier del caso y guía de la dinámica</h2>
+    <p style="color:#aeb9e6">Consulta el material. Regla de la dinámica: <strong>no se inventan datos que no estén en el dossier</strong>; toda solución incluye un <strong>Plan B</strong> y un <strong>indicador de éxito</strong>.</p>
+    <div class="accordion" id="accDossier">
+
+      <div class="accordion-item">
+        <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#d1">🧵 El caso Textil Andes (briefing)</button></h3>
+        <div id="d1" class="accordion-collapse collapse" data-bs-parent="#accDossier">
+          <div class="accordion-body">
+            Encargo: 500 polos con estampado serigráfico de motivo andino (<strong>2 tintas planas</strong>) más una campaña
+            para Instagram. Tres áreas deben coordinarse: <strong>Taller de estampado</strong>, <strong>Departamento de diseño</strong>
+            y <strong>Equipo de redes sociales</strong>. El briefing deja 3 vacíos: (1) el desfase entre secado y empaquetado,
+            (2) la adaptación del arte de 2 tintas a un post con degradados y (3) el protocolo de aprobación y el riesgo
+            de retraso por depender de luz natural en la sesión de fotos.
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#d2">🗓️ Secuencia de la dinámica (60 min)</button></h3>
+        <div id="d2" class="accordion-collapse collapse" data-bs-parent="#accDossier">
+          <div class="accordion-body">
+            <table class="table table-sm mini align-middle">
+              <thead><tr><th>Paso</th><th>Actividad</th><th>Tiempo</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>Individual — "Lluvia de ideas locas" (pensamiento divergente)</td><td>5 min</td></tr>
+                <tr><td>2</td><td>Formación de 3 equipos especializados (una pregunta por equipo)</td><td>5 min</td></tr>
+                <tr><td>3</td><td>Trabajo en equipo — propuesta con Plan B e indicador</td><td>20 min</td></tr>
+                <tr><td>4</td><td>Feria de soluciones — exposición y "clientes objetores"</td><td>15 min</td></tr>
+                <tr><td>5</td><td>Integración — macro-cronograma (Día 1, 2 y 3)</td><td>10 min</td></tr>
+                <tr><td>—</td><td>Cierre — reflexión y ticket de salida (3 líneas)</td><td>5 min</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#d3">👥 Equipos, roles y respuestas esperadas</button></h3>
+        <div id="d3" class="accordion-collapse collapse" data-bs-parent="#accDossier">
+          <div class="accordion-body">
+            <p><strong>Equipo A — Gerencia de Taller / Logística (Secado):</strong> estampar por lotes de 50; mientras el lote 1 seca al ambiente, se estampa el 2; empaquetado desfasado. <em>Plan B:</em> entrega escalonada (250 en la mañana, 250 en la tarde). <em>Indicador:</em> la tinta no transfiere al frotar con un paño blanco seco.</p>
+            <p><strong>Equipo B — Dirección de Arte / Serigrafía (Adaptación):</strong> tramas de puntos (halftone) para simular degradados con 2 tintas; en digital, usar la paleta completa manteniendo la ilustración vectorial base como conector. <em>Plan B:</em> fondo con textura de tela andina y el polo en primer plano usando solo las 2 tintas. <em>Indicador:</em> el cliente reconoce la esencia andina sin echar en falta los degradados.</p>
+            <p class="mb-0"><strong>Equipo C — Community / Producción Audiovisual (Aprobación y luz):</strong> flujo de 3 aprobaciones (Diseñador → CM → Cliente antes de las 10 a.m.); 2 franjas de foto (7 a.m. y 4 p.m.) con kit LED de respaldo; ante retraso, publicar Reel de making-of. <em>Plan B:</em> publicar con disclaimer y actualizar 2 h después. <em>Indicador:</em> respuesta del cliente < 30 min y sesión < 2 h.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#d4">📈 Macro-cronograma integrado (3 días)</button></h3>
+        <div id="d4" class="accordion-collapse collapse" data-bs-parent="#accDossier">
+          <div class="accordion-body">
+            <ul class="mb-0" style="line-height:1.7">
+              <li><strong>Día 1 (AM):</strong> prueba de secado + boceto en 2 tintas + aprobación preliminar del cliente.</li>
+              <li><strong>Día 1 (PM):</strong> estampado de primeros lotes + sesión de fotos (luz natural + LED).</li>
+              <li><strong>Día 2:</strong> estampado final + empaquetado desfasado + edición de fotos + arte de Instagram.</li>
+              <li><strong>Día 3 (AM):</strong> entrega física + publicación coordinada (Reel mientras el cliente recibe los polos).</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============ MAPA 3D ============ -->
+<section id="mapa" class="section-pad">
+  <div class="container">
+    <h2 class="mb-1">🗺️ Mapa 3D del flujo de producción</h2>
+    <p style="color:#aeb9e6">Tecnología espacial con líneas de proyección y perspectiva. Resuelve los retos del panel para iluminar cada zona. El panel de control (HUD) permanece siempre visible.</p>
+    <div id="escena" class="full-container-wrap"
+         style="--hex-current-1:#0072b9;--hex-current-3:#e0a83e"
+         data-color="#0c1226">
+      <div class="full-container"></div>
+      <div class="escena-hint">🖱️ Arrastra para rotar · rueda para acercar</div>
+      <div class="zona-legend">
+        <span class="zona-tag"><span class="zdot" style="background:#c65d3a"></span>Taller</span>
+        <span class="zona-tag"><span class="zdot" style="background:#e0a83e"></span>Estudio</span>
+        <span class="zona-tag"><span class="zdot" style="background:#0072b9"></span>Oficina</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ REGISTRO DE EQUIPO ============ -->
+<section id="registro" class="section-pad">
+  <div class="container">
+    <div class="glass p-3 p-lg-4">
+      <h2 class="mb-1">🧾 Registro y entregables</h2>
+      <p style="color:#aeb9e6">Registra al equipo o al participante individual y exporta el análisis del caso.</p>
+
+      <div class="d-flex flex-wrap gap-2 mb-3">
+        <button id="modoEquipo" class="btn btn-idc modo-btn active" type="button" aria-pressed="true">👥 Registrar Equipo</button>
+        <button id="modoIndividual" class="btn btn-outline-light modo-btn" type="button" aria-pressed="false">🙋 Registrar Individual</button>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table mini align-middle">
+          <thead>
+            <tr><th style="width:52px">N°</th><th>Nombres</th><th>Apellidos</th><th>Correo electrónico</th></tr>
+          </thead>
+          <tbody id="tbodyEquipo"><!-- filas generadas por JS --></tbody>
+        </table>
+      </div>
+
+      <div class="row g-2 mb-3">
+        <div class="col-12 col-md-6">
+          <label class="form-label small mb-1">Curso / Unidad didáctica</label>
+          <input id="campoCurso" class="form-control" value="Producción y publicación de piezas gráficas — Semana 1">
+        </div>
+        <div class="col-12 col-md-6">
+          <label class="form-label small mb-1">Nombre del equipo (opcional)</label>
+          <input id="campoNombreEquipo" class="form-control" placeholder="Ej. Los Serígrafos Andinos">
+        </div>
+      </div>
+
+      <div class="d-flex flex-wrap gap-2">
+        <button id="btnPDF" class="btn btn-amarillo" type="button">📥 Generar PDF</button>
+        <button id="btnMD" class="btn btn-cian" type="button">📄 Generar Markdown (.md)</button>
+        <button id="btnMail" class="btn btn-idc" type="button">📧 Enviar a Miembros</button>
+      </div>
+      <p class="mt-2 mb-0" style="font-size:.8rem;color:#8ea0c9">
+        Nota: "Enviar a Miembros" abre tu cliente de correo con el resumen del análisis y los destinatarios
+        precargados. Los archivos PDF/Markdown se descargan localmente para adjuntarlos (los formularios web
+        no pueden adjuntar archivos automáticamente por seguridad del navegador).
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer class="inst">
+  <div class="container d-flex flex-wrap align-items-center justify-content-between gap-2">
+    <span class="logo-idc"><span class="logo-mark" style="width:30px;height:30px;font-size:.7rem">IDC</span> Instituto de Diseño y Comunicación</span>
+    <span><strong>Docente: Mg. Mario Quiroz</strong> · Unidad didáctica de Producción y publicación de piezas gráficas · 2026 · Semana 1</span>
+  </div>
+</footer>
+
+<!-- ============ HUD FLOTANTE ============ -->
+<aside id="hud" aria-label="Panel de control de retos">
+  <div class="hud-head">
+    <span class="hud-title">🎮 Panel de retos</span>
+    <button id="hudMin" class="hud-min-btn" type="button" aria-label="Minimizar o expandir el panel" title="Minimizar / expandir">▾</button>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-label"><span id="progText">Progreso: 0%</span><span id="progHint">Resuelve retos para desbloquear el render final</span></div>
+    <div class="progress-track"><div id="progFill" class="progress-fill"></div></div>
+  </div>
+  <div class="hud-grid">
+    <button class="hud-btn tip" id="hbPreguntas" data-tip="Selección múltiple sobre el caso. Acierta la Pregunta 1 y el Taller brilla en verde." aria-label="Abrir Preguntas dinámicas">
+      <span class="ico">📝</span><span class="lbl">Preguntas</span><span class="check" data-check="preguntas"></span>
+    </button>
+    <button class="hud-btn tip" id="hbAdivinanzas" data-tip="Acertijos textiles andinos. Resuelve uno y desbloquea un comodín." aria-label="Abrir Adivinanzas textiles">
+      <span class="ico">🧩</span><span class="lbl">Adivinanzas</span><span class="check" data-check="adivinanzas"></span>
+    </button>
+    <button class="hud-btn tip" id="hbRetos" data-tip="Ordena el flujo de producción en menos de 15 s. El orden perfecto activa el Plan B." aria-label="Abrir Retos contra reloj">
+      <span class="ico">⚡</span><span class="lbl">Retos</span><span class="check" data-check="retos"></span>
+    </button>
+    <button class="hud-btn tip" id="hbGenerador" data-tip="Resuelve anagramas y compón un prompt profesional para IA." aria-label="Abrir Generador de prompts y anagramas">
+      <span class="ico">🎨</span><span class="lbl">Generador</span><span class="check" data-check="generador"></span>
+    </button>
+  </div>
+  <div class="hud-comodin" id="hudComodin"></div>
+</aside>
+
+<!-- ============ MODALES ============ -->
+<!-- Preguntas -->
+<div class="modal fade" id="modalPreguntas" tabindex="-1" aria-labelledby="tPreg" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="tPreg">📝 Preguntas dinámicas</h5>
+        <button type="button" class="btn-close-big" data-bs-dismiss="modal" aria-label="Cerrar">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="d-flex justify-content-between mb-2" style="font-size:.85rem;color:#aeb9e6">
+          <span id="pregContador">Pregunta 1</span>
+          <span id="pregScore">Aciertos: 0</span>
+        </div>
+        <h5 id="pregTexto" class="mb-3"></h5>
+        <div id="pregOpciones"></div>
+        <div id="pregFeedback"></div>
+      </div>
+      <div class="modal-footer">
+        <button id="pregSiguiente" class="btn btn-cian" type="button" disabled>Siguiente pregunta →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Adivinanzas -->
+<div class="modal fade" id="modalAdivinanzas" tabindex="-1" aria-labelledby="tAdiv" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="tAdiv">🧩 Adivinanzas textiles</h5>
+        <button type="button" class="btn-close-big" data-bs-dismiss="modal" aria-label="Cerrar">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:.85rem;color:#aeb9e6" id="adivContador"></p>
+        <p id="adivTexto" style="font-size:1.15rem;line-height:1.55"></p>
+        <label class="form-label small">Tu respuesta</label>
+        <input id="adivInput" class="form-control form-control-lg" autocomplete="off" placeholder="Escribe el concepto…" aria-label="Respuesta de la adivinanza">
+        <div id="adivFeedback"></div>
+      </div>
+      <div class="modal-footer">
+        <button id="adivPista" class="btn btn-outline-light" type="button">💡 Pista</button>
+        <button id="adivResolver" class="btn btn-amarillo" type="button">Comprobar</button>
+        <button id="adivSiguiente" class="btn btn-cian d-none" type="button">Otra adivinanza →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Retos -->
+<div class="modal fade" id="modalRetos" tabindex="-1" aria-labelledby="tReto" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="tReto">⚡ Reto contra reloj — secuencia de producción</h5>
+        <button type="button" class="btn-close-big" data-bs-dismiss="modal" aria-label="Cerrar">✕</button>
+      </div>
+      <div class="modal-body text-center">
+        <p style="color:#cfd8ff">Toca las tarjetas en el <strong>orden lógico correcto</strong> del flujo de producción. Tienes <strong>15 segundos</strong> desde el primer toque.</p>
+        <div class="timer-ring mb-1" id="retoTimer">⏱️ 15.0 s</div>
+        <div class="reto-cards" id="retoCards"></div>
+        <div id="retoFeedback"></div>
+      </div>
+      <div class="modal-footer">
+        <button id="retoReset" class="btn btn-outline-light" type="button">↺ Reiniciar</button>
+        <button id="retoVerificar" class="btn btn-amarillo" type="button">Verificar orden</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Generador -->
+<div class="modal fade" id="modalGenerador" tabindex="-1" aria-labelledby="tGen" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="tGen">🎨 Generador de prompts &amp; anagramas</h5>
+        <button type="button" class="btn-close-big" data-bs-dismiss="modal" aria-label="Cerrar">✕</button>
+      </div>
+      <div class="modal-body">
+        <ul class="nav nav-pills mb-3" role="tablist">
+          <li class="nav-item"><button class="nav-link active" id="tabAnag" data-bs-toggle="pill" data-bs-target="#paneAnag" type="button" role="tab">1️⃣ Anagramas</button></li>
+          <li class="nav-item"><button class="nav-link" id="tabPrompt" data-bs-toggle="pill" data-bs-target="#panePrompt" type="button" role="tab">2️⃣ Generador de prompts</button></li>
+        </ul>
+        <div class="tab-content">
+          <!-- Anagramas -->
+          <div class="tab-pane fade show active" id="paneAnag" role="tabpanel">
+            <p style="font-size:.85rem;color:#aeb9e6" id="anagContador"></p>
+            <p style="color:#cfd8ff">Ordena las letras. Pista: <span id="anagPista" class="text-idc-amarillo"></span></p>
+            <div class="anag-slot" id="anagSlot"></div>
+            <input id="anagInput" class="form-control form-control-lg mb-2" autocomplete="off" placeholder="Escribe la palabra…" aria-label="Respuesta del anagrama">
+            <div class="d-flex gap-2 flex-wrap">
+              <button id="anagResolver" class="btn btn-amarillo" type="button">Comprobar</button>
+              <button id="anagSiguiente" class="btn btn-cian d-none" type="button">Siguiente →</button>
+              <span class="ms-auto" style="font-size:.85rem;color:#aeb9e6">Intentos: <span id="anagIntentos">3</span></span>
+            </div>
+            <div id="anagFeedback"></div>
+            <div class="mt-3">
+              <div style="font-size:.85rem;color:#aeb9e6">Palabras clave desbloqueadas:</div>
+              <div id="anagKeywords" class="mt-1"></div>
+            </div>
+          </div>
+          <!-- Prompt -->
+          <div class="tab-pane fade" id="panePrompt" role="tabpanel">
+            <div class="row g-2 mb-2">
+              <div class="col-md-4">
+                <label class="form-label small">Estilo</label>
+                <select id="selEstilo" class="form-select" aria-label="Estilo">
+                  <option value="product">Fotografía de producto</option>
+                  <option value="vector">Ilustración vectorial</option>
+                  <option value="woven">Textura tejida</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small">Color</label>
+                <select id="selColor" class="form-select" aria-label="Color">
+                  <option value="earth">Paleta Tierra</option>
+                  <option value="vibrant">Colores vibrantes andinos</option>
+                  <option value="mono">Monocromático</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small">Formato</label>
+                <select id="selFormato" class="form-select" aria-label="Formato">
+                  <option value="1:1">Cuadrado (IG)</option>
+                  <option value="9:16">Vertical (Reels)</option>
+                  <option value="16:9">Horizontal (web)</option>
+                </select>
+              </div>
+            </div>
+            <div style="font-size:.85rem;color:#aeb9e6">Palabras clave (clic para incluir):</div>
+            <div id="promptChips" class="mb-2 mt-1"></div>
+            <button id="btnGenerarPrompt" class="btn btn-amarillo mb-3" type="button">⚙️ Generar prompt</button>
+            <div class="prompt-out" id="promptOut">El prompt aparecerá aquí…</div>
+            <button id="btnCopiarPrompt" class="btn btn-cian mt-2 d-none" type="button">📋 Copiar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ LIBRERÍAS ============ -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<!-- Three.js como módulo -->
+<script type="importmap">
+{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" } }
+</script>
+
+<script type="module">
+/* ============ MAPA 3D — Three.js ============ */
+let API = null;
+try {
+  const THREE = await import('three');
+  const wrap = document.getElementById('escena');
+  const cont = wrap.querySelector('.full-container');
+  const width = cont.clientWidth || wrap.clientWidth;
+  const height = cont.clientHeight || wrap.clientHeight;
+
+  const renderer = new THREE.WebGLRenderer({ alpha:true, antialias:true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(width, height);
+  renderer.shadowMap.enabled = true;
+  cont.appendChild(renderer.domElement);
+
+  const scene = new THREE.Scene();
+  scene.fog = new THREE.FogExp2(0x0a1028, 0.045);
+
+  const camera = new THREE.PerspectiveCamera(42, width/height, 0.1, 100);
+  camera.position.set(0, 4.4, 8.4);
+  camera.lookAt(0, 0.4, 0);
+
+  const container = new THREE.Group();
+  scene.add(container);
+
+  // Suelo + grid (isometría/perspectiva)
+  const ground = new THREE.Mesh(
+    new THREE.PlaneGeometry(16,16),
+    new THREE.MeshStandardMaterial({ color:0x0c1226, roughness:.95, metalness:.05 })
+  );
+  ground.rotation.x = -Math.PI/2; ground.receiveShadow = true; container.add(ground);
+
+  const grid = new THREE.GridHelper(16, 32, 0x0072b9, 0x21386b);
+  grid.position.y = 0.01; grid.material.transparent = true; grid.material.opacity = .55;
+  container.add(grid);
+
+  const amb = new THREE.AmbientLight(0xffffff, 0.55); scene.add(amb);
+  const dir = new THREE.DirectionalLight(0xffffff, 0.7);
+  dir.position.set(5,9,6); dir.castShadow = true;
+  dir.shadow.mapSize.set(1024,1024); scene.add(dir);
+  const spot = new THREE.SpotLight(0xfff2d0, 90, 22, Math.PI/6, 0.5);
+  spot.position.set(0,7,2); spot.castShadow = true; container.add(spot);
+
+  // Utilidad: etiqueta como sprite
+  function makeLabel(text, color){
+    const c = document.createElement('canvas'); c.width=256; c.height=64;
+    const x = c.getContext('2d');
+    x.fillStyle='rgba(7,11,28,.0)'; x.fillRect(0,0,256,64);
+    x.font='bold 34px Rajdhani, sans-serif'; x.textAlign='center'; x.textBaseline='middle';
+    x.fillStyle=color; x.fillText(text,128,34);
+    const tex = new THREE.CanvasTexture(c);
+    const spr = new THREE.Sprite(new THREE.SpriteMaterial({ map:tex, transparent:true, depthWrite:false }));
+    spr.scale.set(2.2,0.55,1); return spr;
+  }
+  // Líneas de proyección (de un objeto al suelo)
+  function projLines(x,z,h,color){
+    const g = new THREE.Group();
+    const mat = new THREE.LineBasicMaterial({ color, transparent:true, opacity:.5 });
+    const pts=[[x-0.5,z-0.5],[x+0.5,z-0.5],[x+0.5,z+0.5],[x-0.5,z+0.5]];
+    pts.forEach(([px,pz])=>{
+      const geo=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(px,0.02,pz),new THREE.Vector3(px,h,pz)]);
+      g.add(new THREE.Line(geo,mat));
+    });
+    return g;
+  }
+
+  const zonas = {};
+
+  // ---- TALLER (cubo) ----
+  const taller = new THREE.Mesh(
+    new THREE.BoxGeometry(1.2,1.2,1.2),
+    new THREE.MeshStandardMaterial({ color:0xc65d3a, roughness:.6, emissive:0x000000 })
+  );
+  taller.position.set(-3.4,0.6,0.4); taller.castShadow=true; container.add(taller);
+  container.add(projLines(-3.4,0.4,1.2,0xc65d3a));
+  const lblTaller = makeLabel('TALLER','#f0b48a'); lblTaller.position.set(-3.4,1.9,0.4); container.add(lblTaller);
+  zonas.taller = { mesh:taller, base:new THREE.Color(0xc65d3a), resuelto:false };
+
+  // ---- ESTUDIO (torus / espejo) ----
+  const estudio = new THREE.Mesh(
+    new THREE.TorusGeometry(0.62,0.22,20,48),
+    new THREE.MeshStandardMaterial({ color:0xe0a83e, roughness:.25, metalness:.7 })
+  );
+  estudio.position.set(0,0.9,-2.6); estudio.castShadow=true; container.add(estudio);
+  container.add(projLines(0,-2.6,0.9,0xe0a83e));
+  const lblEstudio = makeLabel('ESTUDIO','#f4d79a'); lblEstudio.position.set(0,2.0,-2.6); container.add(lblEstudio);
+  zonas.estudio = { mesh:estudio, base:new THREE.Color(0xe0a83e), resuelto:false };
+
+  // ---- OFICINA (pantalla con CanvasTexture) ----
+  const screenCanvas = document.createElement('canvas'); screenCanvas.width=512; screenCanvas.height=320;
+  const sctx = screenCanvas.getContext('2d');
+  function drawScreen(title, body){
+    sctx.fillStyle='#06111f'; sctx.fillRect(0,0,512,320);
+    sctx.strokeStyle='#25d3d3'; sctx.lineWidth=6; sctx.strokeRect(6,6,500,308);
+    sctx.fillStyle='#25d3d3'; sctx.font='bold 26px Rajdhani, sans-serif'; sctx.fillText(title||'OFICINA · MONITOR',22,44);
+    sctx.fillStyle='#dffbfb'; sctx.font='16px Inter, sans-serif';
+    const words=(body||'Genera un prompt para verlo aquí…').split(' '); let line='',y=84;
+    for(const w of words){
+      if((line+w).length>46){ sctx.fillText(line,22,y); line=''; y+=24; if(y>300)break; }
+      line+=w+' ';
+    }
+    if(y<=300) sctx.fillText(line,22,y);
+    screenTex.needsUpdate=true;
+  }
+  const screenTex = new THREE.CanvasTexture(screenCanvas);
+  const oficina = new THREE.Mesh(
+    new THREE.PlaneGeometry(2.4,1.5),
+    new THREE.MeshBasicMaterial({ map:screenTex })
+  );
+  oficina.position.set(3.5,1.1,0.2); oficina.rotation.y = -0.5; container.add(oficina);
+  const base = new THREE.Mesh(new THREE.BoxGeometry(2.6,0.15,0.4),
+    new THREE.MeshStandardMaterial({ color:0x0072b9, roughness:.5 }));
+  base.position.set(3.5,0.1,0.2); base.rotation.y=-0.5; base.castShadow=true; container.add(base);
+  const lblOficina = makeLabel('OFICINA','#8fd0f5'); lblOficina.position.set(3.5,2.15,0.2); container.add(lblOficina);
+  drawScreen();
+  zonas.oficina = { mesh:oficina, base:new THREE.Color(0x0072b9), resuelto:false };
+
+  // ---- Trofeo (oculto) ----
+  const trophy = new THREE.Group();
+  const cup = new THREE.Mesh(new THREE.CylinderGeometry(0.28,0.14,0.4,16),
+    new THREE.MeshStandardMaterial({ color:0xffd257, metalness:.9, roughness:.2, emissive:0x5a3d00 }));
+  const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.06,0.06,0.2,12),
+    new THREE.MeshStandardMaterial({ color:0xffd257, metalness:.9, roughness:.2 }));
+  stem.position.y=-0.28; const foot = new THREE.Mesh(new THREE.CylinderGeometry(0.18,0.18,0.08,16),
+    new THREE.MeshStandardMaterial({ color:0xffd257, metalness:.9, roughness:.2 }));
+  foot.position.y=-0.42; trophy.add(cup,stem,foot);
+  trophy.position.set(3.5,2.6,0.2); trophy.visible=false; container.add(trophy);
+
+  // Interacción: arrastrar para rotar, rueda para zoom
+  let drag=false, px=0, autoRot=true, targetZoom=8.4;
+  const el = renderer.domElement;
+  el.addEventListener('pointerdown',e=>{drag=true;px=e.clientX;autoRot=false;});
+  window.addEventListener('pointerup',()=>{drag=false; setTimeout(()=>autoRot=true,2500);});
+  window.addEventListener('pointermove',e=>{ if(drag){ container.rotation.y += (e.clientX-px)*0.008; px=e.clientX; }});
+  el.addEventListener('wheel',e=>{ e.preventDefault(); targetZoom=Math.min(12,Math.max(5,targetZoom+e.deltaY*0.01)); },{passive:false});
+
+  // Spotlight roaming
+  let spTarget = new THREE.Vector3(0,7,2), spTime=0;
+  const clock = new THREE.Clock();
+  function tick(){
+    const dt = clock.getDelta(), t = clock.elapsedTime;
+    if(autoRot) container.rotation.y += dt*0.12;
+    camera.position.z += (targetZoom-camera.position.z)*0.05;
+    camera.position.y = camera.position.z*0.52;
+    camera.lookAt(0,0.5,0);
+    // cubo bob + giro suave
+    taller.position.y = 0.6 + Math.abs(Math.sin(t*1.2))*0.12;
+    taller.rotation.y += dt*0.4;
+    estudio.rotation.z += dt*0.9; estudio.rotation.x = Math.sin(t*0.6)*0.3;
+    lblTaller.position.y = 1.9 + Math.abs(Math.sin(t*1.2))*0.12;
+    if(trophy.visible){ trophy.rotation.y += dt*1.6; trophy.position.y = 2.6 + Math.sin(t*2)*0.12; }
+    // spotlight
+    spTime -= dt;
+    if(spTime<=0){ spTarget.set((Math.random()*2-1)*5, 6+Math.random()*2, (Math.random()*2-1)*5); spTime=3; }
+    spot.position.lerp(spTarget, dt*0.6);
+    renderer.render(scene,camera);
+    requestAnimationFrame(tick);
+  }
+  tick();
+
+  window.addEventListener('resize',()=>{
+    const w=cont.clientWidth,h=cont.clientHeight;
+    camera.aspect=w/h; camera.updateProjectionMatrix(); renderer.setSize(w,h);
+  });
+
+  function pulse(mesh, color){
+    const m=mesh.material; const from=m.emissive.clone(); const to=new THREE.Color(color);
+    let k=0; (function p(){ k+=0.05; m.emissive.copy(from).lerp(to, Math.sin(Math.min(k,1)*Math.PI));
+      if(k<1) requestAnimationFrame(p); })();
+  }
+
+  // ---- API pública para la lógica del HUD ----
+  API = {
+    flashTaller(){ zonas.taller.resuelto=true; taller.material.color.set(0x3fb56b);
+      taller.material.emissive.set(0x0e3d22); pulse(taller,0x3fb56b); },
+    resolveEstudio(){ zonas.estudio.resuelto=true; estudio.material.color.set(0x25d3d3);
+      estudio.material.emissive.set(0x0c3a3a); pulse(estudio,0x25d3d3); },
+    resolveOficina(){ zonas.oficina.resuelto=true; oficina.material.color && (oficina.material.color.set(0xffffff));
+      pulse(base,0x25d3d3); },
+    showTrophy(){ trophy.visible=true; },
+    updateOfficeScreen(text){ drawScreen('PROMPT · IA', text); },
+    illuminateFloor(){ grid.material.opacity=1; ground.material.emissive=new THREE.Color(0x123a5a);
+      setTimeout(()=>{ grid.material.opacity=.55; ground.material.emissive=new THREE.Color(0x000000); },1400); },
+    finalRender(){ amb.intensity=0.85; scene.fog.density=0.02;
+      Object.values(zonas).forEach(z=>{ z.mesh.material.emissive && z.mesh.material.emissive.set(0x224433); });
+      trophy.visible=true; }
+  };
+  window.AndesMap = API;
+  window.dispatchEvent(new Event('andesmap-ready'));
+} catch(err){
+  console.warn('No se pudo iniciar el mapa 3D:', err);
+  const wrap = document.getElementById('escena');
+  if(wrap){ wrap.insertAdjacentHTML('beforeend',
+    '<div style="position:absolute;inset:0;display:grid;place-items:center;text-align:center;color:#aeb9e6;padding:1rem">🗺️ El mapa 3D no pudo cargar (sin conexión a la CDN de Three.js). El panel de retos sigue funcionando.</div>'); }
+}
+</script>
+
+<!-- ============ LÓGICA DE LA APP ============ -->
+<script>
+(function(){
+  "use strict";
+  const $ = s => document.querySelector(s);
+  const $$ = s => Array.from(document.querySelectorAll(s));
+  const map = () => window.AndesMap || null;
+
+  /* ---- Toast ---- */
+  const toastEl = $('#toast'); let toastTimer=null;
+  function toast(msg){ toastEl.textContent=msg; toastEl.classList.add('show');
+    clearTimeout(toastTimer); toastTimer=setTimeout(()=>toastEl.classList.remove('show'),2600); }
+
+  /* ---- anime.js opcional ---- */
+  const A = window.anime || null;
+
+  /* ============ ESTADO GLOBAL ============ */
+  const estado = {
+    tools:{ preguntas:false, adivinanzas:false, retos:false, generador:false },
+    aciertosPreg:0, p1correcta:false,
+    comodin:false, planB:false,
+    keywords:new Set(),        // palabras clave desbloqueadas por anagramas
+    modo:'equipo',
+    renderFinal:false
+  };
+
+  function updateProgress(){
+    const done = Object.values(estado.tools).filter(Boolean).length;
+    const pct = Math.round(done/4*100);
+    $('#progFill').style.width = pct+'%';
+    $('#progText').textContent = 'Progreso: '+pct+'%';
+    $('#progHint').textContent = pct>=100 ? '¡Render final desbloqueado! 🏆'
+      : (pct>0 ? (done+' de 4 retos resueltos') : 'Resuelve retos para desbloquear el render final');
+    // marcar botones
+    Object.entries(estado.tools).forEach(([k,v])=>{
+      const chk = document.querySelector('[data-check="'+k+'"]');
+      const btn = chk && chk.closest('.hud-btn');
+      if(v && btn){ btn.classList.add('done'); chk.textContent='✓ resuelto'; }
+    });
+    if(pct>=100 && !estado.renderFinal){
+      estado.renderFinal=true; map() && map().finalRender();
+      toast('🏆 ¡Render final desbloqueado! Has resuelto los 4 retos.');
+      if(A) A({targets:'#progFill',boxShadow:['0 0 0px #f3a100','0 0 18px #f3a100'],direction:'alternate',loop:4,duration:400});
+    }
+  }
+  function completar(tool){ if(!estado.tools[tool]){ estado.tools[tool]=true; updateProgress(); } }
+
+  function setComodin(txt){ $('#hudComodin').textContent = txt; }
+
+  /* ============ HUD ============ */
+  $('#hudMin').addEventListener('click', function(){
+    const hud=$('#hud'); hud.classList.toggle('min');
+    this.textContent = hud.classList.contains('min') ? '▴' : '▾';
+  });
+  const modalPreg = new bootstrap.Modal('#modalPreguntas');
+  const modalAdiv = new bootstrap.Modal('#modalAdivinanzas');
+  const modalReto = new bootstrap.Modal('#modalRetos');
+  const modalGen  = new bootstrap.Modal('#modalGenerador');
+  $('#hbPreguntas').addEventListener('click',()=>{ cargarPregunta(); modalPreg.show(); });
+  $('#hbAdivinanzas').addEventListener('click',()=>{ cargarAdivinanza(); modalAdiv.show(); });
+  $('#hbRetos').addEventListener('click',()=>{ iniciarReto(); modalReto.show(); });
+  $('#hbGenerador').addEventListener('click',()=>{ cargarAnagrama(); renderChips(); modalGen.show(); });
+
+  /* ============ 1) PREGUNTAS DINÁMICAS ============ */
+  const PREGUNTAS = [
+    { zona:'taller', txt:'Para el cuello de botella entre secado y empaquetado de 500 polos, ¿qué estrategia respeta el dossier?',
+      op:['Empaquetar todos los polos apenas se estampen','Estampar y empaquetar por lotes desfasados (mientras el lote 1 seca, se estampa el 2)','Usar la cámara de secado industrial del taller','Subir la temperatura del cuarto para secar más rápido'],
+      ok:1, exp:'El dossier no menciona ninguna cámara de secado; inventarla rompe la regla. La solución válida es el trabajo por lotes desfasados.',
+      dato:'El secado/curado en serigrafía textil requiere aproximadamente 4 horas a 25 °C antes de manipular la prenda.' },
+    { txt:'¿Qué técnica permite simular degradados usando solo 2 tintas planas en serigrafía?',
+      op:['Cuatricromía','Halftone (trama de puntos)','Offset','Sublimación'],
+      ok:1, exp:'El halftone mezcla puntos de distinto tamaño y engaña al ojo, creando la ilusión de degradado con pocas tintas.',
+      dato:'La ampliación del punto al imprimir se llama ganancia de punto (TVI) y se compensa reduciendo el porcentaje de trama.' },
+    { txt:'Ante un retraso por falta de luz natural en la sesión de fotos, ¿qué acción cumple el compromiso con el cliente?',
+      op:['Cancelar la publicación hasta tener la foto perfecta','Publicar un "Reel de making-of" a la hora pactada y subir la foto final después','Publicar una imagen de stock genérica','Editar la foto con IA sin avisar al cliente'],
+      ok:1, exp:'Mantiene la cita con la audiencia y transparenta el proceso, sin romper la calidad ni el acuerdo.',
+      dato:'El kit de luces LED portátiles funciona como Plan B ante días nublados.' },
+    { txt:'¿Cuál es el indicador de éxito de un secado correcto de la tinta?',
+      op:['La tinta brilla al sol','No transfiere al frotarla con un paño blanco seco','Huele a solvente','El polo pesa más'],
+      ok:1, exp:'La prueba del paño blanco es el control de calidad estándar del curado.',
+      dato:'Un curado incompleto provoca que la tinta se agriete o se despinte en el primer lavado.' },
+    { txt:'En el arte de Instagram, ¿qué mantiene la coherencia con el estampado de 2 tintas?',
+      op:['Usar solo blanco y negro','Conservar la ilustración vectorial base del polo como elemento conector','Cambiar por completo el estilo','Copiar el moodboard tal cual'],
+      ok:1, exp:'El vector base del polo actúa como hilo conductor entre la prenda física y la pieza digital.',
+      dato:'La coherencia visual entre soportes refuerza el reconocimiento de marca.' },
+    { txt:'En el flujo de aprobación propuesto por el Equipo C, ¿cuál es el orden correcto?',
+      op:['Cliente → Diseñador → Community Manager','Diseñador → Community Manager → Cliente','Community Manager → Cliente → Diseñador','Diseñador → Cliente → Community Manager'],
+      ok:1, exp:'El diseñador produce, el CM revisa formato/copy y el cliente da el visto bueno final antes de las 10 a.m.',
+      dato:'Fijar una hora límite (10 a.m.) evita que la aprobación se dilate y frene la publicación.' },
+    { txt:'Plan B si el cliente no responde la aprobación a tiempo:',
+      op:['Publicar sin avisar','Publicar con disclaimer "Últimos ajustes en proceso" y actualizar 2 h después','Suspender el proyecto','Cambiar de cliente'],
+      ok:1, exp:'Da autonomía controlada al CM sin romper el compromiso de publicación.',
+      dato:'Un disclaimer honesto sostiene la expectativa de la audiencia sin dañar la marca.' },
+    { txt:'¿Qué es un "moodboard" en este contexto?',
+      op:['Un cronograma de entregas','Un tablero visual de referencias de estilo, color y textura','Una máquina de estampar','Un tipo de tinta plastisol'],
+      ok:1, exp:'Es la referencia visual que alinea al equipo sobre la estética andina buscada.',
+      dato:'El moodboard se define antes del arte final para evitar reprocesos.' },
+    { txt:'La entrega escalonada (250 polos en la mañana y 250 en la tarde) sirve principalmente para:',
+      op:['Cobrar más','Ganar horas de secado natural sin incumplir el plazo','Reducir la calidad','Usar menos tinta'],
+      ok:1, exp:'Convierte una restricción logística (secado) en un acuerdo comercial viable.',
+      dato:'Negociar el plazo es una habilidad blanda tan valiosa como la técnica.' },
+    { txt:'¿Qué habilidad blanda entrena principalmente esta dinámica?',
+      op:['Mecanografía','Toma de decisiones bajo incertidumbre','Contabilidad de costos','Programación web'],
+      ok:1, exp:'El caso obliga a decidir con información incompleta, integrando negociación, creatividad y logística.',
+      dato:'Decidir bajo incertidumbre es el núcleo de una "Experiencia Curricular" aplicada.' }
+  ];
+  let pregActual=null, pregIndex=0;
+  function cargarPregunta(){
+    $('#pregFeedback').innerHTML=''; $('#pregSiguiente').disabled=true;
+    pregActual = PREGUNTAS[Math.floor(Math.random()*PREGUNTAS.length)];
+    pregIndex++;
+    $('#pregContador').textContent='Pregunta '+pregIndex;
+    $('#pregScore').textContent='Aciertos: '+estado.aciertosPreg;
+    $('#pregTexto').textContent=pregActual.txt;
+    const cont=$('#pregOpciones'); cont.innerHTML='';
+    pregActual.op.forEach((o,i)=>{
+      const b=document.createElement('button');
+      b.className='opcion-btn'; b.type='button'; b.textContent=o;
+      b.addEventListener('click',()=>responderPreg(i,b));
+      cont.appendChild(b);
+    });
+  }
+  function responderPreg(i,btn){
+    const opciones=$$('#pregOpciones .opcion-btn'); opciones.forEach(b=>b.disabled=true);
+    const correcto = i===pregActual.ok;
+    if(correcto){
+      btn.classList.add('ok'); estado.aciertosPreg++;
+      $('#pregScore').textContent='Aciertos: '+estado.aciertosPreg;
+      $('#pregFeedback').innerHTML='<div class="feedback ok"><strong>✓ Correcto.</strong> '+pregActual.exp+
+        '<div class="dato-extra">💡 Dato extra: '+pregActual.dato+'</div></div>';
+      if(pregActual.zona==='taller'){ estado.p1correcta=true; map()&&map().flashTaller(); toast('🟩 El Taller brilla en verde: resolviste la Pregunta 1.'); }
+    } else {
+      btn.classList.add('no'); opciones[pregActual.ok].classList.add('ok');
+      $('#pregFeedback').innerHTML='<div class="feedback err"><strong>✗ Aún no.</strong>'+
+        '<ul><li><strong>Pista:</strong> observa qué cambia en la situación del caso.</li>'+
+        '<li><strong>Dato clave:</strong> '+pregActual.exp+'</li>'+
+        '<li><strong>Contexto:</strong> en producción gráfica esto define si el proyecto se entrega a tiempo y con calidad.</li>'+
+        '<li><strong>Reintento:</strong> la opción resaltada en verde es la correcta; sigue con la próxima pregunta.</li></ul>'+
+        '<div class="dato-extra">💡 Dato extra: '+pregActual.dato+'</div></div>';
+      if(pregActual.zona==='taller') toast('💡 Visita la zona del Taller en el mapa para buscar pistas.');
+    }
+    $('#pregSiguiente').disabled=false;
+    if(estado.aciertosPreg>=3) completar('preguntas');
+  }
+  $('#pregSiguiente').addEventListener('click',cargarPregunta);
+
+  /* ============ 2) ADIVINANZAS TEXTILES ============ */
+  const ADIVINANZAS = [
+    { txt:'Vengo del telar antiguo, mi geometría es un legado. En el polo me estampo, pero en el brief soy boceto. ¿Qué soy?',
+      keys:['motivo andino','patron geometrico','patrón geométrico','patron andino','patrón andino','motivo'],
+      concepto:'Motivo andino / patrón geométrico', pista:'Es el dibujo que da identidad cultural al estampado.',
+      dato:'Los patrones geométricos andinos suelen basarse en simetría y repetición modular.' },
+    { txt:'Malla tensada y emulsión al sol; por mis poros pasa el color hacia la tela. ¿Qué técnica soy?',
+      keys:['serigrafia','serigrafía','silkscreen','estampado serigrafico','estampado serigráfico'],
+      concepto:'Serigrafía', pista:'Técnica de estampado por malla y tinta.',
+      dato:'Cada color plano requiere una malla y un paso de impresión distinto.' },
+    { txt:'Líquido sensible a la luz; dibujo tu imagen sobre la malla. Sin mí no hay estampa. ¿Qué soy?',
+      keys:['emulsion','emulsión','emulsion fotosensible','emulsión fotosensible'],
+      concepto:'Emulsión fotosensible', pista:'Se endurece con la luz y crea el esténcil.',
+      dato:'La zona no expuesta se lava y deja pasar la tinta.' },
+    { txt:'Barra de goma dura que empuja la tinta a través de la malla. ¿Cómo me llaman?',
+      keys:['rasero','racle','squeegee','rasqueta'],
+      concepto:'Rasero (squeegee)', pista:'Herramienta que arrastra la tinta.',
+      dato:'El ángulo y la presión del rasero afectan la carga de tinta y la nitidez.' },
+    { txt:'Muchos puntos pequeños fingen un degradado con solo dos tintas. ¿Qué trama soy?',
+      keys:['halftone','trama de puntos','semitono','medio tono','tramado'],
+      concepto:'Halftone / trama de puntos', pista:'Resuelve la Pregunta 2 del caso.',
+      dato:'Variando el tamaño del punto se simula el tono continuo.' },
+    { txt:'Estructura donde reposan los polos recién estampados para secar sin tocarse. ¿Qué soy?',
+      keys:['rack','estante de secado','perchero','rack de secado'],
+      concepto:'Rack de secado', pista:'Evita que las prendas húmedas se manchen entre sí.',
+      dato:'Un rack aumenta la capacidad de secado sin ocupar más piso.' },
+    { txt:'Tierra, ocre, mostaza y teja: familia de tonos que evoca los Andes. ¿Qué soy?',
+      keys:['paleta tierra','paleta de color tierra','colores tierra','paleta de tierra','paleta terrosa'],
+      concepto:'Paleta de color tierra', pista:'Conjunto cromático del moodboard andino.',
+      dato:'Las paletas tierra transmiten calidez, artesanía y origen local.' }
+  ];
+  let adivActual=null, adivIdx=0;
+  function normaliza(s){ return (s||'').toLowerCase().trim()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' '); }
+  function cargarAdivinanza(){
+    $('#adivFeedback').innerHTML=''; $('#adivInput').value=''; $('#adivInput').disabled=false;
+    $('#adivResolver').classList.remove('d-none'); $('#adivSiguiente').classList.add('d-none');
+    adivActual = ADIVINANZAS[adivIdx % ADIVINANZAS.length]; adivIdx++;
+    $('#adivContador').textContent='Adivinanza '+adivIdx;
+    $('#adivTexto').textContent=adivActual.txt;
+    setTimeout(()=>$('#adivInput').focus(),300);
+  }
+  function comprobarAdiv(){
+    const val=normaliza($('#adivInput').value);
+    if(!val){ toast('Escribe tu respuesta.'); return; }
+    const acierto = adivActual.keys.some(k=>{ const nk=normaliza(k); return val===nk || val.includes(nk) || nk.includes(val)&&val.length>=4; });
+    if(acierto){
+      $('#adivInput').disabled=true; $('#adivResolver').classList.add('d-none'); $('#adivSiguiente').classList.remove('d-none');
+      $('#adivFeedback').innerHTML='<div class="feedback ok"><strong>✓ ¡Exacto!</strong> Es la <strong>'+adivActual.concepto+
+        '</strong>. '+adivActual.dato+'</div>';
+      if(!estado.comodin){ estado.comodin=true; setComodin('🎟️ Comodín desbloqueado: -3 s en el reto del Taller.'); }
+      map()&&map().resolveEstudio();
+      completar('adivinanzas');
+      toast('🪞 El espejo del Estudio cambió de color.');
+    } else {
+      $('#adivFeedback').innerHTML='<div class="feedback err"><strong>✗ Aún no.</strong>'+
+        '<ul><li><strong>Pista:</strong> '+adivActual.pista+'</li>'+
+        '<li><strong>Dato clave:</strong> el término pertenece al vocabulario de serigrafía o del moodboard andino.</li>'+
+        '<li><strong>Contexto:</strong> este concepto aparece en el flujo real del caso Textil Andes.</li>'+
+        '<li><strong>Reintento:</strong> vuelve a escribir con la pista en mente o pulsa 💡 Pista.</li></ul></div>';
+      map()&&map().illuminateFloor();
+    }
+  }
+  $('#adivResolver').addEventListener('click',comprobarAdiv);
+  $('#adivInput').addEventListener('keydown',e=>{ if(e.key==='Enter') comprobarAdiv(); });
+  $('#adivPista').addEventListener('click',()=>toast('💡 '+adivActual.pista));
+  $('#adivSiguiente').addEventListener('click',cargarAdivinanza);
+
+  /* ============ 3) RETOS CONTRA RELOJ ============ */
+  const FLUJO = ['Aprobar diseño','Preparar tinta','Secar al ambiente','Doblar polo','Publicar en IG'];
+  let retoSel=[], retoTimer=null, retoStart=0, retoLimite=15000;
+  function baraja(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+  function iniciarReto(){
+    retoSel=[]; clearInterval(retoTimer); retoTimer=null; retoStart=0;
+    retoLimite = estado.comodin ? 12000 : 15000;
+    $('#retoFeedback').innerHTML=''; $('#retoTimer').textContent='⏱️ '+(retoLimite/1000).toFixed(1)+' s';
+    const cont=$('#retoCards'); cont.innerHTML='';
+    baraja(FLUJO).forEach(txt=>{
+      const c=document.createElement('div'); c.className='reto-card'; c.textContent=txt; c.dataset.txt=txt;
+      c.setAttribute('role','button'); c.tabIndex=0;
+      c.addEventListener('click',()=>seleccionarCarta(c));
+      c.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); seleccionarCarta(c);} });
+      cont.appendChild(c);
+    });
+    if(estado.comodin) toast('🎟️ Comodín activo: dispones de 12 s en vez de 15 s.');
+  }
+  function empezarTimer(){
+    retoStart=Date.now();
+    retoTimer=setInterval(()=>{
+      const rest=retoLimite-(Date.now()-retoStart);
+      if(rest<=0){ clearInterval(retoTimer); retoTimer=null; $('#retoTimer').textContent='⏱️ 0.0 s';
+        tiempoAgotado(); return; }
+      $('#retoTimer').textContent='⏱️ '+(rest/1000).toFixed(1)+' s';
+    },100);
+  }
+  function seleccionarCarta(c){
+    if(c.classList.contains('sel')) return;
+    if(!retoStart) empezarTimer();
+    c.classList.add('sel'); retoSel.push(c);
+    const badge=document.createElement('span'); badge.className='num'; badge.textContent=retoSel.length; c.appendChild(badge);
+    if(retoSel.length===FLUJO.length) verificarReto();
+  }
+  function tiempoAgotado(){
+    $('#retoFeedback').innerHTML='<div class="feedback err"><strong>✗ Se acabó el tiempo.</strong>'+
+      '<ul><li><strong>Pista:</strong> primero se aprueba, luego se produce y al final se publica.</li>'+
+      '<li><strong>Contexto:</strong> el orden evita reprocesos y respeta el secado antes del doblado.</li>'+
+      '<li><strong>Reintento:</strong> pulsa ↺ Reiniciar y prueba de nuevo, sin prisa por tocar al azar.</li></ul></div>';
+  }
+  function verificarReto(){
+    clearInterval(retoTimer); retoTimer=null;
+    const orden=retoSel.map(c=>c.dataset.txt);
+    const perfecto = orden.every((t,i)=>t===FLUJO[i]);
+    if(perfecto){
+      retoSel.forEach(c=>c.classList.add('ok'));
+      $('#retoFeedback').innerHTML='<div class="feedback ok"><strong>✓ ¡Secuencia perfecta!</strong> '+
+        'Aprobar → Preparar tinta → Secar → Doblar → Publicar. Has activado el <strong>Plan B</strong> de entregas escalonadas.'+
+        '<div class="dato-extra">🏆 Trofeo desplegado sobre la zona de Oficina.</div></div>';
+      estado.planB=true; setComodin('✅ Plan B activo: entregas escalonadas (250 AM / 250 PM).');
+      map()&&map().showTrophy(); completar('retos');
+    } else {
+      retoSel.forEach((c,i)=>c.classList.add(c.dataset.txt===FLUJO[i]?'ok':'no'));
+      $('#retoFeedback').innerHTML='<div class="feedback err"><strong>✗ Casi.</strong>'+
+        '<ul><li><strong>Pista:</strong> ¿se puede doblar un polo antes de que la tinta seque?</li>'+
+        '<li><strong>Dato clave:</strong> el orden lógico es Aprobar diseño → Preparar tinta → Secar al ambiente → Doblar polo → Publicar en IG.</li>'+
+        '<li><strong>Reintento:</strong> pulsa ↺ Reiniciar para intentarlo otra vez.</li></ul></div>';
+    }
+  }
+  $('#retoVerificar').addEventListener('click',()=>{ if(retoSel.length===0){toast('Selecciona las tarjetas en orden.');return;} verificarReto(); });
+  $('#retoReset').addEventListener('click',iniciarReto);
+
+  /* ============ 4) GENERADOR: ANAGRAMAS + PROMPTS ============ */
+  const ANAGRAMAS = [
+    { palabra:'TEXTURA', pista:'Cualidad de superficie de la tela.', key:'Textura' },
+    { palabra:'PALETA', pista:'Conjunto de colores del proyecto.', key:'Paleta' },
+    { palabra:'ANDINO', pista:'Origen cultural del motivo.', key:'Andino' },
+    { palabra:'HALFTONE', pista:'Trama que simula degradados con 2 tintas.', key:'Halftone' },
+    { palabra:'VECTORIAL', pista:'Tipo de ilustración que no pixela al escalar.', key:'Vectorial' },
+    { palabra:'SERIGRAFIA', pista:'Técnica de estampado del caso.', key:'Serigrafía' }
+  ];
+  let anagActual=null, anagIdx=0, anagIntentos=3;
+  function scramble(w){ let a=w.split(''); let s;
+    do{ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } s=a.join(''); }
+    while(s===w); return s; }
+  function cargarAnagrama(){
+    $('#anagFeedback').innerHTML=''; $('#anagInput').value=''; $('#anagInput').disabled=false;
+    $('#anagResolver').classList.remove('d-none'); $('#anagSiguiente').classList.add('d-none');
+    anagIntentos=3; $('#anagIntentos').textContent='3';
+    anagActual = ANAGRAMAS[anagIdx % ANAGRAMAS.length]; anagIdx++;
+    $('#anagContador').textContent='Anagrama '+anagIdx;
+    $('#anagPista').textContent=anagActual.pista;
+    $('#anagSlot').textContent=scramble(anagActual.palabra);
+    renderKeywords();
+  }
+  function comprobarAnag(){
+    const val=normaliza($('#anagInput').value);
+    if(!val){ toast('Escribe la palabra.'); return; }
+    if(val===normaliza(anagActual.palabra)){
+      $('#anagInput').disabled=true; $('#anagResolver').classList.add('d-none'); $('#anagSiguiente').classList.remove('d-none');
+      estado.keywords.add(anagActual.key);
+      $('#anagFeedback').innerHTML='<div class="feedback ok"><strong>✓ ¡Resuelto!</strong> Palabra clave desbloqueada: <strong>'+
+        anagActual.key+'</strong>. Úsala en el generador de prompts.</div>';
+      renderKeywords(); renderChips(); completar('generador');
+      toast('🔑 Palabra clave desbloqueada: '+anagActual.key);
+    } else {
+      anagIntentos--; $('#anagIntentos').textContent=Math.max(0,anagIntentos);
+      if(anagIntentos<=0){
+        $('#anagInput').disabled=true; $('#anagResolver').classList.add('d-none'); $('#anagSiguiente').classList.remove('d-none');
+        $('#anagFeedback').innerHTML='<div class="feedback err"><strong>Sin intentos.</strong> La palabra era <strong>'+
+          anagActual.palabra+'</strong>. Pasa a la siguiente; no hay penalización.</div>';
+      } else {
+        $('#anagFeedback').innerHTML='<div class="feedback err"><strong>✗ Aún no.</strong> Pista: '+anagActual.pista+
+          ' Te quedan <strong>'+anagIntentos+'</strong> intento(s).</div>';
+      }
+    }
+  }
+  function renderKeywords(){
+    const cont=$('#anagKeywords'); cont.innerHTML='';
+    if(estado.keywords.size===0){ cont.innerHTML='<span style="color:#8ea0c9;font-size:.85rem">Aún ninguna. Resuelve anagramas.</span>'; return; }
+    estado.keywords.forEach(k=>{ const s=document.createElement('span'); s.className='chip'; s.textContent='🔑 '+k; cont.appendChild(s); });
+  }
+  $('#anagResolver').addEventListener('click',comprobarAnag);
+  $('#anagInput').addEventListener('keydown',e=>{ if(e.key==='Enter') comprobarAnag(); });
+  $('#anagSiguiente').addEventListener('click',cargarAnagrama);
+
+  // Generador de prompts
+  const EXTRA_KW = ['Luz de estudio','Sombras suaves','Alto detalle','Minimalista','Tejido artesanal'];
+  let chipsSel=new Set();
+  function renderChips(){
+    const cont=$('#promptChips'); cont.innerHTML='';
+    const unlocked=Array.from(estado.keywords);
+    unlocked.forEach(k=>{ const c=mkChip(k,false); cont.appendChild(c); });
+    EXTRA_KW.forEach(k=>{ const c=mkChip(k,false); cont.appendChild(c); });
+    if(unlocked.length===0){
+      const hint=document.createElement('div'); hint.style.cssText='font-size:.8rem;color:#8ea0c9;margin-top:.3rem';
+      hint.textContent='Sugerencia: resuelve anagramas para desbloquear palabras clave del caso.';
+      cont.appendChild(hint);
+    }
+  }
+  function mkChip(k,locked){
+    const c=document.createElement('span');
+    c.className='chip'+(locked?' locked':'')+(chipsSel.has(k)?' sel':'');
+    c.textContent=k;
+    if(!locked) c.addEventListener('click',()=>{ chipsSel.has(k)?chipsSel.delete(k):chipsSel.add(k); c.classList.toggle('sel'); });
+    return c;
+  }
+  const MAP_ESTILO={ product:'studio lighting product photography of a white polo shirt', vector:'flat vector illustration of a white polo shirt', woven:'macro shot of hand-woven andean textile fabric' };
+  const MAP_COLOR={ earth:'terracotta, ochre and mustard earth-tone palette', vibrant:'vibrant andean colors (magenta, teal, gold)', mono:'monochromatic tonal palette' };
+  const KW_EN={ 'Textura':'detailed fabric texture','Paleta':'cohesive color palette','Andino':'geometric andean motif','Halftone':'halftone dot pattern','Vectorial':'clean vector shapes','Serigrafía':'screen-print aesthetic','Luz de estudio':'soft studio light','Sombras suaves':'soft shadows','Alto detalle':'highly detailed, 8k','Minimalista':'minimal background','Tejido artesanal':'artisanal woven look' };
+  function generarPrompt(){
+    const estilo=MAP_ESTILO[$('#selEstilo').value];
+    const color=MAP_COLOR[$('#selColor').value];
+    const fmt=$('#selFormato').value;
+    const extras=Array.from(chipsSel).map(k=>KW_EN[k]||k.toLowerCase());
+    const base=[estilo, 'featuring a geometric andean halftone print', 'in '+color];
+    if(extras.length) base.push(extras.join(', '));
+    base.push('minimal studio background, soft shadows, 8k, highly detailed');
+    const prompt=base.join(', ')+' --ar '+fmt;
+    $('#promptOut').textContent=prompt;
+    $('#btnCopiarPrompt').classList.remove('d-none');
+    map()&&map().updateOfficeScreen(prompt);
+    completar('generador');
+    toast('🖥️ El monitor de la Oficina muestra tu prompt.');
+    return prompt;
+  }
+  $('#btnGenerarPrompt').addEventListener('click',generarPrompt);
+  $('#btnCopiarPrompt').addEventListener('click',()=>{
+    const t=$('#promptOut').textContent;
+    if(navigator.clipboard){ navigator.clipboard.writeText(t).then(()=>toast('📋 Prompt copiado.'),()=>fallbackCopy(t)); }
+    else fallbackCopy(t);
+  });
+  function fallbackCopy(t){ const ta=document.createElement('textarea'); ta.value=t; document.body.appendChild(ta);
+    ta.select(); try{document.execCommand('copy'); toast('📋 Prompt copiado.');}catch(e){toast('Copia manual: selecciona el texto.');} ta.remove(); }
+
+  /* ============ REGISTRO DE EQUIPO ============ */
+  const tbody=$('#tbodyEquipo');
+  function filaEquipo(n){
+    return '<tr><td>'+n+'</td>'+
+      '<td><input class="form-control form-control-sm f-nombre" placeholder="Nombres"></td>'+
+      '<td><input class="form-control form-control-sm f-apellido" placeholder="Apellidos"></td>'+
+      '<td><input type="email" class="form-control form-control-sm f-correo" placeholder="correo@ejemplo.com"></td></tr>';
+  }
+  function renderTabla(){ const filas = estado.modo==='equipo'?4:1; tbody.innerHTML='';
+    for(let i=1;i<=filas;i++) tbody.insertAdjacentHTML('beforeend',filaEquipo(i)); }
+  renderTabla();
+  $('#modoEquipo').addEventListener('click',()=>setModo('equipo'));
+  $('#modoIndividual').addEventListener('click',()=>setModo('individual'));
+  function setModo(m){
+    estado.modo=m;
+    $('#modoEquipo').classList.toggle('active',m==='equipo');
+    $('#modoEquipo').classList.toggle('btn-idc',m==='equipo');
+    $('#modoEquipo').classList.toggle('btn-outline-light',m!=='equipo');
+    $('#modoEquipo').setAttribute('aria-pressed', m==='equipo');
+    $('#modoIndividual').classList.toggle('active',m==='individual');
+    $('#modoIndividual').classList.toggle('btn-idc',m==='individual');
+    $('#modoIndividual').classList.toggle('btn-outline-light',m!=='individual');
+    $('#modoIndividual').setAttribute('aria-pressed', m==='individual');
+    renderTabla();
+    toast(m==='equipo'?'👥 Modo grupal activado.':'🙋 Modo individual activado.');
+  }
+  function leerMiembros(){
+    return $$('#tbodyEquipo tr').map(tr=>({
+      nombre:tr.querySelector('.f-nombre').value.trim(),
+      apellido:tr.querySelector('.f-apellido').value.trim(),
+      correo:tr.querySelector('.f-correo').value.trim()
+    })).filter(m=>m.nombre||m.apellido||m.correo);
+  }
+
+  // Contenido del análisis (compartido por PDF / MD / Email)
+  function datosAnalisis(){
+    const miembros=leerMiembros();
+    const curso=$('#campoCurso').value.trim();
+    const equipo=$('#campoNombreEquipo').value.trim();
+    const doneCount=Object.values(estado.tools).filter(Boolean).length;
+    return { miembros, curso, equipo, modo:estado.modo,
+      progreso:Math.round(doneCount/4*100),
+      logros:{ p1:estado.p1correcta, aciertos:estado.aciertosPreg, comodin:estado.comodin, planB:estado.planB,
+               keywords:Array.from(estado.keywords) } };
+  }
+  function markdownAnalisis(){
+    const d=datosAnalisis();
+    let md='# Mesa de Producción Textil Andes — Análisis del caso\n\n';
+    md+='**Curso:** '+(d.curso||'—')+'  \n';
+    md+='**Modalidad:** '+(d.modo==='equipo'?'Equipo':'Individual')+'  \n';
+    if(d.equipo) md+='**Equipo:** '+d.equipo+'  \n';
+    md+='**Fecha:** '+new Date().toLocaleDateString('es-PE')+'\n\n';
+    md+='## Integrantes\n\n| N° | Nombres | Apellidos | Correo |\n|---|---|---|---|\n';
+    if(d.miembros.length===0) md+='| — | (sin registrar) | | |\n';
+    d.miembros.forEach((m,i)=>{ md+='| '+(i+1)+' | '+m.nombre+' | '+m.apellido+' | '+m.correo+' |\n'; });
+    md+='\n## Las 3 preguntas críticas y sus soluciones\n\n';
+    md+='### 1) Secado vs. Empaquetado (Taller / Logística)\n';
+    md+='- **Solución:** estampado por lotes de 50; mientras el lote 1 seca al ambiente, se estampa el 2; empaquetado desfasado.\n';
+    md+='- **Plan B:** entrega escalonada (250 polos AM / 250 PM) para ganar horas de secado.\n';
+    md+='- **Indicador:** la tinta no transfiere al frotarla con un paño blanco seco.\n\n';
+    md+='### 2) Adaptación del arte: 2 tintas vs. degradados (Dirección de Arte)\n';
+    md+='- **Solución:** halftone (trama de puntos) para simular degradados con 2 tintas; en digital, paleta completa manteniendo la ilustración vectorial base como conector.\n';
+    md+='- **Plan B:** fondo con textura de tela andina y el polo en primer plano usando solo las 2 tintas.\n';
+    md+='- **Indicador:** el cliente reconoce la esencia andina sin echar en falta los degradados.\n\n';
+    md+='### 3) Aprobación y retraso por luz natural (Community / Audiovisual)\n';
+    md+='- **Solución:** flujo de 3 aprobaciones (Diseñador → CM → Cliente antes de las 10 a.m.); 2 franjas de foto (7 a.m. y 4 p.m.) con kit LED; ante retraso, Reel de making-of.\n';
+    md+='- **Plan B:** publicar con disclaimer y actualizar la imagen 2 h después.\n';
+    md+='- **Indicador:** respuesta del cliente < 30 min y sesión de fotos < 2 h.\n\n';
+    md+='## Macro-cronograma integrado\n';
+    md+='- **Día 1 (AM):** prueba de secado + boceto en 2 tintas + aprobación preliminar.\n';
+    md+='- **Día 1 (PM):** estampado de primeros lotes + sesión de fotos (luz natural + LED).\n';
+    md+='- **Día 2:** estampado final + empaquetado desfasado + edición de fotos + arte de Instagram.\n';
+    md+='- **Día 3 (AM):** entrega física + publicación coordinada.\n\n';
+    md+='## Progreso en la app\n';
+    md+='- **Progreso general:** '+d.progreso+'%\n';
+    md+='- **Pregunta 1 resuelta:** '+(d.logros.p1?'Sí':'No')+' · Aciertos en preguntas: '+d.logros.aciertos+'\n';
+    md+='- **Comodín:** '+(d.logros.comodin?'desbloqueado':'no')+' · **Plan B:** '+(d.logros.planB?'activado':'no')+'\n';
+    md+='- **Palabras clave desbloqueadas:** '+(d.logros.keywords.length?d.logros.keywords.join(', '):'—')+'\n\n';
+    md+='---\n_Docente: Mg. Mario Quiroz · Unidad didáctica de Producción y publicación de piezas gráficas · 2026 · Semana 1_\n';
+    return md;
+  }
+  function descargar(nombre, contenido, tipo){
+    const blob=new Blob([contenido],{type:tipo});
+    const url=URL.createObjectURL(blob); const a=document.createElement('a');
+    a.href=url; a.download=nombre; document.body.appendChild(a); a.click();
+    setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); },200);
+  }
+  $('#btnMD').addEventListener('click',()=>{
+    descargar('analisis-textil-andes.md', markdownAnalisis(), 'text/markdown;charset=utf-8');
+    toast('📄 Markdown descargado.');
+  });
+  $('#btnPDF').addEventListener('click',()=>{
+    const jsPDFns = window.jspdf;
+    if(!jsPDFns || !jsPDFns.jsPDF){ toast('No se pudo cargar jsPDF (sin conexión). Usa Markdown.'); return; }
+    const d=datosAnalisis();
+    const doc=new jsPDFns.jsPDF({unit:'pt',format:'a4'});
+    const W=doc.internal.pageSize.getWidth(); let y=54;
+    const line=(txt,size,style,color)=>{ doc.setFont('helvetica',style||'normal'); doc.setFontSize(size||11);
+      doc.setTextColor(color||'#222'); const arr=doc.splitTextToSize(txt,W-100);
+      arr.forEach(t=>{ if(y>780){doc.addPage(); y=54;} doc.text(t,50,y); y+=size?size+5:16; }); };
+    doc.setFillColor('#0072b9'); doc.rect(0,0,W,40,'F');
+    doc.setTextColor('#fff'); doc.setFont('helvetica','bold'); doc.setFontSize(15);
+    doc.text('Mesa de Producción Textil Andes — Análisis del caso',50,26);
+    y=70;
+    line('Curso: '+(d.curso||'—'),11,'bold');
+    line('Modalidad: '+(d.modo==='equipo'?'Equipo':'Individual')+(d.equipo?('  ·  Equipo: '+d.equipo):''),11);
+    line('Fecha: '+new Date().toLocaleDateString('es-PE'),11); y+=6;
+    line('Integrantes',13,'bold','#0072b9');
+    if(d.miembros.length===0) line('(sin registrar)',11);
+    d.miembros.forEach((m,i)=>line((i+1)+'. '+m.nombre+' '+m.apellido+'  —  '+m.correo,11));
+    y+=8;
+    line('1) Secado vs. Empaquetado (Taller / Logística)',12,'bold','#c65d3a');
+    line('Solución: estampado por lotes de 50; mientras el lote 1 seca, se estampa el 2; empaquetado desfasado.',11);
+    line('Plan B: entrega escalonada (250 AM / 250 PM). Indicador: la tinta no transfiere al frotar con paño blanco seco.',11); y+=4;
+    line('2) Adaptación del arte: 2 tintas vs. degradados (Dirección de Arte)',12,'bold','#c65d3a');
+    line('Solución: halftone para simular degradados; en digital, paleta completa con la ilustración vectorial base como conector.',11);
+    line('Plan B: fondo con textura de tela andina y el polo en primer plano con las 2 tintas. Indicador: se reconoce la esencia andina.',11); y+=4;
+    line('3) Aprobación y retraso por luz natural (Community / Audiovisual)',12,'bold','#c65d3a');
+    line('Solución: 3 aprobaciones (Diseñador → CM → Cliente antes de las 10 a.m.); 2 franjas de foto con kit LED; Reel de making-of ante retraso.',11);
+    line('Plan B: publicar con disclaimer y actualizar 2 h después. Indicador: respuesta del cliente < 30 min y sesión < 2 h.',11); y+=6;
+    line('Macro-cronograma integrado',13,'bold','#0072b9');
+    line('Día 1 (AM): prueba de secado + boceto en 2 tintas + aprobación preliminar.',11);
+    line('Día 1 (PM): estampado de primeros lotes + sesión de fotos (luz natural + LED).',11);
+    line('Día 2: estampado final + empaquetado desfasado + edición de fotos + arte de Instagram.',11);
+    line('Día 3 (AM): entrega física + publicación coordinada.',11); y+=6;
+    line('Progreso en la app',13,'bold','#0072b9');
+    line('Progreso general: '+d.progreso+'%  ·  Aciertos en preguntas: '+d.logros.aciertos,11);
+    line('Comodín: '+(d.logros.comodin?'sí':'no')+'  ·  Plan B: '+(d.logros.planB?'activado':'no')+'  ·  Palabras clave: '+(d.logros.keywords.join(', ')||'—'),11);
+    y+=14; doc.setDrawColor('#cccccc'); doc.line(50,y,W-50,y); y+=16;
+    line('Docente: Mg. Mario Quiroz · Unidad didáctica de Producción y publicación de piezas gráficas · 2026 · Semana 1',9,'italic','#666');
+    doc.save('analisis-textil-andes.pdf');
+    toast('📥 PDF generado.');
+  });
+  $('#btnMail').addEventListener('click',()=>{
+    const d=datosAnalisis();
+    const correos=d.miembros.map(m=>m.correo).filter(Boolean);
+    if(correos.length===0){ toast('Registra al menos un correo para enviar.'); return; }
+    const asunto='Análisis del caso — Mesa de Producción Textil Andes';
+    const cuerpo=
+      'Hola equipo,\n\nAdjunto (descargar el .md/.pdf desde la app) el análisis del caso Textil Andes.\n\n'+
+      'RESUMEN\n'+
+      '- Curso: '+(d.curso||'—')+'\n'+
+      '- Modalidad: '+(d.modo==='equipo'?'Equipo':'Individual')+(d.equipo?(' ('+d.equipo+')'):'')+'\n'+
+      '- Progreso en la app: '+d.progreso+'%\n\n'+
+      'LAS 3 PREGUNTAS\n'+
+      '1) Secado vs. empaquetado: lotes desfasados; Plan B entrega escalonada; indicador: la tinta no transfiere.\n'+
+      '2) Adaptación del arte: halftone con 2 tintas + vector base como conector; Plan B textura andina de fondo.\n'+
+      '3) Aprobación y luz: flujo Diseñador→CM→Cliente + 2 franjas de foto con LED; Plan B disclaimer y actualizar 2 h después.\n\n'+
+      'Nota: descarga el archivo Markdown/PDF desde la app y adjúntalo a este correo.\n\n'+
+      'Docente: Mg. Mario Quiroz — Producción y publicación de piezas gráficas · 2026 · Semana 1';
+    const url='mailto:'+encodeURIComponent(correos.join(','))+'?subject='+encodeURIComponent(asunto)+'&body='+encodeURIComponent(cuerpo);
+    window.location.href=url;
+    toast('📧 Abriendo tu cliente de correo…');
+  });
+
+  /* ============ TOOLTIPS BOOTSTRAP (si aplica) ============ */
+  if(window.bootstrap && bootstrap.Tooltip){
+    $$('[data-bs-toggle="tooltip"]').forEach(el=>new bootstrap.Tooltip(el));
+  }
+
+  /* ============ INSTALL PROMPT (PWA) ============ */
+  let deferredPrompt=null;
+  window.addEventListener('beforeinstallprompt',e=>{ e.preventDefault(); deferredPrompt=e;
+    $('#btnInstall').classList.remove('d-none'); });
+  $('#btnInstall').addEventListener('click',async()=>{
+    if(!deferredPrompt) return; deferredPrompt.prompt();
+    await deferredPrompt.userChoice; deferredPrompt=null; $('#btnInstall').classList.add('d-none');
+  });
+  window.addEventListener('appinstalled',()=>{ $('#btnInstall').classList.add('d-none'); toast('✅ App instalada.'); });
+
+  /* ============ INIT ============ */
+  updateProgress();
+  window.addEventListener('load',()=>{ setTimeout(()=>$('#loader').classList.add('hide'),500); });
+  // fallback por si 'load' ya pasó
+  setTimeout(()=>$('#loader').classList.add('hide'),3000);
+})();
+</script>
+
+<!-- ============ SERVICE WORKER ============ -->
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('sw.js').catch(err=>console.warn('SW no registrado:',err));
+  });
+}
+</script>
+</body>
+</html>
