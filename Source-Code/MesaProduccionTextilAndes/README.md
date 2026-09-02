@@ -125,6 +125,7 @@ como aplicación en el dispositivo (donde el navegador lo soporte).
 | `manifest.json` | Manifiesto PWA (nombre, iconos, colores, modo `standalone`). |
 | `sw.js` | Service worker: precache del shell de la app + runtime caching de CDN. |
 | `icons/icon-192.png`, `icons/icon-512.png` | Iconos de instalación. |
+| `PROMPT.md` | Especificación funcional actualizada, sección por sección, de lo que `index.html` implementa. |
 
 ---
 Docente: Mg. Mario Quiroz · Unidad didáctica de Producción y publicación de piezas gráficas · 2026 · Semana 1
