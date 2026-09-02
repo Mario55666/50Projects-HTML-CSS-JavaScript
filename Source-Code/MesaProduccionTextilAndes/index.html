@@ -97,14 +97,42 @@
     background:linear-gradient(180deg,#060a18,#0a1230)}
   .full-container{position:absolute;inset:0}
   .full-container canvas{display:block;width:100%!important;height:100%!important}
+  .css2d-layer{position:absolute;inset:0;pointer-events:none;overflow:hidden}
   .escena-hint{position:absolute;top:12px;left:14px;z-index:5;font-size:.78rem;
     color:#aeb9e6;background:rgba(7,11,28,.6);padding:.3rem .6rem;border-radius:8px;
     border:1px solid rgba(255,255,255,.1);pointer-events:none}
-  .zona-legend{position:absolute;top:12px;right:14px;z-index:5;display:flex;gap:.4rem;flex-wrap:wrap;
-    justify-content:flex-end;max-width:60%}
+  .zona-legend{position:absolute;bottom:12px;left:14px;z-index:5;display:flex;gap:.4rem;flex-wrap:wrap;
+    max-width:70%}
   .zona-tag{font-size:.72rem;padding:.22rem .5rem;border-radius:999px;background:rgba(7,11,28,.65);
     border:1px solid rgba(255,255,255,.14);display:flex;align-items:center;gap:.35rem}
   .zdot{width:9px;height:9px;border-radius:50%;display:inline-block}
+
+  /* ---- Etiquetas CSS2D de nodos ---- */
+  .node-label{background:rgba(7,11,28,.72);padding:.22rem .55rem;border-radius:999px;
+    font-size:.7rem;font-weight:600;color:#e6ecff;border:1px solid rgba(255,255,255,.18);
+    white-space:nowrap;text-shadow:0 2px 4px rgba(0,0,0,.6);transform:translate(-50%,0)}
+  .node-label.decision{background:rgba(243,161,0,.18);border-color:rgba(243,161,0,.55);color:#ffe6b0}
+  .node-label.end{background:rgba(63,181,107,.18);border-color:rgba(63,181,107,.55);color:#c9f3d7}
+  .node-label.start{background:rgba(37,211,211,.18);border-color:rgba(37,211,211,.55);color:#cffcfc}
+
+  /* ---- Panel lateral de nodo (clic en el mapa 3D) ---- */
+  .node-panel{position:absolute;top:12px;right:14px;z-index:6;width:min(320px,72%);
+    max-height:calc(100% - 24px);overflow-y:auto;background:var(--panel);
+    backdrop-filter:blur(10px);border:1px solid rgba(37,211,211,.35);border-radius:16px;
+    box-shadow:0 16px 46px rgba(0,0,0,.55);padding:14px;pointer-events:auto;
+    opacity:0;transform:translateX(8px);transition:.25s;display:none}
+  .node-panel.visible{display:block;opacity:1;transform:translateX(0)}
+  .node-panel .np-head{display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem;
+    border-bottom:1px solid rgba(255,255,255,.1);padding-bottom:.5rem;margin-bottom:.5rem}
+  .node-panel .np-title{font-family:'Rajdhani';font-weight:700;font-size:1.05rem;line-height:1.2;color:#fff}
+  .node-panel .np-close{background:transparent;border:1px solid rgba(255,255,255,.25);color:#fff;
+    width:32px;height:30px;border-radius:8px;font-size:1rem;cursor:pointer;flex:0 0 auto}
+  .node-panel .np-close:hover{background:rgba(224,86,58,.2);border-color:var(--error)}
+  .node-panel .np-body{font-size:.88rem;line-height:1.55;color:#d7deff}
+  .node-panel .np-body strong{color:var(--idc-amarillo)}
+  .node-panel .np-tag{display:inline-block;margin-top:.6rem;font-size:.68rem;font-weight:700;
+    letter-spacing:.4px;padding:.2rem .55rem;border-radius:999px;background:rgba(37,211,211,.14);
+    color:var(--cian);border:1px solid rgba(37,211,211,.4)}
 
   /* ---- HUD flotante ---- */
   #hud{
@@ -236,6 +264,7 @@
     .hud-btn{min-height:76px;font-size:1.1rem}
     #escena{height:66vh;min-height:420px}
     .zona-legend{display:none}
+    .node-panel{left:10px;right:10px;top:10px;width:auto;max-height:60%}
   }
 
   @media print{
@@ -377,18 +406,24 @@
 <!-- ============ MAPA 3D ============ -->
 <section id="mapa" class="section-pad">
   <div class="container">
-    <h2 class="mb-1">🗺️ Mapa 3D del flujo de producción</h2>
-    <p style="color:#aeb9e6">Tecnología espacial con líneas de proyección y perspectiva. Resuelve los retos del panel para iluminar cada zona. El panel de control (HUD) permanece siempre visible.</p>
-    <div id="escena" class="full-container-wrap"
-         style="--hex-current-1:#0072b9;--hex-current-3:#e0a83e"
-         data-color="#0c1226">
+    <h2 class="mb-1">🗺️ Mapa 3D del proceso: del dossier a las 3 preguntas</h2>
+    <p style="color:#aeb9e6">Tecnología espacial con líneas de proyección, perspectiva e isometría. Cada nodo es un paso del análisis del caso; haz clic para ver su detalle. Resuelve los retos del HUD para iluminar los nodos de las 3 preguntas críticas.</p>
+    <div id="escena">
       <div class="full-container"></div>
-      <div class="escena-hint">🖱️ Arrastra para rotar · rueda para acercar</div>
+      <div class="escena-hint">🖱️ Arrastra para orbitar · clic en un nodo para ver su detalle · rueda para zoom</div>
       <div class="zona-legend">
-        <span class="zona-tag"><span class="zdot" style="background:#c65d3a"></span>Taller</span>
-        <span class="zona-tag"><span class="zdot" style="background:#e0a83e"></span>Estudio</span>
-        <span class="zona-tag"><span class="zdot" style="background:#0072b9"></span>Oficina</span>
+        <span class="zona-tag"><span class="zdot" style="background:#0072b9"></span>Proceso</span>
+        <span class="zona-tag"><span class="zdot" style="background:#f3a100"></span>Decisión</span>
+        <span class="zona-tag"><span class="zdot" style="background:#3fb56b"></span>Fin</span>
       </div>
+      <aside id="nodePanel" class="node-panel" aria-live="polite" aria-label="Detalle del nodo seleccionado">
+        <div class="np-head">
+          <h3 class="np-title" id="npTitle">Título</h3>
+          <button class="np-close" id="npClose" type="button" aria-label="Cerrar detalle">✕</button>
+        </div>
+        <div class="np-body" id="npBody">Descripción…</div>
+        <span class="np-tag" id="npTag">PASO</span>
+      </aside>
     </div>
   </div>
 </section>
@@ -623,196 +658,303 @@
 
 <!-- Three.js como módulo -->
 <script type="importmap">
-{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" } }
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
 </script>
 
 <script type="module">
-/* ============ MAPA 3D — Three.js ============ */
+/* ============ MAPA 3D — Diagrama de flujo (Three.js + OrbitControls + CSS2D) ============ */
 let API = null;
 try {
   const THREE = await import('three');
+  const { OrbitControls } = await import('three/addons/controls/OrbitControls.js');
+  const { CSS2DRenderer, CSS2DObject } = await import('three/addons/renderers/CSS2DRenderer.js');
+
   const wrap = document.getElementById('escena');
   const cont = wrap.querySelector('.full-container');
   const width = cont.clientWidth || wrap.clientWidth;
   const height = cont.clientHeight || wrap.clientHeight;
 
+  /* ---- Datos del flujo: cómo se llega del dossier a las 3 preguntas críticas ---- */
+  const nodeData = [
+    { id:'inicio', name:'Recepción y observación', type:'start', pos:[-8,0.5,0], color:0x25d3d3,
+      desc:'Recepción del dossier físico del caso Textil Andes. Se segmenta el contenido en tres bloques: Briefing, Referencias visuales y Requerimiento técnico, sin mezclar conceptos.' },
+    { id:'extraccion', name:'Extracción de datos duros', type:'process', pos:[-5,0.5,0], color:0x0072b9,
+      desc:'Se aíslan los datos numéricos y técnicos (plazos, tintas, cantidades). Es el insumo principal para detectar los vacíos de información.' },
+    { id:'deteccion', name:'Detección de cuellos de botella', type:'process', pos:[-2,0.5,0], color:0x0072b9,
+      desc:'Núcleo del análisis. Si no aparecen vacíos a simple vista, el flujo obliga a una relectura para no dar por sentada la información del dossier.' },
+    { id:'decision_vacios', name:'¿Hay vacíos?', type:'decision', pos:[0.5,0.5,-1.8], color:0xf3a100,
+      desc:'Punto de decisión: si se identifican vacíos o cuellos de botella, se formulan las preguntas críticas. Si no, se fuerza una relectura del dossier.' },
+    { id:'pregunta1', name:'Pregunta 1 · Secado vs. empaquetado', type:'process', pos:[3,0.5,1.5], color:0xc65d3a,
+      desc:'Área Taller / Logística. ¿Cómo sincronizar el secado de la tinta con el empaquetado, si el dossier no especifica una cámara de secado rápido? Resolver la Pregunta 1 del HUD ilumina este nodo en verde.', reward:'pregunta1' },
+    { id:'pregunta2', name:'Pregunta 2 · Adaptación del arte', type:'process', pos:[5.5,0.5,1.5], color:0xe0a83e,
+      desc:'Área Dirección de Arte / Serigrafía. ¿Cómo trasladar degradados y texturas del moodboard a solo 2 tintas planas sin perder la esencia andina en Instagram? Las Adivinanzas textiles del HUD iluminan este nodo.', reward:'pregunta2' },
+    { id:'pregunta3', name:'Pregunta 3 · Aprobación y publicación', type:'process', pos:[8,0.5,1.5], color:0x0072b9,
+      desc:'Área Community Management / Producción Audiovisual. ¿Quién valida el arte final y qué protocolo seguir si la sesión de fotos se retrasa por falta de luz natural? El monitor 3D junto a este nodo muestra el prompt generado en el HUD.', reward:'pregunta3' },
+    { id:'relectura', name:'Relectura forzada', type:'process', pos:[0,0.5,-3.5], color:0x8a6bd6,
+      desc:'El estudiante revisa nuevamente el dossier en busca de sutilezas ocultas antes de retomar la detección de cuellos de botella.' },
+    { id:'trasladar', name:'Trasladar al cuaderno', type:'process', pos:[10,0.5,0], color:0x0072b9,
+      desc:'Las tres preguntas se escriben en el cuaderno físico con letra clara y estructurada, listas para la mesa de producción.' },
+    { id:'validacion', name:'Validación ética', type:'decision', pos:[12.5,0.5,-1.8], color:0xf3a100,
+      desc:'Se verifica que no se haya consultado ningún material adicional. Si se rompió la regla, la pregunta se reformula usando solo la memoria del dossier leído.' },
+    { id:'reformular', name:'Reformular pregunta', type:'process', pos:[12.5,0.5,-4], color:0x8a6bd6,
+      desc:'Si hubo consulta externa, se descarta esa pregunta y se reformula solo con lo leído en el dossier. Vuelve al paso "Trasladar al cuaderno".' },
+    { id:'cierre', name:'Cierre de etapa', type:'end', pos:[15,0.5,0], color:0x3fb56b,
+      desc:'Las tres preguntas quedan registradas como hoja de ruta. Se da por concluida la fase analítica del caso.' },
+    { id:'final', name:'Listo para la mesa de producción', type:'end', pos:[17.5,0.5,0], color:0x3fb56b,
+      desc:'Procedimiento finalizado: el equipo está preparado para negociar taller, diseño y redes en la Mesa de Producción Textil Andes.' }
+  ];
+  const connections = [
+    ['inicio','extraccion'], ['extraccion','deteccion'], ['deteccion','decision_vacios'],
+    ['decision_vacios','pregunta1'], ['decision_vacios','relectura'], ['relectura','deteccion'],
+    ['pregunta1','pregunta2'], ['pregunta2','pregunta3'], ['pregunta3','trasladar'],
+    ['trasladar','validacion'], ['validacion','cierre'], ['validacion','reformular'],
+    ['reformular','trasladar'], ['cierre','final']
+  ];
+
+  /* ---- Render setup ---- */
   const renderer = new THREE.WebGLRenderer({ alpha:true, antialias:true });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.setSize(width, height);
   renderer.shadowMap.enabled = true;
   cont.appendChild(renderer.domElement);
 
+  const labelRenderer = new CSS2DRenderer();
+  labelRenderer.setSize(width, height);
+  labelRenderer.domElement.classList.add('css2d-layer');
+  cont.appendChild(labelRenderer.domElement);
+
   const scene = new THREE.Scene();
-  scene.fog = new THREE.FogExp2(0x0a1028, 0.045);
+  scene.fog = new THREE.FogExp2(0x0a1028, 0.028);
 
-  const camera = new THREE.PerspectiveCamera(42, width/height, 0.1, 100);
-  camera.position.set(0, 4.4, 8.4);
-  camera.lookAt(0, 0.4, 0);
+  // Centro del flujo (bounding box de los nodos) para encuadrar cámara y controles
+  const xs = nodeData.map(n=>n.pos[0]), zs = nodeData.map(n=>n.pos[2]);
+  const center = new THREE.Vector3((Math.min(...xs)+Math.max(...xs))/2, 0.6, (Math.min(...zs)+Math.max(...zs))/2);
+  const spanX = Math.max(...xs)-Math.min(...xs);
 
-  const container = new THREE.Group();
-  scene.add(container);
+  const camera = new THREE.PerspectiveCamera(40, width/height, 0.1, 200);
+  camera.position.set(center.x - spanX*0.18, spanX*0.42, center.z + spanX*0.62);
 
-  // Suelo + grid (isometría/perspectiva)
+  const controls = new OrbitControls(camera, renderer.domElement);
+  controls.target.copy(center);
+  controls.enableDamping = true; controls.dampingFactor = .08;
+  controls.minDistance = 4; controls.maxDistance = spanX*1.6;
+  controls.maxPolarAngle = Math.PI/2.15;
+  controls.autoRotate = true; controls.autoRotateSpeed = 0.5;
+  controls.update();
+
+  // Suelo + grid (isometría/perspectiva, líneas de proyección)
+  const groundSize = spanX*1.6;
   const ground = new THREE.Mesh(
-    new THREE.PlaneGeometry(16,16),
+    new THREE.PlaneGeometry(groundSize, groundSize*0.7),
     new THREE.MeshStandardMaterial({ color:0x0c1226, roughness:.95, metalness:.05 })
   );
-  ground.rotation.x = -Math.PI/2; ground.receiveShadow = true; container.add(ground);
+  ground.rotation.x = -Math.PI/2; ground.position.set(center.x, 0, center.z); ground.receiveShadow = true;
+  scene.add(ground);
 
-  const grid = new THREE.GridHelper(16, 32, 0x0072b9, 0x21386b);
-  grid.position.y = 0.01; grid.material.transparent = true; grid.material.opacity = .55;
-  container.add(grid);
+  const grid = new THREE.GridHelper(groundSize, Math.round(groundSize/1.2), 0x0072b9, 0x21386b);
+  grid.position.set(center.x, 0.01, center.z);
+  grid.material.transparent = true; grid.material.opacity = .5;
+  scene.add(grid);
 
-  const amb = new THREE.AmbientLight(0xffffff, 0.55); scene.add(amb);
+  scene.add(new THREE.AmbientLight(0xffffff, 0.6));
   const dir = new THREE.DirectionalLight(0xffffff, 0.7);
-  dir.position.set(5,9,6); dir.castShadow = true;
+  dir.position.set(center.x+8, 12, center.z+8); dir.castShadow = true;
   dir.shadow.mapSize.set(1024,1024); scene.add(dir);
-  const spot = new THREE.SpotLight(0xfff2d0, 90, 22, Math.PI/6, 0.5);
-  spot.position.set(0,7,2); spot.castShadow = true; container.add(spot);
+  const spot = new THREE.SpotLight(0xfff2d0, 100, groundSize, Math.PI/6, 0.5);
+  spot.position.set(center.x, 10, center.z+2); scene.add(spot);
 
-  // Utilidad: etiqueta como sprite
-  function makeLabel(text, color){
-    const c = document.createElement('canvas'); c.width=256; c.height=64;
-    const x = c.getContext('2d');
-    x.fillStyle='rgba(7,11,28,.0)'; x.fillRect(0,0,256,64);
-    x.font='bold 34px Rajdhani, sans-serif'; x.textAlign='center'; x.textBaseline='middle';
-    x.fillStyle=color; x.fillText(text,128,34);
-    const tex = new THREE.CanvasTexture(c);
-    const spr = new THREE.Sprite(new THREE.SpriteMaterial({ map:tex, transparent:true, depthWrite:false }));
-    spr.scale.set(2.2,0.55,1); return spr;
+  /* ---- Construcción de nodos ---- */
+  const nodeMap = {};
+  const nodeMeshes = [];
+  const rewardNodes = { pregunta1:null, pregunta2:null, pregunta3:null };
+
+  function projLine(x, z, h, color){
+    const mat = new THREE.LineBasicMaterial({ color, transparent:true, opacity:.4 });
+    const geo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(x,0.02,z), new THREE.Vector3(x,h,z)]);
+    return new THREE.Line(geo, mat);
   }
-  // Líneas de proyección (de un objeto al suelo)
-  function projLines(x,z,h,color){
-    const g = new THREE.Group();
-    const mat = new THREE.LineBasicMaterial({ color, transparent:true, opacity:.5 });
-    const pts=[[x-0.5,z-0.5],[x+0.5,z-0.5],[x+0.5,z+0.5],[x-0.5,z+0.5]];
-    pts.forEach(([px,pz])=>{
-      const geo=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(px,0.02,pz),new THREE.Vector3(px,h,pz)]);
-      g.add(new THREE.Line(geo,mat));
+
+  function createNode(d){
+    const [x,y,z] = d.pos;
+    const group = new THREE.Group(); group.position.set(x,y,z);
+
+    const isDecision = d.type==='decision';
+    const geometry = isDecision ? new THREE.OctahedronGeometry(0.55) : new THREE.BoxGeometry(0.85,0.85,0.85);
+    const material = new THREE.MeshStandardMaterial({
+      color:d.color, roughness:.4, metalness:.3, emissive:0x000000, emissiveIntensity:.35
     });
-    return g;
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.castShadow = true; mesh.userData.nodeId = d.id;
+    group.add(mesh);
+
+    const ring = new THREE.Mesh(
+      new THREE.RingGeometry(0.62,0.78,32),
+      new THREE.MeshBasicMaterial({ color:d.color, transparent:true, opacity:.32, side:THREE.DoubleSide })
+    );
+    ring.rotation.x = -Math.PI/2; ring.position.y = -0.46; group.add(ring);
+
+    scene.add(projLine(x, z, y-0.46, d.color));
+
+    const labelDiv = document.createElement('div');
+    labelDiv.className = 'node-label' + (d.type==='decision'?' decision':d.type==='end'?' end':d.type==='start'?' start':'');
+    labelDiv.textContent = d.name;
+    const label = new CSS2DObject(labelDiv);
+    label.position.set(0, 1.05, 0);
+    group.add(label);
+
+    scene.add(group);
+    nodeMap[d.id] = { data:d, group, mesh, ring, label, baseColor:new THREE.Color(d.color) };
+    nodeMeshes.push(mesh);
+    if(d.reward) rewardNodes[d.reward] = nodeMap[d.id];
+    return nodeMap[d.id];
   }
+  nodeData.forEach(createNode);
 
-  const zonas = {};
+  /* ---- Conexiones curvas ---- */
+  connections.forEach(([fromId,toId])=>{
+    const a = nodeMap[fromId], b = nodeMap[toId];
+    if(!a||!b) return;
+    const p1 = a.group.position.clone(), p2 = b.group.position.clone();
+    const mid = p1.clone().add(p2).multiplyScalar(0.5); mid.y += 0.7;
+    const curve = new THREE.QuadraticBezierCurve3(p1, mid, p2);
+    const geo = new THREE.BufferGeometry().setFromPoints(curve.getPoints(24));
+    const mat = new THREE.LineBasicMaterial({ color:0x4a6ea8, transparent:true, opacity:.4 });
+    scene.add(new THREE.Line(geo, mat));
+  });
 
-  // ---- TALLER (cubo) ----
-  const taller = new THREE.Mesh(
-    new THREE.BoxGeometry(1.2,1.2,1.2),
-    new THREE.MeshStandardMaterial({ color:0xc65d3a, roughness:.6, emissive:0x000000 })
-  );
-  taller.position.set(-3.4,0.6,0.4); taller.castShadow=true; container.add(taller);
-  container.add(projLines(-3.4,0.4,1.2,0xc65d3a));
-  const lblTaller = makeLabel('TALLER','#f0b48a'); lblTaller.position.set(-3.4,1.9,0.4); container.add(lblTaller);
-  zonas.taller = { mesh:taller, base:new THREE.Color(0xc65d3a), resuelto:false };
-
-  // ---- ESTUDIO (torus / espejo) ----
-  const estudio = new THREE.Mesh(
-    new THREE.TorusGeometry(0.62,0.22,20,48),
-    new THREE.MeshStandardMaterial({ color:0xe0a83e, roughness:.25, metalness:.7 })
-  );
-  estudio.position.set(0,0.9,-2.6); estudio.castShadow=true; container.add(estudio);
-  container.add(projLines(0,-2.6,0.9,0xe0a83e));
-  const lblEstudio = makeLabel('ESTUDIO','#f4d79a'); lblEstudio.position.set(0,2.0,-2.6); container.add(lblEstudio);
-  zonas.estudio = { mesh:estudio, base:new THREE.Color(0xe0a83e), resuelto:false };
-
-  // ---- OFICINA (pantalla con CanvasTexture) ----
+  /* ---- Monitor 3D junto a la Pregunta 3 (CanvasTexture) ---- */
   const screenCanvas = document.createElement('canvas'); screenCanvas.width=512; screenCanvas.height=320;
   const sctx = screenCanvas.getContext('2d');
   function drawScreen(title, body){
     sctx.fillStyle='#06111f'; sctx.fillRect(0,0,512,320);
     sctx.strokeStyle='#25d3d3'; sctx.lineWidth=6; sctx.strokeRect(6,6,500,308);
-    sctx.fillStyle='#25d3d3'; sctx.font='bold 26px Rajdhani, sans-serif'; sctx.fillText(title||'OFICINA · MONITOR',22,44);
+    sctx.fillStyle='#25d3d3'; sctx.font='bold 26px Rajdhani, sans-serif'; sctx.fillText(title||'PUBLICACIÓN · MONITOR',22,44);
     sctx.fillStyle='#dffbfb'; sctx.font='16px Inter, sans-serif';
-    const words=(body||'Genera un prompt para verlo aquí…').split(' '); let line='',y=84;
+    const words=(body||'Genera un prompt en el HUD para verlo aquí…').split(' '); let line='',y=84;
     for(const w of words){
       if((line+w).length>46){ sctx.fillText(line,22,y); line=''; y+=24; if(y>300)break; }
       line+=w+' ';
     }
     if(y<=300) sctx.fillText(line,22,y);
-    screenTex.needsUpdate=true;
+    screenTex.needsUpdate = true;
   }
   const screenTex = new THREE.CanvasTexture(screenCanvas);
-  const oficina = new THREE.Mesh(
-    new THREE.PlaneGeometry(2.4,1.5),
-    new THREE.MeshBasicMaterial({ map:screenTex })
-  );
-  oficina.position.set(3.5,1.1,0.2); oficina.rotation.y = -0.5; container.add(oficina);
-  const base = new THREE.Mesh(new THREE.BoxGeometry(2.6,0.15,0.4),
-    new THREE.MeshStandardMaterial({ color:0x0072b9, roughness:.5 }));
-  base.position.set(3.5,0.1,0.2); base.rotation.y=-0.5; base.castShadow=true; container.add(base);
-  const lblOficina = makeLabel('OFICINA','#8fd0f5'); lblOficina.position.set(3.5,2.15,0.2); container.add(lblOficina);
+  const monitor = new THREE.Mesh(new THREE.PlaneGeometry(2.1,1.3), new THREE.MeshBasicMaterial({ map:screenTex }));
+  const p3 = nodeMap.pregunta3.group.position;
+  monitor.position.set(p3.x, p3.y+1.9, p3.z-0.6); monitor.rotation.y = Math.PI*0.08;
+  scene.add(monitor);
   drawScreen();
-  zonas.oficina = { mesh:oficina, base:new THREE.Color(0x0072b9), resuelto:false };
 
-  // ---- Trofeo (oculto) ----
+  /* ---- Trofeo (oculto, sobre el nodo final) ---- */
   const trophy = new THREE.Group();
-  const cup = new THREE.Mesh(new THREE.CylinderGeometry(0.28,0.14,0.4,16),
+  const cup = new THREE.Mesh(new THREE.CylinderGeometry(0.26,0.13,0.38,16),
     new THREE.MeshStandardMaterial({ color:0xffd257, metalness:.9, roughness:.2, emissive:0x5a3d00 }));
-  const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.06,0.06,0.2,12),
+  const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.055,0.055,0.18,12),
     new THREE.MeshStandardMaterial({ color:0xffd257, metalness:.9, roughness:.2 }));
-  stem.position.y=-0.28; const foot = new THREE.Mesh(new THREE.CylinderGeometry(0.18,0.18,0.08,16),
+  stem.position.y=-0.26;
+  const foot = new THREE.Mesh(new THREE.CylinderGeometry(0.17,0.17,0.07,16),
     new THREE.MeshStandardMaterial({ color:0xffd257, metalness:.9, roughness:.2 }));
-  foot.position.y=-0.42; trophy.add(cup,stem,foot);
-  trophy.position.set(3.5,2.6,0.2); trophy.visible=false; container.add(trophy);
+  foot.position.y=-0.39; trophy.add(cup,stem,foot);
+  const pf = nodeMap.final.group.position;
+  trophy.position.set(pf.x, pf.y+1.55, pf.z); trophy.visible=false; scene.add(trophy);
 
-  // Interacción: arrastrar para rotar, rueda para zoom
-  let drag=false, px=0, autoRot=true, targetZoom=8.4;
-  const el = renderer.domElement;
-  el.addEventListener('pointerdown',e=>{drag=true;px=e.clientX;autoRot=false;});
-  window.addEventListener('pointerup',()=>{drag=false; setTimeout(()=>autoRot=true,2500);});
-  window.addEventListener('pointermove',e=>{ if(drag){ container.rotation.y += (e.clientX-px)*0.008; px=e.clientX; }});
-  el.addEventListener('wheel',e=>{ e.preventDefault(); targetZoom=Math.min(12,Math.max(5,targetZoom+e.deltaY*0.01)); },{passive:false});
+  /* ---- Panel lateral: clic en nodo ↦ detalle ---- */
+  const panel = document.getElementById('nodePanel');
+  const panelTitle = document.getElementById('npTitle');
+  const panelBody = document.getElementById('npBody');
+  const panelTag = document.getElementById('npTag');
+  const panelClose = document.getElementById('npClose');
+  let selectedId = null;
+  const TYPE_LABEL = { start:'INICIO', process:'PROCESO', decision:'DECISIÓN', end:'FIN' };
 
-  // Spotlight roaming
-  let spTarget = new THREE.Vector3(0,7,2), spTime=0;
+  function selectNode(id){
+    if(selectedId && nodeMap[selectedId]) nodeMap[selectedId].ring.material.opacity = .32;
+    const n = nodeMap[id]; if(!n) return;
+    n.ring.material.opacity = .8;
+    selectedId = id;
+    panelTitle.textContent = n.data.name;
+    panelBody.textContent = n.data.desc;
+    panelTag.textContent = TYPE_LABEL[n.data.type] || 'PASO';
+    panel.classList.add('visible');
+  }
+  function closePanel(){
+    panel.classList.remove('visible');
+    if(selectedId && nodeMap[selectedId]) nodeMap[selectedId].ring.material.opacity = .32;
+    selectedId = null;
+  }
+  panelClose.addEventListener('click', closePanel);
+  document.addEventListener('keydown', e=>{ if(e.key==='Escape') closePanel(); });
+
+  // Clic (ignora arrastres largos, propios de OrbitControls)
+  const raycaster = new THREE.Raycaster();
+  const pointer = new THREE.Vector2();
+  let downPos = null;
+  renderer.domElement.addEventListener('pointerdown', e=>{ downPos = { x:e.clientX, y:e.clientY }; });
+  renderer.domElement.addEventListener('click', e=>{
+    if(downPos){
+      const moved = Math.hypot(e.clientX-downPos.x, e.clientY-downPos.y);
+      if(moved > 6) return; // fue un arrastre de órbita, no un clic
+    }
+    const rect = renderer.domElement.getBoundingClientRect();
+    pointer.x = ((e.clientX-rect.left)/rect.width)*2-1;
+    pointer.y = -((e.clientY-rect.top)/rect.height)*2+1;
+    raycaster.setFromCamera(pointer, camera);
+    const hit = raycaster.intersectObjects(nodeMeshes)[0];
+    if(hit) selectNode(hit.object.userData.nodeId);
+  });
+
+  /* ---- Resize ---- */
+  window.addEventListener('resize', ()=>{
+    const w=cont.clientWidth, h=cont.clientHeight;
+    camera.aspect=w/h; camera.updateProjectionMatrix();
+    renderer.setSize(w,h); labelRenderer.setSize(w,h);
+  });
+
+  /* ---- Loop ---- */
   const clock = new THREE.Clock();
   function tick(){
     const dt = clock.getDelta(), t = clock.elapsedTime;
-    if(autoRot) container.rotation.y += dt*0.12;
-    camera.position.z += (targetZoom-camera.position.z)*0.05;
-    camera.position.y = camera.position.z*0.52;
-    camera.lookAt(0,0.5,0);
-    // cubo bob + giro suave
-    taller.position.y = 0.6 + Math.abs(Math.sin(t*1.2))*0.12;
-    taller.rotation.y += dt*0.4;
-    estudio.rotation.z += dt*0.9; estudio.rotation.x = Math.sin(t*0.6)*0.3;
-    lblTaller.position.y = 1.9 + Math.abs(Math.sin(t*1.2))*0.12;
-    if(trophy.visible){ trophy.rotation.y += dt*1.6; trophy.position.y = 2.6 + Math.sin(t*2)*0.12; }
-    // spotlight
-    spTime -= dt;
-    if(spTime<=0){ spTarget.set((Math.random()*2-1)*5, 6+Math.random()*2, (Math.random()*2-1)*5); spTime=3; }
-    spot.position.lerp(spTarget, dt*0.6);
-    renderer.render(scene,camera);
+    controls.update();
+    Object.values(nodeMap).forEach((n,i)=>{
+      n.group.position.y = n.data.pos[1] + Math.sin(t*1.1 + i)*0.08;
+      n.ring.rotation.z += dt*0.5;
+    });
+    if(trophy.visible){ trophy.rotation.y += dt*1.6; trophy.position.y = pf.y+1.55 + Math.sin(t*2)*0.1; }
+    renderer.render(scene, camera);
+    labelRenderer.render(scene, camera);
     requestAnimationFrame(tick);
   }
   tick();
 
-  window.addEventListener('resize',()=>{
-    const w=cont.clientWidth,h=cont.clientHeight;
-    camera.aspect=w/h; camera.updateProjectionMatrix(); renderer.setSize(w,h);
-  });
-
   function pulse(mesh, color){
-    const m=mesh.material; const from=m.emissive.clone(); const to=new THREE.Color(color);
+    const m = mesh.material; const from = m.emissive.clone(); const to = new THREE.Color(color);
     let k=0; (function p(){ k+=0.05; m.emissive.copy(from).lerp(to, Math.sin(Math.min(k,1)*Math.PI));
       if(k<1) requestAnimationFrame(p); })();
   }
+  function markResuelto(node, color){
+    if(!node) return;
+    node.mesh.material.color.set(color); node.mesh.material.emissive.set(color);
+    node.ring.material.color.set(color); node.ring.material.opacity = .8;
+    pulse(node.mesh, color);
+  }
 
-  // ---- API pública para la lógica del HUD ----
+  /* ---- API pública para la lógica del HUD (mismos nombres que la versión anterior) ---- */
   API = {
-    flashTaller(){ zonas.taller.resuelto=true; taller.material.color.set(0x3fb56b);
-      taller.material.emissive.set(0x0e3d22); pulse(taller,0x3fb56b); },
-    resolveEstudio(){ zonas.estudio.resuelto=true; estudio.material.color.set(0x25d3d3);
-      estudio.material.emissive.set(0x0c3a3a); pulse(estudio,0x25d3d3); },
-    resolveOficina(){ zonas.oficina.resuelto=true; oficina.material.color && (oficina.material.color.set(0xffffff));
-      pulse(base,0x25d3d3); },
-    showTrophy(){ trophy.visible=true; },
-    updateOfficeScreen(text){ drawScreen('PROMPT · IA', text); },
-    illuminateFloor(){ grid.material.opacity=1; ground.material.emissive=new THREE.Color(0x123a5a);
-      setTimeout(()=>{ grid.material.opacity=.55; ground.material.emissive=new THREE.Color(0x000000); },1400); },
-    finalRender(){ amb.intensity=0.85; scene.fog.density=0.02;
-      Object.values(zonas).forEach(z=>{ z.mesh.material.emissive && z.mesh.material.emissive.set(0x224433); });
-      trophy.visible=true; }
+    flashTaller(){ markResuelto(rewardNodes.pregunta1, 0x3fb56b); },
+    resolveEstudio(){ markResuelto(rewardNodes.pregunta2, 0x25d3d3); },
+    updateOfficeScreen(text){ drawScreen('PROMPT · IA', text); pulse(monitor, 0x25d3d3); },
+    showTrophy(){ trophy.visible = true; },
+    illuminateFloor(){ grid.material.opacity = 1; ground.material.emissive = new THREE.Color(0x123a5a);
+      setTimeout(()=>{ grid.material.opacity = .5; ground.material.emissive = new THREE.Color(0x000000); }, 1400); },
+    finalRender(){
+      scene.fog.density = 0.015; trophy.visible = true;
+      Object.values(nodeMap).forEach((n,i)=>{
+        setTimeout(()=> pulse(n.mesh, n.data.color), i*90);
+      });
+    }
   };
   window.AndesMap = API;
   window.dispatchEvent(new Event('andesmap-ready'));
