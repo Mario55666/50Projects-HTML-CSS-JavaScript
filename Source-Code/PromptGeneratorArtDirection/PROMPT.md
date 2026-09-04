@@ -36,7 +36,10 @@ Piezas Gráficas 2026, Mg. Mario Quiroz Martínez.
    casillas más un campo de canales libres, presupuesto en soles, plazo en días hábiles,
    formato de entrega (Digital, Analógico, Mixto) y variante metodológica. Segundo bloque
    con los ámbitos del Context Box: rol del director de arte, público del proyecto,
-   objetivo, referentes y tendencias, expresión y los «noes». Tercer bloque con las salidas
+   objetivo, referentes y tendencias, expresión y los «noes». Tercer bloque de identidad
+   visual para las imágenes: concepto nuclear, símbolos y elementos icónicos, tipografía,
+   paleta cromática, estilo gráfico, motor de imagen, persona emblemática y espacio
+   emblemático. Cuarto bloque con las salidas
    solicitadas en casillas: mapa de proceso, tabla de fases, desglose técnico, presupuesto
    por partidas y checklist de entrega.
 2. **Plantilla predeterminada.** Un botón autorrellena el caso «Café Origen»: 3 empaques con
@@ -50,30 +53,40 @@ Piezas Gráficas 2026, Mg. Mario Quiroz Martínez.
    la validación y el renderizado. Son 18 instructivos: 16 del formulario y 2 del registro.
    La ventana se cierra con `Escape`, con un clic fuera o con su botón, y se reposiciona
    para no salir de pantalla.
-5. **Mapa del proceso calculado.** Tabla de ancho completo con nueve fases del brief a la
+5. **Prompts de imagen de la marca.** Sección con seis piezas y su relación de aspecto:
+   imagen de marca 1:1, plano de la caja o troquel 4:3, envase 4:5, etiqueta 2:3, persona
+   emblemática 4:5 y espacio emblemático 16:9. Cada prompt se compone con el concepto
+   nuclear, los símbolos, la tipografía, la paleta, el estilo gráfico y el público del
+   paso 3, más las especificaciones de la pieza: sujeto, contenido obligatorio, composición
+   y óptica, luz y materialidad, exclusiones y nota de producción. Un selector de motor
+   —Genérico, Midjourney, DALL·E, Firefly, Stable Diffusion— cambia la línea final de
+   parámetros: banderas `--ar --style --q --no` para Midjourney, prompt negativo y ajustes
+   de muestreo para Stable Diffusion, texto descriptivo para el resto. Copia por pieza,
+   copia de las seis y descarga en `.md`.
+6. **Mapa del proceso calculado.** Tabla de ancho completo con nueve fases del brief a la
    publicación: Brief y encargo, Context Box, Wall Concept, Concept Board, Creative Book,
    Producción de piezas, Validación técnica, Adaptación por canal, Publicación o entrega.
    Columnas: fase, días, entregable con su formato técnico, responsable sugerido y
    restricciones. Detalle en el apartado «Interacción», punto 4.
-6. **Copiado al portapapeles.** Botón que cambia a «Copiado» durante 1.6 s y notificación
+7. **Copiado al portapapeles.** Botón que cambia a «Copiado» durante 1.6 s y notificación
    emergente. Recurre a `document.execCommand('copy')` cuando `navigator.clipboard` no está
    disponible, caso de `file://`.
-7. **Exportación.** Prompt en `.md` (con ficha de datos en tabla, mapa del proceso y prompt
+8. **Exportación.** Prompt en `.md` (con ficha de datos en tabla, mapa del proceso y prompt
    en bloque de código), `.csv` (BOM UTF-8, cabecera de 20 campos y una fila de datos) y
    `.txt`. El mapa se exporta aparte en `.csv` y se copia en Markdown.
-8. **Historial por usuario.** Clave `prompts_<usuario>` con registros
+9. **Historial por usuario.** Clave `prompts_<usuario>` con registros
    `{ id, cliente, fecha, estructura, contenidoPrompt }`, insertados con `unshift()`,
    limitados a 50 y sin duplicados consecutivos. Panel lateral con botones que reinyectan
    cualquier prompt antiguo en la vista previa; un aviso permite volver al actual.
-9. **Guía estructural.** Checklist de once criterios con estado guardado en
+10. **Guía estructural.** Checklist de once criterios con estado guardado en
    `checklist_<usuario>`, comparativa de las seis estructuras con su uso y su ventaja
    estratégica, y las tres etapas del método con su lectura en canales digitales.
-10. **Panel explicativo.** Bloque desplegado al inicio del panel con cuatro apartados: qué
+11. **Panel explicativo.** Bloque desplegado al inicio del panel con cuatro apartados: qué
     es el aplicativo, qué hace por dentro, qué practica el estudiante en la unidad didáctica
     y cómo se trabaja con él.
-11. **Métricas del encargo.** Cuatro contadores sobre la vista previa: piezas detectadas en
+12. **Métricas del encargo.** Cuatro contadores sobre la vista previa: piezas detectadas en
     el campo de soporte, días hábiles, presupuesto y palabras del prompt.
-12. **PWA.** Manifiesto, service worker, iconos de 192 y 512 px, botón de instalación con
+13. **PWA.** Manifiesto, service worker, iconos de 192 y 512 px, botón de instalación con
     `beforeinstallprompt` e indicador de «Sin conexión».
 
 ## Diseño y estilo visual
@@ -250,8 +263,11 @@ La entrega se comprueba con estas verificaciones, todas automatizables en navega
    aparecen fases marcadas `<1`.
 10. Cambiar el formato de entrega cambia formatos técnicos y responsables de las filas de
     producción, validación y entrega.
-11. Los 16 botones `?` del panel abren su instructivo dentro de la pantalla en 1440 y en
+11. Los 24 botones `?` del panel abren su instructivo dentro de la pantalla en 1440 y en
     390 px, e insertan el ejemplo donde corresponde.
+11b. Las seis piezas de imagen se generan con los datos del paso 3; cambiar el motor cambia
+    solo la línea de parámetros; copiar una pieza no despliega su tarjeta; el `.md` de
+    imágenes trae los seis bloques.
 12. La aplicación carga y genera prompts sin red tras la primera visita, y funciona abierta
     desde `file://` sin errores de consola.
 13. Sin scroll horizontal de página a 390 px; la tabla del mapa se desplaza dentro de su

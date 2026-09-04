@@ -60,15 +60,27 @@ inicio del panel principal.
    total declarado; una fase con menos de un día se marca «<1». La tabla se copia en
    Markdown, se descarga en `.csv`, entra en el `.md` exportado y viaja dentro del prompt
    como base de fases que el modelo debe respetar o justificar.
-9. **Ventaja estratégica por estructura.** Cada una de las seis estructuras declara para
+9. **Prompts de imagen de la marca.** Sección con seis piezas: imagen de marca (1:1), plano
+   de la caja o troquel (4:3), envase (4:5), etiqueta (2:3), persona emblemática (4:5) y
+   espacio emblemático (16:9). Cada prompt se arma con el concepto nuclear, los símbolos,
+   la tipografía, la paleta, el estilo gráfico y el público declarados en el paso 3, más las
+   especificaciones técnicas de la pieza: encuadre y óptica, luz y materialidad, contenido
+   obligatorio y nota de producción. Las exclusiones suman los «noes» del encargo y una
+   salvaguarda fija contra marcas de agua, logotipos de marcas existentes, imitación del
+   estilo de un artista vivo identificable y reproducción del rostro de personas reales. El
+   selector de motor —Genérico, Midjourney, DALL·E, Firefly, Stable Diffusion— cambia solo
+   la línea final de parámetros. Cada pieza se copia por separado, las seis a la vez, o se
+   descargan en `.md`.
+10. **Ventaja estratégica por estructura.** Cada una de las seis estructuras declara para
    qué sirve y qué gana quien la elige; el texto aparece bajo el selector, en la ayuda
    emergente y en la guía comparativa.
-10. **Instructivo por campo.** Cada etiqueta lleva un botón `?` que abre una ventana
+11. **Instructivo por campo.** Cada etiqueta lleva un botón `?` que abre una ventana
    emergente con la regla de redacción del campo, entre dos y cuatro indicaciones y un
    ejemplo. Donde el campo admite texto, un botón inserta ese ejemplo y dispara la
    validación y el renderizado. Los dieciséis instructivos están en la constante `AYUDAS`
    y se inyectan en `window.onload` con `inyectarAyudas()`; la ventana se cierra con
-   `Escape`, con un clic fuera o con su propio botón.
+   `Escape`, con un clic fuera o con su propio botón. Con los ocho campos de identidad
+   visual son 24 instructivos en el panel y 2 en el registro.
 
 ## El método CB&CB&CB y su lectura actual
 

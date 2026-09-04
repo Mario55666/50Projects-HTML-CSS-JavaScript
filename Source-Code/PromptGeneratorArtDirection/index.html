@@ -97,6 +97,18 @@
   .guia-cuerpo{padding:.9rem 1rem; font-size:.85rem; color:var(--slate-300);}
   .cerrar-x{background:none; border:0; color:var(--slate-400); font-size:1.4rem; line-height:1;}
   .cerrar-x:hover{color:#fff;}
+  .img-card{background:var(--slate-900); border:1px solid var(--slate-800); border-radius:.7rem; margin-bottom:.6rem;}
+  .img-card>summary{cursor:pointer; padding:.7rem .9rem; font-weight:600; font-size:.88rem; list-style:none;
+    display:flex; align-items:center; gap:.5rem; flex-wrap:wrap;}
+  .img-card>summary::-webkit-details-marker{display:none;}
+  .img-card>summary::after{content:'+'; margin-left:auto; color:var(--amber-500); font-weight:700;}
+  .img-card[open]>summary{color:var(--amber-400); border-bottom:1px solid var(--slate-800);}
+  .img-card[open]>summary::after{content:'\2212';}
+  .img-card .pieza-ar{font-size:.7rem; color:var(--slate-600); font-weight:600; letter-spacing:.05em;}
+  .img-cuerpo{padding:.85rem .9rem;}
+  pre.img-prompt{background:var(--slate-950); border:1px solid var(--slate-800); border-radius:.55rem; color:#e2e8f0;
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:.76rem; line-height:1.5;
+    white-space:pre-wrap; word-break:break-word; padding:.8rem; margin:0 0 .6rem; max-height:40vh; overflow:auto;}
   .tabla-wrap{overflow-x:auto; border:1px solid var(--slate-800); border-radius:.7rem;}
   table.mapa{width:100%; min-width:920px; border-collapse:collapse; font-size:.79rem;}
   table.mapa th{background:var(--slate-850); color:var(--amber-500); text-align:left; font-weight:700;
@@ -357,7 +369,57 @@
               </div>
 
               <div class="col-12"><hr class="border-secondary opacity-25 my-1"></div>
-              <div class="col-12"><div class="section-title" id="lblfEntregables">Paso 3 · Salidas solicitadas</div></div>
+              <div class="col-12"><div class="section-title">Paso 3 · Identidad visual para las imágenes</div></div>
+
+              <div class="col-12">
+                <label class="form-label" for="fConcepto">Concepto nuclear</label>
+                <input type="text" class="form-control" id="fConcepto" placeholder="El origen se toca antes de beberse" oninput="actualizarPrompt()">
+              </div>
+              <div class="col-12">
+                <label class="form-label" for="fSimbolos">Símbolos y elementos icónicos</label>
+                <input type="text" class="form-control" id="fSimbolos" placeholder="Cereza de café en corte, curva de nivel, sello de altitud" oninput="actualizarPrompt()">
+              </div>
+              <div class="col-12 col-sm-6">
+                <label class="form-label" for="fTipografia">Tipografía</label>
+                <input type="text" class="form-control" id="fTipografia" placeholder="Grotesca de palo seco, caja alta, tracking amplio" oninput="actualizarPrompt()">
+              </div>
+              <div class="col-12 col-sm-6">
+                <label class="form-label" for="fPaleta">Paleta cromática</label>
+                <input type="text" class="form-control" id="fPaleta" placeholder="#3B2314, #D97706, #F1F5F9" oninput="actualizarPrompt()">
+              </div>
+              <div class="col-12 col-sm-6">
+                <label class="form-label" for="fEstiloGrafico">Estilo gráfico</label>
+                <select class="form-select" id="fEstiloGrafico" onchange="actualizarPrompt()">
+                  <option value="Fotografía de producto">Fotografía de producto</option>
+                  <option value="Ilustración vectorial plana">Ilustración vectorial plana</option>
+                  <option value="Collage analógico">Collage analógico</option>
+                  <option value="Render 3D">Render 3D</option>
+                  <option value="Grabado a línea">Grabado a línea</option>
+                  <option value="Pintura digital">Pintura digital</option>
+                  <option value="Mixto: fotografía con gráfico plano">Mixto: fotografía con gráfico plano</option>
+                </select>
+              </div>
+              <div class="col-12 col-sm-6">
+                <label class="form-label" for="fMotor">Motor de imagen</label>
+                <select class="form-select" id="fMotor" onchange="actualizarPrompt()">
+                  <option value="Genérico">Genérico (descriptivo)</option>
+                  <option value="Midjourney">Midjourney</option>
+                  <option value="DALL·E">DALL·E / ChatGPT</option>
+                  <option value="Firefly">Adobe Firefly</option>
+                  <option value="Stable Diffusion">Stable Diffusion</option>
+                </select>
+              </div>
+              <div class="col-12">
+                <label class="form-label" for="fPersona">Persona emblemática</label>
+                <textarea class="form-control" id="fPersona" rows="2" placeholder="Caficultora de 45 años, manos con tierra, camisa de trabajo, mirada directa." oninput="actualizarPrompt()"></textarea>
+              </div>
+              <div class="col-12">
+                <label class="form-label" for="fEspacio">Espacio emblemático</label>
+                <textarea class="form-control" id="fEspacio" rows="2" placeholder="Patio de secado en ladera, madera y malla, niebla de la mañana." oninput="actualizarPrompt()"></textarea>
+              </div>
+
+              <div class="col-12"><hr class="border-secondary opacity-25 my-1"></div>
+              <div class="col-12"><div class="section-title" id="lblfEntregables">Paso 4 · Salidas solicitadas</div></div>
               <div class="col-12">
                 <div class="d-flex flex-wrap gap-3" id="fEntregables">
                   <div class="form-check"><input class="form-check-input" type="checkbox" value="Mapa de proceso" id="e1" checked onchange="actualizarPrompt()"><label class="form-check-label" for="e1">Mapa de proceso</label></div>
@@ -470,6 +532,25 @@
             </div>
             <p class="form-text mt-2 mb-0">Los días se reparten sobre el plazo declarado con el método del resto mayor: la suma de la columna coincide siempre con el total. «&lt;1» indica una fase que comparte jornada con la siguiente.</p>
           </div>
+    </section>
+
+    <section class="mt-4">
+      <div class="panel">
+        <div class="panel-head d-flex flex-wrap align-items-center justify-content-between gap-2">
+          <div>
+            <div class="section-title">Prompts de imagen de la marca</div>
+            <div class="small text-secondary" id="estadoImagenes">Seis piezas: marca, plano de la caja, envase, etiqueta, persona y espacio.</div>
+          </div>
+          <div class="d-flex flex-wrap gap-2">
+            <button class="btn btn-sm btn-slate" type="button" onclick="copiarTodasImagenes()">Copiar los seis</button>
+            <button class="btn btn-sm btn-slate" type="button" onclick="descargarImagenes()">Imágenes .md</button>
+          </div>
+        </div>
+        <div class="p-3 p-lg-4">
+          <div id="listaImagenes"></div>
+          <p class="form-text mt-2 mb-0">Cada prompt se arma con el concepto, los símbolos, la tipografía, la paleta y el estilo gráfico declarados en el paso 3, más las especificaciones técnicas de la pieza. Los modelos de imagen componen mal el texto: la tipografía real se aplica después en el software de diseño.</p>
+        </div>
+      </div>
     </section>
 
     <footer class="mt-5 pt-3 pb-4 text-center">
@@ -659,6 +740,44 @@ const AYUDAS = {
     'Redáctalos en negativo y de forma verificable: cualquiera debe poder revisar si se cumplen.',
     'Cierra caminos concretos, no categorías enteras.'],
     ej: 'Sin sacos de yute, sin sellos de garantía, sin tipografías manuscritas, sin fotografías de granos sobre madera' },
+  fConcepto: { t: 'Concepto nuclear', p: [
+    'Una sola frase de doce palabras como máximo, sin adjetivos de valoración.',
+    'Es la semilla del cómo: debe poder declinarse en empaque, redes y punto de venta sin cambiar de fondo.',
+    'Se escribe en presente y describe una idea, no una pieza.'],
+    ej: 'El origen se toca antes de beberse' },
+  fSimbolos: { t: 'Símbolos y elementos icónicos', p: [
+    'Entre dos y cuatro elementos gráficos concretos que puedan dibujarse.',
+    'Evita categorías abstractas como «tradición» o «calidad»: nombra la forma.',
+    'Estos elementos son los que el modelo de imagen tiene permitido usar.'],
+    ej: 'Cereza de café en corte, curva de nivel de la ladera, sello de altitud en metros' },
+  fTipografia: { t: 'Tipografía', p: [
+    'Indica clasificación, caja y carácter, no solo el nombre de la fuente.',
+    'Separa el uso de marca del uso de texto largo.',
+    'Los modelos de imagen componen mal el texto: esta referencia guía el montaje posterior en el software de diseño.'],
+    ej: 'Grotesca de palo seco en caja alta con tracking amplio para la marca; serif de texto para la nota de cata' },
+  fPaleta: { t: 'Paleta cromática', p: [
+    'De tres a cinco colores en HEX o Pantone, empezando por el dominante.',
+    'Incluye el color de fondo y el de acento, no solo los del logotipo.',
+    'Un color sin código es una intención, no una especificación.'],
+    ej: '#3B2314, #D97706, #A16207, #F1F5F9' },
+  fEstiloGrafico: { t: 'Estilo gráfico', p: [
+    'Define la técnica con la que se resuelven las imágenes de todo el sistema.',
+    'Fotografía de producto para envase y etiqueta; ilustración o grabado cuando el presupuesto no cubre producción fotográfica.',
+    'El estilo se mantiene en las seis piezas: cambiar de técnica rompe la unidad del sistema.'] },
+  fMotor: { t: 'Motor de imagen', p: [
+    'Cambia solo la línea de parámetros del final del prompt.',
+    'Midjourney usa banderas (--ar, --style, --no); Stable Diffusion añade prompt negativo y ajustes de muestreo.',
+    'DALL·E y Firefly leen el texto descriptivo sin banderas.'] },
+  fPersona: { t: 'Persona emblemática', p: [
+    'Edad, oficio, vestuario, gesto y actitud. Es un personaje del universo de marca, no un modelo de catálogo.',
+    'Describe lo que hace en la escena, no lo que siente.',
+    'Debe ser una persona ficticia: no se reproduce el rostro de alguien real ni de una figura pública.'],
+    ej: 'Caficultora de 45 años, manos con tierra, camisa de trabajo remangada, mirada directa a cámara, sin sonrisa de catálogo' },
+  fEspacio: { t: 'Espacio emblemático', p: [
+    'Lugar, materiales, mobiliario, hora del día y calidad de la luz.',
+    'Cada material que aparezca debe poder justificarse desde el Context Box.',
+    'Sitúa el punto de vista: dentro, fuera, a qué altura.'],
+    ej: 'Patio de secado en ladera a 1800 m, camas africanas de madera y malla, niebla de la mañana, montaña al fondo' },
   fEntregables: { t: 'Salidas solicitadas', p: [
     'Marca lo que exige el encargo o la rúbrica de la sesión.',
     'Cada casilla añade un bloque con reglas al final del prompt.',
@@ -817,7 +936,7 @@ function datosFormulario() {
   const canales = marcados('fCanales').concat(otros);
   const presu = $('fPresupuesto').value.trim();
   const dias = Math.max(1, parseInt($('fDias').value, 10) || 1);
-  return {
+  const datos = {
     estudiante: currentUser ? currentUser.nombre : '',
     correo: currentUser ? currentUser.correo : '',
     fecha: new Date().toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric' }),
@@ -836,8 +955,19 @@ function datosFormulario() {
     referentes: $('fReferentes').value.trim() || 'por levantar en la etapa de Context Box',
     expresion: $('fExpresion').value.trim() || 'por definir en el Concept Board',
     noes: $('fNoes').value.trim() || 'sin exclusiones declaradas',
+    concepto: $('fConcepto').value.trim() || 'por definir en el Concept Board',
+    simbolos: $('fSimbolos').value.trim() || 'por definir en el Context Box',
+    tipografia: $('fTipografia').value.trim() || 'por definir en el Creative Book',
+    paleta: $('fPaleta').value.trim() || 'por definir en el Creative Book',
+    estiloGrafico: $('fEstiloGrafico').value,
+    motor: $('fMotor').value,
+    persona: $('fPersona').value.trim(),
+    espacio: $('fEspacio').value.trim(),
     entregables: marcados('fEntregables')
   };
+  if (!datos.persona) datos.persona = 'Persona ficticia representativa del público del proyecto (' + datos.publico + '), fotografiada en su contexto de trabajo.';
+  if (!datos.espacio) datos.espacio = 'Espacio representativo del contexto del proyecto de ' + datos.cliente + ', descrito con sus materiales y su luz.';
+  return datos;
 }
 
 function sinPuntoFinal(t) { return String(t).replace(/\.+$/, ''); }
@@ -855,6 +985,11 @@ function fichaEncargo(d) {
     '- Referentes y tendencias: ' + d.referentes,
     '- Expresión (tono, estilo, género, color): ' + d.expresion,
     '- Los «noes»: ' + d.noes,
+    '- Concepto nuclear: ' + d.concepto,
+    '- Símbolos y elementos icónicos: ' + d.simbolos,
+    '- Tipografía: ' + d.tipografia,
+    '- Paleta cromática: ' + d.paleta,
+    '- Estilo gráfico: ' + d.estiloGrafico,
     '- Metodología: ' + d.metodologia
   ].join('\n');
 }
@@ -954,6 +1089,7 @@ function actualizarPrompt() {
   if (viendoHistorial) { viendoHistorial = false; $('avisoHistorial').classList.add('hidden'); }
   const d = datosFormulario();
   renderMapa(d);
+  renderImagenes(d);
   if (!d.cliente) {
     promptActual = '';
     $('promptOutput').textContent = 'Escribe el nombre del cliente para generar el prompt.';
@@ -1129,6 +1265,152 @@ function descargarMapa() {
   toast('Mapa del proceso descargado en .csv');
 }
 
+/* ------------------ 5c. PROMPTS DE IMAGEN DE LA MARCA ------------------ */
+function paramsMotor(motor, ar) {
+  switch (motor) {
+    case 'Midjourney': return '--ar ' + ar + ' --style raw --q 2 --no marcas de agua, texto ilegible, logotipos ajenos';
+    case 'DALL·E': return 'Formato ' + ar + '. No incluyas texto dentro de la imagen: el texto se compone después en el software de diseño.';
+    case 'Firefly': return 'Relación ' + ar + '. Tipo de contenido acorde al estilo gráfico indicado; sin referencias a marcas registradas.';
+    case 'Stable Diffusion': return 'Relación ' + ar + '. Prompt negativo: texto ilegible, manos deformes, marcas de agua, logotipos ajenos, artefactos de compresión. Ajustes sugeridos: 30 pasos, CFG 6, muestreador DPM++ 2M Karras.';
+    default: return 'Relación de aspecto ' + ar + '. Salida de 2048 px en el lado mayor, sRGB.';
+  }
+}
+
+function PIEZAS_IMAGEN(d) {
+  const piezas = d.soporte || 'las piezas del encargo';
+  return [
+    { id: 'marca', n: 'Imagen de marca', ar: '1:1',
+      sujeto: 'Símbolo de marca para ' + d.cliente + ', construido a partir de ' + d.simbolos + '.',
+      contenido: 'Una sola marca centrada sobre fondo neutro, en versión positiva a color y su reducción a un color. Sin envases, sin escenografía, sin sombras proyectadas.',
+      composicion: 'Vista frontal, color plano, margen libre equivalente a la altura del símbolo por cada lado.',
+      luz: 'Sin volumen ni degradados: la forma se sostiene por silueta y contraste.',
+      nota: 'Genera solo el símbolo. El nombre de la marca se compone después con la tipografía declarada.' },
+    { id: 'plano', n: 'Plano de la caja (troquel)', ar: '4:3',
+      sujeto: 'Plano técnico de troquel desplegado para la caja de ' + piezas + '.',
+      contenido: 'Vista plana con líneas de corte continuas, líneas de plegado discontinuas, pestañas de encolado y solapas señaladas, y cotas en milímetros. Sin arte gráfico aplicado.',
+      composicion: 'Proyección ortogonal sobre fondo blanco, trazo negro uniforme, sin perspectiva ni sombras.',
+      luz: 'Dibujo técnico plano, sin iluminación escénica.',
+      nota: 'La imagen sirve como referencia de estructura; el troquel se redibuja en vectores antes de producción.' },
+    { id: 'envase', n: 'Envase', ar: '4:5',
+      sujeto: 'Fotografía de producto del envase de ' + piezas + ' para ' + d.cliente + ', con su etiqueta aplicada y su material real.',
+      contenido: 'Un solo envase como protagonista, sobre superficie coherente con el universo visual; segundo envase desenfocado al fondo, opcional.',
+      composicion: 'Ángulo de tres cuartos, cámara a la altura del producto, lente equivalente a 85 mm, profundidad de campo media (f/5.6).',
+      luz: 'Luz lateral suave con difusor grande y rebote de relleno; sombra corta y definida.',
+      nota: 'La etiqueta puede ir con texto simulado: la composición tipográfica definitiva se monta aparte.' },
+    { id: 'etiqueta', n: 'Etiqueta', ar: '2:3',
+      sujeto: 'Arte plano frontal de la etiqueta de ' + piezas + '.',
+      contenido: 'Jerarquía en cuatro niveles: marca, variedad y origen, nota de cata, y datos obligatorios (peso neto, fecha de tueste, lote y contacto).',
+      composicion: 'Vista frontal al 100 %, sin perspectiva, con zona de seguridad de 4 mm en todo el perímetro y 3 mm de sangrado.',
+      luz: 'Arte plano sin iluminación ni relieve simulado.',
+      nota: 'El modelo compone mal el texto: úsalo para la estructura y el color, y monta la tipografía real en el archivo editable.' },
+    { id: 'persona', n: 'Persona emblemática', ar: '4:5',
+      sujeto: d.persona,
+      contenido: 'Retrato ambiental en su contexto de trabajo, sin pose publicitaria ni sonrisa de catálogo. Vestuario y objetos coherentes con el oficio descrito.',
+      composicion: 'Plano medio, lente de 50 a 85 mm, cámara a la altura de los ojos, fondo del propio lugar en desenfoque suave.',
+      luz: 'Luz natural direccional de ventana o de primera hora, contraste medio, piel sin retoque plástico.',
+      nota: 'Persona ficticia: no reproduzcas el rostro de una persona real ni de una figura pública.' },
+    { id: 'espacio', n: 'Espacio emblemático', ar: '16:9',
+      sujeto: d.espacio,
+      contenido: 'Vista general del espacio con los materiales, el mobiliario y los objetos descritos; sin personas en primer plano.',
+      composicion: 'Lente de 24 a 35 mm, líneas verticales corregidas, punto de vista a 1.60 m de altura.',
+      luz: 'Hora y dirección de luz según la descripción; sin HDR ni saturación forzada.',
+      nota: 'El espacio sostiene el concepto: cada material visible debe poder justificarse desde el Context Box.' }
+  ];
+}
+
+function construirPromptImagen(d, pz) {
+  const excluye = d.noes + '. Sin marcas de agua, sin texto ilegible, sin logotipos de marcas existentes y sin imitación del estilo de un artista vivo identificable.';
+  return [
+    'PROMPT DE IMAGEN — ' + pz.n.toUpperCase() + ' · ' + d.cliente,
+    'Motor: ' + d.motor + ' · Relación ' + pz.ar + ' · Estudiante: ' + d.estudiante,
+    '-'.repeat(60),
+    'Concepto nuclear: ' + d.concepto,
+    'Sujeto: ' + pz.sujeto,
+    'Contenido: ' + pz.contenido,
+    'Estilo gráfico: ' + d.estiloGrafico + '. ' + d.expresion,
+    'Paleta: ' + d.paleta,
+    'Tipografía de referencia: ' + d.tipografia,
+    'Símbolos admitidos: ' + d.simbolos,
+    'Composición y encuadre: ' + pz.composicion,
+    'Luz y materialidad: ' + pz.luz,
+    'Público al que se dirige la pieza: ' + d.publico,
+    'Excluye: ' + excluye,
+    'Nota de producción: ' + pz.nota,
+    'Salida: ' + paramsMotor(d.motor, pz.ar)
+  ].join('\n');
+}
+
+function renderImagenes(d) {
+  const cont = $('listaImagenes');
+  cont.innerHTML = '';
+  PIEZAS_IMAGEN(d).forEach((pz, i) => {
+    const det = document.createElement('details');
+    det.className = 'img-card';
+    det.id = 'img-' + pz.id;
+    if (i === 0) det.open = true;
+    const sum = document.createElement('summary');
+    const t = document.createElement('span');
+    t.textContent = (i + 1) + '. ' + pz.n;
+    const ar = document.createElement('span');
+    ar.className = 'pieza-ar';
+    ar.textContent = pz.ar;
+    const bc = document.createElement('button');
+    bc.type = 'button';
+    bc.className = 'btn btn-sm btn-amber';
+    bc.textContent = 'Copiar';
+    bc.onclick = (ev) => { ev.preventDefault(); ev.stopPropagation(); copiarImagen(pz.id); };
+    sum.appendChild(t); sum.appendChild(ar); sum.appendChild(bc);
+    const cuerpo = document.createElement('div');
+    cuerpo.className = 'img-cuerpo';
+    const pre = document.createElement('pre');
+    pre.className = 'img-prompt';
+    pre.textContent = construirPromptImagen(d, pz);
+    cuerpo.appendChild(pre);
+    det.appendChild(sum); det.appendChild(cuerpo);
+    cont.appendChild(det);
+  });
+  $('estadoImagenes').textContent = 'Seis piezas · motor ' + d.motor + ' · estilo ' + d.estiloGrafico;
+}
+
+async function alPortapapeles(texto, aviso) {
+  try {
+    if (navigator.clipboard && window.isSecureContext) await navigator.clipboard.writeText(texto);
+    else {
+      const ta = document.createElement('textarea');
+      ta.value = texto; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+    }
+    toast(aviso);
+  } catch (e) { toast('El navegador bloqueó el portapapeles.'); }
+}
+
+function copiarImagen(id) {
+  const d = datosFormulario();
+  const pz = PIEZAS_IMAGEN(d).find((x) => x.id === id);
+  alPortapapeles(construirPromptImagen(d, pz), 'Prompt de «' + pz.n + '» copiado.');
+}
+
+function copiarTodasImagenes() {
+  const d = datosFormulario();
+  const txt = PIEZAS_IMAGEN(d).map((pz) => construirPromptImagen(d, pz)).join('\n\n' + '='.repeat(60) + '\n\n');
+  alPortapapeles(txt, 'Los seis prompts de imagen fueron copiados.');
+}
+
+function imagenesMarkdown(d) {
+  return PIEZAS_IMAGEN(d).map((pz, i) => '### ' + (i + 1) + '. ' + pz.n + ' (' + pz.ar + ')\n\n```text\n'
+    + construirPromptImagen(d, pz) + '\n```\n').join('\n');
+}
+
+function descargarImagenes(silencioso) {
+  const d = datosFormulario();
+  if (!d.cliente) { toast('Completa el cliente antes de descargar los prompts de imagen.'); return; }
+  const txt = '# Prompts de imagen — ' + d.cliente + '\n\nConcepto nuclear: ' + d.concepto
+    + '\nEstilo gráfico: ' + d.estiloGrafico + ' · Motor: ' + d.motor + '\n\n' + imagenesMarkdown(d)
+    + '\n---\nUnidad Didáctica de Producción de Piezas Gráficas 2026 · Mg. Mario Quiroz Martínez\n';
+  bajarArchivo('prompts-imagen-' + slug(d.cliente) + '.md', txt, 'text/markdown');
+  if (!silencioso) toast('Prompts de imagen descargados en .md');
+}
+
 /* --------------------------- 6. PLANTILLA DE CASO --------------------------- */
 const PLANTILLA_CAFE = {
   fCliente: 'Café Origen S.A.C.',
@@ -1143,6 +1425,14 @@ const PLANTILLA_CAFE = {
   fReferentes: 'Cafés de especialidad de Bogotá y Melbourne; cerámica utilitaria peruana; tendencias de fusión e impureza',
   fExpresion: 'Tono cómplice, estilo artesanal contemporáneo, género documental, paleta tierra con ámbar #D97706',
   fNoes: 'Sin sacos de yute, sin sellos de garantía, sin tipografías manuscritas, sin fotografías de granos sobre madera',
+  fConcepto: 'El origen se toca antes de beberse',
+  fSimbolos: 'Cereza de café en corte, curva de nivel de la ladera, sello de altitud en metros',
+  fTipografia: 'Grotesca de palo seco en caja alta con tracking amplio para la marca; serif de texto para la nota de cata',
+  fPaleta: '#3B2314, #D97706, #A16207, #F1F5F9',
+  fEstiloGrafico: 'Mixto: fotografía con gráfico plano',
+  fMotor: 'Midjourney',
+  fPersona: 'Caficultora de 45 años, manos con tierra, camisa de trabajo remangada, mirada directa a cámara, sin sonrisa de catálogo',
+  fEspacio: 'Patio de secado en ladera a 1800 m, camas africanas de madera y malla, niebla de la mañana, montaña al fondo',
   canales: ['Instagram', 'TikTok', 'Sitio web', 'Punto de venta'],
   entregables: ['Mapa de proceso', 'Tabla de fases', 'Desglose técnico', 'Presupuesto por partidas']
 };
@@ -1324,6 +1614,7 @@ function comoMarkdown(d) {
     + '| Campo | Valor |\n| --- | --- |\n'
     + filas.map((f) => '| ' + f[0] + ' | ' + String(f[1]).replace(/\|/g, '\\|') + ' |').join('\n')
     + '\n\n## Mapa del proceso\n\n' + mapaMarkdown(d)
+    + '\n## Prompts de imagen\n\n' + imagenesMarkdown(d)
     + '\n## Prompt generado\n\n```text\n' + promptActual + '```\n\n'
     + '---\nUnidad Didáctica de Producción de Piezas Gráficas 2026 · Mg. Mario Quiroz Martínez · Método CB&CB&CB\n';
 }
@@ -1331,9 +1622,11 @@ function comoMarkdown(d) {
 function comoCSV(d) {
   const cab = ['estudiante', 'correo', 'fecha', 'cliente', 'cantidad_soporte', 'canales_digitales', 'presupuesto',
     'plazo_dias_habiles', 'fecha_limite', 'formato_entrega', 'metodologia', 'estructura', 'rol', 'publico',
-    'objetivo', 'referentes', 'expresion', 'noes', 'entregables', 'prompt'];
+    'objetivo', 'referentes', 'expresion', 'noes', 'concepto_nuclear', 'simbolos', 'tipografia', 'paleta',
+    'estilo_grafico', 'motor_imagen', 'persona_emblematica', 'espacio_emblematico', 'entregables', 'prompt'];
   const fila = [d.estudiante, d.correo, d.fecha, d.cliente, d.soporte, d.canales, d.presupuesto, d.dias, d.limite,
     d.formato, d.metodologia, d.estructura, d.rol, d.publico, d.objetivo, d.referentes, d.expresion, d.noes,
+    d.concepto, d.simbolos, d.tipografia, d.paleta, d.estiloGrafico, d.motor, d.persona, d.espacio,
     d.entregables.join(' | '), promptActual];
   const esc = (v) => '"' + String(v).replace(/"/g, '""') + '"';
   return '\uFEFF' + cab.join(',') + '\n' + fila.map(esc).join(',') + '\n';
