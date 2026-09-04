@@ -49,12 +49,37 @@ inicio del panel principal.
    limitados a 50. Un clic reinyecta cualquier prompt antiguo en la vista previa.
 7. **Checklist de once criterios** del prompt y resumen de las etapas CB&CB&CB, con estado
    guardado en `checklist_<usuario>`.
-8. **Instructivo por campo.** Cada etiqueta lleva un botón `?` que abre una ventana
+8. **Mapa del proceso.** Tabla de ancho completo con nueve fases, del brief a la
+   publicación o entrega: Context Box, Wall Concept, Concept Board, Creative Book,
+   producción, validación técnica, adaptación por canal y entrega. Cada fila indica días
+   asignados, entregable con su formato técnico, responsable sugerido y restricciones. Los
+   formatos cambian según el formato de entrega —PDF/X-1a con 3 mm de sangrado para
+   impresión, sRGB y MP4 H.264 para digital— y según los canales marcados (1080 × 1350 y
+   1080 × 1920 px para Instagram, 1080 × 1920 px hasta 60 s para TikTok, y así). El plazo se
+   reparte con el método del resto mayor, de modo que la suma de la columna coincide con el
+   total declarado; una fase con menos de un día se marca «<1». La tabla se copia en
+   Markdown, se descarga en `.csv`, entra en el `.md` exportado y viaja dentro del prompt
+   como base de fases que el modelo debe respetar o justificar.
+9. **Ventaja estratégica por estructura.** Cada una de las seis estructuras declara para
+   qué sirve y qué gana quien la elige; el texto aparece bajo el selector, en la ayuda
+   emergente y en la guía comparativa.
+10. **Instructivo por campo.** Cada etiqueta lleva un botón `?` que abre una ventana
    emergente con la regla de redacción del campo, entre dos y cuatro indicaciones y un
    ejemplo. Donde el campo admite texto, un botón inserta ese ejemplo y dispara la
    validación y el renderizado. Los dieciséis instructivos están en la constante `AYUDAS`
    y se inyectan en `window.onload` con `inyectarAyudas()`; la ventana se cierra con
    `Escape`, con un clic fuera o con su propio botón.
+
+## El método CB&CB&CB y su lectura actual
+
+La guía del aplicativo mantiene las tres definiciones del método —Context Box con sus nueve
+ámbitos, Concept Board con un único concepto por proyecto, Creative Book como Universo
+Visual Sintético— y añade a cada una su registro en canales digitales y con modelos
+generativos: archivo de referencias con URL, autor y fecha; registro de modelo, versión,
+prompt y semilla para el material generado; especificaciones por formato, límite de peso,
+contraste mínimo de 4.5:1 y texto alternativo en el manual. El trabajo de campo con
+usuarios, la regla de un concepto por proyecto y la declaración de los «noes» se mantienen
+sin delegar.
 
 ## Validación de campos numéricos
 

@@ -97,6 +97,20 @@
   .guia-cuerpo{padding:.9rem 1rem; font-size:.85rem; color:var(--slate-300);}
   .cerrar-x{background:none; border:0; color:var(--slate-400); font-size:1.4rem; line-height:1;}
   .cerrar-x:hover{color:#fff;}
+  .tabla-wrap{overflow-x:auto; border:1px solid var(--slate-800); border-radius:.7rem;}
+  table.mapa{width:100%; min-width:920px; border-collapse:collapse; font-size:.79rem;}
+  table.mapa th{background:var(--slate-850); color:var(--amber-500); text-align:left; font-weight:700;
+    text-transform:uppercase; letter-spacing:.05em; font-size:.68rem; padding:.55rem .6rem; white-space:nowrap;
+    border-bottom:1px solid var(--slate-800);}
+  table.mapa td{padding:.55rem .6rem; border-bottom:1px solid var(--slate-800); vertical-align:top; color:var(--slate-300);}
+  table.mapa tr:last-child td{border-bottom:0;}
+  table.mapa td.fase{color:var(--slate-100); font-weight:600; white-space:nowrap;}
+  table.mapa th:nth-child(1){width:13%} table.mapa th:nth-child(2){width:5%}
+  table.mapa th:nth-child(3){width:29%} table.mapa th:nth-child(4){width:17%}
+  table.mapa th:nth-child(5){width:36%}
+  table.mapa td.dias{color:var(--amber-400); font-weight:700; text-align:center; white-space:nowrap;}
+  table.mapa td .fmt{display:block; color:var(--slate-400); font-size:.74rem; margin-top:.15rem;}
+  table.mapa tbody tr:hover td{background:rgba(217,119,6,.06);}
   .btn-ayuda{width:18px; height:18px; margin-left:.4rem; padding:0; border-radius:50%; border:1px solid var(--amber-600);
     background:var(--amber-soft); color:var(--amber-400); font-size:.68rem; font-weight:700; line-height:1;
     cursor:pointer; vertical-align:middle;}
@@ -376,9 +390,16 @@
               <details class="guia-item" id="gu3">
                 <summary>Las etapas CB&amp;CB&amp;CB</summary>
                   <div class="guia-cuerpo">
-                    <p class="mb-2"><b class="accent">Context Box.</b> Nueve ámbitos de investigación: contexto, referentes, tendencias, trabajo de campo, la imagen, el relato, la palabra, la expresión y los «noes». Todo se almacena en una caja analógica y se traslada al <i>wall concept</i>.</p>
-                    <p class="mb-2"><b class="accent">Concept Board.</b> Documento A4 con una frase sintética de la idea nuclear, imágenes de anclaje y una disposición que transmite valores expresivos. Un solo concepto por proyecto.</p>
-                    <p class="mb-0"><b class="accent">Creative Book.</b> Universo Visual Sintético: manual que transmite la estrategia estética a realizadores y especialistas (imágenes y textos, espacios, audiovisual, moda).</p>
+                    <p class="mb-1"><b class="accent">Context Box.</b> Nueve ámbitos de investigación: contexto, referentes, tendencias, trabajo de campo, la imagen, el relato, la palabra, la expresión y los «noes». Todo se almacena en una caja analógica y se traslada al <i>wall concept</i>.</p>
+                    <p class="mb-3 ps-3 border-start border-secondary border-opacity-25"><b>En redes sociales y con modelos generativos.</b> La caja analógica convive con una carpeta de referencia digital y un tablero. Los nueve ámbitos no cambian; cambia el registro: cada captura de Instagram, TikTok o de una biblioteca de anuncios se archiva con URL, autor y fecha de consulta, y cada imagen obtenida de un modelo generativo se archiva con el nombre del modelo, su versión, el prompt y la semilla. El trabajo de campo sigue siendo presencial: la observación participante y las entrevistas al usuario no se sustituyen con búsquedas.</p>
+
+                    <p class="mb-1"><b class="accent">Concept Board.</b> Documento A4 con una frase sintética de la idea nuclear, imágenes de anclaje y una disposición que transmite valores expresivos. Un solo concepto por proyecto.</p>
+                    <p class="mb-3 ps-3 border-start border-secondary border-opacity-25"><b>En redes sociales y con modelos generativos.</b> La frase del concepto cumple dos funciones añadidas: es el núcleo del prompt maestro con el que se generan imágenes de prueba y la base del texto de las piezas. Las imágenes de anclaje pueden ser referencias existentes o pruebas generadas; cuando son generadas se marcan como prueba, porque el concepto se juzga por la frase y no por el acabado de la imagen. La regla de un concepto por proyecto se mantiene: publicar en cinco canales no autoriza cinco conceptos, sino cinco declinaciones de forma sobre el mismo fondo.</p>
+
+                    <p class="mb-1"><b class="accent">Creative Book.</b> Universo Visual Sintético: manual que transmite la estrategia estética a realizadores y especialistas (imágenes y textos, espacios, audiovisual, moda).</p>
+                    <p class="mb-3 ps-3 border-start border-secondary border-opacity-25"><b>En redes sociales y con modelos generativos.</b> El manual incorpora lo que necesita quien ejecuta en canales digitales: medidas y duración por formato, límite de peso por archivo, contraste mínimo de 4.5:1 y texto alternativo. Cuando parte del material se produce con modelos generativos, incluye el prompt base, el modelo y su versión, la semilla, los parámetros y los criterios de descarte, de modo que otra persona reproduzca la misma imagen y el encargo quede auditable. La función del libro es la misma de 2012: fijar el criterio estético y dejar margen de decisión a cada especialista.</p>
+
+                    <p class="mb-0">El método no delega tres cosas: el concepto, que sigue siendo uno por proyecto; los «noes», que se declaran antes de producir; y el trabajo de campo con usuarios. Este aplicativo produce el encargo escrito; la decisión estética la toma quien dirige el arte.</p>
                     <p class="form-text mt-2 mb-0">Cano, J. (2012). <i>El método CB&amp;CB&amp;CB 1.0</i>. Máster en Diseño y Dirección de Arte, ELISAVA, Barcelona.</p>
                   </div>
               </details>
@@ -417,9 +438,39 @@
               <pre id="promptOutput">El prompt aparecerá aquí a medida que completes el formulario.</pre>
             </div>
           </div>
+
+          </div>
         </div>
       </section>
     </div>
+
+    <section class="mt-4">
+        <div class="panel mt-4">
+          <div class="panel-head d-flex flex-wrap align-items-center justify-content-between gap-2">
+            <div>
+              <div class="section-title">Mapa del proceso</div>
+              <div class="small text-secondary" id="estadoMapa">Del brief a la publicación, con el plazo repartido por fase.</div>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+              <button class="btn btn-sm btn-slate" type="button" onclick="copiarMapa()">Copiar tabla</button>
+              <button class="btn btn-sm btn-slate" type="button" onclick="descargarMapa()">Mapa .csv</button>
+            </div>
+          </div>
+          <div class="p-3 p-lg-4">
+            <div class="tabla-wrap">
+              <table class="mapa">
+                <thead>
+                  <tr>
+                    <th>Fase</th><th>Días</th><th>Entregable y formato técnico</th>
+                    <th>Responsable sugerido</th><th>Restricciones</th>
+                  </tr>
+                </thead>
+                <tbody id="cuerpoMapa"></tbody>
+              </table>
+            </div>
+            <p class="form-text mt-2 mb-0">Los días se reparten sobre el plazo declarado con el método del resto mayor: la suma de la columna coincide siempre con el total. «&lt;1» indica una fase que comparte jornada con la siguiente.</p>
+          </div>
+    </section>
 
     <footer class="mt-5 pt-3 pb-4 text-center">
       Unidad Didáctica de Producción de Piezas Gráficas 2026 · Mg. Mario Quiroz Martínez<br>
@@ -474,36 +525,42 @@ const ESTRUCTURAS = {
     ['A', 'Acción', 'La tarea concreta que se pide.'],
     ['C', 'Contexto', 'Datos del encargo: cliente, soporte, canales, presupuesto, plazo.'],
     ['E', 'Expectativa', 'Formato y nivel de detalle de la respuesta.']],
-    uso: 'Encargos completos con cliente definido. Es la más usada para briefs de dirección de arte.' },
+    uso: 'Encargos completos con cliente definido. Es la más usada para briefs de dirección de arte.',
+    ventaja: 'El rol abre el texto y la expectativa lo cierra, así la respuesta se revisa contra el formato pedido sin releer el encargo. Sirve cuando el resultado se presenta al cliente y hay que justificar cada decisión.' },
   APE: { titulo: 'APE', partes: [
     ['A', 'Acción', 'Qué debe hacerse.'],
     ['P', 'Propósito', 'Para qué sirve el resultado.'],
     ['E', 'Expectativa', 'Cómo debe entregarse.']],
-    uso: 'Consultas rápidas y de baja complejidad: una pieza, un ajuste, una lista.' },
+    uso: 'Consultas rápidas y de baja complejidad: una pieza, un ajuste, una lista.',
+    ventaja: 'Tres bloques y menos de 120 palabras: el costo de escribirlo es bajo, de modo que permite varias consultas seguidas dentro de una misma sesión de trabajo.' },
   IDEA: { titulo: 'IDEA', partes: [
     ['I', 'Instrucción', 'La orden principal, en una frase.'],
     ['D', 'Detalle', 'Restricciones técnicas, medidas, materiales.'],
     ['E', 'Ejemplo', 'Referencia concreta que fija el estándar.'],
     ['A', 'Ajuste', 'Qué corregir en las iteraciones siguientes.']],
-    uso: 'Trabajo iterativo sobre una pieza que ya existe y se corrige por rondas.' },
+    uso: 'Trabajo iterativo sobre una pieza que ya existe y se corrige por rondas.',
+    ventaja: 'Separa la orden del ajuste: en la segunda ronda se reescribe solo el bloque de ajuste y el resto del encargo permanece igual, lo que deja ver qué cambió entre versiones.' },
   TAG: { titulo: 'TAG', partes: [
     ['T', 'Tarea', 'El encargo en una línea.'],
     ['A', 'Acción', 'Los pasos que se deben ejecutar.'],
     ['G', 'Meta (Goal)', 'El resultado medible.']],
-    uso: 'Gestión de proyecto: cronogramas, repartos de tareas, hitos.' },
+    uso: 'Gestión de proyecto: cronogramas, repartos de tareas, hitos.',
+    ventaja: 'La meta se declara en unidades medibles —piezas, días y monto—, así lo entregado se compara contra el cronograma sin discutir criterios de gusto.' },
   CARE: { titulo: 'CARE', partes: [
     ['C', 'Contexto', 'Situación del cliente y del mercado.'],
     ['A', 'Acción', 'Lo que se solicita.'],
     ['R', 'Resultado', 'El entregable esperado.'],
     ['E', 'Ejemplo', 'Muestra del formato de salida.']],
-    uso: 'Casos donde el contexto de marca pesa más que la ejecución técnica.' },
+    uso: 'Casos donde el contexto de marca pesa más que la ejecución técnica.',
+    ventaja: 'El ejemplo fija el formato de salida, lo que reduce la variación entre respuestas cuando varias personas del equipo usan el mismo prompt.' },
   RISEN: { titulo: 'RISEN', partes: [
     ['R', 'Rol', 'Perfil profesional que responde.'],
     ['I', 'Instrucciones', 'La tarea y sus condiciones.'],
     ['S', 'Pasos (Steps)', 'Secuencia numerada de ejecución.'],
     ['E', 'Meta final (End goal)', 'Criterio de cierre del proyecto.'],
     ['N', 'Acotación (Narrowing)', 'Límites, exclusiones y los «noes».']],
-    uso: 'Proyectos largos con fases, presupuesto y varios especialistas implicados.' }
+    uso: 'Proyectos largos con fases, presupuesto y varios especialistas implicados.',
+    ventaja: 'Los pasos numerados sostienen el orden de las fases en textos largos y la acotación final mantiene las exclusiones a la vista, donde otras estructuras las pierden.' }
 };
 
 const CHECKLIST = [
@@ -568,11 +625,12 @@ const AYUDAS = {
     'Context Box + Concept Board: se cierra en el concepto, sin manual.',
     'Solo Creative Book: el concepto ya está aprobado y falta el universo visual.'] },
   fEstructura: { t: 'Estructura del prompt', p: [
-    'TAG y APE: encargos breves, una pieza o un ajuste.',
-    'RACE: encargo completo con cliente definido.',
-    'IDEA: corrección por rondas sobre algo que ya existe.',
-    'CARE: el contexto de marca pesa más que la ejecución.',
-    'RISEN: proyecto con fases, presupuesto y varios especialistas.'] },
+    'APE y TAG: encargos breves. Ventaja: se escriben rápido y admiten varias consultas seguidas; TAG además deja la meta en unidades medibles.',
+    'RACE: encargo completo con cliente definido. Ventaja: rol al inicio y formato al final, la respuesta se revisa sin releer el encargo.',
+    'IDEA: corrección por rondas. Ventaja: solo se reescribe el bloque de ajuste, lo que deja ver qué cambió entre versiones.',
+    'CARE: el contexto de marca manda. Ventaja: el ejemplo fija el formato y reduce la variación entre respuestas del equipo.',
+    'RISEN: proyecto con fases y varios especialistas. Ventaja: sostiene el orden de las fases y mantiene las exclusiones a la vista.',
+    'Compara las seis en la guía estructural, bajo el formulario.'] },
   fRol: { t: 'Rol del director/a de arte', p: [
     'Declara el perfil y su nivel de experiencia.',
     'Menciona al equipo con el que cuentas, si el encargo lo define.'],
@@ -806,7 +864,7 @@ function pasosMetodo(d) {
     '1. Context Box: documenta los nueve ámbitos (contexto, referentes, tendencias, trabajo de campo, la imagen, el relato, la palabra, la expresión y los «noes») con los datos del encargo.',
     '2. Wall Concept: relaciona los hallazgos por columnas y propón etiquetas verbales nuevas.',
     '3. Concept Board: formula un único concepto nuclear en una frase de máximo 12 palabras, con tres imágenes de anclaje descritas en texto.',
-    '4. Creative Book: despliega el Universo Visual Sintético para ' + (d.soporte || 'las piezas del encargo') + ' y su bajada a ' + d.canales + '.'
+    '4. Creative Book: despliega el Universo Visual Sintético para ' + (d.soporte || 'las piezas del encargo') + ' y su bajada a ' + d.canales + '. Incluye medidas y duración por formato; si alguna imagen se produce con un modelo generativo, registra modelo, versión, prompt, semilla y criterio de descarte.'
   ].join('\n');
 }
 
@@ -819,7 +877,11 @@ function salidasSolicitadas(d) {
     'Checklist de entrega': 'Checklist de entrega con criterios de aprobación por pieza.'
   };
   const lista = (d.entregables.length ? d.entregables : ['Mapa de proceso', 'Tabla de fases', 'Desglose técnico']);
-  return lista.map((k, i) => (i + 1) + '. ' + (mapa[k] || k)).join('\n');
+  let txt = lista.map((k, i) => (i + 1) + '. ' + (mapa[k] || k)).join('\n');
+  if (lista.indexOf('Mapa de proceso') >= 0 || lista.indexOf('Tabla de fases') >= 0) {
+    txt += '\n\nBase de fases calculada para este encargo (del brief a la publicación). Respétala; si propones un cambio, indica en qué fila y por qué:\n\n' + mapaMarkdown(d);
+  }
+  return txt;
 }
 
 function reglasSalida(d) {
@@ -891,6 +953,7 @@ function actualizarPrompt() {
   if (!currentUser || bloqueoActualizacion) return;
   if (viendoHistorial) { viendoHistorial = false; $('avisoHistorial').classList.add('hidden'); }
   const d = datosFormulario();
+  renderMapa(d);
   if (!d.cliente) {
     promptActual = '';
     $('promptOutput').textContent = 'Escribe el nombre del cliente para generar el prompt.';
@@ -910,6 +973,160 @@ function actualizarMetricas(d, texto) {
   $('mDias').textContent = d.dias || '—';
   $('mPresu').textContent = d.presupuesto.startsWith('S/') ? d.presupuesto : '—';
   $('mPalabras').textContent = texto ? texto.trim().split(/\s+/).length : '—';
+}
+
+/* ---------------------- 5b. MAPA DEL PROCESO ---------------------- */
+const FMT_CANAL = {
+  'Instagram': '1080 × 1350 px (feed) y 1080 × 1920 px (historias), JPG sRGB',
+  'TikTok': '1080 × 1920 px, MP4 H.264, hasta 60 s, texto fuera del 12 % inferior',
+  'Sitio web': 'JPG o WebP de 1600 px de ancho, menos de 300 KB por imagen',
+  'Email marketing': '600 × 1200 px, peso total del correo por debajo de 1 MB',
+  'Pinterest': '1000 × 1500 px, relación 2:3',
+  'YouTube': '1920 × 1080 px, MP4 H.264; miniatura 1280 × 720 px',
+  'Punto de venta': 'PDF/X-1a a tamaño real, 150 ppp, con sangrado de 3 mm'
+};
+
+function formatosPorCanal(d) {
+  const lista = d.canales === 'sin canales digitales definidos' ? [] : d.canales.split(', ');
+  if (!lista.length) return 'Sin canales marcados: no hay adaptaciones que producir.';
+  return lista.map((c) => c + ': ' + (FMT_CANAL[c] || 'según la especificación técnica del canal')).join('. ');
+}
+
+function esImpreso(d) { return d.formato !== 'Digital'; }
+function esDigital(d) { return d.formato !== 'Analógico'; }
+
+function FASES(d) {
+  const prodImpresa = 'PDF/X-1a:2001, CMYK, 300 ppp, 3 mm de sangrado, marcas de corte y troquel vectorial en .ai';
+  const prodDigital = 'PNG y JPG en sRGB, MP4 H.264 a 1080p y editables .ai, .psd o .aep';
+  const valImpresa = 'Prueba de color contractual y ozalid firmado por el cliente';
+  const valDigital = 'Previsualización en dispositivo real, contraste mínimo 4.5:1 y texto alternativo redactado';
+  const entImpresa = 'Orden de producción a imprenta, con control de tiraje y muestra de aprobación';
+  const entDigital = 'Carpeta de entrega con artes finales, editables y manual, más calendario de publicación';
+  const y = (a, b) => a + '. ' + b;
+  return [
+    { f: 'Brief y encargo', peso: 5,
+      e: 'Acta de encargo con alcance, piezas, monto y fecha',
+      fmt: 'PDF A4 de una página, firmado por ambas partes',
+      r: 'Dirección de arte con el cliente',
+      x: 'El monto (' + d.presupuesto + ') y el plazo (' + d.dias + ' días hábiles) quedan cerrados aquí; cualquier cambio posterior reabre la negociación.' },
+    { f: 'Context Box', peso: 20,
+      e: 'Los nueve ámbitos documentados y el archivo de imágenes',
+      fmt: 'Carpeta digital y PDF A4; imágenes a 72 ppp con URL, autor y fecha de consulta',
+      r: 'Dirección de arte con apoyo de investigación',
+      x: 'Sin propuestas de solución en esta fase. Cada referencia lleva fuente; el material generado con modelos de IA se guarda con modelo, versión, prompt y semilla.' },
+    { f: 'Wall Concept', peso: 8,
+      e: 'Muro por columnas con etiquetas verbales nuevas',
+      fmt: 'Fotografía JPG de 3000 px del muro y tablero digital equivalente',
+      r: 'Equipo completo, moderado por la dirección de arte',
+      x: 'Las relaciones se nombran con palabras, no con imágenes. Nada se descarta antes de cruzarlo con otra columna.' },
+    { f: 'Concept Board', peso: 10,
+      e: 'Concepto nuclear en una frase e imágenes de anclaje',
+      fmt: 'PDF A4 de una página a 150 ppp',
+      r: 'Dirección de arte',
+      x: 'Un solo concepto por proyecto y una frase de doce palabras como máximo. Las imágenes acompañan la frase, no la sustituyen.' },
+    { f: 'Creative Book', peso: 15,
+      e: 'Universo Visual Sintético: tono, color, tipografía, luz, encuadre y usos',
+      fmt: 'PDF A4 apaisado, paleta en HEX y Pantone, tipografías con licencia declarada',
+      r: 'Dirección de arte, para realizadores y especialistas',
+      x: 'Recoge los «noes» declarados: ' + d.noes + '. Deja margen de decisión a cada especialista.' },
+    { f: 'Producción de piezas', peso: 20,
+      e: 'Artes finales de ' + (d.soporte || 'las piezas del encargo'),
+      fmt: esImpreso(d) && esDigital(d) ? y(prodImpresa, prodDigital) : (esImpreso(d) ? prodImpresa : prodDigital),
+      r: 'Producción gráfica, con fotografía, ilustración o motion según la pieza',
+      x: 'Ninguna pieza sale sin revisión ortotipográfica ni sin sus archivos editables. El presupuesto de producción se mantiene dentro de ' + d.presupuesto + '.' },
+    { f: 'Validación técnica', peso: 8,
+      e: 'Prueba aprobada por escrito',
+      fmt: esImpreso(d) && esDigital(d) ? y(valImpresa, valDigital) : (esImpreso(d) ? valImpresa : valDigital),
+      r: esImpreso(d) ? 'Preprensa del proveedor gráfico' : 'Desarrollo web o gestión de contenidos',
+      x: 'Sin prueba aprobada no se pasa a publicación. Los errores detectados aquí se corrigen sobre el archivo editable, no sobre el cerrado.' },
+    { f: 'Adaptación por canal', peso: 8,
+      e: 'Piezas adaptadas a cada canal declarado',
+      fmt: formatosPorCanal(d),
+      r: 'Diseño digital con gestión de redes',
+      x: 'Cada adaptación conserva el concepto: cambia el formato, no el fondo. Las variantes generadas con IA se registran con su prompt y semilla.' },
+    { f: 'Publicación o entrega', peso: 6,
+      e: 'Piezas publicadas o entregadas al cliente',
+      fmt: esImpreso(d) && esDigital(d) ? y(entImpresa, entDigital) : (esImpreso(d) ? entImpresa : entDigital),
+      r: 'Cliente, con acompañamiento de la dirección de arte',
+      x: 'Fecha límite: ' + d.limite + ', en formato ' + d.formato + '. La entrega incluye el Creative Book, no solo los archivos finales.' }
+  ];
+}
+
+function repartirDias(fases, total) {
+  const brutos = fases.map((f) => total * f.peso / 100);
+  const enteros = brutos.map(Math.floor);
+  let resto = total - enteros.reduce((a, b) => a + b, 0);
+  const orden = brutos.map((b, i) => [b - Math.floor(b), i]).sort((a, b) => b[0] - a[0]);
+  for (let k = 0; k < orden.length && resto > 0; k++) { enteros[orden[k][1]]++; resto--; }
+  return enteros;
+}
+
+function mapaDeProceso(d) {
+  const fases = FASES(d);
+  const dias = repartirDias(fases, d.dias);
+  return fases.map((f, i) => ({
+    fase: f.f, dias: dias[i], entregable: f.e, formato: f.fmt, responsable: f.r, restriccion: f.x
+  }));
+}
+
+function renderMapa(d) {
+  const cuerpo = $('cuerpoMapa');
+  cuerpo.innerHTML = '';
+  const filas = mapaDeProceso(d);
+  filas.forEach((r) => {
+    const tr = document.createElement('tr');
+    const celda = (txt, clase) => { const td = document.createElement('td'); if (clase) td.className = clase; td.textContent = txt; return td; };
+    tr.appendChild(celda(r.fase, 'fase'));
+    tr.appendChild(celda(r.dias > 0 ? String(r.dias) : '<1', 'dias'));
+    const td = document.createElement('td');
+    td.textContent = r.entregable;
+    const sp = document.createElement('span');
+    sp.className = 'fmt';
+    sp.textContent = r.formato;
+    td.appendChild(sp);
+    tr.appendChild(td);
+    tr.appendChild(celda(r.responsable));
+    tr.appendChild(celda(r.restriccion));
+    cuerpo.appendChild(tr);
+  });
+  $('estadoMapa').textContent = filas.length + ' fases · ' + d.dias + ' días hábiles · entrega el ' + d.limite;
+}
+
+function mapaMarkdown(d) {
+  const filas = mapaDeProceso(d);
+  return '| Fase | Días | Entregable | Formato técnico | Responsable | Restricciones |\n'
+    + '| --- | --- | --- | --- | --- | --- |\n'
+    + filas.map((r) => '| ' + [r.fase, r.dias > 0 ? r.dias : '<1', r.entregable, r.formato, r.responsable, r.restriccion]
+        .map((c) => String(c).replace(/\|/g, '\\|')).join(' | ') + ' |').join('\n') + '\n';
+}
+
+function mapaCSV(d) {
+  const esc = (v) => '"' + String(v).replace(/"/g, '""') + '"';
+  const filas = mapaDeProceso(d);
+  return '\uFEFF' + ['fase', 'dias_habiles', 'entregable', 'formato_tecnico', 'responsable', 'restricciones'].join(',') + '\n'
+    + filas.map((r) => [r.fase, r.dias, r.entregable, r.formato, r.responsable, r.restriccion].map(esc).join(',')).join('\n') + '\n';
+}
+
+async function copiarMapa() {
+  const d = datosFormulario();
+  if (!d.cliente) { toast('Completa el cliente antes de copiar el mapa.'); return; }
+  const texto = 'Mapa del proceso — ' + d.cliente + '\n\n' + mapaMarkdown(d);
+  try {
+    if (navigator.clipboard && window.isSecureContext) await navigator.clipboard.writeText(texto);
+    else {
+      const ta = document.createElement('textarea');
+      ta.value = texto; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+    }
+    toast('Mapa del proceso copiado en formato Markdown.');
+  } catch (e) { toast('El navegador bloqueó el portapapeles.'); }
+}
+
+function descargarMapa() {
+  const d = datosFormulario();
+  if (!d.cliente) { toast('Completa el cliente antes de descargar el mapa.'); return; }
+  bajarArchivo('mapa-proceso-' + slug(d.cliente) + '.csv', mapaCSV(d), 'text/csv');
+  toast('Mapa del proceso descargado en .csv');
 }
 
 /* --------------------------- 6. PLANTILLA DE CASO --------------------------- */
@@ -1106,7 +1323,8 @@ function comoMarkdown(d) {
   return '# Prompt de dirección de arte — ' + d.cliente + '\n\n'
     + '| Campo | Valor |\n| --- | --- |\n'
     + filas.map((f) => '| ' + f[0] + ' | ' + String(f[1]).replace(/\|/g, '\\|') + ' |').join('\n')
-    + '\n\n## Prompt generado\n\n```text\n' + promptActual + '```\n\n'
+    + '\n\n## Mapa del proceso\n\n' + mapaMarkdown(d)
+    + '\n## Prompt generado\n\n```text\n' + promptActual + '```\n\n'
     + '---\nUnidad Didáctica de Producción de Piezas Gráficas 2026 · Mg. Mario Quiroz Martínez · Método CB&CB&CB\n';
 }
 
@@ -1135,14 +1353,22 @@ function descargar(tipo) {
 /* ------------------------- 9. GUÍA Y CHECKLIST ------------------------- */
 function pintarGuiaEstructura() {
   const e = ESTRUCTURAS[$('fEstructura').value];
-  $('ayudaEstructura').textContent = e.uso;
+  $('ayudaEstructura').innerHTML = '';
+  const u = document.createElement('div');
+  u.textContent = 'Uso: ' + e.uso;
+  const v = document.createElement('div');
+  v.className = 'mt-1 accent';
+  v.textContent = 'Ventaja estratégica: ' + e.ventaja;
+  $('ayudaEstructura').appendChild(u);
+  $('ayudaEstructura').appendChild(v);
   const cont = $('estructurasBox');
   if (!cont.dataset.listo) {
     cont.innerHTML = Object.keys(ESTRUCTURAS).map((k) => {
       const x = ESTRUCTURAS[k];
       return '<div class="mb-3"><div class="fw-semibold accent">' + x.titulo + '</div>'
         + '<ul class="mb-1 ps-3">' + x.partes.map((p) => '<li><b>' + p[0] + '</b> · ' + p[1] + ': ' + p[2] + '</li>').join('') + '</ul>'
-        + '<div class="form-text">Uso: ' + x.uso + '</div></div>';
+        + '<div class="form-text">Uso: ' + x.uso + '</div>'
+        + '<div class="form-text accent">Ventaja estratégica: ' + x.ventaja + '</div></div>';
     }).join('');
     cont.dataset.listo = '1';
   }
