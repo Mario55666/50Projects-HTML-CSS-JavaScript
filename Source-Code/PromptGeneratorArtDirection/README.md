@@ -6,7 +6,14 @@ entrega) en un prompt estructurado según el método CB&CB&CB —Context Box, Co
 Creative Book— descrito por Jordi Cano (ELISAVA, 2012).
 
 Destinatario: estudiantes de segundo semestre de diseño publicitario, Unidad Didáctica de
-Producción de Piezas Gráficas 2026.
+Producción de Piezas Gráficas 2026, Mg. Mario Quiroz Martínez.
+
+El aplicativo no genera imágenes ni redacta el proyecto: produce el encargo escrito con el
+que se pide ese trabajo a un modelo de lenguaje. El estudiante ejercita cuatro operaciones:
+traducir un brief a lenguaje verbal preciso, cuantificar el encargo, declarar los «noes»
+antes de producir y fijar el formato de salida que se exige. Esa explicación aparece en el
+panel «Qué es "Generador de Prompts · Dirección de Arte" y para qué sirve», desplegado al
+inicio del panel principal.
 
 ## Archivos
 
@@ -42,6 +49,12 @@ Producción de Piezas Gráficas 2026.
    limitados a 50. Un clic reinyecta cualquier prompt antiguo en la vista previa.
 7. **Checklist de once criterios** del prompt y resumen de las etapas CB&CB&CB, con estado
    guardado en `checklist_<usuario>`.
+8. **Instructivo por campo.** Cada etiqueta lleva un botón `?` que abre una ventana
+   emergente con la regla de redacción del campo, entre dos y cuatro indicaciones y un
+   ejemplo. Donde el campo admite texto, un botón inserta ese ejemplo y dispara la
+   validación y el renderizado. Los dieciséis instructivos están en la constante `AYUDAS`
+   y se inyectan en `window.onload` con `inyectarAyudas()`; la ventana se cierra con
+   `Escape`, con un clic fuera o con su propio botón.
 
 ## Validación de campos numéricos
 

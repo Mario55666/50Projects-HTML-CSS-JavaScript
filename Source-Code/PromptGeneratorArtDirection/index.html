@@ -97,6 +97,21 @@
   .guia-cuerpo{padding:.9rem 1rem; font-size:.85rem; color:var(--slate-300);}
   .cerrar-x{background:none; border:0; color:var(--slate-400); font-size:1.4rem; line-height:1;}
   .cerrar-x:hover{color:#fff;}
+  .btn-ayuda{width:18px; height:18px; margin-left:.4rem; padding:0; border-radius:50%; border:1px solid var(--amber-600);
+    background:var(--amber-soft); color:var(--amber-400); font-size:.68rem; font-weight:700; line-height:1;
+    cursor:pointer; vertical-align:middle;}
+  .btn-ayuda:hover,.btn-ayuda:focus{background:var(--amber-600); color:#1c1207;}
+  .pop-ayuda{position:absolute; z-index:1090; width:min(330px,92vw); background:var(--slate-850);
+    border:1px solid var(--amber-600); border-radius:.7rem; padding:.85rem .95rem; color:var(--slate-300);
+    font-size:.82rem; line-height:1.45; box-shadow:0 16px 34px rgba(2,6,23,.6);}
+  .pop-ayuda h6{color:var(--amber-400); font-size:.8rem; font-weight:700; text-transform:uppercase;
+    letter-spacing:.05em; margin:0 0 .35rem;}
+  .pop-ayuda ul{padding-left:1.05rem; margin:.25rem 0 .5rem;}
+  .pop-ayuda li{margin-bottom:.15rem;}
+  .pop-ayuda .pop-ej{display:block; background:var(--slate-950); border:1px solid var(--slate-800); border-radius:.45rem;
+    padding:.45rem .55rem; margin:.35rem 0 .6rem; color:#e2e8f0;
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:.74rem; white-space:pre-wrap;}
+  .pop-ayuda .pop-pie{display:flex; gap:.4rem; flex-wrap:wrap;}
   ::-webkit-scrollbar{width:9px;height:9px}
   ::-webkit-scrollbar-track{background:var(--slate-900)}
   ::-webkit-scrollbar-thumb{background:var(--slate-700);border-radius:9px}
@@ -114,7 +129,8 @@
         <span class="fw-semibold">Generador de Prompts · Dirección de Arte</span>
       </div>
       <h1 class="h5 mb-1">Método CB&amp;CB&amp;CB</h1>
-      <p class="text-secondary small mb-0">Context Box · Concept Board · Creative Book</p>
+      <p class="text-secondary small mb-2">Context Box · Concept Board · Creative Book</p>
+      <p class="text-secondary small mb-0">Aplicativo que convierte los datos de un encargo de diseño en un prompt escrito, para redactar encargos de dirección de arte con datos verificables.</p>
     </div>
 
     <div class="panel p-3 p-sm-4">
@@ -159,7 +175,7 @@
 
       <p class="form-text mt-3 mb-0">Los datos se guardan en <code>localStorage</code> de este navegador, en texto plano. No registres contraseñas que uses en otros servicios.</p>
     </div>
-    <p class="text-center form-text mt-3 mb-0">Unidad Didáctica de Producción de Piezas Gráficas 2026</p>
+    <p class="text-center form-text mt-3 mb-0">Unidad Didáctica de Producción de Piezas Gráficas 2026 · Mg. Mario Quiroz Martínez</p>
   </div>
 </section>
 
@@ -196,6 +212,15 @@
   </nav>
 
   <main class="container-fluid px-3 px-lg-4 py-4">
+    <details class="guia-item mb-4" id="acercaDe" open>
+      <summary>Qué es «Generador de Prompts · Dirección de Arte» y para qué sirve</summary>
+      <div class="guia-cuerpo">
+        <p class="mb-2"><b class="accent">Qué es.</b> Un aplicativo web que recibe los datos de un encargo de diseño —cliente, cantidad y soporte de las piezas, canales digitales, presupuesto en soles, plazo en días hábiles y formato de entrega— y devuelve un texto ordenado: el prompt. Ese texto se entrega a un modelo de lenguaje para obtener el mapa de proceso, la tabla de fases y el desglose técnico del proyecto. El aplicativo no genera imágenes ni redacta el proyecto: produce el encargo escrito con el que se pide ese trabajo.</p>
+        <p class="mb-2"><b class="accent">Qué hace por dentro.</b> Ordena los datos en los ámbitos del método CB&amp;CB&amp;CB (Cano, ELISAVA, 2012): la etapa Context Box recoge contexto, referentes, tendencias, la palabra, la expresión y los «noes»; el Concept Board concreta un único concepto nuclear; el Creative Book despliega el universo visual para los especialistas. Sobre ese contenido aplica una de seis estructuras de redacción —RACE, APE, IDEA, TAG, CARE o RISEN— que cambia el orden y el nivel de detalle del prompt.</p>
+        <p class="mb-2"><b class="accent">Qué practica el estudiante.</b> En la Unidad Didáctica de Producción de Piezas Gráficas 2026 este aplicativo se usa para ejercitar cuatro operaciones: (1) traducir un brief a lenguaje verbal preciso, la herramienta que el método llama «la palabra»; (2) cuantificar el encargo —número de piezas, medidas, monto y días hábiles— en lugar de describirlo con adjetivos; (3) declarar los «noes» antes de empezar a producir; y (4) fijar el formato de salida que se exige, de modo que la respuesta se pueda revisar contra un criterio. Cada campo tiene un botón <b>?</b> con la instrucción de redacción y un ejemplo que se puede insertar.</p>
+        <p class="mb-0"><b class="accent">Cómo se trabaja.</b> Carga la plantilla «Café Origen» para ver un caso resuelto, sustituye los datos por los de tu encargo, revisa el checklist de once criterios, copia el prompt o descárgalo en .md, .csv o .txt, y guarda la versión en el historial para compararla con las siguientes.</p>
+      </div>
+    </details>
     <div class="row g-4">
 
       <!-- ---------------------------- COLUMNA FORMULARIO ---------------------------- -->
@@ -226,7 +251,7 @@
               </div>
 
               <div class="col-12">
-                <label class="form-label">Canales digitales</label>
+                <label class="form-label" id="lblfCanales">Canales digitales</label>
                 <div class="d-flex flex-wrap gap-3" id="fCanales">
                   <div class="form-check"><input class="form-check-input" type="checkbox" value="Instagram" id="c1" onchange="actualizarPrompt()"><label class="form-check-label" for="c1">Instagram</label></div>
                   <div class="form-check"><input class="form-check-input" type="checkbox" value="TikTok" id="c2" onchange="actualizarPrompt()"><label class="form-check-label" for="c2">TikTok</label></div>
@@ -236,7 +261,8 @@
                   <div class="form-check"><input class="form-check-input" type="checkbox" value="YouTube" id="c6" onchange="actualizarPrompt()"><label class="form-check-label" for="c6">YouTube</label></div>
                   <div class="form-check"><input class="form-check-input" type="checkbox" value="Punto de venta" id="c7" onchange="actualizarPrompt()"><label class="form-check-label" for="c7">Punto de venta</label></div>
                 </div>
-                <input type="text" class="form-control mt-2" id="fCanalOtro" placeholder="Otros canales (separa con comas)" oninput="actualizarPrompt()">
+                <label class="form-label mt-2" for="fCanalOtro">Otros canales</label>
+                <input type="text" class="form-control" id="fCanalOtro" placeholder="Otros canales (separa con comas)" oninput="actualizarPrompt()">
               </div>
 
               <div class="col-12 col-sm-6">
@@ -317,7 +343,7 @@
               </div>
 
               <div class="col-12"><hr class="border-secondary opacity-25 my-1"></div>
-              <div class="col-12"><div class="section-title">Paso 3 · Salidas solicitadas</div></div>
+              <div class="col-12"><div class="section-title" id="lblfEntregables">Paso 3 · Salidas solicitadas</div></div>
               <div class="col-12">
                 <div class="d-flex flex-wrap gap-3" id="fEntregables">
                   <div class="form-check"><input class="form-check-input" type="checkbox" value="Mapa de proceso" id="e1" checked onchange="actualizarPrompt()"><label class="form-check-label" for="e1">Mapa de proceso</label></div>
@@ -396,7 +422,8 @@
     </div>
 
     <footer class="mt-5 pt-3 pb-4 text-center">
-      Unidad Didáctica de Producción de Piezas Gráficas 2026 · Método CB&amp;CB&amp;CB (Cano, ELISAVA, 2012)
+      Unidad Didáctica de Producción de Piezas Gráficas 2026 · Mg. Mario Quiroz Martínez<br>
+      Método CB&amp;CB&amp;CB (Cano, ELISAVA, 2012)
     </footer>
   </main>
 
@@ -492,6 +519,93 @@ const CHECKLIST = [
   'Formato de salida exigido (tabla, mapa, lista numerada).',
   'Criterio de verificación: cómo se sabe que la respuesta sirve.'
 ];
+
+/* ------------------- 2b. INSTRUCTIVOS POR CAMPO ------------------- */
+const AYUDAS = {
+  regNombre: { t: 'Nombre y apellidos', p: [
+    'Escríbelos completos, como figuran en la matrícula.',
+    'Sin abreviaturas ni apodos: el nombre aparece en la cabecera de cada prompt exportado.'],
+    ej: 'Ana Lucía Ramos Quispe' },
+  regCorreo: { t: 'Correo institucional', p: [
+    'Usa el correo que te asignó el instituto, no uno personal.',
+    'Formato habitual: nombre.apellido@dominio institucional.'],
+    ej: 'ana.ramos@idc.edu.pe' },
+  fCliente: { t: 'Cliente', p: [
+    'Razón social o nombre de marca tal como aparece en el encargo.',
+    'Añade entre paréntesis el rubro y la ciudad si el nombre no los deja claros.',
+    'Sin adjetivos de valoración: el prompt describe, no vende.'],
+    ej: 'Café Origen S.A.C. (tostaduría de café de especialidad, Lima)' },
+  fSoporte: { t: 'Cantidad y soporte', p: [
+    'Empieza por el número exacto de piezas.',
+    'Indica material y medidas en milímetros; añade el gramaje si es impreso.',
+    'Separa cada pieza con coma para que el desglose técnico las tome una por una.'],
+    ej: '3 empaques: bolsa 250 g (kraft laminado, 180 × 300 mm), caja x6 (dúplex 350 g, 210 × 140 × 90 mm), etiqueta adhesiva 90 × 60 mm' },
+  fCanales: { t: 'Canales digitales', p: [
+    'Marca solo los canales donde la pieza se publica de verdad.',
+    'Cada canal marcado obliga a un formato distinto en el desglose técnico.',
+    'Si el encargo no define canales, deja las casillas vacías y escríbelo en el objetivo.'] },
+  fCanalOtro: { t: 'Otros canales', p: [
+    'Anota los canales que no están en la lista, separados por comas.',
+    'Añade el formato entre paréntesis cuando sea una pieza física.'],
+    ej: 'Ferias de café (roll-up 850 × 2000 mm), radio interna del punto de venta' },
+  fPresupuesto: { t: 'Presupuesto', p: [
+    'Monto total en soles, sin símbolo ni separador de miles.',
+    'Usa el punto como separador decimal y hasta dos decimales.',
+    'Si el encargo entrega un rango, escribe el techo del rango.'],
+    ej: '4800.00' },
+  fDias: { t: 'Plazo hábil', p: [
+    'Cuenta solo días laborables entre el encargo y la entrega.',
+    'No incluyas sábados, domingos ni feriados.',
+    'El aplicativo calcula la fecha límite saltando los fines de semana.'],
+    ej: '15' },
+  fFormato: { t: 'Formato de entrega', p: [
+    'Digital: archivos abiertos y cerrados, sin producción física.',
+    'Analógico: piezas impresas o construidas.',
+    'Mixto: ambos. La elección cambia el desglose técnico y las partidas del presupuesto.'] },
+  fMetodologia: { t: 'Metodología', p: [
+    'CB&CB&CB completo: el proyecto parte de cero y recorre las tres etapas.',
+    'Solo Context Box: la entrega es la investigación documentada.',
+    'Context Box + Concept Board: se cierra en el concepto, sin manual.',
+    'Solo Creative Book: el concepto ya está aprobado y falta el universo visual.'] },
+  fEstructura: { t: 'Estructura del prompt', p: [
+    'TAG y APE: encargos breves, una pieza o un ajuste.',
+    'RACE: encargo completo con cliente definido.',
+    'IDEA: corrección por rondas sobre algo que ya existe.',
+    'CARE: el contexto de marca pesa más que la ejecución.',
+    'RISEN: proyecto con fases, presupuesto y varios especialistas.'] },
+  fRol: { t: 'Rol del director/a de arte', p: [
+    'Declara el perfil y su nivel de experiencia.',
+    'Menciona al equipo con el que cuentas, si el encargo lo define.'],
+    ej: 'Director/a de arte junior con apoyo de un retocador y una fotógrafa de producto' },
+  fPublico: { t: 'Público del proyecto', p: [
+    'Es el público del cliente, no el del curso.',
+    'Indica rango de edad, ubicación, hábito de consumo y momento de uso.',
+    'Evita etiquetas genéricas como «público moderno».'],
+    ej: 'Adultos de 25 a 40 años, Lima urbana, compran café de especialidad para prepararlo en casa los fines de semana' },
+  fObjetivo: { t: 'Objetivo del encargo', p: [
+    'Una sola oración: verbo en infinitivo + qué se hace + para qué.',
+    'El «para qué» debe poder verificarse al final del proyecto.'],
+    ej: 'Rediseñar el sistema de empaque de la línea de origen para diferenciarla en góndola frente a tres competidores directos' },
+  fReferentes: { t: 'Referentes y tendencias', p: [
+    'Entre dos y cuatro referentes con nombre propio y una razón por cada uno.',
+    'Añade una o dos tendencias tomadas de los ocho atributos del método: apropiación, simulacro, impureza, fusión, espectáculo, efímero, artificio y erotismo.',
+    'Los referentes acotan el territorio; no son piezas para copiar.'],
+    ej: 'Cafés de especialidad de Bogotá (uso de color plano) y de Melbourne (retícula tipográfica); cerámica utilitaria peruana por su textura; tendencias de fusión e impureza' },
+  fExpresion: { t: 'Expresión', p: [
+    'Cuatro datos separados por punto y coma: tono, estilo, género y color.',
+    'El tono es el registro de la conversación; el género ordena el imaginario.',
+    'Escribe los colores con su código hexadecimal o Pantone.'],
+    ej: 'Tono cómplice; estilo artesanal contemporáneo; género documental; paleta tierra con ámbar #D97706 y off-white #F1F5F9' },
+  fNoes: { t: 'Los «noes»', p: [
+    'Lista lo que queda descartado antes de producir.',
+    'Redáctalos en negativo y de forma verificable: cualquiera debe poder revisar si se cumplen.',
+    'Cierra caminos concretos, no categorías enteras.'],
+    ej: 'Sin sacos de yute, sin sellos de garantía, sin tipografías manuscritas, sin fotografías de granos sobre madera' },
+  fEntregables: { t: 'Salidas solicitadas', p: [
+    'Marca lo que exige el encargo o la rúbrica de la sesión.',
+    'Cada casilla añade un bloque con reglas al final del prompt.',
+    'La tabla de fases obliga a que la suma de días coincida con el plazo declarado.'] }
+};
 
 /* --------------------------- 3. AUTENTICACIÓN --------------------------- */
 function cambiarTabAuth(cual) {
@@ -911,6 +1025,7 @@ document.addEventListener('click', (ev) => {
 document.addEventListener('keydown', (ev) => {
   if (ev.key !== 'Escape') return;
   cerrarHistorial();
+  cerrarAyuda();
   const m = $('menuUsuario');
   if (m) m.classList.add('hidden');
 });
@@ -992,7 +1107,7 @@ function comoMarkdown(d) {
     + '| Campo | Valor |\n| --- | --- |\n'
     + filas.map((f) => '| ' + f[0] + ' | ' + String(f[1]).replace(/\|/g, '\\|') + ' |').join('\n')
     + '\n\n## Prompt generado\n\n```text\n' + promptActual + '```\n\n'
-    + '---\nUnidad Didáctica de Producción de Piezas Gráficas 2026 · Método CB&CB&CB\n';
+    + '---\nUnidad Didáctica de Producción de Piezas Gráficas 2026 · Mg. Mario Quiroz Martínez · Método CB&CB&CB\n';
 }
 
 function comoCSV(d) {
@@ -1056,7 +1171,97 @@ function resumenChecklist() {
   $('chkResumen').textContent = n + ' de ' + CHECKLIST.length + ' criterios verificados.';
 }
 
-/* --------------------- 10. RESPALDO DE ESTILOS --------------------- */
+/* ------------------ 10. AYUDAS EMERGENTES POR CAMPO ------------------ */
+function inyectarAyudas() {
+  Object.keys(AYUDAS).forEach((id) => {
+    const etiqueta = document.querySelector('label[for="' + id + '"]') || $('lbl' + id);
+    if (!etiqueta || etiqueta.querySelector('.btn-ayuda')) return;
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'btn-ayuda';
+    b.textContent = '?';
+    b.setAttribute('aria-label', 'Cómo redactar: ' + AYUDAS[id].t);
+    b.onclick = (ev) => { ev.preventDefault(); ev.stopPropagation(); abrirAyuda(id, b); };
+    etiqueta.appendChild(b);
+  });
+}
+
+function cerrarAyuda() {
+  const p = $('popAyuda');
+  if (p) p.remove();
+}
+
+function abrirAyuda(id, boton) {
+  const abierta = $('popAyuda');
+  if (abierta && abierta.dataset.campo === id) { cerrarAyuda(); return; }
+  cerrarAyuda();
+  const a = AYUDAS[id];
+  const pop = document.createElement('div');
+  pop.className = 'pop-ayuda';
+  pop.id = 'popAyuda';
+  pop.dataset.campo = id;
+  const h = document.createElement('h6');
+  h.textContent = a.t;
+  pop.appendChild(h);
+  const ul = document.createElement('ul');
+  a.p.forEach((linea) => { const li = document.createElement('li'); li.textContent = linea; ul.appendChild(li); });
+  pop.appendChild(ul);
+  if (a.ej) {
+    const cod = document.createElement('code');
+    cod.className = 'pop-ej';
+    cod.textContent = a.ej;
+    pop.appendChild(cod);
+  }
+  const pie = document.createElement('div');
+  pie.className = 'pop-pie';
+  if (a.ej && $(id)) {
+    const bi = document.createElement('button');
+    bi.type = 'button';
+    bi.className = 'btn btn-sm btn-amber';
+    bi.textContent = 'Insertar ejemplo';
+    bi.onclick = () => { insertarEjemplo(id); cerrarAyuda(); };
+    pie.appendChild(bi);
+  }
+  const bc = document.createElement('button');
+  bc.type = 'button';
+  bc.className = 'btn btn-sm btn-slate';
+  bc.textContent = 'Cerrar';
+  bc.onclick = cerrarAyuda;
+  pie.appendChild(bc);
+  pop.appendChild(pie);
+  document.body.appendChild(pop);
+
+  const r = boton.getBoundingClientRect();
+  const ancho = pop.offsetWidth;
+  let x = r.left + window.scrollX;
+  if (x + ancho > window.scrollX + document.documentElement.clientWidth - 10) {
+    x = window.scrollX + document.documentElement.clientWidth - ancho - 10;
+  }
+  pop.style.left = Math.max(window.scrollX + 8, x) + 'px';
+  let y = r.bottom + window.scrollY + 6;
+  if (r.bottom + pop.offsetHeight + 16 > window.innerHeight && r.top > pop.offsetHeight + 16) {
+    y = r.top + window.scrollY - pop.offsetHeight - 6;
+  }
+  pop.style.top = y + 'px';
+  pop.addEventListener('click', (ev) => ev.stopPropagation());
+}
+
+function insertarEjemplo(id) {
+  const el = $(id);
+  if (!el) return;
+  el.value = AYUDAS[id].ej;
+  el.dispatchEvent(new Event('input', { bubbles: true }));
+  el.dispatchEvent(new Event('blur', { bubbles: true }));
+  if (id === 'fPresupuesto') normalizarPresupuesto(el);
+  actualizarPrompt();
+  el.focus();
+  toast('Ejemplo insertado en «' + AYUDAS[id].t + '».');
+}
+
+document.addEventListener('click', cerrarAyuda);
+window.addEventListener('resize', cerrarAyuda);
+
+/* --------------------- 11. RESPALDO DE ESTILOS --------------------- */
 function respaldoDeEstilos() {
   // Bootstrap aplica display:flex a .row. Si no ocurre, la CDN no cargó (primera visita sin red).
   const probe = document.createElement('div');
@@ -1098,7 +1303,7 @@ function respaldoDeEstilos() {
   toast('Sin acceso a la CDN: se aplicaron estilos de respaldo.');
 }
 
-/* ------------------------------ 11. PWA ------------------------------ */
+/* ------------------------------ 12. PWA ------------------------------ */
 function instalarPWA() {
   if (!deferredPrompt) { toast('Usa el menú del navegador: «Instalar aplicación».'); return; }
   deferredPrompt.prompt();
@@ -1128,9 +1333,10 @@ function manifiestoDeRespaldo() {
   $('manifestLink').setAttribute('href', url);
 }
 
-/* --------------------------- 12. ARRANQUE --------------------------- */
+/* --------------------------- 13. ARRANQUE --------------------------- */
 window.onload = function () {
   respaldoDeEstilos();
+  inyectarAyudas();
   estadoRed();
   cambiarTabAuth('login');
   const sesion = leer(K_SESION, null);
