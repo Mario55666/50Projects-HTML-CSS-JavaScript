@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Generador de Prompts para Dirección de Arte y Gestión de Proyectos</title>
+<meta name="description" content="Convierte encargos reales de diseño en prompts estructurados con el método CB&amp;CB&amp;CB.">
+<meta name="theme-color" content="#0f172a">
+<meta name="color-scheme" content="dark">
+<link rel="manifest" href="manifest.json" id="manifestLink">
+<link rel="icon" href="icons/icon-192.png" sizes="192x192" type="image/png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Prompts DA">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+<style>
+  :root{
+    --slate-950:#020617; --slate-900:#0f172a; --slate-850:#131c31; --slate-800:#1e293b;
+    --slate-700:#334155; --slate-600:#475569; --slate-400:#94a3b8; --slate-300:#cbd5e1;
+    --slate-100:#f1f5f9; --amber-600:#D97706; --amber-500:#f59e0b; --amber-400:#fbbf24;
+    --amber-soft:rgba(217,119,6,.14);
+  }
+  html,body{background:var(--slate-950);}
+  body{
+    font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    color:var(--slate-100); min-height:100vh; -webkit-font-smoothing:antialiased;
+  }
+  /* Utilidades declaradas en el encargo (equivalentes Tailwind sobre Bootstrap 5) */
+  .hidden{display:none !important;}
+  .border-red-500{border-color:#ef4444 !important; box-shadow:0 0 0 .2rem rgba(239,68,68,.18) !important;}
+
+  .bg-slate-900{background:var(--slate-900);}
+  .panel{background:var(--slate-900); border:1px solid var(--slate-800); border-radius:1rem;}
+  .panel-head{border-bottom:1px solid var(--slate-800); padding:.9rem 1.1rem;}
+  .accent{color:var(--amber-500);}
+  .badge-amber{background:var(--amber-soft); color:var(--amber-400); border:1px solid rgba(217,119,6,.35); font-weight:600;}
+  .navbar-app{background:rgba(15,23,42,.92); backdrop-filter:blur(8px); border-bottom:1px solid var(--slate-800);}
+  .brand-mark{width:34px;height:34px;border-radius:9px;background:var(--amber-600);display:grid;place-items:center;color:#0f172a;font-weight:800;font-size:.8rem;}
+  .form-control,.form-select{background:var(--slate-850); border:1px solid var(--slate-700); color:var(--slate-100);}
+  .form-control:focus,.form-select:focus{background:var(--slate-850); color:var(--slate-100); border-color:var(--amber-600); box-shadow:0 0 0 .2rem rgba(217,119,6,.22);}
+  .form-control::placeholder{color:var(--slate-600);}
+  .form-label{font-size:.78rem; text-transform:uppercase; letter-spacing:.06em; color:var(--slate-400); font-weight:600; margin-bottom:.3rem;}
+  .form-text{color:var(--slate-600); font-size:.75rem;}
+  .input-group-text{background:var(--slate-800); border:1px solid var(--slate-700); color:var(--amber-400); font-weight:600;}
+  .form-check-input{background-color:var(--slate-800); border-color:var(--slate-600);}
+  .form-check-input:checked{background-color:var(--amber-600); border-color:var(--amber-600);}
+  .form-check-label{font-size:.87rem; color:var(--slate-300);}
+  .btn-amber{background:var(--amber-600); border-color:var(--amber-600); color:#1c1207; font-weight:600;}
+  .btn-amber:hover,.btn-amber:focus{background:var(--amber-500); border-color:var(--amber-500); color:#1c1207;}
+  .btn-slate{background:var(--slate-800); border:1px solid var(--slate-700); color:var(--slate-100);}
+  .btn-slate:hover{background:var(--slate-700); color:#fff;}
+  .section-title{font-size:.74rem; letter-spacing:.14em; text-transform:uppercase; color:var(--amber-500); font-weight:700;}
+  #promptOutput{
+    background:var(--slate-950); border:1px solid var(--slate-800); border-radius:.9rem;
+    color:#e2e8f0; font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+    font-size:.8rem; line-height:1.55; white-space:pre-wrap; word-break:break-word;
+    padding:1rem; max-height:62vh; overflow:auto; margin:0;
+  }
+  .preview-sticky{position:sticky; top:5rem;}
+  @media (max-width:991.98px){ .preview-sticky{position:static;} #promptOutput{max-height:48vh;} }
+  .hist-item{width:100%; text-align:left; background:var(--slate-850); border:1px solid var(--slate-800); border-radius:.6rem; padding:.55rem .7rem; color:var(--slate-300); font-size:.82rem;}
+  .hist-item:hover{border-color:var(--amber-600); color:#fff;}
+  .hist-item .hist-cli{font-weight:600; color:var(--slate-100);}
+  .hist-item .hist-fec{font-size:.72rem; color:var(--slate-600);}
+  .toast-fixed{position:fixed; left:50%; transform:translateX(-50%); bottom:1.25rem; z-index:1080; min-width:250px;
+    background:var(--slate-800); border:1px solid var(--amber-600); color:#fff; border-radius:.7rem; padding:.7rem 1rem;
+    font-size:.88rem; box-shadow:0 12px 30px rgba(0,0,0,.5); opacity:0; pointer-events:none; transition:opacity .22s ease, bottom .22s ease;}
+  .toast-fixed.show{opacity:1; bottom:1.75rem;}
+  .auth-wrap{min-height:100vh; display:grid; place-items:center; padding:2rem 1rem;}
+  .auth-card{width:100%; max-width:460px;}
+  .nav-pills .nav-link{color:var(--slate-400); font-size:.88rem;}
+  .nav-pills .nav-link.active{background:var(--amber-600); color:#1c1207;}
+  .metric{background:var(--slate-850); border:1px solid var(--slate-800); border-radius:.7rem; padding:.55rem .7rem;}
+  .metric b{display:block; font-size:1.05rem; color:var(--amber-400); line-height:1.1;}
+  .metric span{font-size:.7rem; text-transform:uppercase; letter-spacing:.05em; color:var(--slate-600);}
+  footer{border-top:1px solid var(--slate-800); color:var(--slate-600); font-size:.8rem;}
+  /* Componentes resueltos sin JavaScript de terceros: funcionan aunque la CDN no cargue */
+  .menu-user{position:absolute; right:0; top:calc(100% + .35rem); min-width:230px; background:var(--slate-850);
+    border:1px solid var(--slate-700); border-radius:.6rem; padding:.5rem; z-index:1060; box-shadow:0 12px 28px rgba(0,0,0,.45);}
+  .menu-user .mu-nombre{font-weight:600; font-size:.85rem;}
+  .menu-user .mu-correo{font-size:.75rem; color:var(--slate-400); word-break:break-all;}
+  .drawer{position:fixed; top:0; right:0; height:100%; width:min(360px,90vw); background:var(--slate-900);
+    border-left:1px solid var(--slate-800); z-index:1070; transform:translateX(102%); transition:transform .25s ease;
+    display:flex; flex-direction:column;}
+  .drawer.abierto{transform:none;}
+  .drawer-head{display:flex; align-items:center; justify-content:space-between; padding:1rem;
+    border-bottom:1px solid var(--slate-800);}
+  .drawer-body{padding:1rem; overflow:auto;}
+  .drawer-backdrop{position:fixed; inset:0; background:rgba(2,6,23,.65); z-index:1065;}
+  .guia-item{background:var(--slate-900); border:1px solid var(--slate-800); border-radius:.6rem; margin-bottom:.5rem;}
+  .guia-item>summary{cursor:pointer; padding:.75rem 1rem; font-weight:600; font-size:.9rem; list-style:none;}
+  .guia-item>summary::-webkit-details-marker{display:none;}
+  .guia-item>summary::after{content:'+'; float:right; color:var(--amber-500); font-weight:700;}
+  .guia-item[open]>summary{color:var(--amber-400); border-bottom:1px solid var(--slate-800);}
+  .guia-item[open]>summary::after{content:'\2212';}
+  .guia-cuerpo{padding:.9rem 1rem; font-size:.85rem; color:var(--slate-300);}
+  .cerrar-x{background:none; border:0; color:var(--slate-400); font-size:1.4rem; line-height:1;}
+  .cerrar-x:hover{color:#fff;}
+  ::-webkit-scrollbar{width:9px;height:9px}
+  ::-webkit-scrollbar-track{background:var(--slate-900)}
+  ::-webkit-scrollbar-thumb{background:var(--slate-700);border-radius:9px}
+  ::-webkit-scrollbar-thumb:hover{background:var(--amber-600)}
+</style>
+</head>
+<body>
+
+<!-- ============================ ACCESO / REGISTRO ============================ -->
+<section id="authSection" class="auth-wrap">
+  <div class="auth-card">
+    <div class="text-center mb-4">
+      <div class="d-inline-flex align-items-center gap-2 mb-3">
+        <span class="brand-mark">CB³</span>
+        <span class="fw-semibold">Generador de Prompts · Dirección de Arte</span>
+      </div>
+      <h1 class="h5 mb-1">Método CB&amp;CB&amp;CB</h1>
+      <p class="text-secondary small mb-0">Context Box · Concept Board · Creative Book</p>
+    </div>
+
+    <div class="panel p-3 p-sm-4">
+      <ul class="nav nav-pills nav-fill mb-3" role="tablist">
+        <li class="nav-item"><button class="nav-link active" id="tabLoginBtn" type="button" onclick="cambiarTabAuth('login')">Ingresar</button></li>
+        <li class="nav-item"><button class="nav-link" id="tabRegBtn" type="button" onclick="cambiarTabAuth('registro')">Registrarme</button></li>
+      </ul>
+
+      <form id="loginForm" onsubmit="return login(event)" novalidate>
+        <div class="mb-3">
+          <label class="form-label" for="loginUser">Usuario</label>
+          <input type="text" class="form-control" id="loginUser" autocomplete="username" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label" for="loginPass">Contraseña</label>
+          <input type="password" class="form-control" id="loginPass" autocomplete="current-password" required>
+        </div>
+        <div id="loginMsg" class="small text-danger mb-2 hidden"></div>
+        <button class="btn btn-amber w-100" type="submit">Entrar al panel</button>
+      </form>
+
+      <form id="registroForm" class="hidden" onsubmit="return registrar(event)" novalidate>
+        <div class="mb-3">
+          <label class="form-label" for="regNombre">Nombre y apellidos</label>
+          <input type="text" class="form-control" id="regNombre" placeholder="Ana Lucía Ramos Quispe" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label" for="regCorreo">Correo institucional</label>
+          <input type="email" class="form-control" id="regCorreo" placeholder="nombre.apellido@idc.edu.pe" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label" for="regUser">Usuario</label>
+          <input type="text" class="form-control" id="regUser" placeholder="aramos" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label" for="regPass">Contraseña (mínimo 4 caracteres)</label>
+          <input type="password" class="form-control" id="regPass" autocomplete="new-password" required>
+        </div>
+        <div id="regMsg" class="small text-danger mb-2 hidden"></div>
+        <button class="btn btn-amber w-100" type="submit">Crear cuenta local</button>
+      </form>
+
+      <p class="form-text mt-3 mb-0">Los datos se guardan en <code>localStorage</code> de este navegador, en texto plano. No registres contraseñas que uses en otros servicios.</p>
+    </div>
+    <p class="text-center form-text mt-3 mb-0">Unidad Didáctica de Producción de Piezas Gráficas 2026</p>
+  </div>
+</section>
+
+<!-- ============================== PANEL PRINCIPAL ============================== -->
+<div id="appSection" class="hidden">
+  <nav class="navbar navbar-expand-lg navbar-app sticky-top">
+    <div class="container-fluid px-3 px-lg-4">
+      <span class="navbar-brand d-flex align-items-center gap-2 mb-0">
+        <span class="brand-mark">CB³</span>
+        <span class="d-none d-sm-inline fs-6 fw-semibold">Generador de Prompts · Dirección de Arte</span>
+        <span class="d-inline d-sm-none fs-6 fw-semibold">Prompts DA</span>
+      </span>
+      <div class="d-flex align-items-center gap-2 ms-auto">
+        <span id="offlineBadge" class="badge text-bg-secondary hidden">Sin conexión</span>
+        <button id="btnInstalar" class="btn btn-sm btn-slate hidden" type="button" onclick="instalarPWA()">Instalar app</button>
+        <button id="btnHistorial" class="btn btn-sm btn-slate" type="button" onclick="abrirHistorial()">
+          Historial <span id="histCount" class="badge badge-amber ms-1">0</span>
+        </button>
+        <div class="position-relative">
+          <button id="btnMenuUser" class="btn btn-sm btn-slate" type="button" onclick="alternarMenuUsuario(event)">
+            <span id="navUsuario">usuario</span> ▾
+          </button>
+          <div id="menuUsuario" class="menu-user hidden">
+            <div class="px-2 py-1">
+              <div class="mu-nombre" id="navNombre">—</div>
+              <div class="mu-correo" id="navCorreo">—</div>
+            </div>
+            <hr class="my-2 border-secondary opacity-25">
+            <button class="btn btn-sm btn-slate w-100" type="button" onclick="logout()">Cerrar sesión</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container-fluid px-3 px-lg-4 py-4">
+    <div class="row g-4">
+
+      <!-- ---------------------------- COLUMNA FORMULARIO ---------------------------- -->
+      <section class="col-12 col-lg-5">
+        <div class="panel">
+          <div class="panel-head d-flex flex-wrap align-items-center justify-content-between gap-2">
+            <div>
+              <div class="section-title">Paso 1 · Encargo</div>
+              <div class="small text-secondary">Datos reales del proyecto</div>
+            </div>
+            <div class="d-flex gap-2">
+              <button class="btn btn-sm btn-amber" type="button" onclick="cargarPlantilla()">Plantilla «Café Origen»</button>
+              <button class="btn btn-sm btn-slate" type="button" onclick="limpiarFormulario()">Limpiar</button>
+            </div>
+          </div>
+
+          <form id="formEncargo" class="p-3 p-lg-4" onsubmit="return false;" novalidate>
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label" for="fCliente">Cliente</label>
+                <input type="text" class="form-control" id="fCliente" placeholder="Café Origen S.A.C." oninput="actualizarPrompt()" required>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label" for="fSoporte">Cantidad / soporte</label>
+                <input type="text" class="form-control" id="fSoporte" placeholder="3 empaques: bolsa 250 g, caja x6, etiqueta adhesiva" oninput="actualizarPrompt()">
+                <div class="form-text">Indica número de piezas, material y medidas si las conoces.</div>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label">Canales digitales</label>
+                <div class="d-flex flex-wrap gap-3" id="fCanales">
+                  <div class="form-check"><input class="form-check-input" type="checkbox" value="Instagram" id="c1" onchange="actualizarPrompt()"><label class="form-check-label" for="c1">Instagram</label></div>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" value="TikTok" id="c2" onchange="actualizarPrompt()"><label class="form-check-label" for="c2">TikTok</label></div>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" value="Sitio web" id="c3" onchange="actualizarPrompt()"><label class="form-check-label" for="c3">Sitio web</label></div>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" value="Email marketing" id="c4" onchange="actualizarPrompt()"><label class="form-check-label" for="c4">Email</label></div>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" value="Pinterest" id="c5" onchange="actualizarPrompt()"><label class="form-check-label" for="c5">Pinterest</label></div>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" value="YouTube" id="c6" onchange="actualizarPrompt()"><label class="form-check-label" for="c6">YouTube</label></div>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" value="Punto de venta" id="c7" onchange="actualizarPrompt()"><label class="form-check-label" for="c7">Punto de venta</label></div>
+                </div>
+                <input type="text" class="form-control mt-2" id="fCanalOtro" placeholder="Otros canales (separa con comas)" oninput="actualizarPrompt()">
+              </div>
+
+              <div class="col-12 col-sm-6">
+                <label class="form-label" for="fPresupuesto">Presupuesto</label>
+                <div class="input-group">
+                  <span class="input-group-text">S/</span>
+                  <input type="text" class="form-control" id="fPresupuesto" inputmode="decimal" placeholder="4800.00"
+                         oninput="sanitizarPresupuesto(this)" onblur="normalizarPresupuesto(this)">
+                </div>
+                <div class="form-text" id="msgPresupuesto">Solo números, hasta 2 decimales.</div>
+              </div>
+
+              <div class="col-12 col-sm-6">
+                <label class="form-label" for="fDias">Plazo hábil (días)</label>
+                <input type="number" class="form-control" id="fDias" min="1" step="1" value="15"
+                       oninput="sanitizarDias(this)" onblur="sanitizarDias(this, true)">
+                <div class="form-text" id="msgDias">Entero positivo, mínimo 1 día.</div>
+              </div>
+
+              <div class="col-12 col-sm-6">
+                <label class="form-label" for="fFormato">Formato de entrega</label>
+                <select class="form-select" id="fFormato" onchange="actualizarPrompt()">
+                  <option value="Digital">Digital</option>
+                  <option value="Analógico">Analógico (impreso)</option>
+                  <option value="Mixto (digital + analógico)">Mixto (digital + analógico)</option>
+                </select>
+              </div>
+
+              <div class="col-12 col-sm-6">
+                <label class="form-label" for="fMetodologia">Metodología</label>
+                <select class="form-select" id="fMetodologia" onchange="actualizarPrompt()">
+                  <option value="CB&amp;CB&amp;CB completo (Context Box + Concept Board + Creative Book)">CB&amp;CB&amp;CB completo</option>
+                  <option value="Context Box (investigación y descubrimiento)">Solo Context Box</option>
+                  <option value="Context Box + Wall Concept + Concept Board (concreción)">Context Box + Concept Board</option>
+                  <option value="Creative Book (Universo Visual Sintético)">Solo Creative Book</option>
+                </select>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label" for="fEstructura">Estructura del prompt</label>
+                <select class="form-select" id="fEstructura" onchange="actualizarPrompt(); pintarGuiaEstructura();">
+                  <option value="RACE">RACE — Rol · Acción · Contexto · Expectativa</option>
+                  <option value="APE">APE — Acción · Propósito · Expectativa</option>
+                  <option value="IDEA">IDEA — Instrucción · Detalle · Ejemplo · Ajuste</option>
+                  <option value="TAG">TAG — Tarea · Acción · Meta</option>
+                  <option value="CARE">CARE — Contexto · Acción · Resultado · Ejemplo</option>
+                  <option value="RISEN">RISEN — Rol · Instrucciones · Pasos · Meta · Acotación</option>
+                </select>
+                <div class="form-text" id="ayudaEstructura">—</div>
+              </div>
+
+              <div class="col-12"><hr class="border-secondary opacity-25 my-1"></div>
+              <div class="col-12"><div class="section-title">Paso 2 · Context Box</div></div>
+
+              <div class="col-12 col-sm-6">
+                <label class="form-label" for="fRol">Rol del director/a de arte</label>
+                <input type="text" class="form-control" id="fRol" value="Director/a de arte junior" oninput="actualizarPrompt()">
+              </div>
+              <div class="col-12 col-sm-6">
+                <label class="form-label" for="fPublico">Público del proyecto</label>
+                <input type="text" class="form-control" id="fPublico" placeholder="Adultos 25-40, Lima urbana" oninput="actualizarPrompt()">
+              </div>
+              <div class="col-12">
+                <label class="form-label" for="fObjetivo">Objetivo del encargo</label>
+                <textarea class="form-control" id="fObjetivo" rows="2" placeholder="Rediseñar el sistema de empaque y su bajada a redes." oninput="actualizarPrompt()"></textarea>
+              </div>
+              <div class="col-12">
+                <label class="form-label" for="fReferentes">Referentes y tendencias</label>
+                <textarea class="form-control" id="fReferentes" rows="2" placeholder="Cafés de especialidad de Bogotá y Melbourne; tendencia de artificio y fusión." oninput="actualizarPrompt()"></textarea>
+              </div>
+              <div class="col-12">
+                <label class="form-label" for="fExpresion">Expresión: tono, estilo, género y color</label>
+                <textarea class="form-control" id="fExpresion" rows="2" placeholder="Tono cómplice, estilo artesanal contemporáneo, paleta tierra y ámbar." oninput="actualizarPrompt()"></textarea>
+              </div>
+              <div class="col-12">
+                <label class="form-label" for="fNoes">Los «noes»</label>
+                <textarea class="form-control" id="fNoes" rows="2" placeholder="Nada de sacos de yute, sellos de garantía ni tipografías manuscritas." oninput="actualizarPrompt()"></textarea>
+              </div>
+
+              <div class="col-12"><hr class="border-secondary opacity-25 my-1"></div>
+              <div class="col-12"><div class="section-title">Paso 3 · Salidas solicitadas</div></div>
+              <div class="col-12">
+                <div class="d-flex flex-wrap gap-3" id="fEntregables">
+                  <div class="form-check"><input class="form-check-input" type="checkbox" value="Mapa de proceso" id="e1" checked onchange="actualizarPrompt()"><label class="form-check-label" for="e1">Mapa de proceso</label></div>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" value="Tabla de fases" id="e2" checked onchange="actualizarPrompt()"><label class="form-check-label" for="e2">Tabla de fases</label></div>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" value="Desglose técnico" id="e3" checked onchange="actualizarPrompt()"><label class="form-check-label" for="e3">Desglose técnico</label></div>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" value="Presupuesto por partidas" id="e4" onchange="actualizarPrompt()"><label class="form-check-label" for="e4">Presupuesto por partidas</label></div>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" value="Checklist de entrega" id="e5" onchange="actualizarPrompt()"><label class="form-check-label" for="e5">Checklist de entrega</label></div>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <!-- Guía / checklist -->
+        <div class="panel mt-4">
+          <div class="panel-head">
+            <div class="section-title">Guía estructural del prompt</div>
+            <div class="small text-secondary">Checklist y seis estructuras de referencia</div>
+          </div>
+          <div class="p-3 p-lg-4">
+            <div id="acGuia">
+              <details class="guia-item" id="gu1">
+                <summary>Checklist: partes de un prompt</summary>
+                <div class="guia-cuerpo" id="checklistBox"></div>
+              </details>
+              <details class="guia-item" id="gu2">
+                <summary>Las seis estructuras</summary>
+                <div class="guia-cuerpo" id="estructurasBox"></div>
+              </details>
+              <details class="guia-item" id="gu3">
+                <summary>Las etapas CB&amp;CB&amp;CB</summary>
+                  <div class="guia-cuerpo">
+                    <p class="mb-2"><b class="accent">Context Box.</b> Nueve ámbitos de investigación: contexto, referentes, tendencias, trabajo de campo, la imagen, el relato, la palabra, la expresión y los «noes». Todo se almacena en una caja analógica y se traslada al <i>wall concept</i>.</p>
+                    <p class="mb-2"><b class="accent">Concept Board.</b> Documento A4 con una frase sintética de la idea nuclear, imágenes de anclaje y una disposición que transmite valores expresivos. Un solo concepto por proyecto.</p>
+                    <p class="mb-0"><b class="accent">Creative Book.</b> Universo Visual Sintético: manual que transmite la estrategia estética a realizadores y especialistas (imágenes y textos, espacios, audiovisual, moda).</p>
+                    <p class="form-text mt-2 mb-0">Cano, J. (2012). <i>El método CB&amp;CB&amp;CB 1.0</i>. Máster en Diseño y Dirección de Arte, ELISAVA, Barcelona.</p>
+                  </div>
+              </details>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ---------------------------- COLUMNA VISTA PREVIA ---------------------------- -->
+      <section class="col-12 col-lg-7">
+        <div class="preview-sticky">
+          <div class="panel">
+            <div class="panel-head d-flex flex-wrap align-items-center justify-content-between gap-2">
+              <div>
+                <div class="section-title">Vista previa del prompt</div>
+                <div class="small text-secondary" id="estadoPrompt">Completa el cliente para generar el prompt.</div>
+              </div>
+              <div class="d-flex flex-wrap gap-2">
+                <button id="btnCopiar" class="btn btn-sm btn-amber" type="button" onclick="copiarPrompt()">Copiar</button>
+                <button class="btn btn-sm btn-slate" type="button" onclick="descargar('md')">.md</button>
+                <button class="btn btn-sm btn-slate" type="button" onclick="descargar('csv')">.csv</button>
+                <button class="btn btn-sm btn-slate" type="button" onclick="descargar('txt')">.txt</button>
+              </div>
+            </div>
+            <div class="p-3 p-lg-4">
+              <div id="avisoHistorial" class="alert alert-warning py-2 px-3 small hidden">
+                Estás viendo un prompt del historial.
+                <button class="btn btn-sm btn-slate ms-2" type="button" onclick="volverAlActual()">Volver al actual</button>
+              </div>
+              <div class="row g-2 mb-3">
+                <div class="col-6 col-md-3"><div class="metric"><b id="mPiezas">—</b><span>Piezas</span></div></div>
+                <div class="col-6 col-md-3"><div class="metric"><b id="mDias">—</b><span>Días hábiles</span></div></div>
+                <div class="col-6 col-md-3"><div class="metric"><b id="mPresu">—</b><span>Presupuesto</span></div></div>
+                <div class="col-6 col-md-3"><div class="metric"><b id="mPalabras">—</b><span>Palabras</span></div></div>
+              </div>
+              <pre id="promptOutput">El prompt aparecerá aquí a medida que completes el formulario.</pre>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <footer class="mt-5 pt-3 pb-4 text-center">
+      Unidad Didáctica de Producción de Piezas Gráficas 2026 · Método CB&amp;CB&amp;CB (Cano, ELISAVA, 2012)
+    </footer>
+  </main>
+
+  <!-- Historial -->
+  <div id="histBackdrop" class="drawer-backdrop hidden" onclick="cerrarHistorial()"></div>
+  <aside class="drawer" id="panelHistorial" aria-label="Historial de prompts">
+    <div class="drawer-head">
+      <h5 class="mb-0 fs-6">Historial de prompts</h5>
+      <button type="button" class="cerrar-x" aria-label="Cerrar" onclick="cerrarHistorial()">&times;</button>
+    </div>
+    <div class="drawer-body">
+      <p class="form-text">Cada prompt se guarda al copiar o descargar, bajo la clave <code id="claveHist">prompts_usuario</code>.</p>
+      <div id="listaHistorial" class="d-grid gap-2"></div>
+      <button class="btn btn-sm btn-slate w-100 mt-3" type="button" onclick="borrarHistorial()">Vaciar historial</button>
+    </div>
+  </aside>
+</div>
+
+<div id="toast" class="toast-fixed" role="status" aria-live="polite"></div>
+
+<script>
+/* =====================================================================
+   Generador de Prompts para Dirección de Arte y Gestión de Proyectos
+   Arquitectura Single File Application · JavaScript vanilla ES6+
+   ===================================================================== */
+
+/* ------------------------------ 1. ESTADO ------------------------------ */
+let currentUser = null;            // identidad activa
+let promptActual = '';             // texto renderizado en la vista previa
+let viendoHistorial = false;       // el <pre> muestra un registro antiguo
+const camposInvalidos = new Set();  // un campo numérico inválido detiene el render
+let bloqueoActualizacion = false;
+let deferredPrompt = null;         // evento beforeinstallprompt
+
+const K_USERS = 'usuarios_prompts_da';
+const K_SESION = 'currentUser';
+const kPrompts = (u) => `prompts_${u}`;
+const kCheck = (u) => `checklist_${u}`;
+
+const $ = (id) => document.getElementById(id);
+const leer = (k, alt) => { try { return JSON.parse(localStorage.getItem(k)) ?? alt; } catch (e) { return alt; } };
+const escribir = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { toast('No se pudo escribir en localStorage.'); } };
+
+/* --------------------------- 2. ESTRUCTURAS --------------------------- */
+const ESTRUCTURAS = {
+  RACE: { titulo: 'RACE', partes: [
+    ['R', 'Rol', 'Quién ejecuta y con qué autoridad técnica.'],
+    ['A', 'Acción', 'La tarea concreta que se pide.'],
+    ['C', 'Contexto', 'Datos del encargo: cliente, soporte, canales, presupuesto, plazo.'],
+    ['E', 'Expectativa', 'Formato y nivel de detalle de la respuesta.']],
+    uso: 'Encargos completos con cliente definido. Es la más usada para briefs de dirección de arte.' },
+  APE: { titulo: 'APE', partes: [
+    ['A', 'Acción', 'Qué debe hacerse.'],
+    ['P', 'Propósito', 'Para qué sirve el resultado.'],
+    ['E', 'Expectativa', 'Cómo debe entregarse.']],
+    uso: 'Consultas rápidas y de baja complejidad: una pieza, un ajuste, una lista.' },
+  IDEA: { titulo: 'IDEA', partes: [
+    ['I', 'Instrucción', 'La orden principal, en una frase.'],
+    ['D', 'Detalle', 'Restricciones técnicas, medidas, materiales.'],
+    ['E', 'Ejemplo', 'Referencia concreta que fija el estándar.'],
+    ['A', 'Ajuste', 'Qué corregir en las iteraciones siguientes.']],
+    uso: 'Trabajo iterativo sobre una pieza que ya existe y se corrige por rondas.' },
+  TAG: { titulo: 'TAG', partes: [
+    ['T', 'Tarea', 'El encargo en una línea.'],
+    ['A', 'Acción', 'Los pasos que se deben ejecutar.'],
+    ['G', 'Meta (Goal)', 'El resultado medible.']],
+    uso: 'Gestión de proyecto: cronogramas, repartos de tareas, hitos.' },
+  CARE: { titulo: 'CARE', partes: [
+    ['C', 'Contexto', 'Situación del cliente y del mercado.'],
+    ['A', 'Acción', 'Lo que se solicita.'],
+    ['R', 'Resultado', 'El entregable esperado.'],
+    ['E', 'Ejemplo', 'Muestra del formato de salida.']],
+    uso: 'Casos donde el contexto de marca pesa más que la ejecución técnica.' },
+  RISEN: { titulo: 'RISEN', partes: [
+    ['R', 'Rol', 'Perfil profesional que responde.'],
+    ['I', 'Instrucciones', 'La tarea y sus condiciones.'],
+    ['S', 'Pasos (Steps)', 'Secuencia numerada de ejecución.'],
+    ['E', 'Meta final (End goal)', 'Criterio de cierre del proyecto.'],
+    ['N', 'Acotación (Narrowing)', 'Límites, exclusiones y los «noes».']],
+    uso: 'Proyectos largos con fases, presupuesto y varios especialistas implicados.' }
+};
+
+const CHECKLIST = [
+  'Rol profesional declarado (quién responde y con qué criterio).',
+  'Tarea en una sola frase, con verbo de acción.',
+  'Cliente, cantidad de piezas y soporte físico o digital.',
+  'Canales de aplicación y sus formatos.',
+  'Presupuesto en soles y plazo en días hábiles.',
+  'Público objetivo del proyecto, no del encargo.',
+  'Referentes y tendencias que acotan el territorio visual.',
+  'Tono, estilo, género y paleta (la expresión).',
+  'Los «noes»: lo que queda descartado antes de empezar.',
+  'Formato de salida exigido (tabla, mapa, lista numerada).',
+  'Criterio de verificación: cómo se sabe que la respuesta sirve.'
+];
+
+/* --------------------------- 3. AUTENTICACIÓN --------------------------- */
+function cambiarTabAuth(cual) {
+  const esLogin = cual === 'login';
+  $('loginForm').classList.toggle('hidden', !esLogin);
+  $('registroForm').classList.toggle('hidden', esLogin);
+  $('tabLoginBtn').classList.toggle('active', esLogin);
+  $('tabRegBtn').classList.toggle('active', !esLogin);
+  $('loginMsg').classList.add('hidden');
+  $('regMsg').classList.add('hidden');
+}
+
+function mensajeAuth(id, texto) {
+  const el = $(id);
+  el.textContent = texto;
+  el.classList.remove('hidden');
+}
+
+function registrar(ev) {
+  ev.preventDefault();
+  const nombre = $('regNombre').value.trim();
+  const correo = $('regCorreo').value.trim().toLowerCase();
+  const user = $('regUser').value.trim().toLowerCase();
+  const pass = $('regPass').value;
+  if (nombre.split(/\s+/).length < 2) return mensajeAuth('regMsg', 'Escribe nombre y apellidos.'), false;
+  if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(correo)) return mensajeAuth('regMsg', 'Correo institucional no válido.'), false;
+  if (!/^[a-z0-9._-]{3,20}$/.test(user)) return mensajeAuth('regMsg', 'Usuario: 3 a 20 caracteres, sin espacios.'), false;
+  if (pass.length < 4) return mensajeAuth('regMsg', 'La contraseña necesita 4 caracteres como mínimo.'), false;
+
+  const users = leer(K_USERS, {});
+  if (users[user]) return mensajeAuth('regMsg', 'Ese usuario ya existe en este navegador.'), false;
+  users[user] = { usuario: user, nombre, correo, pass, alta: new Date().toISOString() };
+  escribir(K_USERS, users);
+  currentUser = users[user];
+  escribir(K_SESION, currentUser);
+  showApp();
+  toast('Cuenta creada. Sesión iniciada.');
+  return false;
+}
+
+function login(ev) {
+  ev.preventDefault();
+  const user = $('loginUser').value.trim().toLowerCase();
+  const pass = $('loginPass').value;
+  const users = leer(K_USERS, {});
+  if (!users[user] || users[user].pass !== pass) {
+    mensajeAuth('loginMsg', 'Usuario o contraseña incorrectos.');
+    return false;
+  }
+  currentUser = users[user];
+  escribir(K_SESION, currentUser);
+  showApp();
+  toast('Bienvenido/a, ' + currentUser.nombre.split(' ')[0] + '.');
+  return false;
+}
+
+function showApp() {
+  $('authSection').classList.add('hidden');
+  $('appSection').classList.remove('hidden');
+  $('navUsuario').textContent = currentUser.usuario;
+  $('navNombre').textContent = currentUser.nombre;
+  $('navCorreo').textContent = currentUser.correo;
+  $('claveHist').textContent = kPrompts(currentUser.usuario);
+  pintarGuiaEstructura();
+  pintarChecklist();
+  renderHistorial();
+  actualizarPrompt();
+}
+
+function logout() {
+  $('menuUsuario').classList.add('hidden');
+  cerrarHistorial();
+  localStorage.removeItem(K_SESION);
+  currentUser = null;
+  $('formEncargo').reset();
+  document.querySelectorAll('#fCanales input').forEach((c) => { c.checked = false; });
+  promptActual = '';
+  viendoHistorial = false;
+  $('promptOutput').textContent = 'El prompt aparecerá aquí a medida que completes el formulario.';
+  $('appSection').classList.add('hidden');
+  $('authSection').classList.remove('hidden');
+  $('loginPass').value = '';
+  cambiarTabAuth('login');
+  toast('Sesión cerrada.');
+}
+
+/* ---------------- 4. VALIDACIÓN SINTÁCTICA DE CAMPOS NUMÉRICOS ---------------- */
+const RE_PRESUPUESTO = /^\d+(\.\d{1,2})?$/;
+
+function marcarError(el, hay, idMsg, texto, textoOk) {
+  if (hay) camposInvalidos.add(el.id); else camposInvalidos.delete(el.id);
+  bloqueoActualizacion = camposInvalidos.size > 0;
+  el.classList.toggle('border-red-500', hay);
+  el.classList.toggle('is-invalid', hay);
+  const m = $(idMsg);
+  m.textContent = hay ? texto : textoOk;
+  m.classList.toggle('text-danger', hay);
+}
+
+function sanitizarPresupuesto(el) {
+  const original = el.value;
+  let v = original.replace(/[^\d.]/g, '');          // fuera letras y símbolos
+  v = v.replace(/(\..*)\./g, '$1');                  // un solo punto decimal
+  const p = v.split('.');
+  if (p[1] !== undefined) v = p[0] + '.' + p[1].slice(0, 2);
+  if (v !== original) el.value = v;
+  const vacio = v === '';
+  const valido = vacio || RE_PRESUPUESTO.test(v);
+  marcarError(el, !valido, 'msgPresupuesto', 'Formato no válido: usa 4800 o 4800.50.', 'Solo números, hasta 2 decimales.');
+  if (valido) actualizarPrompt();
+}
+
+function normalizarPresupuesto(el) {
+  if (RE_PRESUPUESTO.test(el.value)) {
+    el.value = parseFloat(el.value).toFixed(2);
+    actualizarPrompt();
+  }
+}
+
+function sanitizarDias(el, forzar) {
+  const bruto = el.value;
+  const limpio = bruto.replace(/[^\d-]/g, '');
+  if (limpio !== bruto) el.value = limpio;
+  if (limpio === '' && !forzar) {
+    marcarError(el, true, 'msgDias', 'Indica un número entero de días.', 'Entero positivo, mínimo 1 día.');
+    return;
+  }
+  const dias = Math.max(1, parseInt(limpio, 10) || 0);
+  if (String(dias) !== limpio) el.value = dias;
+  marcarError(el, false, 'msgDias', '', 'Entero positivo, mínimo 1 día.');
+  actualizarPrompt();
+}
+
+/* --------------------------- 5. DATOS Y PROMPT --------------------------- */
+function marcados(contenedor) {
+  return Array.from(document.querySelectorAll('#' + contenedor + ' input:checked')).map((i) => i.value);
+}
+
+function fechaLimite(dias) {
+  const d = new Date();
+  let restantes = dias;
+  while (restantes > 0) {
+    d.setDate(d.getDate() + 1);
+    if (d.getDay() !== 0 && d.getDay() !== 6) restantes--;
+  }
+  return d.toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+}
+
+function datosFormulario() {
+  const otros = $('fCanalOtro').value.split(',').map((s) => s.trim()).filter(Boolean);
+  const canales = marcados('fCanales').concat(otros);
+  const presu = $('fPresupuesto').value.trim();
+  const dias = Math.max(1, parseInt($('fDias').value, 10) || 1);
+  return {
+    estudiante: currentUser ? currentUser.nombre : '',
+    correo: currentUser ? currentUser.correo : '',
+    fecha: new Date().toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric' }),
+    cliente: $('fCliente').value.trim(),
+    soporte: $('fSoporte').value.trim(),
+    canales: canales.length ? canales.join(', ') : 'sin canales digitales definidos',
+    presupuesto: presu ? 'S/ ' + presu : 'sin presupuesto declarado',
+    dias: dias,
+    limite: fechaLimite(dias),
+    formato: $('fFormato').value,
+    metodologia: $('fMetodologia').value,
+    estructura: $('fEstructura').value,
+    rol: $('fRol').value.trim() || 'Director/a de arte',
+    publico: $('fPublico').value.trim() || 'público por definir',
+    objetivo: $('fObjetivo').value.trim() || 'por definir en la primera reunión con el cliente',
+    referentes: $('fReferentes').value.trim() || 'por levantar en la etapa de Context Box',
+    expresion: $('fExpresion').value.trim() || 'por definir en el Concept Board',
+    noes: $('fNoes').value.trim() || 'sin exclusiones declaradas',
+    entregables: marcados('fEntregables')
+  };
+}
+
+function sinPuntoFinal(t) { return String(t).replace(/\.+$/, ''); }
+
+function fichaEncargo(d) {
+  return [
+    '- Cliente: ' + d.cliente,
+    '- Cantidad y soporte: ' + (d.soporte || 'por definir'),
+    '- Canales digitales: ' + d.canales,
+    '- Presupuesto: ' + d.presupuesto,
+    '- Plazo: ' + d.dias + ' días hábiles (entrega el ' + d.limite + ')',
+    '- Formato de entrega: ' + d.formato,
+    '- Público del proyecto: ' + d.publico,
+    '- Objetivo: ' + d.objetivo,
+    '- Referentes y tendencias: ' + d.referentes,
+    '- Expresión (tono, estilo, género, color): ' + d.expresion,
+    '- Los «noes»: ' + d.noes,
+    '- Metodología: ' + d.metodologia
+  ].join('\n');
+}
+
+function pasosMetodo(d) {
+  return [
+    '1. Context Box: documenta los nueve ámbitos (contexto, referentes, tendencias, trabajo de campo, la imagen, el relato, la palabra, la expresión y los «noes») con los datos del encargo.',
+    '2. Wall Concept: relaciona los hallazgos por columnas y propón etiquetas verbales nuevas.',
+    '3. Concept Board: formula un único concepto nuclear en una frase de máximo 12 palabras, con tres imágenes de anclaje descritas en texto.',
+    '4. Creative Book: despliega el Universo Visual Sintético para ' + (d.soporte || 'las piezas del encargo') + ' y su bajada a ' + d.canales + '.'
+  ].join('\n');
+}
+
+function salidasSolicitadas(d) {
+  const mapa = {
+    'Mapa de proceso': 'Mapa de proceso en lista jerárquica: etapa → actividad → responsable → salida.',
+    'Tabla de fases': 'Tabla de fases en Markdown con columnas: Fase | Actividad | Días hábiles | Entregable | Responsable. La suma de días debe ser exactamente ' + d.dias + '.',
+    'Desglose técnico': 'Desglose técnico por pieza: material, medidas, sistema de impresión o formato digital, tintas o perfil de color, acabados.',
+    'Presupuesto por partidas': 'Presupuesto por partidas en soles, cuyo total no supere ' + d.presupuesto + '.',
+    'Checklist de entrega': 'Checklist de entrega con criterios de aprobación por pieza.'
+  };
+  const lista = (d.entregables.length ? d.entregables : ['Mapa de proceso', 'Tabla de fases', 'Desglose técnico']);
+  return lista.map((k, i) => (i + 1) + '. ' + (mapa[k] || k)).join('\n');
+}
+
+function reglasSalida(d) {
+  return [
+    '- Responde en español, en formato Markdown.',
+    '- Un solo concepto nuclear para todo el proyecto.',
+    '- Ajusta cada propuesta al plazo de ' + d.dias + ' días hábiles y al presupuesto de ' + d.presupuesto + '.',
+    '- No propongas soluciones incluidas en los «noes».',
+    '- Cierra con tres preguntas al cliente que no puedas resolver con los datos entregados.'
+  ].join('\n');
+}
+
+function bloquesEstructura(d) {
+  const ficha = fichaEncargo(d);
+  const rol = 'Actúas como ' + d.rol + ' a cargo del proyecto de ' + sinPuntoFinal(d.cliente) + '. Trabajas con el método CB&CB&CB (Context Box, Concept Board, Creative Book) y comunicas la estrategia estética a los especialistas que ejecutan las piezas.';
+  const accion = 'Convierte el encargo descrito en un plan de dirección de arte bajo ' + d.metodologia + ', y entrega los productos solicitados más abajo.';
+  const salidas = salidasSolicitadas(d);
+  const reglas = reglasSalida(d);
+  const pasos = pasosMetodo(d);
+  const meta = 'El proyecto se cierra cuando ' + sinPuntoFinal(d.cliente) + ' aprueba ' + (d.soporte || 'las piezas') + ' en formato ' + d.formato + ', dentro de ' + d.dias + ' días hábiles y de ' + d.presupuesto + '.';
+  const ejemplo = 'Ejemplo del formato esperado en la tabla de fases:\n| Fase | Actividad | Días hábiles | Entregable | Responsable |\n| --- | --- | --- | --- | --- |\n| Context Box | Investigación de referentes y trabajo de campo | 3 | Caja de contexto documentada | Dirección de arte |';
+
+  switch (d.estructura) {
+    case 'APE': return [
+      ['A · ACCIÓN', accion],
+      ['P · PROPÓSITO', 'El resultado sirve para ' + sinPuntoFinal(d.objetivo) + ', dirigido a ' + d.publico + '.\n\nDatos del encargo:\n' + ficha],
+      ['E · EXPECTATIVA', salidas + '\n\nReglas:\n' + reglas]];
+    case 'IDEA': return [
+      ['I · INSTRUCCIÓN', accion],
+      ['D · DETALLE', ficha],
+      ['E · EJEMPLO', ejemplo],
+      ['A · AJUSTE', 'Tras la primera respuesta, corrige: reduce el concepto a una sola frase, elimina lo que entre en los «noes» (' + d.noes + ') y reajusta la tabla hasta que la suma de días sea ' + d.dias + '.']];
+    case 'TAG': return [
+      ['T · TAREA', accion],
+      ['A · ACCIÓN', pasos + '\n\nDatos del encargo:\n' + ficha],
+      ['G · META', meta + '\n\nEntregables:\n' + salidas]];
+    case 'CARE': return [
+      ['C · CONTEXTO', ficha],
+      ['A · ACCIÓN', accion + '\n\n' + pasos],
+      ['R · RESULTADO', salidas + '\n\nReglas:\n' + reglas],
+      ['E · EJEMPLO', ejemplo]];
+    case 'RISEN': return [
+      ['R · ROL', rol],
+      ['I · INSTRUCCIONES', accion + '\n\nDatos del encargo:\n' + ficha],
+      ['S · PASOS', pasos],
+      ['E · META FINAL', meta + '\n\nEntregables:\n' + salidas],
+      ['N · ACOTACIÓN', 'Quedan excluidos: ' + d.noes + '.\n' + reglas]];
+    default: return [
+      ['R · ROL', rol],
+      ['A · ACCIÓN', accion + '\n\n' + pasos],
+      ['C · CONTEXTO', ficha],
+      ['E · EXPECTATIVA', salidas + '\n\nReglas:\n' + reglas]];
+  }
+}
+
+function construirPrompt(d) {
+  const e = ESTRUCTURAS[d.estructura];
+  const cabecera = [
+    'PROMPT DE DIRECCIÓN DE ARTE — MÉTODO CB&CB&CB',
+    'Estructura: ' + e.titulo + ' (' + e.partes.map((p) => p[1]).join(' · ') + ')',
+    'Estudiante: ' + d.estudiante + ' <' + d.correo + '> · Fecha: ' + d.fecha,
+    'Unidad Didáctica de Producción de Piezas Gráficas 2026'
+  ].join('\n');
+  const cuerpo = bloquesEstructura(d).map((b) => '### ' + b[0] + '\n' + b[1]).join('\n\n');
+  return cabecera + '\n' + '='.repeat(64) + '\n\n' + cuerpo + '\n';
+}
+
+function actualizarPrompt() {
+  if (!currentUser || bloqueoActualizacion) return;
+  if (viendoHistorial) { viendoHistorial = false; $('avisoHistorial').classList.add('hidden'); }
+  const d = datosFormulario();
+  if (!d.cliente) {
+    promptActual = '';
+    $('promptOutput').textContent = 'Escribe el nombre del cliente para generar el prompt.';
+    $('estadoPrompt').textContent = 'Completa el cliente para generar el prompt.';
+    actualizarMetricas(d, '');
+    return;
+  }
+  promptActual = construirPrompt(d);
+  $('promptOutput').textContent = promptActual;
+  $('estadoPrompt').textContent = 'Estructura ' + d.estructura + ' · ' + promptActual.length + ' caracteres';
+  actualizarMetricas(d, promptActual);
+}
+
+function actualizarMetricas(d, texto) {
+  const m = (d.soporte || '').match(/\d+/);
+  $('mPiezas').textContent = m ? m[0] : '—';
+  $('mDias').textContent = d.dias || '—';
+  $('mPresu').textContent = d.presupuesto.startsWith('S/') ? d.presupuesto : '—';
+  $('mPalabras').textContent = texto ? texto.trim().split(/\s+/).length : '—';
+}
+
+/* --------------------------- 6. PLANTILLA DE CASO --------------------------- */
+const PLANTILLA_CAFE = {
+  fCliente: 'Café Origen S.A.C.',
+  fSoporte: '3 empaques: bolsa de 250 g, caja de 6 unidades y etiqueta adhesiva de 90 × 60 mm',
+  fPresupuesto: '4800.00',
+  fDias: '15',
+  fFormato: 'Mixto (digital + analógico)',
+  fCanalOtro: 'Ferias de café',
+  fRol: 'Director/a de arte junior',
+  fPublico: 'Adultos de 25 a 40 años, Lima urbana, consumo de café de especialidad',
+  fObjetivo: 'Rediseñar el sistema de empaque de la línea de origen y su bajada a canales digitales',
+  fReferentes: 'Cafés de especialidad de Bogotá y Melbourne; cerámica utilitaria peruana; tendencias de fusión e impureza',
+  fExpresion: 'Tono cómplice, estilo artesanal contemporáneo, género documental, paleta tierra con ámbar #D97706',
+  fNoes: 'Sin sacos de yute, sin sellos de garantía, sin tipografías manuscritas, sin fotografías de granos sobre madera',
+  canales: ['Instagram', 'TikTok', 'Sitio web', 'Punto de venta'],
+  entregables: ['Mapa de proceso', 'Tabla de fases', 'Desglose técnico', 'Presupuesto por partidas']
+};
+
+function cargarPlantilla() {
+  Object.keys(PLANTILLA_CAFE).forEach((k) => {
+    if (k === 'canales' || k === 'entregables') return;
+    if ($(k)) $(k).value = PLANTILLA_CAFE[k];
+  });
+  document.querySelectorAll('#fCanales input').forEach((c) => { c.checked = PLANTILLA_CAFE.canales.includes(c.value); });
+  document.querySelectorAll('#fEntregables input').forEach((c) => { c.checked = PLANTILLA_CAFE.entregables.includes(c.value); });
+  $('fMetodologia').selectedIndex = 0;
+  $('fEstructura').value = 'RISEN';
+  marcarError($('fPresupuesto'), false, 'msgPresupuesto', '', 'Solo números, hasta 2 decimales.');
+  marcarError($('fDias'), false, 'msgDias', '', 'Entero positivo, mínimo 1 día.');
+  volverAlActual();
+  pintarGuiaEstructura();
+  toast('Caso de estudio «Café Origen» cargado.');
+}
+
+function limpiarFormulario() {
+  $('formEncargo').reset();
+  document.querySelectorAll('#fCanales input').forEach((c) => { c.checked = false; });
+  camposInvalidos.clear();
+  bloqueoActualizacion = false;
+  volverAlActual();
+}
+
+/* ------------------------------ 7. HISTORIAL ------------------------------ */
+function historial() { return currentUser ? leer(kPrompts(currentUser.usuario), []) : []; }
+
+function guardarEnHistorial() {
+  if (!currentUser || !promptActual) return;
+  const d = datosFormulario();
+  const lista = historial();
+  if (lista[0] && lista[0].contenidoPrompt === promptActual) return;   // sin duplicados consecutivos
+  lista.unshift({
+    id: 'p' + Date.now(),
+    cliente: d.cliente || 'Sin cliente',
+    fecha: new Date().toLocaleString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+    estructura: d.estructura,
+    contenidoPrompt: promptActual
+  });
+  escribir(kPrompts(currentUser.usuario), lista.slice(0, 50));
+  renderHistorial();
+}
+
+function renderHistorial() {
+  const lista = historial();
+  const cont = $('listaHistorial');
+  $('histCount').textContent = lista.length;
+  if (!lista.length) { cont.innerHTML = '<p class="text-secondary small mb-0">Todavía no hay prompts guardados. Se archivan al copiar o descargar.</p>'; return; }
+  cont.innerHTML = '';
+  lista.forEach((r) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'hist-item';
+    b.innerHTML = '<span class="hist-cli"></span><br><span class="hist-fec"></span>';
+    b.querySelector('.hist-cli').textContent = r.cliente + ' · ' + r.estructura;
+    b.querySelector('.hist-fec').textContent = r.fecha;
+    b.onclick = () => verDelHistorial(r.id);
+    cont.appendChild(b);
+  });
+}
+
+function verDelHistorial(id) {
+  const r = historial().find((x) => x.id === id);
+  if (!r) return;
+  viendoHistorial = true;
+  promptActual = r.contenidoPrompt;
+  $('promptOutput').textContent = promptActual;
+  $('estadoPrompt').textContent = 'Historial · ' + r.cliente + ' · ' + r.fecha;
+  $('avisoHistorial').classList.remove('hidden');
+  cerrarHistorial();
+}
+
+function abrirHistorial() {
+  $('panelHistorial').classList.add('abierto');
+  $('histBackdrop').classList.remove('hidden');
+}
+
+function cerrarHistorial() {
+  $('panelHistorial').classList.remove('abierto');
+  $('histBackdrop').classList.add('hidden');
+}
+
+function alternarMenuUsuario(ev) {
+  ev.stopPropagation();
+  $('menuUsuario').classList.toggle('hidden');
+}
+
+document.addEventListener('click', (ev) => {
+  const m = $('menuUsuario');
+  if (m && !m.classList.contains('hidden') && !m.contains(ev.target)) m.classList.add('hidden');
+});
+
+document.addEventListener('keydown', (ev) => {
+  if (ev.key !== 'Escape') return;
+  cerrarHistorial();
+  const m = $('menuUsuario');
+  if (m) m.classList.add('hidden');
+});
+
+function volverAlActual() {
+  viendoHistorial = false;
+  $('avisoHistorial').classList.add('hidden');
+  actualizarPrompt();
+}
+
+function borrarHistorial() {
+  if (!currentUser) return;
+  localStorage.removeItem(kPrompts(currentUser.usuario));
+  renderHistorial();
+  toast('Historial vaciado.');
+}
+
+/* --------------------------- 8. COPIAR Y EXPORTAR --------------------------- */
+function toast(msg) {
+  const t = $('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._tid);
+  t._tid = setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+async function copiarPrompt() {
+  if (!promptActual) { toast('No hay prompt que copiar.'); return; }
+  const btn = $('btnCopiar');
+  const previo = btn.textContent;
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(promptActual);
+    } else {
+      const ta = document.createElement('textarea');
+      ta.value = promptActual;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+    }
+    btn.textContent = 'Copiado';
+    btn.disabled = true;
+    setTimeout(() => { btn.textContent = previo; btn.disabled = false; }, 1600);
+    guardarEnHistorial();
+    toast('Prompt copiado al portapapeles y guardado en el historial.');
+  } catch (e) {
+    toast('El navegador bloqueó el portapapeles. Selecciona el texto y copia manualmente.');
+  }
+}
+
+function slug(s) {
+  return (s || 'prompt').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'prompt';
+}
+
+function bajarArchivo(nombre, contenido, mime) {
+  const blob = new Blob([contenido], { type: mime + ';charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = nombre;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1500);
+}
+
+function comoMarkdown(d) {
+  const filas = [
+    ['Estudiante', d.estudiante], ['Correo institucional', d.correo], ['Fecha', d.fecha],
+    ['Cliente', d.cliente], ['Cantidad y soporte', d.soporte], ['Canales digitales', d.canales],
+    ['Presupuesto', d.presupuesto], ['Plazo hábil', d.dias + ' días (entrega el ' + d.limite + ')'],
+    ['Formato de entrega', d.formato], ['Metodología', d.metodologia], ['Estructura', d.estructura]
+  ];
+  return '# Prompt de dirección de arte — ' + d.cliente + '\n\n'
+    + '| Campo | Valor |\n| --- | --- |\n'
+    + filas.map((f) => '| ' + f[0] + ' | ' + String(f[1]).replace(/\|/g, '\\|') + ' |').join('\n')
+    + '\n\n## Prompt generado\n\n```text\n' + promptActual + '```\n\n'
+    + '---\nUnidad Didáctica de Producción de Piezas Gráficas 2026 · Método CB&CB&CB\n';
+}
+
+function comoCSV(d) {
+  const cab = ['estudiante', 'correo', 'fecha', 'cliente', 'cantidad_soporte', 'canales_digitales', 'presupuesto',
+    'plazo_dias_habiles', 'fecha_limite', 'formato_entrega', 'metodologia', 'estructura', 'rol', 'publico',
+    'objetivo', 'referentes', 'expresion', 'noes', 'entregables', 'prompt'];
+  const fila = [d.estudiante, d.correo, d.fecha, d.cliente, d.soporte, d.canales, d.presupuesto, d.dias, d.limite,
+    d.formato, d.metodologia, d.estructura, d.rol, d.publico, d.objetivo, d.referentes, d.expresion, d.noes,
+    d.entregables.join(' | '), promptActual];
+  const esc = (v) => '"' + String(v).replace(/"/g, '""') + '"';
+  return '\uFEFF' + cab.join(',') + '\n' + fila.map(esc).join(',') + '\n';
+}
+
+function descargar(tipo) {
+  if (!promptActual) { toast('Completa el formulario antes de descargar.'); return; }
+  const d = datosFormulario();
+  const base = 'prompt-' + slug(d.cliente) + '-' + d.estructura.toLowerCase();
+  if (tipo === 'md') bajarArchivo(base + '.md', comoMarkdown(d), 'text/markdown');
+  else if (tipo === 'csv') bajarArchivo(base + '.csv', comoCSV(d), 'text/csv');
+  else bajarArchivo(base + '.txt', promptActual, 'text/plain');
+  guardarEnHistorial();
+  toast('Archivo .' + tipo + ' descargado y prompt guardado en el historial.');
+}
+
+/* ------------------------- 9. GUÍA Y CHECKLIST ------------------------- */
+function pintarGuiaEstructura() {
+  const e = ESTRUCTURAS[$('fEstructura').value];
+  $('ayudaEstructura').textContent = e.uso;
+  const cont = $('estructurasBox');
+  if (!cont.dataset.listo) {
+    cont.innerHTML = Object.keys(ESTRUCTURAS).map((k) => {
+      const x = ESTRUCTURAS[k];
+      return '<div class="mb-3"><div class="fw-semibold accent">' + x.titulo + '</div>'
+        + '<ul class="mb-1 ps-3">' + x.partes.map((p) => '<li><b>' + p[0] + '</b> · ' + p[1] + ': ' + p[2] + '</li>').join('') + '</ul>'
+        + '<div class="form-text">Uso: ' + x.uso + '</div></div>';
+    }).join('');
+    cont.dataset.listo = '1';
+  }
+}
+
+function pintarChecklist() {
+  const guardado = leer(kCheck(currentUser.usuario), []);
+  const cont = $('checklistBox');
+  cont.innerHTML = CHECKLIST.map((t, i) =>
+    '<div class="form-check mb-1"><input class="form-check-input" type="checkbox" id="chk' + i + '"'
+    + (guardado.includes(i) ? ' checked' : '') + '><label class="form-check-label" for="chk' + i + '">' + t + '</label></div>'
+  ).join('') + '<div class="form-text mt-2" id="chkResumen"></div>';
+  cont.querySelectorAll('input').forEach((inp, i) => {
+    inp.onchange = () => {
+      const act = leer(kCheck(currentUser.usuario), []).filter((n) => n !== i);
+      if (inp.checked) act.push(i);
+      escribir(kCheck(currentUser.usuario), act);
+      resumenChecklist();
+    };
+  });
+  resumenChecklist();
+}
+
+function resumenChecklist() {
+  const n = leer(kCheck(currentUser.usuario), []).length;
+  $('chkResumen').textContent = n + ' de ' + CHECKLIST.length + ' criterios verificados.';
+}
+
+/* --------------------- 10. RESPALDO DE ESTILOS --------------------- */
+function respaldoDeEstilos() {
+  // Bootstrap aplica display:flex a .row. Si no ocurre, la CDN no cargó (primera visita sin red).
+  const probe = document.createElement('div');
+  probe.className = 'row';
+  probe.style.position = 'absolute';
+  probe.style.visibility = 'hidden';
+  document.body.appendChild(probe);
+  const flex = getComputedStyle(probe).display === 'flex';
+  probe.remove();
+  if (flex) return;
+  const css = `
+    *,*::before,*::after{box-sizing:border-box}
+    .container-fluid{width:100%;margin:0 auto}
+    .row{display:flex;flex-wrap:wrap;margin:0 -.5rem}
+    [class*="col-"]{flex:0 0 100%;max-width:100%;padding:0 .5rem}
+    @media(min-width:992px){.col-lg-5{flex:0 0 41.66%;max-width:41.66%}.col-lg-7{flex:0 0 58.33%;max-width:58.33%}}
+    @media(min-width:576px){.col-sm-6{flex:0 0 50%;max-width:50%}.col-6{flex:0 0 50%;max-width:50%}}
+    .g-3>[class*="col-"],.g-4>[class*="col-"],.g-2>[class*="col-"]{margin-bottom:1rem}
+    .d-flex{display:flex}.flex-wrap{flex-wrap:wrap}.align-items-center{align-items:center}
+    .justify-content-between{justify-content:space-between}.ms-auto{margin-left:auto}
+    .gap-2{gap:.5rem}.gap-3{gap:1rem}.w-100{width:100%}.text-center{text-align:center}
+    .mb-1{margin-bottom:.25rem}.mb-2{margin-bottom:.5rem}.mb-3{margin-bottom:1rem}.mt-2{margin-top:.5rem}
+    .mt-3{margin-top:1rem}.mt-4{margin-top:1.5rem}.py-4{padding:1.5rem 0}.p-3{padding:1rem}
+    .btn{display:inline-block;padding:.4rem .8rem;border-radius:.45rem;border:1px solid transparent;cursor:pointer;font-size:.9rem}
+    .btn-sm{padding:.28rem .6rem;font-size:.82rem}
+    .form-control,.form-select{display:block;width:100%;padding:.45rem .7rem;border-radius:.45rem;font-size:.92rem}
+    .input-group{display:flex}.input-group .form-control{border-radius:0 .45rem .45rem 0}
+    .input-group-text{padding:.45rem .7rem;border-radius:.45rem 0 0 .45rem}
+    .form-check{display:flex;align-items:center;gap:.4rem}
+    .nav-pills{display:flex;list-style:none;padding:0;gap:.4rem}.nav-pills .nav-link{flex:1;border:0;border-radius:.45rem;padding:.4rem;background:none}
+    .badge{display:inline-block;padding:.15rem .45rem;border-radius:.4rem;font-size:.72rem}
+    .alert{border-radius:.5rem;border:1px solid #f59e0b}.small{font-size:.85rem}.hidden{display:none!important}
+    .text-secondary{color:#94a3b8}.fw-semibold{font-weight:600}
+    .d-none{display:none!important}.position-relative{position:relative}
+    @media(min-width:576px){.d-sm-inline{display:inline!important}.d-sm-none{display:none!important}}`;
+  const st = document.createElement('style');
+  st.textContent = css;
+  document.head.appendChild(st);
+  toast('Sin acceso a la CDN: se aplicaron estilos de respaldo.');
+}
+
+/* ------------------------------ 11. PWA ------------------------------ */
+function instalarPWA() {
+  if (!deferredPrompt) { toast('Usa el menú del navegador: «Instalar aplicación».'); return; }
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.finally(() => { deferredPrompt = null; $('btnInstalar').classList.add('hidden'); });
+}
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  $('btnInstalar').classList.remove('hidden');
+});
+
+function estadoRed() { $('offlineBadge').classList.toggle('hidden', navigator.onLine); }
+window.addEventListener('online', estadoRed);
+window.addEventListener('offline', estadoRed);
+
+function manifiestoDeRespaldo() {
+  // Ejecución desde file:// : el manifiesto se genera en memoria para no depender de archivos externos.
+  const icono = 'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512"><rect width="512" height="512" fill="#0f172a"/><rect x="110" y="150" width="100" height="100" fill="#D97706"/><rect x="206" y="206" width="100" height="100" fill="#f1f5f9"/><rect x="302" y="262" width="100" height="100" fill="#D97706"/></svg>');
+  const m = {
+    name: 'Generador de Prompts para Dirección de Arte y Gestión de Proyectos',
+    short_name: 'Prompts DA', start_url: '.', display: 'standalone',
+    background_color: '#0f172a', theme_color: '#0f172a', lang: 'es',
+    icons: [{ src: icono, sizes: '512x512', type: 'image/svg+xml', purpose: 'any' }]
+  };
+  const url = URL.createObjectURL(new Blob([JSON.stringify(m)], { type: 'application/manifest+json' }));
+  $('manifestLink').setAttribute('href', url);
+}
+
+/* --------------------------- 12. ARRANQUE --------------------------- */
+window.onload = function () {
+  respaldoDeEstilos();
+  estadoRed();
+  cambiarTabAuth('login');
+  const sesion = leer(K_SESION, null);
+  if (sesion && sesion.usuario) {
+    currentUser = sesion;
+    showApp();
+  } else {
+    pintarGuiaEstructura();
+  }
+  if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+  if (location.protocol === 'file:') manifiestoDeRespaldo();
+  else fetch('manifest.json', { method: 'HEAD' }).catch(() => manifiestoDeRespaldo());
+};
+</script>
+</body>
+</html>

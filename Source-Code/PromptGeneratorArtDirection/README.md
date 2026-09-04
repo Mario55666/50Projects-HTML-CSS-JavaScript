@@ -1,0 +1,79 @@
+# Generador de Prompts para Dirección de Arte y Gestión de Proyectos
+
+Aplicación web de una sola página que convierte los datos de un encargo de diseño
+(cliente, cantidad y soporte, canales digitales, presupuesto, plazo hábil y formato de
+entrega) en un prompt estructurado según el método CB&CB&CB —Context Box, Concept Board,
+Creative Book— descrito por Jordi Cano (ELISAVA, 2012).
+
+Destinatario: estudiantes de segundo semestre de diseño publicitario, Unidad Didáctica de
+Producción de Piezas Gráficas 2026.
+
+## Archivos
+
+| Archivo | Contenido |
+| --- | --- |
+| `index.html` | Interfaz, lógica y estilos propios en un solo archivo (60 KB aprox.). |
+| `manifest.json` | Manifiesto PWA: nombre, iconos, `display: standalone`, color `#0f172a`. |
+| `sw.js` | Service worker: precarga los archivos locales y el CSS de Bootstrap; responde desde caché cuando no hay red. |
+| `icons/icon-192.png`, `icons/icon-512.png` | Iconos de instalación. |
+
+## Ejecución
+
+- Doble clic sobre `index.html`: la aplicación funciona en `file://`. En ese modo no se
+  registra el service worker y el manifiesto se genera en memoria.
+- Servida por HTTP (`python3 -m http.server`, GitHub Pages): registra el service worker,
+  admite instalación como PWA y funciona sin conexión tras la primera visita.
+
+## Funciones
+
+1. **Formulario del encargo.** Cliente, cantidad y soporte, siete canales digitales más
+   canales libres, presupuesto en soles, plazo en días hábiles, formato de entrega
+   (digital, analógico o mixto) y variante metodológica.
+2. **Plantilla «Café Origen».** Un botón rellena el caso de estudio completo: 3 empaques,
+   S/ 4800.00, 15 días hábiles, entrega mixta y estructura RISEN.
+3. **Vista previa en tiempo real.** El prompt se reconstruye en cada `oninput`,
+   `onchange` y `onblur`.
+4. **Seis estructuras de prompt.** RACE, APE, IDEA, TAG, CARE y RISEN. Cada una reordena
+   los bloques del texto generado y aparece descrita en la guía lateral.
+5. **Copiado y exportación.** Botón de copia con notificación emergente y descarga en
+   `.md`, `.csv` (con BOM UTF-8, una fila de datos y el prompt completo) y `.txt`.
+6. **Historial por usuario.** Clave `prompts_<usuario>` en `localStorage`, con registros
+   `{ id, cliente, fecha, estructura, contenidoPrompt }` insertados con `unshift()` y
+   limitados a 50. Un clic reinyecta cualquier prompt antiguo en la vista previa.
+7. **Checklist de once criterios** del prompt y resumen de las etapas CB&CB&CB, con estado
+   guardado en `checklist_<usuario>`.
+
+## Validación de campos numéricos
+
+- Presupuesto: `oninput` elimina lo que no sea dígito o punto, permite un solo separador
+  decimal y recorta a dos decimales; `onblur` aplica `toFixed(2)`. La comprobación final
+  usa `/^\d+(\.\d{1,2})?$/`.
+- Plazo: `Math.max(1, parseInt(valor) || 0)`. Un valor negativo, cero o vacío se ajusta a 1.
+- Un campo inválido recibe las clases `border-red-500` e `is-invalid` y su identificador
+  entra en el conjunto `camposInvalidos`, que detiene el renderizado del prompt hasta que
+  se corrija el dato.
+
+## Navegación y sesión
+
+- `currentUser` guarda la identidad tras validar las credenciales en `localStorage`.
+- `showApp()` añade la clase `hidden` a `#authSection` y la retira de `#appSection`.
+- `window.onload` lee la clave `currentUser` y salta al panel si existe.
+- `logout()` borra la sesión, reinicia el formulario y devuelve la pantalla de acceso.
+
+## Dependencias
+
+CSS de Bootstrap 5.3.3 por CDN, cacheado por el service worker. No se usa el bundle de
+JavaScript de Bootstrap: el cajón del historial, el menú de usuario y la guía plegable
+están resueltos con CSS propio, `<details>` y JavaScript vanilla, de modo que la aplicación
+sigue operativa si la CDN no responde. En ese caso `respaldoDeEstilos()` inyecta una hoja
+mínima de rejilla y controles.
+
+## Límites
+
+`localStorage` guarda las contraseñas en texto plano y los datos quedan en el navegador
+donde se registró la cuenta. No hay servidor ni sincronización entre dispositivos.
+
+## Referencia
+
+Cano, J. (2012). *El método CB&CB&CB 1.0*. Máster en Diseño y Dirección de Arte, ELISAVA,
+Barcelona.
