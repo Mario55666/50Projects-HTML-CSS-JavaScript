@@ -336,9 +336,27 @@
     .node-panel{left:10px;right:10px;top:10px;width:auto;max-height:60%}
   }
 
+  /* ---- Aviso de instrucciones de juego (banco grande + barra de progreso + glosario) ---- */
+  .reto-instrucciones{font-size:.82rem;line-height:1.55;color:#d7deff;
+    background:rgba(63,181,107,.1);border:1px solid rgba(63,181,107,.4);
+    border-radius:10px;padding:.6rem .8rem;margin-bottom:.7rem}
+  .reto-instrucciones strong{color:var(--exito)}
+  .reto-instrucciones .glos-hint{color:var(--idc-amarillo);font-weight:600}
+
+  /* ---- Fuegos artificiales / celebración por acierto ---- */
+  .fuegos-artificiales{position:fixed;inset:0;z-index:4000;pointer-events:none;overflow:hidden}
+  .particula-fuego{position:absolute;width:.6vmin;aspect-ratio:1;border-radius:50%;
+    transform:translate(-50%,-50%);animation:estallar-fuego .9s ease-out forwards;
+    box-shadow:0 0 6px currentColor}
+  @keyframes estallar-fuego{
+    0%{ transform:translate(-50%,-50%) translate(0,0) scale(1); opacity:1 }
+    65%{ opacity:1 }
+    100%{ transform:translate(-50%,-50%) translate(var(--dx),var(--dy)) scale(.25); opacity:0 }
+  }
+
   @media print{
     body{background:#fff}
-    #hud,#loader,.navbar-andes,#escena,.no-print,.escena-hint,#glosarioToggle,#panelGlosario{display:none!important}
+    #hud,#loader,.navbar-andes,#escena,.no-print,.escena-hint,#glosarioToggle,#panelGlosario,.fuegos-artificiales{display:none!important}
     /* Contraste para impresión: fondo blanco exige texto oscuro en todos los bloques visibles */
     *{color:#000!important;text-shadow:none!important}
     .glass,.accordion-item,.accordion-body,.accordion-button,table.mini{background:#fff!important;border-color:#ccc!important}
@@ -467,6 +485,35 @@
               <li><strong>Día 2:</strong> estampado final + empaquetado desfasado + edición de fotos + arte de Instagram.</li>
               <li><strong>Día 3 (AM):</strong> entrega física + publicación coordinada (Reel mientras el cliente recibe los polos).</li>
             </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#d5">🎮 Cómo jugar el Panel de Retos</button></h3>
+        <div id="d5" class="accordion-collapse collapse" data-bs-parent="#accDossier">
+          <div class="accordion-body">
+            <p>Cada uno de los 4 retos del panel flotante (📝 Preguntas, 🧩 Adivinanzas, ⚡ Retos contra
+            reloj, 🎨 Generador) tiene un <strong>banco amplio de contenido</strong> —preguntas y
+            adivinanzas enfocadas en problemas, circunstancias, efectos y consecuencias reales del
+            proceso, no en definiciones sueltas— y cada elemento del banco indica explícitamente a
+            qué <strong>fase numerada (1 a 12)</strong> del mapa 3D pertenece. El orden es aleatorio y
+            se vuelve a barajar cada vez que abres una actividad, de modo que no verás el mismo orden
+            dos veces seguidas.</p>
+            <p><strong>La tarea no es responder todo el banco: es completar las 4 actividades.</strong>
+            Fíjate en la <strong>barra de progreso del panel de retos</strong> (arriba del todo, junto a
+            "Progreso: N%"): cada actividad suma exactamente <strong>25%</strong> al completarse (3
+            aciertos en Preguntas, 1 acierto en Adivinanzas, 1 secuencia perfecta en Retos contra
+            reloj, o generar 1 anagrama + 1 prompt en el Generador). En cuanto el botón de esa
+            actividad se marque con <strong>"✓ resuelto"</strong> y el porcentaje suba, deja esa
+            actividad y pasa al siguiente botón del panel; no hace falta seguir respondiendo preguntas
+            de un reto ya resuelto. Al llegar al 100% se desbloquea el render final del mapa 3D.</p>
+            <p>Si tienes dudas de vocabulario mientras respondes, apóyate en el botón flotante
+            <strong>📖 Glosario</strong> (esquina inferior derecha): queda accesible incluso con un
+            reto abierto, y agrupa los 20 términos técnicos por la misma fase numerada del mapa.</p>
+            <p class="mb-0">Todas tus respuestas —correctas e incorrectas, de las 4 actividades— quedan
+            registradas automáticamente y se incluyen en el <strong>PDF</strong> que generas al final
+            desde la sección de Registro, como constancia del proceso completo.</p>
           </div>
         </div>
       </div>
@@ -611,6 +658,14 @@
         <button type="button" class="btn-close-big" data-bs-dismiss="modal" aria-label="Cerrar">✕</button>
       </div>
       <div class="modal-body">
+        <div class="reto-instrucciones">
+          📌 No necesitas responder todo el banco: al llegar a <strong>3 aciertos</strong> esta
+          actividad suma su <strong>25%</strong> en la barra de progreso del panel — cuando eso
+          ocurra, cierra y pasa al siguiente reto. Cada pregunta plantea un problema o consecuencia
+          real del proceso e indica su fase (1-12). ¿Dudas de vocabulario?
+          <span class="glos-hint">Consulta el 📖 Glosario</span>. Todas tus respuestas quedan
+          registradas para el PDF final.
+        </div>
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
           <span id="pregContador" style="font-size:.85rem;color:#cfd8ff">Pregunta 1</span>
           <span id="pregFaseBadge" class="fase-badge"><span class="fdot"></span><span id="pregFaseTxt">Fase</span></span>
@@ -641,6 +696,13 @@
         <button type="button" class="btn-close-big" data-bs-dismiss="modal" aria-label="Cerrar">✕</button>
       </div>
       <div class="modal-body">
+        <div class="reto-instrucciones">
+          📌 Con <strong>1 acierto</strong> ya completas esta actividad y sumas <strong>25%</strong>
+          al progreso del panel — no necesitas resolver todo el banco. Cada adivinanza describe una
+          circunstancia o efecto real del proceso e indica su fase (1-12).
+          <span class="glos-hint">Apóyate en el 📖 Glosario</span> si lo necesitas. Tus respuestas
+          quedan registradas para el PDF final.
+        </div>
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-1">
           <span id="adivContador" style="font-size:.85rem;color:#cfd8ff"></span>
           <span id="adivFaseBadge" class="fase-badge"><span class="fdot"></span><span id="adivFaseTxt">Fase</span></span>
@@ -671,6 +733,12 @@
         <button type="button" class="btn-close-big" data-bs-dismiss="modal" aria-label="Cerrar">✕</button>
       </div>
       <div class="modal-body text-center">
+        <div class="reto-instrucciones text-start">
+          📌 Con <strong>1 secuencia perfecta</strong> completas esta actividad y sumas
+          <strong>25%</strong> al progreso del panel. Si tienes dudas de un término,
+          <span class="glos-hint">consulta el 📖 Glosario</span> antes de empezar el cronómetro.
+          Cada intento (correcto o no) queda registrado para el PDF final.
+        </div>
         <div class="d-flex justify-content-center mb-2">
           <span class="fase-badge"><span class="fdot" style="background:#c65d3a"></span>Fase 5/12 · Producción y logística (Taller)</span>
         </div>
@@ -700,6 +768,12 @@
         <button type="button" class="btn-close-big" data-bs-dismiss="modal" aria-label="Cerrar">✕</button>
       </div>
       <div class="modal-body">
+        <div class="reto-instrucciones">
+          📌 Resolver <strong>1 anagrama</strong> y generar <strong>1 prompt</strong> ya completa
+          esta actividad y suma <strong>25%</strong> al progreso del panel; no hace falta agotar el
+          banco de anagramas. <span class="glos-hint">El 📖 Glosario</span> tiene las definiciones de
+          cada palabra clave si las necesitas. Cada intento queda registrado para el PDF final.
+        </div>
         <ul class="nav nav-pills mb-3" role="tablist">
           <li class="nav-item"><button class="nav-link active" id="tabAnag" data-bs-toggle="pill" data-bs-target="#paneAnag" type="button" role="tab">1️⃣ Anagramas</button></li>
           <li class="nav-item"><button class="nav-link" id="tabPrompt" data-bs-toggle="pill" data-bs-target="#panePrompt" type="button" role="tab">2️⃣ Generador de prompts</button></li>
@@ -1139,6 +1213,34 @@ try {
   function toast(msg){ toastEl.textContent=msg; toastEl.classList.add('show');
     clearTimeout(toastTimer); toastTimer=setTimeout(()=>toastEl.classList.remove('show'),2600); }
 
+  /* ---- Celebración: fuegos artificiales al acertar ---- */
+  const COLORES_FUEGO = ['#f3a100','#25d3d3','#c65d3a','#e0a83e','#3fb56b','#ffffff'];
+  function celebrarAcierto(){
+    const reducirMovimiento = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if(reducirMovimiento) return;
+    const cont = document.createElement('div');
+    cont.className = 'fuegos-artificiales';
+    document.body.appendChild(cont);
+    const centros = [ {x:28+Math.random()*10, y:55+Math.random()*10}, {x:62+Math.random()*10, y:45+Math.random()*10} ];
+    centros.forEach((c,ci)=>{
+      setTimeout(()=>{
+        for(let i=0;i<22;i++){
+          const p = document.createElement('span');
+          p.className = 'particula-fuego';
+          const angulo = (Math.PI*2*i)/22 + Math.random()*0.3;
+          const distancia = 70 + Math.random()*70;
+          p.style.setProperty('--dx', (Math.cos(angulo)*distancia).toFixed(1)+'px');
+          p.style.setProperty('--dy', (Math.sin(angulo)*distancia).toFixed(1)+'px');
+          p.style.left = c.x+'%'; p.style.top = c.y+'%';
+          const color = COLORES_FUEGO[Math.floor(Math.random()*COLORES_FUEGO.length)];
+          p.style.background = color; p.style.color = color;
+          cont.appendChild(p);
+        }
+      }, ci*140);
+    });
+    setTimeout(()=>cont.remove(), 1500);
+  }
+
   /* ---- anime.js opcional ---- */
   const A = window.anime || null;
 
@@ -1235,8 +1337,22 @@ try {
     comodin:false, planB:false,
     keywords:new Set(),        // palabras clave desbloqueadas por anagramas
     modo:'equipo',
-    renderFinal:false
+    renderFinal:false,
+    // Registro completo de respuestas (correctas e incorrectas) de las 4 actividades,
+    // para incluirlo íntegro en el PDF/Markdown final.
+    registro:{ preguntas:[], adivinanzas:[], retos:[], anagramas:[], prompts:[] }
   };
+
+  /* ---- Bolsa sin repetición: baraja un banco y lo consume sin repetir hasta agotarlo ---- */
+  function crearBolsa(banco){
+    let cola = [];
+    function recargar(){ cola = baraja(banco.map((_,i)=>i)); }
+    recargar();
+    return {
+      siguiente(){ if(cola.length===0) recargar(); return banco[cola.pop()]; },
+      reiniciar(){ recargar(); }
+    };
+  }
 
   function updateProgress(){
     const done = Object.values(estado.tools).filter(Boolean).length;
@@ -1270,10 +1386,12 @@ try {
   const modalAdiv = new bootstrap.Modal('#modalAdivinanzas');
   const modalReto = new bootstrap.Modal('#modalRetos');
   const modalGen  = new bootstrap.Modal('#modalGenerador');
-  $('#hbPreguntas').addEventListener('click',()=>{ cargarPregunta(); modalPreg.show(); });
-  $('#hbAdivinanzas').addEventListener('click',()=>{ cargarAdivinanza(); modalAdiv.show(); });
+  // Cada actividad se vuelve a barajar (bolsa sin repetición) al abrirse, para que el
+  // orden sea aleatorio "cada vez que se inicie la actividad", como pide la dinámica.
+  $('#hbPreguntas').addEventListener('click',()=>{ bolsaPreguntas.reiniciar(); cargarPregunta(); modalPreg.show(); });
+  $('#hbAdivinanzas').addEventListener('click',()=>{ bolsaAdivinanzas.reiniciar(); cargarAdivinanza(); modalAdiv.show(); });
   $('#hbRetos').addEventListener('click',()=>{ iniciarReto(); modalReto.show(); });
-  $('#hbGenerador').addEventListener('click',()=>{ cargarAnagrama(); renderChips(); modalGen.show(); });
+  $('#hbGenerador').addEventListener('click',()=>{ bolsaAnagramas.reiniciar(); cargarAnagrama(); renderChips(); modalGen.show(); });
 
   /* ============ 1) PREGUNTAS DINÁMICAS ============ */
   const PREGUNTAS = [
@@ -1346,12 +1464,104 @@ try {
       ok:1, exp:'El caso obliga a decidir con información incompleta, integrando negociación, creatividad y logística.',
       dato:'Decidir bajo incertidumbre es el núcleo de una "Experiencia Curricular" aplicada.',
       pista:'Piensa en lo que hiciste en cada pregunta anterior: nunca tuviste el 100% de la información del dossier.',
-      aporte:'Cierra la Fase de Análisis: resume por qué formular las 3 preguntas críticas —y no adivinar datos— es la habilidad central de todo el proceso.' }
+      aporte:'Cierra la Fase de Análisis: resume por qué formular las 3 preguntas críticas —y no adivinar datos— es la habilidad central de todo el proceso.' },
+    { fase:'inicio',
+      txt:'Si el dossier mezcla el briefing, las referencias visuales y el requerimiento técnico sin separarlos, ¿qué efecto tiene sobre el análisis inicial?',
+      op:['Ninguno, se puede analizar igual','Aumenta el riesgo de confundir datos duros con referencias de estilo, dificultando detectar vacíos','Mejora la creatividad del equipo','Acelera la Fase 1'],
+      ok:1, exp:'Segmentar el dossier en 3 bloques desde el inicio es lo que permite luego aislar los datos duros sin contaminarlos con opiniones de estilo.',
+      dato:'La segmentación en Briefing, Referencias visuales y Requerimiento técnico es el primer filtro de calidad del análisis.',
+      pista:'Piensa en qué pasa si mezclas cifras exactas con imágenes de inspiración en un mismo párrafo.',
+      aporte:'La Fase 1 es la base de todo el proceso: un error de segmentación aquí se arrastra hasta las 3 preguntas críticas.' },
+    { fase:'inicio',
+      txt:'¿Qué consecuencia tiene empezar a diseñar el arte antes de terminar de leer completo el dossier?',
+      op:['Ninguna, se ahorra tiempo','Se corre el riesgo de inventar información que el dossier no da, rompiendo la regla del caso','El cliente lo agradece siempre','Se detecta antes el cuello de botella'],
+      ok:1, exp:'Leer el dossier completo en la Fase 1 es lo que evita inventar datos —como una cámara de secado— que nunca se mencionaron.',
+      dato:'La regla "no inventar datos que no estén en el dossier" aplica desde la primera lectura, no solo al responder.',
+      pista:'Recuerda la regla central de la dinámica: nunca se inventan datos que el dossier no menciona.',
+      aporte:'Anticipa por qué, más adelante, la Pregunta 1 exige no inventar una cámara de secado que el dossier nunca describió.' },
+    { fase:'extraccion',
+      txt:'Durante la extracción de datos duros, un integrante anota "como 500 polos, más o menos". ¿Qué problema genera esta imprecisión más adelante?',
+      op:['Ninguno, se redondea igual','Puede afectar el cálculo de lotes y tiempos de secado, que sí dependen de la cantidad exacta','Acelera el estampado','Mejora la negociación con el cliente'],
+      ok:1, exp:'Los lotes de 50 polos y el cronograma de secado del Equipo A dependen de una cifra exacta, no aproximada.',
+      dato:'Un dato "aproximado" en la Fase 2 puede desajustar el plan de lotes desfasados de la Fase 5.',
+      pista:'Piensa en cómo se arman los lotes de 50: si la cantidad total es imprecisa, el número de lotes también lo será.',
+      aporte:'Muestra por qué la extracción de datos duros exige precisión: alimenta directamente la solución de la Pregunta 1.' },
+    { fase:'extraccion',
+      txt:'Si al extraer los datos duros se registra el tipo de tinta pero se omite que son solo 2 tintas planas, ¿qué efecto tiene en la Pregunta 2?',
+      op:['Ninguno','El Equipo B no tendría la restricción real con la que debe resolver la adaptación del arte con halftone','Se resuelve solo','Cambia el color del logo de la app'],
+      ok:1, exp:'La restricción de "solo 2 tintas planas" es justamente lo que obliga a usar halftone en vez de más tintas o cuatricromía.',
+      dato:'Sin esa restricción explícita, cualquier solución de arte parecería válida, incluso las que el dossier no permite.',
+      pista:'La Pregunta 2 solo tiene sentido si se sabe cuántas tintas hay disponibles.',
+      aporte:'Conecta la Fase 2 (extracción de datos) con la Fase 6 (Diseño): sin el dato correcto, la solución técnica pierde su restricción real.' },
+    { fase:'deteccion',
+      txt:'Un equipo revisa el dossier y no encuentra ningún vacío de información a la primera. ¿Qué establece el flujo del proceso para este caso?',
+      op:['Se avanza igual sin más análisis','Se activa una relectura forzada para no dar por sentada la información','Se cancela la actividad','Se le pregunta directamente al cliente sin analizar'],
+      ok:1, exp:'El flujo obliga a una relectura antes de asumir que el dossier no tiene vacíos.',
+      dato:'La relectura forzada existe justamente para evitar decisiones apresuradas en la detección de cuellos de botella.',
+      pista:'Si el flujo permitiera avanzar sin relectura, cualquier vacío pasaría desapercibido.',
+      aporte:'Explica el bucle de retorno del mapa 3D: de la detección se puede volver a leer el dossier antes de seguir.' },
+    { fase:'deteccion',
+      txt:'¿Qué consecuencia tiene NO detectar a tiempo el cuello de botella entre secado y empaquetado?',
+      op:['Ninguna, se resuelve sobre la marcha','Se corre el riesgo de mezclar polos húmedos con secos y perder tiempo de entrega','El cliente no lo nota','Se ahorra tinta'],
+      ok:1, exp:'Detectar el cuello de botella a tiempo es lo que permite diseñar la solución de lotes desfasados antes de producir.',
+      dato:'Un cuello de botella no detectado suele descubrirse recién en producción, cuando ya es más caro corregirlo.',
+      pista:'Piensa en qué pasaría si se mezclaran, sin darse cuenta, polos recién estampados con polos ya secos.',
+      aporte:'Justifica por qué la Fase 3 existe como paso propio antes de llegar a la Pregunta 1.' },
+    { fase:'decision_vacios',
+      txt:'En el punto de decisión "¿Hay vacíos?", un equipo concluye erróneamente que no hay ninguno cuando sí los hay. ¿Qué efecto tiene esta decisión sobre las 3 preguntas críticas?',
+      op:['Ninguno, las preguntas igual aparecen solas','Nunca se formulan las preguntas y el equipo puede terminar inventando datos que el dossier no da','El cliente las formula por ellos','Se detiene el proyecto por completo'],
+      ok:1, exp:'Sin declarar que hay vacíos, el flujo no deriva hacia la formulación de las preguntas críticas.',
+      dato:'Las 3 preguntas del caso nacen exactamente de esta decisión: reconocer que el dossier tiene información faltante.',
+      pista:'Sin admitir que falta información, nadie se detiene a preguntar nada.',
+      aporte:'Muestra el costo de una mala decisión en la Fase 4: sin ella, no existirían las Preguntas 1, 2 y 3.' },
+    { fase:'decision_vacios',
+      txt:'Si sí se detectan vacíos de información, ¿cuál es la consecuencia directa según el flujo del mapa 3D?',
+      op:['Se cierra el análisis de inmediato','Se formulan las preguntas críticas de Producción, Diseño y Publicación','Se reformula una pregunta sin razón','Se repite el briefing desde cero'],
+      ok:1, exp:'Detectar vacíos es lo que dispara la formulación de las 3 preguntas, una por cada área del caso.',
+      dato:'Cada pregunta crítica corresponde a un área distinta: Taller, Arte y Publicación.',
+      pista:'Los vacíos detectados se convierten en preguntas, no se ignoran ni se inventan.',
+      aporte:'Es el punto exacto donde el análisis del dossier se transforma en trabajo de equipo concreto.' },
+    { fase:'relectura',
+      txt:'Durante la relectura forzada, el equipo sigue sin encontrar el dato del tiempo de secado exacto. ¿Qué acción respeta la regla de "no inventar datos"?',
+      op:['Inventar un tiempo razonable y seguir adelante','Medir el tiempo real con una prueba previa, tal como hizo el Equipo A','Preguntarle la respuesta a otro equipo','Usar el tiempo de un proyecto distinto'],
+      ok:1, exp:'Cuando el dato no está en el dossier, la solución correcta es medirlo con una prueba real, no inventarlo ni copiarlo.',
+      dato:'La medición con cronómetro en una prueba previa es la única forma válida de obtener un dato que el dossier no da.',
+      pista:'Si el dossier no lo dice, se mide; no se adivina ni se copia de otro lado.',
+      aporte:'Refuerza la regla estricta del caso incluso después de una relectura sin resultados nuevos.' },
+    { fase:'trasladar',
+      txt:'Al trasladar las preguntas al cuaderno con letra apurada e ilegible, ¿qué efecto tiene esto en la validación posterior?',
+      op:['Ninguno','Puede generar dudas sobre qué se preguntó realmente, complicando revisar si se consultaron fuentes externas','Acelera la validación','Mejora la puntuación del equipo'],
+      ok:1, exp:'Una redacción clara y estructurada es indispensable para que la validación ética pueda revisar el trabajo con confianza.',
+      dato:'El dossier pide explícitamente "letra clara y estructurada" al trasladar las preguntas.',
+      pista:'Piensa en si alguien más, además de quien escribió, necesita poder leer y verificar esas preguntas.',
+      aporte:'Conecta el cuidado en la redacción (Fase 9) con la posibilidad de validar correctamente el trabajo (Fase 10).' },
+    { fase:'validacion',
+      txt:'En la validación ética se descubre que un integrante buscó la respuesta en internet. ¿Qué consecuencia establece el proceso?',
+      op:['Se descarta el proyecto completo','Esa pregunta se descarta y se reformula usando solo la memoria del dossier leído','No pasa nada, se sigue igual','Se premia la iniciativa de investigar'],
+      ok:1, exp:'La regla exige reformular usando exclusivamente lo leído en el dossier, sin descartar todo el trabajo del equipo.',
+      dato:'La validación ética no busca castigar, sino asegurar que la respuesta nazca del dossier y no de fuentes externas.',
+      pista:'La consecuencia afecta solo a esa pregunta puntual, no a todo el proyecto.',
+      aporte:'Muestra el costo real de saltarse la regla: hay que reformular, no se avanza con una respuesta contaminada.' },
+    { fase:'reformular',
+      txt:'Al reformular una pregunta tras romper la regla de no consultar fuentes externas, ¿a qué paso debe volver el equipo según el flujo del mapa?',
+      op:['Directamente al Cierre','A "Trasladar al cuaderno"','Al inicio del dossier','A la Pregunta 3'],
+      ok:1, exp:'Una vez reformulada la pregunta con la memoria del dossier, se vuelve a escribirla en el cuaderno antes de seguir.',
+      dato:'El bucle Reformular → Trasladar evita que una pregunta contaminada avance sin corrección.',
+      pista:'La pregunta reformulada necesita quedar registrada otra vez, igual que las demás.',
+      aporte:'Explica el segundo bucle de retorno del mapa 3D, paralelo al de la relectura forzada.' },
+    { fase:'pregunta3',
+      txt:'Si el Community Manager publica sin ningún aviso cuando el arte aún no está aprobado por el cliente, ¿qué riesgo corre el proyecto?',
+      op:['Ninguno','Dañar la relación con el cliente al publicar contenido no autorizado','Mejora el alcance en redes','Ahorra tiempo de trabajo'],
+      ok:1, exp:'El flujo de 3 aprobaciones existe precisamente para evitar publicar contenido sin el visto bueno del cliente.',
+      dato:'Publicar sin aprobación es distinto de usar el disclaimer del Plan B: uno rompe el proceso, el otro lo respeta.',
+      pista:'Compara esta acción con el Plan B: ¿avisa algo al cliente o simplemente lo ignora?',
+      aporte:'Contrasta una mala práctica con la solución correcta de la Pregunta 3, reforzando por qué el protocolo de aprobación importa.' }
   ];
-  let pregActual=null, pregIndex=0;
+  const bolsaPreguntas = crearBolsa(PREGUNTAS);
+  let pregActual=null, pregIndex=0, pregOpciones=[], pregOkIdx=-1;
   function cargarPregunta(){
     $('#pregFeedback').innerHTML=''; $('#pregSiguiente').disabled=true;
-    pregActual = PREGUNTAS[Math.floor(Math.random()*PREGUNTAS.length)];
+    pregActual = bolsaPreguntas.siguiente();
     pregIndex++;
     $('#pregContador').textContent='Pregunta '+pregIndex;
     $('#pregScore').textContent='Aciertos: '+estado.aciertosPreg;
@@ -1359,8 +1569,13 @@ try {
     pintarFase($('#pregFaseBadge'), $('#pregFaseTxt'), pregActual.fase);
     $('#pregHintBox').classList.remove('visible'); $('#pregHintBox').textContent='💡 '+pregActual.pista;
     $('#pregHintBtn').setAttribute('aria-expanded','false');
+    // Se barajan las opciones en cada carga para que la posición de la correcta
+    // no sea predecible (evita que el estudiante memorice "siempre la opción B").
+    const indices = baraja(pregActual.op.map((_,i)=>i));
+    pregOpciones = indices.map(i=>pregActual.op[i]);
+    pregOkIdx = indices.indexOf(pregActual.ok);
     const cont=$('#pregOpciones'); cont.innerHTML='';
-    pregActual.op.forEach((o,i)=>{
+    pregOpciones.forEach((o,i)=>{
       const b=document.createElement('button');
       b.className='opcion-btn'; b.type='button'; b.textContent=o;
       b.addEventListener('click',()=>responderPreg(i,b));
@@ -1373,16 +1588,19 @@ try {
   });
   function responderPreg(i,btn){
     const opciones=$$('#pregOpciones .opcion-btn'); opciones.forEach(b=>b.disabled=true);
-    const correcto = i===pregActual.ok;
+    const correcto = i===pregOkIdx;
+    estado.registro.preguntas.push({ fase:pregActual.fase, pregunta:pregActual.txt,
+      elegida:pregOpciones[i], correcta:pregOpciones[pregOkIdx], esCorrecta:correcto });
     if(correcto){
       btn.classList.add('ok'); estado.aciertosPreg++;
       $('#pregScore').textContent='Aciertos: '+estado.aciertosPreg;
       $('#pregFeedback').innerHTML='<div class="feedback ok"><strong>✓ Correcto — '+faseLabel(pregActual.fase)+'.</strong> '+pregActual.exp+
         '<div class="aporte-fase">🧩 Cómo contribuye: '+pregActual.aporte+'</div>'+
         '<div class="dato-extra">💡 Dato extra: '+pregActual.dato+'</div></div>';
+      celebrarAcierto();
       if(pregActual.zona==='taller'){ estado.p1correcta=true; map()&&map().flashTaller(); toast('🟩 El Taller brilla en verde: resolviste la Pregunta 1.'); }
     } else {
-      btn.classList.add('no'); opciones[pregActual.ok].classList.add('ok');
+      btn.classList.add('no'); opciones[pregOkIdx].classList.add('ok');
       $('#pregFeedback').innerHTML='<div class="feedback err"><strong>✗ Aún no — '+faseLabel(pregActual.fase)+'.</strong>'+
         '<ul><li><strong>Pista:</strong> '+pregActual.pista+'</li>'+
         '<li><strong>Dato clave:</strong> '+pregActual.exp+'</li>'+
@@ -1433,15 +1651,51 @@ try {
       keys:['paleta tierra','paleta de color tierra','colores tierra','paleta de tierra','paleta terrosa'],
       concepto:'Paleta de color tierra', fase:'pregunta2', pista:'Conjunto cromático del moodboard andino.',
       dato:'Las paletas tierra transmiten calidez, artesanía y origen local.',
-      aporte:'Es la paleta que usarás en el Generador de prompts (selector "Color") para producir el arte digital de Instagram del Equipo B.' }
+      aporte:'Es la paleta que usarás en el Generador de prompts (selector "Color") para producir el arte digital de Instagram del Equipo B.' },
+    { txt:'Tres bloques me conforman: el encargo, las imágenes de referencia y las exigencias técnicas. Si me mezclas sin querer, el análisis se complica. ¿Qué soy?',
+      keys:['dossier'],
+      concepto:'Dossier', fase:'inicio', pista:'Es el documento base de todo el caso.',
+      dato:'Reúne el briefing, las referencias visuales y el requerimiento técnico en tres bloques separados.',
+      aporte:'Sin distinguir bien mis 3 bloques, se complica detectar los vacíos de información en las fases siguientes.' },
+    { txt:'Soy el punto donde todo se atasca: si nadie me nota a tiempo, el pedido completo se retrasa. ¿Qué soy?',
+      keys:['cuello de botella','cuello botella'],
+      concepto:'Cuello de botella', fase:'deteccion', pista:'Limita la velocidad o capacidad de todo el proceso.',
+      dato:'En este caso, aparece entre el secado de la tinta y el empaquetado de los polos.',
+      aporte:'Detectar este obstáculo a tiempo es justo lo que permite diseñar la solución de la Pregunta 1.' },
+    { txt:'Cuando me froten sobre la tela con un paño blanco y seco, si no dejo marca, confirmo que el trabajo quedó bien hecho. ¿Qué proceso comprueba mi éxito?',
+      keys:['curado','secado de la tinta','curado de la tinta'],
+      concepto:'Curado', fase:'pregunta1', pista:'Es el fijado de la tinta en la tela mediante tiempo o calor.',
+      dato:'Un curado incompleto provoca que la tinta se agriete o se despinte en el primer lavado.',
+      aporte:'Es el proceso detrás del indicador de éxito que exige documentar la solución de la Pregunta 1.' },
+    { txt:'Antes de que exista el arte final, reúno fotos, colores y texturas para que el equipo no se pierda en el camino. ¿Qué soy?',
+      keys:['moodboard','tablero de referencias'],
+      concepto:'Moodboard', fase:'pregunta2', pista:'Es un tablero visual, no un cronograma ni una máquina.',
+      dato:'Se define antes del arte final precisamente para evitar reprocesos costosos.',
+      aporte:'Si no existo, el arte digital corre el riesgo de perder la esencia andina que pide el cliente.' },
+    { txt:'Reviso que nadie haya buscado ayuda fuera del dossier antes de aceptar una respuesta como válida. Si la encuentro contaminada, mando a reformular. ¿Qué paso del proceso soy?',
+      keys:['validacion etica','validación ética','validacion','validación'],
+      concepto:'Validación ética', fase:'validacion', pista:'Soy un paso del flujo, no un objeto físico.',
+      dato:'Si se rompió la regla, la pregunta se reformula usando solo la memoria del dossier leído.',
+      aporte:'Es el control de calidad que asegura que las 3 preguntas nazcan realmente del dossier, no de internet.' },
+    { txt:'Cuando la luz natural falla y la foto se atrasa, aparezco primero en Instagram contando el detrás de escena, a la hora pactada. ¿Qué soy?',
+      keys:['reel de making-of','reel','making of','reel making of','reel de makingof'],
+      concepto:'Reel de making-of', fase:'pregunta3', pista:'Video corto del proceso de producción.',
+      dato:'Se publica a la hora pactada mientras se termina de editar la foto final.',
+      aporte:'Es el Plan B audiovisual del Equipo C ante un retraso: mantiene la cita con la audiencia sin romper la calidad.' },
+    { txt:'Reviso el copy y el formato antes de que algo salga a redes; si el cliente no responde a tiempo, tengo la potestad de publicar con un aviso. ¿Qué rol soy?',
+      keys:['community manager','cm','community'],
+      concepto:'Community Manager (CM)', fase:'pregunta3', pista:'Es un rol de personas, no una herramienta.',
+      dato:'Puede publicar con un disclaimer si el cliente no aprueba a tiempo, y actualizar la imagen 2 horas después.',
+      aporte:'Es quien ejecuta el Plan B de la Pregunta 3 cuando el protocolo de aprobación no se cumple a tiempo.' }
   ];
+  const bolsaAdivinanzas = crearBolsa(ADIVINANZAS);
   let adivActual=null, adivIdx=0;
   function normaliza(s){ return (s||'').toLowerCase().trim()
     .normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' '); }
   function cargarAdivinanza(){
     $('#adivFeedback').innerHTML=''; $('#adivInput').value=''; $('#adivInput').disabled=false;
     $('#adivResolver').classList.remove('d-none'); $('#adivSiguiente').classList.add('d-none');
-    adivActual = ADIVINANZAS[adivIdx % ADIVINANZAS.length]; adivIdx++;
+    adivActual = bolsaAdivinanzas.siguiente(); adivIdx++;
     $('#adivContador').textContent='Adivinanza '+adivIdx;
     $('#adivTexto').textContent=adivActual.txt;
     pintarFase($('#adivFaseBadge'), $('#adivFaseTxt'), adivActual.fase);
@@ -1451,14 +1705,18 @@ try {
     const val=normaliza($('#adivInput').value);
     if(!val){ toast('Escribe tu respuesta.'); return; }
     const acierto = adivActual.keys.some(k=>{ const nk=normaliza(k); return val===nk || val.includes(nk) || nk.includes(val)&&val.length>=4; });
+    estado.registro.adivinanzas.push({ fase:adivActual.fase, adivinanza:adivActual.txt,
+      respuesta:$('#adivInput').value, esperado:adivActual.concepto, esCorrecta:acierto });
     if(acierto){
       $('#adivInput').disabled=true; $('#adivResolver').classList.add('d-none'); $('#adivSiguiente').classList.remove('d-none');
       $('#adivFeedback').innerHTML='<div class="feedback ok"><strong>✓ ¡Exacto — '+faseLabel(adivActual.fase)+'.</strong> Es la <strong>'+adivActual.concepto+
         '</strong>. '+adivActual.dato+
         '<div class="aporte-fase">🧩 Cómo contribuye: '+adivActual.aporte+'</div></div>';
+      celebrarAcierto();
       if(!estado.comodin){ estado.comodin=true; setComodin('🎟️ Comodín desbloqueado: -3 s en el reto del Taller.'); }
       if(adivActual.fase==='pregunta1'){ map()&&map().flashTaller(); toast('🟩 El nodo de Producción se refuerza en el mapa 3D.'); }
-      else { map()&&map().resolveEstudio(); toast('🪞 El nodo de Diseño cambió de color en el mapa 3D.'); }
+      else if(adivActual.fase==='pregunta2'){ map()&&map().resolveEstudio(); toast('🪞 El nodo de Diseño cambió de color en el mapa 3D.'); }
+      else { toast('✅ ¡Correcto! Ubica esta fase en el mapa 3D con el pop-up de hover.'); }
       completar('adivinanzas');
     } else {
       $('#adivFeedback').innerHTML='<div class="feedback err"><strong>✗ Aún no — '+faseLabel(adivActual.fase)+'.</strong>'+
@@ -1509,6 +1767,7 @@ try {
     if(retoSel.length===FLUJO.length) verificarReto();
   }
   function tiempoAgotado(){
+    estado.registro.retos.push({ orden:retoSel.map(c=>c.dataset.txt), esCorrecta:false, motivo:'tiempo agotado' });
     $('#retoFeedback').innerHTML='<div class="feedback err"><strong>✗ Se acabó el tiempo — Fase 5/12 · Producción y logística (Taller).</strong>'+
       '<ul><li><strong>Pista:</strong> primero se aprueba, luego se produce y al final se publica.</li>'+
       '<li><strong>Contexto:</strong> el orden evita reprocesos y respeta el secado antes del doblado.</li>'+
@@ -1518,12 +1777,14 @@ try {
     clearInterval(retoTimer); retoTimer=null;
     const orden=retoSel.map(c=>c.dataset.txt);
     const perfecto = orden.every((t,i)=>t===FLUJO[i]);
+    estado.registro.retos.push({ orden, esCorrecta:perfecto });
     if(perfecto){
       retoSel.forEach(c=>c.classList.add('ok'));
       $('#retoFeedback').innerHTML='<div class="feedback ok"><strong>✓ ¡Secuencia perfecta — Fase 5/12 · Producción y logística (Taller)!</strong> '+
         'Aprobar → Preparar tinta → Secar → Doblar → Publicar. Has activado el <strong>Plan B</strong> de entregas escalonadas.'+
         '<div class="aporte-fase">🧩 Cómo contribuye: este orden evita reprocesos y respeta el tiempo de curado de la tinta antes de manipular la prenda; es la misma lógica que resuelve la Pregunta 1 del caso.</div>'+
         '<div class="dato-extra">🏆 Trofeo desplegado sobre el nodo final del mapa 3D.</div></div>';
+      celebrarAcierto();
       estado.planB=true; setComodin('✅ Plan B activo: entregas escalonadas (250 AM / 250 PM).');
       map()&&map().showTrophy(); map()&&map().flashTaller(); completar('retos');
     } else {
@@ -1555,8 +1816,21 @@ try {
     { palabra:'VECTORIAL', fase:'pregunta2', pista:'Tipo de ilustración que no pixela al escalar.', key:'Vectorial',
       aporte:'Es el elemento conector entre la prenda física y el arte digital: al usarla en el prompt, pides "clean vector shapes" para mantener esa coherencia.' },
     { palabra:'SERIGRAFIA', fase:'pregunta1', pista:'Técnica de estampado del caso.', key:'Serigrafía',
-      aporte:'Ancla el prompt a la técnica física real del Taller ("screen-print aesthetic"), para que el arte digital no se aleje de lo que se puede producir.' }
+      aporte:'Ancla el prompt a la técnica física real del Taller ("screen-print aesthetic"), para que el arte digital no se aleje de lo que se puede producir.' },
+    { palabra:'DOSSIER', fase:'inicio', pista:'Documento base que reúne el briefing, las referencias y el requerimiento técnico.', key:'Dossier',
+      aporte:'Es el punto de partida de todo el proceso: el prompt final solo tiene sentido si respeta lo que aquí se definió.' },
+    { palabra:'VALIDACION', fase:'validacion', pista:'Paso que revisa que no se hayan consultado fuentes externas.', key:'Validación',
+      aporte:'Recuerda que incluso el prompt de IA debe basarse en lo acordado en el dossier, no en información inventada.' },
+    { palabra:'CURADO', fase:'pregunta1', pista:'Proceso de secado y fijado de la tinta en la tela.', key:'Curado',
+      aporte:'Aunque no aparece en el prompt visual, es la condición física que hace posible producir la prenda real.' },
+    { palabra:'MOODBOARD', fase:'pregunta2', pista:'Tablero de referencias de estilo, color y textura.', key:'Moodboard',
+      aporte:'Es la fuente directa de las palabras clave de estilo y color que alimentan el prompt.' },
+    { palabra:'APROBACION', fase:'pregunta3', pista:'Paso previo obligatorio antes de publicar cualquier arte.', key:'Aprobación',
+      aporte:'El prompt generado necesita pasar por este filtro antes de convertirse en la publicación final de Instagram.' },
+    { palabra:'RETRASO', fase:'pregunta3', pista:'Consecuencia de depender de la luz natural en la sesión de fotos.', key:'Retraso',
+      aporte:'Explica por qué el Equipo C necesita un Plan B, como el Reel de making-of, cuando esto ocurre.' }
   ];
+  const bolsaAnagramas = crearBolsa(ANAGRAMAS);
   let anagActual=null, anagIdx=0, anagIntentos=3;
   function scramble(w){ let a=w.split(''); let s;
     do{ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } s=a.join(''); }
@@ -1565,7 +1839,7 @@ try {
     $('#anagFeedback').innerHTML=''; $('#anagInput').value=''; $('#anagInput').disabled=false;
     $('#anagResolver').classList.remove('d-none'); $('#anagSiguiente').classList.add('d-none');
     anagIntentos=3; $('#anagIntentos').textContent='3';
-    anagActual = ANAGRAMAS[anagIdx % ANAGRAMAS.length]; anagIdx++;
+    anagActual = bolsaAnagramas.siguiente(); anagIdx++;
     $('#anagContador').textContent='Anagrama '+anagIdx;
     $('#anagPista').textContent=anagActual.pista;
     $('#anagSlot').textContent=scramble(anagActual.palabra);
@@ -1578,13 +1852,16 @@ try {
     if(val===normaliza(anagActual.palabra)){
       $('#anagInput').disabled=true; $('#anagResolver').classList.add('d-none'); $('#anagSiguiente').classList.remove('d-none');
       estado.keywords.add(anagActual.key);
+      estado.registro.anagramas.push({ fase:anagActual.fase, palabra:anagActual.palabra, respuesta:$('#anagInput').value, esCorrecta:true });
       $('#anagFeedback').innerHTML='<div class="feedback ok"><strong>✓ ¡Resuelto — '+faseLabel(anagActual.fase)+'.</strong> Palabra clave desbloqueada: <strong>'+
         anagActual.key+'</strong>.<div class="aporte-fase">🧩 Cómo contribuye: '+anagActual.aporte+'</div></div>';
+      celebrarAcierto();
       renderKeywords(); renderChips(); completar('generador');
       toast('🔑 Palabra clave desbloqueada: '+anagActual.key);
     } else {
       anagIntentos--; $('#anagIntentos').textContent=Math.max(0,anagIntentos);
       if(anagIntentos<=0){
+        estado.registro.anagramas.push({ fase:anagActual.fase, palabra:anagActual.palabra, respuesta:$('#anagInput').value, esCorrecta:false });
         $('#anagInput').disabled=true; $('#anagResolver').classList.add('d-none'); $('#anagSiguiente').classList.remove('d-none');
         $('#anagFeedback').innerHTML='<div class="feedback err"><strong>Sin intentos.</strong> La palabra era <strong>'+
           anagActual.palabra+'</strong>. Pasa a la siguiente; no hay penalización.</div>';
@@ -1640,6 +1917,9 @@ try {
     $('#promptOut').textContent=prompt;
     $('#btnCopiarPrompt').classList.remove('d-none');
     map()&&map().updateOfficeScreen(prompt);
+    estado.registro.prompts.push({ estilo:$('#selEstilo option:checked').textContent, color:$('#selColor option:checked').textContent,
+      formato:$('#selFormato option:checked').textContent, texto:prompt });
+    celebrarAcierto();
     completar('generador');
     toast('🖥️ El monitor 3D junto a la Pregunta 3 muestra tu prompt.');
     const aporteEl=$('#promptAporte'); aporteEl.style.display='block';
@@ -1701,7 +1981,8 @@ try {
     return { miembros, curso, equipo, modo:estado.modo,
       progreso:Math.round(doneCount/4*100),
       logros:{ p1:estado.p1correcta, aciertos:estado.aciertosPreg, comodin:estado.comodin, planB:estado.planB,
-               keywords:Array.from(estado.keywords) } };
+               keywords:Array.from(estado.keywords) },
+      registro: estado.registro };
   }
   function markdownAnalisis(){
     const d=datosAnalisis();
@@ -1736,7 +2017,27 @@ try {
     md+='- **Pregunta 1 resuelta:** '+(d.logros.p1?'Sí':'No')+' · Aciertos en preguntas: '+d.logros.aciertos+'\n';
     md+='- **Comodín:** '+(d.logros.comodin?'desbloqueado':'no')+' · **Plan B:** '+(d.logros.planB?'activado':'no')+'\n';
     md+='- **Palabras clave desbloqueadas:** '+(d.logros.keywords.length?d.logros.keywords.join(', '):'—')+'\n\n';
-    md+='---\n_Docente: Mg. Mario Quiroz · Unidad didáctica de Producción y publicación de piezas gráficas · 2026 · Semana 1_\n';
+    md+='## Registro detallado de respuestas\n\n';
+    const r=d.registro;
+    md+='### 📝 Preguntas dinámicas ('+r.preguntas.length+' respondidas)\n';
+    if(r.preguntas.length===0) md+='_Sin respuestas registradas._\n\n';
+    r.preguntas.forEach((x,i)=>{ md+=(i+1)+'. ['+faseLabel(x.fase)+'] "'+x.pregunta+'" → Elegiste: "'+x.elegida+'" — '+
+      (x.esCorrecta?'✅ Correcto':'❌ Incorrecto (correcta: "'+x.correcta+'")')+'\n'; });
+    md+='\n### 🧩 Adivinanzas textiles ('+r.adivinanzas.length+' intentadas)\n';
+    if(r.adivinanzas.length===0) md+='_Sin respuestas registradas._\n\n';
+    r.adivinanzas.forEach((x,i)=>{ md+=(i+1)+'. ['+faseLabel(x.fase)+'] Respondiste: "'+x.respuesta+'" — '+
+      (x.esCorrecta?'✅ Correcto ('+x.esperado+')':'❌ Incorrecto (esperado: "'+x.esperado+'")')+'\n'; });
+    md+='\n### ⚡ Retos contra reloj ('+r.retos.length+' intentos)\n';
+    if(r.retos.length===0) md+='_Sin intentos registrados._\n\n';
+    r.retos.forEach((x,i)=>{ md+=(i+1)+'. Orden propuesto: '+x.orden.join(' → ')+' — '+(x.esCorrecta?'✅ Secuencia perfecta':'❌ Incorrecto'+(x.motivo?' ('+x.motivo+')':''))+'\n'; });
+    md+='\n### 🎨 Anagramas ('+r.anagramas.length+' intentados)\n';
+    if(r.anagramas.length===0) md+='_Sin intentos registrados._\n\n';
+    r.anagramas.forEach((x,i)=>{ md+=(i+1)+'. ['+faseLabel(x.fase)+'] Palabra: '+x.palabra+' → Escribiste: "'+x.respuesta+'" — '+
+      (x.esCorrecta?'✅ Correcto':'❌ Incorrecto')+'\n'; });
+    md+='\n### 🖥️ Prompts generados ('+r.prompts.length+')\n';
+    if(r.prompts.length===0) md+='_Ningún prompt generado._\n\n';
+    r.prompts.forEach((x,i)=>{ md+=(i+1)+'. Estilo: '+x.estilo+' · Color: '+x.color+' · Formato: '+x.formato+'\n   > '+x.texto+'\n'; });
+    md+='\n---\n_Docente: Mg. Mario Quiroz · Unidad didáctica de Producción y publicación de piezas gráficas · 2026 · Semana 1_\n';
     return md;
   }
   function descargar(nombre, contenido, tipo){
@@ -1786,10 +2087,39 @@ try {
     line('Progreso en la app',13,'bold','#0072b9');
     line('Progreso general: '+d.progreso+'%  ·  Aciertos en preguntas: '+d.logros.aciertos,11);
     line('Comodín: '+(d.logros.comodin?'sí':'no')+'  ·  Plan B: '+(d.logros.planB?'activado':'no')+'  ·  Palabras clave: '+(d.logros.keywords.join(', ')||'—'),11);
+    y+=10;
+    const r=d.registro;
+    line('Registro detallado de respuestas',13,'bold','#0072b9'); y+=2;
+    line('Preguntas dinámicas ('+r.preguntas.length+' respondidas)',11,'bold','#c65d3a');
+    if(r.preguntas.length===0) line('Sin respuestas registradas.',10,'italic');
+    r.preguntas.forEach((x,i)=>line((i+1)+'. ['+faseLabel(x.fase)+'] "'+x.pregunta+'" → Elegiste: "'+x.elegida+'" — '+
+      (x.esCorrecta?'Correcto':'Incorrecto (correcta: "'+x.correcta+'")'),10));
+    y+=4;
+    line('Adivinanzas textiles ('+r.adivinanzas.length+' intentadas)',11,'bold','#c65d3a');
+    if(r.adivinanzas.length===0) line('Sin respuestas registradas.',10,'italic');
+    r.adivinanzas.forEach((x,i)=>line((i+1)+'. ['+faseLabel(x.fase)+'] Respondiste: "'+x.respuesta+'" — '+
+      (x.esCorrecta?'Correcto ('+x.esperado+')':'Incorrecto (esperado: "'+x.esperado+'")'),10));
+    y+=4;
+    line('Retos contra reloj ('+r.retos.length+' intentos)',11,'bold','#c65d3a');
+    if(r.retos.length===0) line('Sin intentos registrados.',10,'italic');
+    r.retos.forEach((x,i)=>line((i+1)+'. Orden propuesto: '+x.orden.join(' → ')+' — '+
+      (x.esCorrecta?'Secuencia perfecta':'Incorrecto'+(x.motivo?' ('+x.motivo+')':'')),10));
+    y+=4;
+    line('Anagramas ('+r.anagramas.length+' intentados)',11,'bold','#c65d3a');
+    if(r.anagramas.length===0) line('Sin intentos registrados.',10,'italic');
+    r.anagramas.forEach((x,i)=>line((i+1)+'. ['+faseLabel(x.fase)+'] Palabra: '+x.palabra+' → Escribiste: "'+x.respuesta+'" — '+
+      (x.esCorrecta?'Correcto':'Incorrecto'),10));
+    y+=4;
+    line('Prompts generados ('+r.prompts.length+')',11,'bold','#c65d3a');
+    if(r.prompts.length===0) line('Ningún prompt generado.',10,'italic');
+    r.prompts.forEach((x,i)=>{
+      line((i+1)+'. Estilo: '+x.estilo+' · Color: '+x.color+' · Formato: '+x.formato,10);
+      line(x.texto,9,'italic','#444');
+    });
     y+=14; doc.setDrawColor('#cccccc'); doc.line(50,y,W-50,y); y+=16;
     line('Docente: Mg. Mario Quiroz · Unidad didáctica de Producción y publicación de piezas gráficas · 2026 · Semana 1',9,'italic','#666');
     doc.save('analisis-textil-andes.pdf');
-    toast('📥 PDF generado.');
+    toast('📥 PDF generado con el registro completo de respuestas.');
   });
   $('#btnMail').addEventListener('click',()=>{
     const d=datosAnalisis();

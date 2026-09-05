@@ -67,55 +67,99 @@ más una **segunda pantalla flotante independiente**: el Glosario de términos.
 - **Tooltips:** atributo `data-tip` + CSS `::after` (sin librería adicional) muestran
   una descripción emergente al pasar el cursor o al enfocar con teclado.
 
+Las 4 actividades comparten un mismo mecanismo de **"bolsa sin repetición"**
+(`crearBolsa()`): al abrir una actividad, todo su banco se vuelve a barajar
+(Fisher-Yates) y se consume sin repetir ningún elemento hasta agotar el banco
+completo, momento en el que se reshuffle de nuevo — así el orden es aleatorio
+"cada vez que se inicia la actividad", como exige la dinámica. Cada pregunta,
+adivinanza y anagrama está redactado como un **problema, circunstancia, efecto o
+consecuencia** de un evento real del proceso (no como una definición aislada), y
+declara explícitamente a qué fase numerada (1-12) pertenece.
+
 #### 1️⃣ 📝 Preguntas dinámicas
 
-- Banco de **10 preguntas** de opción múltiple (3 originales del caso + 7 derivadas),
-  cada una con: 4 opciones, explicación técnica, "Dato extra", una **pista contextual**
+- Banco de **23 preguntas** de opción múltiple (3 originales del caso + 20
+  derivadas, con al menos una por cada una de las 12 fases del mapa), cada una
+  con: 4 opciones, explicación técnica, "Dato extra", una **pista contextual**
   y un texto de **"aporte"** (cómo esa respuesta contribuye a resolver su fase).
+- Las 4 opciones se **rebarajan en cada carga** (posición de la correcta
+  aleatoria), para que no sea adivinable por patrón.
 - Cada pregunta muestra un **badge de fase numerado** (`Fase N/12 · nombre`) antes de
   responder, y un botón **"💡 Ver ayuda antes de responder"** que revela la pista sin
   dar la respuesta.
 - La retroalimentación (correcta e incorrecta) siempre indica la fase y el aporte —
-  no solo si acertó o falló.
+  no solo si acertó o falló — y queda registrada para el PDF/Markdown final.
+- Se completa (25% del progreso) con **3 aciertos**, no con agotar el banco.
 - **Hipervínculo 3D:** acertar la Pregunta 1 (Fase 5) llama a `map().flashTaller()`,
   que ilumina en verde el nodo correspondiente del mapa.
 
 #### 2️⃣ 🧩 Adivinanzas textiles
 
-- Banco de **7 acertijos** de vocabulario serigráfico y andino (serigrafía, emulsión
-  fotosensible, rasero, rack de secado, halftone, motivo andino, paleta de color
-  tierra), cada uno con pista bajo demanda (botón "💡 Pista"), fase asignada y aporte.
-- Al acertar se desbloquea un **comodín** (-3 s en el Reto contra reloj) y se enruta
-  la recompensa 3D según la fase real del término: si es de **Producción** llama a
-  `map().flashTaller()`; si es de **Diseño**, a `map().resolveEstudio()`.
+- Banco de **14 acertijos** de vocabulario y circunstancias del proceso (serigrafía,
+  emulsión fotosensible, rasero, rack de secado, curado, halftone, motivo andino,
+  paleta de color tierra, moodboard, dossier, cuello de botella, validación ética,
+  Reel de making-of, Community Manager), cada uno con pista bajo demanda
+  (botón "💡 Pista"), fase asignada y aporte.
+- Se completa (25% del progreso) con **1 acierto**, que desbloquea un **comodín**
+  (-3 s en el Reto contra reloj) y enruta la recompensa 3D según la fase real del
+  término: si es **Fase 5** (Producción) llama a `map().flashTaller()`; si es
+  **Fase 6** (Diseño), a `map().resolveEstudio()`; para el resto de fases muestra
+  un aviso invitando a ubicar esa fase en el mapa.
 - Al fallar, `map().illuminateFloor()` resalta brevemente la grilla del suelo 3D
-  como pista visual.
+  como pista visual. Cada intento (acierto o fallo) queda registrado.
 
 #### 3️⃣ ⚡ Retos contra reloj
 
 - Minijuego de ordenamiento: 5 tarjetas (Aprobar diseño, Preparar tinta, Secar al
-  ambiente, Doblar polo, Publicar en IG) a reordenar por clic en **15 segundos**
-  (12 s si ya se desbloqueó el comodín).
+  ambiente, Doblar polo, Publicar en IG), rebarajadas en cada intento, a reordenar
+  por clic en **15 segundos** (12 s si ya se desbloqueó el comodín).
 - Incluye botón **"💡 Ver ayuda antes de empezar"** con una pista de razonamiento
   (agrupar en aprobar → producir → comunicar) sin revelar el orden exacto.
-- El orden perfecto llama a `map().showTrophy()` (trofeo 3D sobre el nodo Fase 12) y
-  también a `map().flashTaller()`, reforzando que la secuencia pertenece a la misma
-  fase (5) que la Pregunta 1; activa el Plan B de entregas escalonadas.
+- Se completa (25% del progreso) con **1 secuencia perfecta**; llama a
+  `map().showTrophy()` (trofeo 3D sobre el nodo Fase 12) y también a
+  `map().flashTaller()`, reforzando que la secuencia pertenece a la misma
+  fase (5) que la Pregunta 1; activa el Plan B de entregas escalonadas. Cada
+  intento (perfecto, incorrecto o por tiempo agotado) queda registrado.
 
 #### 4️⃣ 🎨 Generador de prompts & anagramas
 
-- **Modo 1 — Anagramas:** 6 palabras clave del caso (Textura, Paleta, Andino,
-  Halftone, Vectorial, Serigrafía) con 3 intentos cada una; cada acierto desbloquea
-  una palabra clave (con su fase y aporte) reutilizable en el generador.
+- **Modo 1 — Anagramas:** banco de **12 palabras clave** del caso (Textura, Paleta,
+  Andino, Halftone, Vectorial, Serigrafía, Dossier, Validación, Curado, Moodboard,
+  Aprobación, Retraso) con 3 intentos cada una; cada acierto desbloquea una palabra
+  clave (con su fase y aporte) reutilizable en el generador, y queda registrado.
 - **Modo 2 — Generador de prompts:** 3 selectores (Estilo / Color / Formato) +
   chips de palabras clave desbloqueadas; el botón "⚙️ Generar prompt" compone un
-  prompt en inglés listo para Midjourney/Stable Diffusion.
+  prompt en inglés listo para Midjourney/Stable Diffusion, y lo registra.
+- Se completa (25% del progreso) con **1 anagrama resuelto + 1 prompt generado**.
 - Incluye un **banner de propósito** al inicio de la pestaña explicando que el
   prompt no es un ejercicio aislado, sino el insumo que el Equipo B entrega al
   Equipo C; y, tras generar, un bloque dinámico que indica explícitamente
   **"Fase 6/12"** (Diseño) → **"Fase 7/12"** (Publicación) y cómo se usa.
 - **Hipervínculo 3D:** cada generación llama a `map().updateOfficeScreen(prompt)`,
   que redibuja el `CanvasTexture` del monitor 3D ubicado junto al nodo Fase 7.
+
+#### 🏁 Progreso, celebración y registro de respuestas — nuevo
+
+- **La tarea es completar las 4 actividades, no responder todo el banco.** Cada
+  actividad suma exactamente **25%** a la barra de progreso del HUD al cumplir su
+  criterio de cierre (3 aciertos / 1 acierto / 1 secuencia perfecta / 1 anagrama +
+  1 prompt). El estudiante debe mirar la barra: en cuanto su actividad actual
+  quede en "✓ resuelto", pasa al siguiente botón. Esto se explica en detalle en un
+  nuevo acordeón del Dossier: **"🎮 Cómo jugar el Panel de Retos"**, y en un aviso
+  breve (`.reto-instrucciones`) dentro de cada uno de los 4 modales.
+- **Apoyo del Glosario mientras se responde:** el botón 📖 y su panel flotante
+  tienen un `z-index` mayor que los modales de Bootstrap, por lo que permanecen
+  utilizables con cualquier actividad abierta; cada aviso en pantalla lo recuerda.
+- **Celebración por acierto:** cada respuesta correcta (en las 4 actividades)
+  dispara `celebrarAcierto()`, una animación de partículas tipo fuegos artificiales
+  en CSS/JS puro (`.fuegos-artificiales` / `.particula-fuego`, con `@keyframes
+  estallar-fuego`), que respeta `prefers-reduced-motion` y se autoelimina del DOM.
+- **Registro completo para el PDF:** `estado.registro` acumula, por actividad,
+  cada intento con su fase, lo respondido y si fue correcto o no
+  (`{preguntas, adivinanzas, retos, anagramas, prompts}`). El botón
+  **📥 Generar PDF** (y también **📄 Generar Markdown**) incluye una sección
+  "Registro detallado de respuestas" que imprime, uno por uno, todos los intentos
+  hechos en las 4 actividades durante la sesión.
 
 #### 🔗 Integración y flujo dentro del mapa 3D
 
@@ -279,8 +323,8 @@ instaladas), con:
 
 | Botón | Función |
 |-------|---------|
-| **📥 Generar PDF** | Exporta el análisis del caso (integrantes, las 3 preguntas con solución/Plan B/indicador, macro-cronograma y progreso) a PDF con `jsPDF`. |
-| **📄 Generar Markdown (.md)** | Genera el mismo contenido como archivo `.md` descargable. |
+| **📥 Generar PDF** | Exporta el análisis del caso (integrantes, las 3 preguntas con solución/Plan B/indicador, macro-cronograma, progreso y el **registro detallado de todas las respuestas** dadas en las 4 actividades) a PDF con `jsPDF`. |
+| **📄 Generar Markdown (.md)** | Genera el mismo contenido, registro de respuestas incluido, como archivo `.md` descargable. |
 | **📧 Enviar a Miembros** | Abre el cliente de correo (`mailto:`) con los correos registrados, asunto y un resumen precargado en el cuerpo; el PDF/Markdown se descarga aparte para adjuntarlo manualmente (los formularios web no pueden adjuntar archivos por seguridad del navegador). |
 
 #### 📜 Footer Institucional
@@ -295,6 +339,17 @@ instaladas), con:
   (con iconos 192/512) para funcionamiento offline e instalación como PWA.
 - ✅ Diseño responsivo verificado en móvil (HUD, mapa 3D, Glosario y modales
   reflow por media query `max-width:576px`).
+
+### Nota sobre el tamaño de los bancos de contenido
+
+Se pidió un banco de hasta 100 elementos por actividad. Se entregaron 23 preguntas,
+14 adivinanzas y 12 anagramas —una expansión real de 3 a 4 veces sobre la versión
+anterior, con al menos un elemento por cada una de las 12 fases y framing de
+problema/consecuencia en todos los nuevos— en vez de 400 ítems en total, para
+mantener la calidad y evitar contenido repetitivo o de relleno. La arquitectura
+(`crearBolsa()`, arrays de datos planos) escala a 100 o más sin cambios de código:
+basta con añadir más objetos a `PREGUNTAS`, `ADIVINANZAS` o `ANAGRAMAS` siguiendo
+el mismo formato.
 
 ---
 Docente: Mg. Mario Quiroz · Unidad didáctica de Producción y publicación de piezas gráficas · 2026 · Semana 1

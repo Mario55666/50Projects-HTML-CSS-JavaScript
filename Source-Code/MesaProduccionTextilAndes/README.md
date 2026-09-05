@@ -45,20 +45,34 @@ resuelven los retos correspondientes del panel de control, y un monitor 3D con
 
 ### Panel de control (HUD) · 4 retos
 
-Panel flotante siempre visible con barra de progreso unificada. Cada reto muestra un badge de
-fase numerado (p. ej. `Fase 5/12`) y explica en su retroalimentación cómo la respuesta
-contribuye a esa fase del dossier, no solo si fue correcta o incorrecta:
+Panel flotante siempre visible con barra de progreso unificada (cada actividad completada
+suma exactamente 25%). Cada reto tiene un **banco amplio de contenido, aleatorio y sin
+repetición**: al abrir la actividad se vuelve a barajar por completo (mecanismo de "bolsa"),
+y cada elemento del banco está enfocado en un **problema, circunstancia o consecuencia real**
+del proceso —no en una definición suelta— e indica explícitamente su fase numerada (1-12):
 
-- **📝 Preguntas dinámicas** — banco de 10 preguntas de opción múltiple (las 3 originales del
-  caso + 7 derivadas), con botón de ayuda contextual antes de responder. Acertar la Pregunta 1
-  ilumina en verde la Fase 5 del mapa.
-- **🧩 Adivinanzas textiles** — acertijos de vocabulario serigráfico y andino, con pista bajo
-  demanda; resolver uno desbloquea un comodín e ilumina la Fase 5 o 6 según el término.
-- **⚡ Retos contra reloj** — ordenar el flujo de producción en menos de 15 segundos; el orden
-  perfecto activa el Plan B de entregas escalonadas y muestra un trofeo 3D sobre la Fase 12.
-- **🎨 Generador de prompts y anagramas** — anagramas que desbloquean palabras clave (Fase 6)
-  y un generador de prompts para IA (Midjourney / Stable Diffusion) que explica su propósito
-  dentro del dossier antes de usarse, y se refleja en el monitor 3D de la Fase 7.
+- **📝 Preguntas dinámicas** — banco de **23 preguntas** de opción múltiple (las 3 originales
+  del caso + 20 derivadas, con las 4 opciones reordenadas en cada carga para que la respuesta
+  correcta no quede siempre en la misma posición), con botón de ayuda contextual antes de
+  responder. Se completa con **3 aciertos**; acertar la Pregunta 1 ilumina en verde la Fase 5.
+- **🧩 Adivinanzas textiles** — banco de **14 acertijos** de vocabulario serigráfico y andino,
+  con pista bajo demanda. Se completa con **1 acierto**, que desbloquea un comodín e ilumina
+  la Fase 5 o 6 del mapa según el término.
+- **⚡ Retos contra reloj** — ordenar el flujo de producción en menos de 15 segundos (orden
+  rebarajado en cada intento); el orden perfecto activa el Plan B de entregas escalonadas y
+  muestra un trofeo 3D sobre la Fase 12.
+- **🎨 Generador de prompts y anagramas** — banco de **12 anagramas** que desbloquean palabras
+  clave, más un generador de prompts para IA (Midjourney / Stable Diffusion) que explica su
+  propósito dentro del dossier antes de usarse. Se completa con **1 anagrama + 1 prompt**, y
+  se refleja en el monitor 3D de la Fase 7.
+
+**La tarea es completar las 4 actividades, no responder todo el banco**: en cuanto el botón
+de una actividad se marca "✓ resuelto" y su 25% aparece en la barra de progreso, el estudiante
+pasa al siguiente reto. El 📖 Glosario queda accesible como apoyo mientras se responde, y cada
+acierto se celebra con una animación de fuegos artificiales en pantalla. Todas las respuestas
+—correctas e incorrectas, de las 4 actividades— quedan registradas y se incluyen íntegras en
+el PDF/Markdown exportado al final. Esta mecánica está explicada en detalle dentro de la propia
+app, en el acordeón "🎮 Cómo jugar el Panel de Retos" de la sección Dossier.
 
 ### Glosario de términos
 
@@ -71,8 +85,10 @@ etc.— con buscador en vivo, agrupados por la fase numerada del mapa a la que p
 Formulario de registro individual o por equipo (hasta 4 integrantes), con exportación del
 análisis del caso a:
 
-- **PDF** (jsPDF), listo para imprimir.
-- **Markdown** (.md), para archivo o edición posterior.
+- **PDF** (jsPDF), listo para imprimir, con un registro detallado de todas las respuestas
+  dadas en las 4 actividades (preguntas, adivinanzas, secuencias de Retos y anagramas
+  intentados, y prompts generados).
+- **Markdown** (.md), con el mismo registro detallado, para archivo o edición posterior.
 - **Correo electrónico**, con resumen precargado a los correos registrados.
 
 ### Dossier y guía de la dinámica
@@ -86,9 +102,9 @@ de 3 días.
 Sigue un enfoque DUA-Experiencial: cada actividad recorre el ciclo
 *instrucción → interacción → respuesta → retroalimentación → fase del proceso*, con
 retroalimentación formativa de 5 componentes (Pausa → Pista → Dato → Contexto → Reintento
-guiado) y sin penalización terminal por error. Colores institucionales del IDC
-(`#f3a100`, `#0072b9`, `#555553`, `#545452`) combinados con la paleta "Andes"
-(terracota, mostaza, cian).
+guiado), celebración visual de cada acierto (fuegos artificiales en CSS/JS puro) y sin
+penalización terminal por error. Colores institucionales del IDC (`#f3a100`, `#0072b9`,
+`#555553`, `#545452`) combinados con la paleta "Andes" (terracota, mostaza, cian).
 
 ## Tecnología
 
